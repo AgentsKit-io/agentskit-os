@@ -1,0 +1,8 @@
+[
+  {
+    "name": "@agentskit/os-core (gzip)",
+    "path": "packages/os-core/dist/index.js",
+    "limit": "15 KB",
+    "gzip": true
+  }
+]

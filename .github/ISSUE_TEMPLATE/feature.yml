@@ -1,0 +1,59 @@
+name: Feature
+description: Implement a planned issue from the roadmap
+title: "[<EPIC>-<n>] <short title>"
+labels: ["type:feat"]
+body:
+  - type: input
+    id: epic
+    attributes:
+      label: Epic
+      placeholder: "epic:5 (Pipeline Orchestrator)"
+    validations:
+      required: true
+  - type: input
+    id: milestone
+    attributes:
+      label: Milestone
+      placeholder: "M3"
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal (1 line, user value)
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+  - type: input
+    id: contract
+    attributes:
+      label: Contract / Zod schema / ADR link
+  - type: textarea
+    id: deps
+    attributes:
+      label: Dependencies (issues that must land first)
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      options: [S, M, L, XL]
+    validations:
+      required: true
+  - type: textarea
+    id: test-plan
+    attributes:
+      label: Test plan
+      placeholder: |
+        - Unit tests for X
+        - Contract tests for Y
+        - Eval case for Z
+    validations:
+      required: true

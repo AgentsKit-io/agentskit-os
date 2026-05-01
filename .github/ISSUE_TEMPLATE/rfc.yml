@@ -1,0 +1,24 @@
+name: RFC
+description: Public-contract change proposal
+title: "RFC: <title>"
+labels: ["type:rfc"]
+body:
+  - type: markdown
+    attributes:
+      value: "Open the issue, then add `docs/rfc/NNNN-title.md` (use `_template.md`) in the same PR. See `docs/RFC-PROCESS.md`."
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary (1 paragraph)
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+    validations:
+      required: true
+  - type: textarea
+    id: breaking
+    attributes:
+      label: Is this breaking? Migration path?

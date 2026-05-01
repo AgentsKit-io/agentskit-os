@@ -1,0 +1,29 @@
+name: Epic
+description: Top-level epic from roadmap
+title: "EPIC: <name>"
+labels: ["type:epic"]
+body:
+  - type: input
+    id: number
+    attributes:
+      label: Epic number (1..12)
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+    validations:
+      required: true
+  - type: textarea
+    id: children
+    attributes:
+      label: Child issues (checklist)
+    validations:
+      required: true
+  - type: input
+    id: milestone
+    attributes:
+      label: Target milestone
+    validations:
+      required: true

@@ -1,0 +1,15 @@
+# Default
+*                                   @EmersonBraun
+
+# Architectural docs require maintainer review
+/docs/adr/                          @EmersonBraun
+/docs/rfc/                          @EmersonBraun
+/docs/EPICS.md                      @EmersonBraun
+/ROADMAP.md                         @EmersonBraun
+
+# Core contracts — highest scrutiny
+/packages/@agentskit/os-core/       @EmersonBraun
+
+# Security-critical
+/packages/@agentskit/os-security/   @EmersonBraun
+/SECURITY.md                        @EmersonBraun

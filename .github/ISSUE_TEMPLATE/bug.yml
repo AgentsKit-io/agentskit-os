@@ -1,0 +1,23 @@
+name: Bug
+description: Report a defect
+title: "bug: <short>"
+labels: ["type:fix"]
+body:
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal repro
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Env (`agentskit-os doctor` output)
+    validations:
+      required: true

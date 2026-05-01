@@ -35,3 +35,17 @@ export {
   parseTriggerConfig,
   safeParseTriggerConfig,
 } from './schema/trigger.js'
+
+export {
+  FlowConfig,
+  FlowNode,
+  FlowEdge,
+  AgentNode,
+  ToolNode,
+  HumanNode,
+  ConditionNode,
+  ParallelNode,
+  RetryPolicy,
+  parseFlowConfig,
+  safeParseFlowConfig,
+} from './schema/flow.js'

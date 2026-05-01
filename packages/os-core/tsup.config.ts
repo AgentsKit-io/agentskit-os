@@ -6,6 +6,7 @@ export default defineConfig({
     'src/schema/workspace.ts',
     'src/schema/agent.ts',
     'src/schema/trigger.ts',
+    'src/schema/flow.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

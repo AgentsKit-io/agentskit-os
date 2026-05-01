@@ -21,3 +21,17 @@ export {
   parseAgentConfig,
   safeParseAgentConfig,
 } from './schema/agent.js'
+
+export {
+  TriggerConfig,
+  CronTrigger,
+  WebhookTrigger,
+  FileWatchTrigger,
+  EmailTrigger,
+  SlackTrigger,
+  GitHubTrigger,
+  LinearTrigger,
+  CdcTrigger,
+  parseTriggerConfig,
+  safeParseTriggerConfig,
+} from './schema/trigger.js'

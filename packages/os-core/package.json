@@ -31,6 +31,11 @@
       "types": "./dist/schema/agent.d.ts",
       "import": "./dist/schema/agent.js",
       "require": "./dist/schema/agent.cjs"
+    },
+    "./schema/trigger": {
+      "types": "./dist/schema/trigger.d.ts",
+      "import": "./dist/schema/trigger.js",
+      "require": "./dist/schema/trigger.cjs"
     }
   },
   "files": ["dist"],

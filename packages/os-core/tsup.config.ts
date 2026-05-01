@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/schema/workspace.ts'],
+  entry: ['src/index.ts', 'src/schema/workspace.ts', 'src/schema/agent.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   sourcemap: true,

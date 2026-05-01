@@ -26,6 +26,11 @@
       "types": "./dist/schema/workspace.d.ts",
       "import": "./dist/schema/workspace.js",
       "require": "./dist/schema/workspace.cjs"
+    },
+    "./schema/agent": {
+      "types": "./dist/schema/agent.d.ts",
+      "import": "./dist/schema/agent.js",
+      "require": "./dist/schema/agent.cjs"
     }
   },
   "files": ["dist"],

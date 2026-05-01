@@ -68,3 +68,15 @@ export {
   parseVaultConfig,
   safeParseVaultConfig,
 } from './schema/vault.js'
+
+export {
+  MemoryConfig,
+  InMemoryStore,
+  FileMemoryStore,
+  SqliteMemoryStore,
+  RedisMemoryStore,
+  VectorMemoryStore,
+  LocalStorageMemoryStore,
+  parseMemoryConfig,
+  safeParseMemoryConfig,
+} from './schema/memory.js'

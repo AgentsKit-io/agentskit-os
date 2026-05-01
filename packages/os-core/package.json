@@ -51,6 +51,11 @@
       "types": "./dist/schema/vault.d.ts",
       "import": "./dist/schema/vault.js",
       "require": "./dist/schema/vault.cjs"
+    },
+    "./schema/memory": {
+      "types": "./dist/schema/memory.d.ts",
+      "import": "./dist/schema/memory.js",
+      "require": "./dist/schema/memory.cjs"
     }
   },
   "files": ["dist"],

@@ -80,3 +80,23 @@ export {
   parseMemoryConfig,
   safeParseMemoryConfig,
 } from './schema/memory.js'
+
+export {
+  ObservabilityConfig,
+  TraceExporter,
+  CostQuota,
+  AnomalyDetection,
+  parseObservabilityConfig,
+  safeParseObservabilityConfig,
+} from './schema/observability.js'
+
+export {
+  SecurityConfig,
+  PromptFirewallConfig,
+  PiiRedactionConfig,
+  PiiCategory,
+  SandboxConfig,
+  AuditLogConfig,
+  parseSecurityConfig,
+  safeParseSecurityConfig,
+} from './schema/security.js'

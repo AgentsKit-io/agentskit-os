@@ -10,6 +10,8 @@ export default defineConfig({
     'src/schema/plugin.ts',
     'src/schema/vault.ts',
     'src/schema/memory.ts',
+    'src/schema/observability.ts',
+    'src/schema/security.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

@@ -1,0 +1,59 @@
+{
+  "name": "@agentskit/os-core",
+  "version": "0.0.0",
+  "description": "Pure foundation for AgentsKitOS — contracts, event bus, workspace model, config schema. Zero LLM/UI deps.",
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "agents",
+    "orchestration",
+    "contracts",
+    "zod",
+    "typescript",
+    "zero-dependencies"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "dev": "tsup --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsup": "^8.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "agentskitos": {
+    "stability": "alpha",
+    "stabilityNote": "Pre-1.0. Contracts will land in M1. Empty placeholder during M0.",
+    "sizeBudgetGzipped": "15KB"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-core",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
+    "directory": "packages/os-core"
+  },
+  "bugs": {
+    "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
+  },
+  "author": "AgentsKit Contributors"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "agentskit-os",
+  "version": "0.0.0",
+  "private": true,
+  "description": "OS-layer for the agent era. Visual harness + SDLC + orchestrator + marketplace on top of AgentsKit.",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "lint": "turbo run lint",
+    "dev": "turbo run dev --parallel",
+    "size": "pnpm build && size-limit",
+    "size:why": "pnpm build && size-limit --why",
+    "check:adr-0002": "node scripts/check-no-agentskit-deps.mjs",
+    "release": "pnpm build && pnpm changeset publish"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  },
+  "devDependencies": {
+    "@agentskit/os-core": "workspace:*",
+    "@changesets/cli": "2.31.0",
+    "@size-limit/file": "^12.1.0",
+    "@types/node": "^25.6.0",
+    "size-limit": "^12.1.0",
+    "tsup": "^8.5.0",
+    "turbo": "2.9.7",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgentsKit-io/agentskit-os.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
+  },
+  "author": "AgentsKit Contributors"
+}

@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  changeset-lint:
+    name: Changeset lint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check for changeset
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD)
+          NEEDS_CHANGESET=$(echo "$CHANGED" | grep -E '^packages/' || true)
+          if [ -z "$NEEDS_CHANGESET" ]; then
+            echo "No changes inside packages/ — changeset not required."
+            exit 0
+          fi
+          echo "Package changes detected. Verifying changeset exists..."
+          pnpm changeset status --since=origin/main
+
+  quality:
+    name: Lint, Test, Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter "./packages/*" build
+      - run: pnpm --filter "./packages/*" lint
+      - run: pnpm test
+
+  adr-0002:
+    name: ADR-0002 dependency rule
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: node scripts/check-no-agentskit-deps.mjs

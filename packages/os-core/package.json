@@ -56,6 +56,16 @@
       "types": "./dist/schema/memory.d.ts",
       "import": "./dist/schema/memory.js",
       "require": "./dist/schema/memory.cjs"
+    },
+    "./schema/observability": {
+      "types": "./dist/schema/observability.d.ts",
+      "import": "./dist/schema/observability.js",
+      "require": "./dist/schema/observability.cjs"
+    },
+    "./schema/security": {
+      "types": "./dist/schema/security.d.ts",
+      "import": "./dist/schema/security.js",
+      "require": "./dist/schema/security.cjs"
     }
   },
   "files": ["dist"],

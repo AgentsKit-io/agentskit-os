@@ -47,8 +47,8 @@ jobs:
       - run: pnpm --filter "./packages/*" lint
       - run: pnpm test
 
-  adr-0002:
-    name: ADR-0002 dependency rule
+  adr:
+    name: ADR enforcement
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -56,3 +56,4 @@ jobs:
         with:
           node-version: 22
       - run: node scripts/check-no-agentskit-deps.mjs
+      - run: node scripts/check-zod-is-peer.mjs

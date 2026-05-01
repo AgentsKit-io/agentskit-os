@@ -1,7 +1,7 @@
 {
   "name": "@agentskit/os-core",
   "version": "0.0.0",
-  "description": "Pure foundation for AgentsKitOS — contracts, event bus, workspace model, config schema. Zero LLM/UI deps.",
+  "description": "Pure foundation for AgentsKitOS — contracts, event bus, workspace model, config schema. Zero runtime deps.",
   "keywords": [
     "agentskit",
     "agentskit-os",
@@ -21,6 +21,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./schema/workspace": {
+      "types": "./dist/schema/workspace.d.ts",
+      "import": "./dist/schema/workspace.js",
+      "require": "./dist/schema/workspace.cjs"
     }
   },
   "files": ["dist"],
@@ -31,18 +36,22 @@
     "lint": "tsc --noEmit",
     "dev": "tsup --watch"
   },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "tsup": "^8.5.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.5",
+    "zod": "^4.4.1"
   },
   "publishConfig": {
     "access": "public"
   },
   "agentskitos": {
     "stability": "alpha",
-    "stabilityNote": "Pre-1.0. Contracts will land in M1. Empty placeholder during M0.",
+    "stabilityNote": "Pre-1.0. Contracts landing across M1.",
     "sizeBudgetGzipped": "15KB"
   },
   "license": "MIT",

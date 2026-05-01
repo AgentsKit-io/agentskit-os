@@ -16,6 +16,8 @@
     "size": "pnpm build && size-limit",
     "size:why": "pnpm build && size-limit --why",
     "check:adr-0002": "node scripts/check-no-agentskit-deps.mjs",
+    "check:adr-0004": "node scripts/check-zod-is-peer.mjs",
+    "check:adr": "pnpm check:adr-0002 && pnpm check:adr-0004",
     "release": "pnpm build && pnpm changeset publish"
   },
   "pnpm": {

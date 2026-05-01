@@ -1,0 +1,110 @@
+import { describe, expect, it } from 'vitest'
+import {
+  SCHEMA_VERSION,
+  WorkspaceConfig,
+  parseWorkspaceConfig,
+  safeParseWorkspaceConfig,
+} from '../../src/schema/workspace.js'
+
+describe('WorkspaceConfig schema', () => {
+  describe('parse — accept', () => {
+    it('parses a minimal valid config', () => {
+      const input = {
+        schemaVersion: 1,
+        id: 'team-alpha',
+        name: 'Team Alpha',
+      }
+      const result = parseWorkspaceConfig(input)
+      expect(result.id).toBe('team-alpha')
+      expect(result.isolation).toBe('strict')
+      expect(result.tags).toEqual([])
+    })
+
+    it('parses a fully-populated config', () => {
+      const input = {
+        schemaVersion: 1,
+        id: 'agency-1',
+        name: 'Agency One',
+        isolation: 'shared',
+        dataDir: '/var/lib/agentskitos/agency-1',
+        description: 'Marketing agency workspace',
+        tags: ['marketing', 'prod'],
+      }
+      const result = parseWorkspaceConfig(input)
+      expect(result.isolation).toBe('shared')
+      expect(result.tags).toEqual(['marketing', 'prod'])
+    })
+
+    it('exports schema version constant', () => {
+      expect(SCHEMA_VERSION).toBe(1)
+    })
+
+    it('accepts single-character slug ids', () => {
+      const result = parseWorkspaceConfig({ schemaVersion: 1, id: 'a', name: 'A' })
+      expect(result.id).toBe('a')
+    })
+  })
+
+  describe('parse — reject', () => {
+    it('rejects unsupported schemaVersion', () => {
+      const result = safeParseWorkspaceConfig({ schemaVersion: 2, id: 'x', name: 'X' })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects uppercase id', () => {
+      const result = safeParseWorkspaceConfig({ schemaVersion: 1, id: 'BadId', name: 'X' })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects id with leading hyphen', () => {
+      const result = safeParseWorkspaceConfig({ schemaVersion: 1, id: '-bad', name: 'X' })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects id with trailing hyphen', () => {
+      const result = safeParseWorkspaceConfig({ schemaVersion: 1, id: 'bad-', name: 'X' })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects empty name', () => {
+      const result = safeParseWorkspaceConfig({ schemaVersion: 1, id: 'ok', name: '' })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects unknown isolation value', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        isolation: 'public',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects more than 32 tags', () => {
+      const tags = Array.from({ length: 33 }, (_, i) => `t${i}`)
+      const result = safeParseWorkspaceConfig({ schemaVersion: 1, id: 'ok', name: 'Ok', tags })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects description over 512 chars', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        description: 'x'.repeat(513),
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('throws on parseWorkspaceConfig with invalid input', () => {
+      expect(() => parseWorkspaceConfig({})).toThrow()
+    })
+  })
+
+  describe('schema export shape', () => {
+    it('exposes a parse function', () => {
+      expect(typeof WorkspaceConfig.parse).toBe('function')
+    })
+  })
+})

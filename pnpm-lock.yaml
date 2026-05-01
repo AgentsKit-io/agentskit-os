@@ -50,6 +50,9 @@ importers:
       vitest:
         specifier: ^4.1.5
         version: 4.1.5(@types/node@25.6.0)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7))
+      zod:
+        specifier: ^4.4.1
+        version: 4.4.1
 
 packages:
 
@@ -1379,6 +1382,9 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  zod@4.4.1:
+    resolution: {integrity: sha512-a6ENMBBGZBsnlSebQ/eKCguSBeGKSf4O7BPnqVPmYGtpBYI7VSqoVqw+QcB7kPRjbqPwhYTpFbVj/RqNz/CT0Q==}
+
 snapshots:
 
   '@babel/runtime@7.29.2': {}
@@ -2517,3 +2523,5 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  zod@4.4.1: {}

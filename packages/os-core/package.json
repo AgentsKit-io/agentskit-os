@@ -41,6 +41,16 @@
       "types": "./dist/schema/flow.d.ts",
       "import": "./dist/schema/flow.js",
       "require": "./dist/schema/flow.cjs"
+    },
+    "./schema/plugin": {
+      "types": "./dist/schema/plugin.d.ts",
+      "import": "./dist/schema/plugin.js",
+      "require": "./dist/schema/plugin.cjs"
+    },
+    "./schema/vault": {
+      "types": "./dist/schema/vault.d.ts",
+      "import": "./dist/schema/vault.js",
+      "require": "./dist/schema/vault.cjs"
     }
   },
   "files": ["dist"],

@@ -49,3 +49,22 @@ export {
   parseFlowConfig,
   safeParseFlowConfig,
 } from './schema/flow.js'
+
+export {
+  PluginConfig,
+  PluginCapability,
+  PluginSignature,
+  parsePluginConfig,
+  safeParsePluginConfig,
+} from './schema/plugin.js'
+
+export {
+  VaultConfig,
+  VaultBackend,
+  FileVault,
+  OsKeychainVault,
+  EnvVault,
+  ExternalVault,
+  parseVaultConfig,
+  safeParseVaultConfig,
+} from './schema/vault.js'

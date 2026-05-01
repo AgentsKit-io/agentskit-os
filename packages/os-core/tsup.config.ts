@@ -7,6 +7,8 @@ export default defineConfig({
     'src/schema/agent.ts',
     'src/schema/trigger.ts',
     'src/schema/flow.ts',
+    'src/schema/plugin.ts',
+    'src/schema/vault.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

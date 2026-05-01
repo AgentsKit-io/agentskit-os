@@ -36,6 +36,11 @@
       "types": "./dist/schema/trigger.d.ts",
       "import": "./dist/schema/trigger.js",
       "require": "./dist/schema/trigger.cjs"
+    },
+    "./schema/flow": {
+      "types": "./dist/schema/flow.d.ts",
+      "import": "./dist/schema/flow.js",
+      "require": "./dist/schema/flow.cjs"
     }
   },
   "files": ["dist"],

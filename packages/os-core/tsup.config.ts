@@ -9,6 +9,7 @@ export default defineConfig({
     'src/schema/flow.ts',
     'src/schema/plugin.ts',
     'src/schema/vault.ts',
+    'src/schema/memory.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

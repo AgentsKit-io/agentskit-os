@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Pure foundation for AgentsKitOS — contracts, event bus, workspace model, config schema. Zero runtime deps.",
   "keywords": [
     "agentskit",
@@ -98,7 +98,9 @@
       "require": "./dist/errors/error.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

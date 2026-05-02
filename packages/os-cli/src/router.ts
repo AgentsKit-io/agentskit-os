@@ -4,9 +4,11 @@ import { configExplain } from './commands/config-explain.js'
 import { configDiff } from './commands/config-diff.js'
 import { configMigrate } from './commands/config-migrate.js'
 import { doctor } from './commands/doctor.js'
+import { init } from './commands/init.js'
 import { version } from './commands/version.js'
 
 export const COMMANDS: readonly CliCommand[] = [
+  init,
   configValidate,
   configExplain,
   configDiff,

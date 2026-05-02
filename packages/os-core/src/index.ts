@@ -138,6 +138,12 @@ export type { MigrationStep, MigrationRegistry, MigrationResult } from './config
 export { diffConfigs } from './config/diff.js'
 export type { ConfigChangeOp } from './config/diff.js'
 
+export { verifyCapability } from './auth/verify.js'
+export type { VerifyDecision } from './auth/verify.js'
+
+export { findVaultRefs, resolveVaultRefs } from './secrets/refs.js'
+export type { VaultResolver, ResolveResult } from './secrets/refs.js'
+
 export {
   EVENT_SPEC_VERSION,
   RESERVED_TOPIC_ROOTS,

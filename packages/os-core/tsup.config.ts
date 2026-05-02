@@ -33,6 +33,7 @@ export default defineConfig({
     'src/audit/batch.ts',
     'src/plugins/catalog.ts',
     'src/lockfile/lock.ts',
+    'src/brand/brand-kit.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

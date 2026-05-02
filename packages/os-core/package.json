@@ -171,6 +171,11 @@
       "types": "./dist/lockfile/lock.d.ts",
       "import": "./dist/lockfile/lock.js",
       "require": "./dist/lockfile/lock.cjs"
+    },
+    "./brand/brand-kit": {
+      "types": "./dist/brand/brand-kit.d.ts",
+      "import": "./dist/brand/brand-kit.js",
+      "require": "./dist/brand/brand-kit.cjs"
     }
   },
   "files": [

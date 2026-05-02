@@ -217,6 +217,7 @@
     "access": "public"
   },
   "agentskitos": {
+    "distribution": "public",
     "stability": "alpha",
     "stabilityNote": "Pre-1.0. Contracts landing across M1.",
     "sizeBudgetGzipped": "25KB"

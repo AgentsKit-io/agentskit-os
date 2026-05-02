@@ -2,18 +2,18 @@
 
 export function FlowSVG() {
   return (
-    <section className="relative bg-surface-alt py-24 md:py-32">
+    <section className="relative bg-surface py-24 md:py-32">
       <div className="container-x">
         <div className="text-center mb-14">
           <p className="text-eyebrow uppercase tracking-widest text-accent">Flow engine</p>
-          <h2 className="mt-3 text-h2 text-balance">DAG-native. Durable. Time-travel debuggable.</h2>
+          <h2 className="mt-3 text-h2 text-balance text-ink">DAG-native. Durable. Time-travel debuggable.</h2>
           <p className="mx-auto mt-5 max-w-xl text-ink-muted">
             Compose agents into flows: compare, vote, debate, auction, blackboard. Pause for humans.
             Branch from any past step.
           </p>
         </div>
 
-        <div className="mx-auto max-w-4xl rounded-3xl border border-line bg-white p-6 md:p-10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.15)]">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-line bg-panel p-6 md:p-10 shadow-[0_30px_120px_-40px_rgba(34,211,238,0.25)]">
           <svg
             viewBox="0 0 800 360"
             className="w-full h-auto"
@@ -22,16 +22,12 @@ export function FlowSVG() {
           >
             <defs>
               <linearGradient id="edge" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%" stopColor="#1d1d1f" stopOpacity="0.15" />
-                <stop offset="50%" stopColor="#0071e3" stopOpacity="0.85" />
-                <stop offset="100%" stopColor="#1d1d1f" stopOpacity="0.15" />
+                <stop offset="0%" stopColor="#71717a" stopOpacity="0.3" />
+                <stop offset="50%" stopColor="#22d3ee" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#71717a" stopOpacity="0.3" />
               </linearGradient>
-              <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="6" />
-              </filter>
             </defs>
 
-            {/* edges */}
             <g
               fill="none"
               strokeWidth="1.5"
@@ -45,20 +41,14 @@ export function FlowSVG() {
               <path d="M450 270 C 540 270, 560 180, 650 180" />
             </g>
 
-            {/* trigger */}
             <Node x={80} y={180} label="Trigger" sub="webhook" tone="muted" />
-
-            {/* parallel agents */}
             <Node x={400} y={90} label="Researcher" sub="claude-opus" tone="ink" pulse />
             <Node x={400} y={270} label="Critic" sub="gpt-4.1" tone="ink" pulse delay="0.6s" />
-
-            {/* aggregate */}
             <Node x={700} y={180} label="Vote" sub="quorum=2" tone="accent" pulse delay="1.2s" />
 
-            {/* HITL badge */}
             <g transform="translate(400, 180)">
-              <rect x="-50" y="-14" width="100" height="28" rx="14" fill="#fff" stroke="#d2d2d7" />
-              <text x="0" y="4" textAnchor="middle" fontSize="11" fill="#6e6e73" fontFamily="-apple-system">
+              <rect x="-50" y="-14" width="100" height="28" rx="14" fill="#16171d" stroke="#1f2025" />
+              <text x="0" y="4" textAnchor="middle" fontSize="11" fill="#a1a1aa" fontFamily="Inter">
                 HITL gate
               </text>
             </g>
@@ -97,25 +87,26 @@ function Node({
   pulse?: boolean;
   delay?: string;
 }) {
-  const fill = tone === "accent" ? "#0071e3" : tone === "muted" ? "#f5f5f7" : "#1d1d1f";
-  const text = tone === "muted" ? "#1d1d1f" : "#ffffff";
-  const subColor = tone === "muted" ? "#6e6e73" : "rgba(255,255,255,0.7)";
+  const fill = tone === "accent" ? "#22d3ee" : tone === "muted" ? "#16171d" : "#0d0e12";
+  const stroke = tone === "accent" ? "#22d3ee" : "#1f2025";
+  const text = tone === "accent" ? "#08090c" : "#f5f5f7";
+  const subColor = tone === "accent" ? "rgba(8,9,12,0.7)" : "#a1a1aa";
   return (
     <g transform={`translate(${x}, ${y})`}>
       {pulse && (
         <circle
           r="46"
-          fill={tone === "accent" ? "#0071e3" : "#1d1d1f"}
-          opacity="0.12"
+          fill="#22d3ee"
+          opacity="0.18"
           className="animate-flow-pulse"
           style={{ animationDelay: delay }}
         />
       )}
-      <rect x="-60" y="-28" width="120" height="56" rx="14" fill={fill} stroke="#d2d2d7" strokeOpacity={tone === "muted" ? 1 : 0} />
-      <text x="0" y="-4" textAnchor="middle" fontSize="13" fontWeight="600" fill={text} fontFamily="-apple-system">
+      <rect x="-60" y="-28" width="120" height="56" rx="14" fill={fill} stroke={stroke} />
+      <text x="0" y="-4" textAnchor="middle" fontSize="13" fontWeight="600" fill={text} fontFamily="Inter">
         {label}
       </text>
-      <text x="0" y="14" textAnchor="middle" fontSize="10.5" fill={subColor} fontFamily="SF Mono, monospace">
+      <text x="0" y="14" textAnchor="middle" fontSize="10.5" fill={subColor} fontFamily="JetBrains Mono">
         {sub}
       </text>
     </g>

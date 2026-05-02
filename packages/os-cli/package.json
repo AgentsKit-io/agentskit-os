@@ -39,6 +39,7 @@
     "@agentskit/os-core": "workspace:^",
     "@agentskit/os-flow": "workspace:^",
     "@agentskit/os-import": "workspace:^",
+    "@agentskit/os-marketplace-sdk": "workspace:^",
     "@agentskit/os-storage": "workspace:^",
     "@agentskit/os-templates": "workspace:^",
     "zod": "^4.0.0"
@@ -47,6 +48,7 @@
     "@agentskit/os-core": "workspace:*",
     "@agentskit/os-flow": "workspace:*",
     "@agentskit/os-import": "workspace:*",
+    "@agentskit/os-marketplace-sdk": "workspace:*",
     "@agentskit/os-storage": "workspace:*",
     "@agentskit/os-templates": "workspace:*",
     "@types/node": "^25.6.0",

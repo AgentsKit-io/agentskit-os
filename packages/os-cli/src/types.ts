@@ -8,8 +8,10 @@ export type CliCommand = {
 
 export type CliIo = {
   readonly readFile: (path: string) => Promise<string>
+  readonly readBinary?: (path: string) => Promise<Uint8Array>
   readonly writeFile: (path: string, contents: string) => Promise<void>
   readonly mkdir: (path: string) => Promise<void>
   readonly exists: (path: string) => Promise<boolean>
+  readonly readdir?: (path: string) => Promise<readonly string[]>
   readonly cwd: () => string
 }

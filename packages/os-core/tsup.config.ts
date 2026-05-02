@@ -32,6 +32,7 @@ export default defineConfig({
     'src/tools/sandbox.ts',
     'src/audit/batch.ts',
     'src/plugins/catalog.ts',
+    'src/lockfile/lock.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

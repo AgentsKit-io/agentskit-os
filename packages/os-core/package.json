@@ -131,6 +131,11 @@
       "types": "./dist/events/bus.d.ts",
       "import": "./dist/events/bus.js",
       "require": "./dist/events/bus.cjs"
+    },
+    "./schema/rag": {
+      "types": "./dist/schema/rag.d.ts",
+      "import": "./dist/schema/rag.js",
+      "require": "./dist/schema/rag.cjs"
     }
   },
   "files": [

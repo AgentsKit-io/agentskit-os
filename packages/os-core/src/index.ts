@@ -234,6 +234,27 @@ export {
   safeParsePluginEntrypoint,
 } from './plugins/catalog.js'
 export type { RegistryConflict } from './plugins/catalog.js'
+
+export {
+  LOCKFILE_VERSION,
+  Lockfile,
+  PluginLock,
+  AgentLock,
+  ModelLock,
+  FlowLock,
+  FlowNodeLock,
+  ProviderLock,
+  ToolLock,
+  TemplateLock,
+  SchemaVersionsLock,
+  LockSignature,
+  parseLockfile,
+  safeParseLockfile,
+  canonicalJson,
+  sha256OfCanonical,
+  detectLockDrift,
+} from './lockfile/lock.js'
+export type { LockDriftIssue, DriftCheckInput } from './lockfile/lock.js'
 export type {
   RunModePolicy,
   EscalationRule,

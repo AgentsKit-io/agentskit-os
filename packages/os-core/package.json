@@ -126,6 +126,11 @@
       "types": "./dist/secrets/refs.d.ts",
       "import": "./dist/secrets/refs.js",
       "require": "./dist/secrets/refs.cjs"
+    },
+    "./events/bus": {
+      "types": "./dist/events/bus.d.ts",
+      "import": "./dist/events/bus.js",
+      "require": "./dist/events/bus.cjs"
     }
   },
   "files": [

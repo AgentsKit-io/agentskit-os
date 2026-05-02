@@ -48,6 +48,14 @@ export {
   HumanNode,
   ConditionNode,
   ParallelNode,
+  CompareNode,
+  VoteNode,
+  DebateNode,
+  AuctionNode,
+  BlackboardNode,
+  BlackboardScratchpad,
+  BlackboardSchedule,
+  BlackboardTermination,
   RetryPolicy,
   parseFlowConfig,
   safeParseFlowConfig,
@@ -166,6 +174,145 @@ export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 
 export {
+  RUN_MODES,
+  RUN_MODE_POLICY,
+  RunMode,
+  RunContext,
+  escalationRule,
+  checkDeterminism,
+  parseRunContext,
+  safeParseRunContext,
+} from './runtime/run-mode.js'
+
+export {
+  EgressPolicy,
+  EgressProxy,
+  checkEgress,
+  parseEgressPolicy,
+  safeParseEgressPolicy,
+} from './security/egress.js'
+export type { EgressGrant, EgressDecision } from './security/egress.js'
+
+export {
+  SIDE_EFFECTS,
+  SideEffect,
+  SideEffectList,
+  decideToolAction,
+  maxSeverity,
+} from './tools/side-effects.js'
+export type { ModeAction } from './tools/side-effects.js'
+
+export {
+  SANDBOX_LEVELS,
+  SandboxLevel,
+  MIN_SANDBOX_FOR,
+  ToolManifest,
+  decideSandbox,
+  parseToolManifest,
+  safeParseToolManifest,
+} from './tools/sandbox.js'
+export type { SandboxDecision, SandboxRuntime } from './tools/sandbox.js'
+
+export {
+  AUDIT_SCHEMA_VERSION,
+  GENESIS_PREV_HASH,
+  AuditBatch,
+  AuditSignature,
+  AuditKeyCustody,
+  AnchorRecord,
+  SignedEventRef,
+  computeMerkleRoot,
+  computeBatchDigest,
+  verifyChain,
+  parseAuditBatch,
+  safeParseAuditBatch,
+} from './audit/batch.js'
+export type { ChainBreak, SignatureVerifier } from './audit/batch.js'
+
+export {
+  EXTENSION_API_VERSION,
+  EXTENSION_POINTS,
+  ExtensionPoint,
+  ExtensionRegistration,
+  PluginEntrypoint,
+  PluginRegistry,
+  StabilityTier,
+  stabilityOf,
+  isHotReloadable,
+  isApiCompatible,
+  parsePluginEntrypoint,
+  safeParsePluginEntrypoint,
+} from './plugins/catalog.js'
+export type { RegistryConflict } from './plugins/catalog.js'
+
+export {
+  LOCKFILE_VERSION,
+  Lockfile,
+  PluginLock,
+  AgentLock,
+  ModelLock,
+  FlowLock,
+  FlowNodeLock,
+  ProviderLock,
+  ToolLock,
+  TemplateLock,
+  SchemaVersionsLock,
+  LockSignature,
+  parseLockfile,
+  safeParseLockfile,
+  canonicalJson,
+  sha256OfCanonical,
+  detectLockDrift,
+} from './lockfile/lock.js'
+export type { LockDriftIssue, DriftCheckInput } from './lockfile/lock.js'
+
+export {
+  BrandKit,
+  VoiceConfig,
+  VoiceTone,
+  Severity,
+  VocabularyConfig,
+  PreferredTerm,
+  BannedPhrase,
+  RequiredDisclaimer,
+  GlossaryEntry,
+  FormattingConfig,
+  IdentityConfig,
+  parseBrandKit,
+  safeParseBrandKit,
+  validateAgainstBrandKit,
+  hasBlockingViolation,
+} from './brand/brand-kit.js'
+export type { BrandViolation, ValidationOptions } from './brand/brand-kit.js'
+
+export {
+  SENSITIVITY_LEVELS,
+  Sensitivity,
+  ConsentScope,
+  ConsentRef,
+  BreakGlassActivation,
+  BreakGlassBypass,
+  BreakGlassReason,
+  BreakGlassPostHoc,
+  BREAK_GLASS_BYPASSES,
+  compareSensitivity,
+  requiresConsent,
+  checkConsent,
+  evaluateBreakGlass,
+  parseConsentRef,
+  safeParseConsentRef,
+  parseBreakGlassActivation,
+  safeParseBreakGlassActivation,
+} from './consent/consent.js'
+export type { ConsentDecision, BreakGlassDecision } from './consent/consent.js'
+export type {
+  RunModePolicy,
+  EscalationRule,
+  DeterminismIssue,
+  DeterminismCheckInput,
+} from './runtime/run-mode.js'
+
+export {
   EVENT_SPEC_VERSION,
   RESERVED_TOPIC_ROOTS,
   EventType,
@@ -211,3 +358,4 @@ export {
   parseOsError,
   safeParseOsError,
 } from './errors/error.js'
+

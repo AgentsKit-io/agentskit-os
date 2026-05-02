@@ -53,12 +53,154 @@ export const ParallelNode = z.object({
 })
 export type ParallelNode = z.infer<typeof ParallelNode>
 
+// --- Multi-agent pattern nodes (RFC-0003) ---
+
+const AgentRefArray = z.array(Slug).min(2).max(8)
+
+export const CompareNode = z.object({
+  ...NodeCommon,
+  kind: z.literal('compare'),
+  agents: AgentRefArray,
+  input: z.record(z.string(), z.unknown()).optional(),
+  selection: z.discriminatedUnion('mode', [
+    z.object({
+      mode: z.literal('manual'),
+      presenter: z.enum(['side-by-side', 'tabs', 'overlay']).default('side-by-side'),
+    }),
+    z.object({ mode: z.literal('eval'), evalRef: Slug }),
+    z.object({
+      mode: z.literal('judge'),
+      judgeAgent: Slug,
+      criteria: z.string().min(1).max(2048),
+    }),
+    z.object({
+      mode: z.literal('first'),
+      metric: z.enum(['fastest', 'cheapest']),
+    }),
+    z.object({ mode: z.literal('all'), combine: z.enum(['concat', 'merge']) }),
+  ]),
+  isolation: z.enum(['isolated', 'shared-scratchpad']).default('isolated'),
+})
+export type CompareNode = z.infer<typeof CompareNode>
+
+export const VoteNode = z
+  .object({
+    ...NodeCommon,
+    kind: z.literal('vote'),
+    agents: AgentRefArray,
+    input: z.record(z.string(), z.unknown()).optional(),
+    ballot: z.discriminatedUnion('mode', [
+      z.object({ mode: z.literal('majority') }),
+      z.object({
+        mode: z.literal('weighted'),
+        weights: z.record(Slug, z.number().nonnegative()),
+      }),
+      z.object({ mode: z.literal('unanimous') }),
+      z.object({ mode: z.literal('quorum'), threshold: z.number().min(0).max(1) }),
+    ]),
+    outputType: z.enum(['classification', 'numeric', 'structured']),
+    onTie: z.enum(['human', 'first', 'judge']).default('human'),
+    judgeAgent: Slug.optional(),
+  })
+  .superRefine((node, ctx) => {
+    if (node.agents.length % 2 === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['agents'],
+        message: 'vote node requires an odd number of agents',
+      })
+    }
+    if (node.onTie === 'judge' && !node.judgeAgent) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['judgeAgent'],
+        message: 'judgeAgent required when onTie="judge"',
+      })
+    }
+  })
+export type VoteNode = z.infer<typeof VoteNode>
+
+export const DebateNode = z.object({
+  ...NodeCommon,
+  kind: z.literal('debate'),
+  proponent: Slug,
+  opponent: Slug,
+  judge: Slug,
+  topic: z.union([z.string().min(1).max(2048), z.record(z.string(), z.unknown())]),
+  rounds: z.number().int().min(1).max(6).default(2),
+  format: z.enum(['open', 'point-counterpoint', 'cross-examination']).default('open'),
+  earlyExit: z.enum(['judge-decides', 'on-agreement']).default('judge-decides'),
+})
+export type DebateNode = z.infer<typeof DebateNode>
+
+export const AuctionNode = z.object({
+  ...NodeCommon,
+  kind: z.literal('auction'),
+  bidders: AgentRefArray,
+  task: z.record(z.string(), z.unknown()).or(z.string().min(1).max(2048)),
+  bidCriteria: z.enum(['lowest-cost', 'highest-confidence', 'fastest', 'custom']),
+  customScorer: Slug.optional(),
+  reservePrice: z
+    .object({
+      usd: z.number().nonnegative().optional(),
+      tokens: z.number().int().nonnegative().optional(),
+    })
+    .optional(),
+  fallback: Slug.optional(),
+  timeout: z.object({ ms: z.number().int().positive().max(600_000) }).optional(),
+})
+export type AuctionNode = z.infer<typeof AuctionNode>
+
+export const BlackboardScratchpad = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('in-memory') }),
+  z.object({ kind: z.literal('sqlite'), path: z.string().min(1).max(1024) }),
+  z.object({ kind: z.literal('memory-store'), ref: z.string().min(1).max(128) }),
+])
+
+export const BlackboardSchedule = z.discriminatedUnion('mode', [
+  z.object({ mode: z.literal('round-robin') }),
+  z.object({ mode: z.literal('volunteer') }),
+  z.object({
+    mode: z.literal('priority'),
+    priorities: z.record(Slug, z.number()),
+  }),
+])
+
+export const BlackboardTermination = z.discriminatedUnion('mode', [
+  z.object({ mode: z.literal('rounds'), n: z.number().int().min(1).max(1000) }),
+  z.object({ mode: z.literal('consensus') }),
+  z.object({ mode: z.literal('agent-signal') }),
+  z.object({
+    mode: z.literal('budget'),
+    limits: z.object({
+      tokensPerRun: z.number().int().positive().optional(),
+      usdPerRun: z.number().nonnegative().optional(),
+      maxStepsPerRun: z.number().int().positive().optional(),
+    }),
+  }),
+])
+
+export const BlackboardNode = z.object({
+  ...NodeCommon,
+  kind: z.literal('blackboard'),
+  agents: z.array(Slug).min(2).max(16),
+  scratchpad: BlackboardScratchpad,
+  schedule: BlackboardSchedule,
+  termination: BlackboardTermination,
+})
+export type BlackboardNode = z.infer<typeof BlackboardNode>
+
 export const FlowNode = z.discriminatedUnion('kind', [
   AgentNode,
   ToolNode,
   HumanNode,
   ConditionNode,
   ParallelNode,
+  CompareNode,
+  VoteNode,
+  DebateNode,
+  AuctionNode,
+  BlackboardNode,
 ])
 export type FlowNode = z.infer<typeof FlowNode>
 

@@ -60,14 +60,17 @@ export const ConfigRoot = z
     const flowIds = root.flows.map((f) => f.id)
     const triggerIds = root.triggers.map((t) => t.id)
     const memoryRefs = new Set(Object.keys(root.memory))
+    const pipelineIds = (root.rag?.pipelines ?? []).map((p) => p.id)
 
     if (!checkUnique(pluginIds, ctx, ['plugins'], 'plugin')) return
     if (!checkUnique(agentIds, ctx, ['agents'], 'agent')) return
     if (!checkUnique(flowIds, ctx, ['flows'], 'flow')) return
     if (!checkUnique(triggerIds, ctx, ['triggers'], 'trigger')) return
+    if (!checkUnique(pipelineIds, ctx, ['rag', 'pipelines'], 'rag pipeline')) return
 
     const flowSet = new Set(flowIds)
     const agentSet = new Set(agentIds)
+    const ragPipelineSet = new Set(pipelineIds)
 
     root.triggers.forEach((t, i) => {
       if (!flowSet.has(t.flow)) {
@@ -91,12 +94,6 @@ export const ConfigRoot = z
       })
     })
 
-    const ragIds = new Set((root.rag?.pipelines ?? []).map((p) => p.id))
-    if (root.rag) {
-      const ids = root.rag.pipelines.map((p) => p.id)
-      if (!checkUnique(ids, ctx, ['rag', 'pipelines'], 'rag pipeline')) return
-    }
-
     root.agents.forEach((a, i) => {
       if (a.memory && !memoryRefs.has(a.memory.ref)) {
         ctx.addIssue({
@@ -105,8 +102,8 @@ export const ConfigRoot = z
           message: `agent references unknown memory ref "${a.memory.ref}"`,
         })
       }
-      a.ragRefs.forEach((ref, ri) => {
-        if (!ragIds.has(ref)) {
+      a.ragRefs?.forEach((ref, ri) => {
+        if (!ragPipelineSet.has(ref)) {
           ctx.addIssue({
             code: 'custom',
             path: ['agents', i, 'ragRefs', ri],

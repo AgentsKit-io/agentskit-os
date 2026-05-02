@@ -1,5 +1,122 @@
 # @agentskit/os-core
 
+## 0.3.0
+
+### Minor Changes
+
+- 5638f27: Land RFC-0004 (Accepted): `BrandKit` primitive + `validateAgainstBrandKit` output guard. Pure schema + decision logic; no LLM calls.
+
+  `BrandKit` covers:
+
+  - Voice (5 tones: formal/casual/playful/technical/empathetic, optional persona, good/bad examples)
+  - Vocabulary (preferred-term substitution, banned phrases with `severity: warn | block`, required disclaimers with trigger words + placement, glossary)
+  - Formatting (titleCase, oxfordComma, quoteStyle, emoji policy, length limits with per-channel overrides)
+  - Identity (productName, legalName, capitalizationRules, pronouns)
+
+  `validateAgainstBrandKit(text, kit, { channel? })` returns typed `BrandViolation[]` with codes `banned_phrase | preferred_term | missing_disclaimer | length_below_min | length_above_max | capitalization`. `hasBlockingViolation()` flags violations that should reject output.
+
+  New subpath export `@agentskit/os-core/brand/brand-kit`.
+
+- 90be5f3: Land RFC-0005 (Accepted): consent + break-glass primitives. Pure schema + decision logic.
+
+  `Sensitivity` enum (7 levels: public/internal/confidential/pii/financial/legal-privileged/phi) with `compareSensitivity()` ordering and `requiresConsent()` helper.
+
+  `ConsentRef` Zod schema (Ulid, subject hash, scope grammar `data:* | purpose:* | recipient:*`, ed25519 signed proof, jurisdiction tags, parent consent for amendments). `checkConsent(consent, requiredScope, now?)` returns `ConsentDecision` with codes `consent_missing | consent_expired | consent_scope_violation`.
+
+  `BreakGlassActivation` schema (canonical reasons + org-extended slug, principal initiator, bypasses array `hitl|consent|cost-budget|egress-allowlist|rate-limit`, scope with duration + resources, postHocReview discriminated union `mandatory|team-queue`, ttl, optional twoPersonRule). `evaluateBreakGlass(activation, { now?, allowedExtraReasons? })` returns `BreakGlassDecision` with rejection codes `two_person_required | ttl_expired | unknown_reason_disallowed | no_bypasses_declared`. Two-person rule auto-required for `safety-of-life`.
+
+  New subpath export `@agentskit/os-core/consent/consent`.
+
+## 0.2.0
+
+### Minor Changes
+
+- 3a3a758: Add audit-log Merkle batch chain per ADR-0008. `AuditBatch` Zod schema with `prevBatchHash`, `merkleRoot`, `signedDigest`, `events: SignedEventRef[]`, and `signature` (ed25519). `AnchorRecord` for external anchoring (Rekor / git / custom URI). `AuditKeyCustody` enum (`local | hsm | external`). Pure helpers: `computeMerkleRoot()` (SHA-256 via Web Crypto, odd-count duplicates last), `computeBatchDigest()`, `verifyChain()` returns `{ ok: true } | { ok: false; break }` with typed `ChainBreak.code` (`genesis_invalid | prev_hash_mismatch | merkle_root_mismatch | digest_mismatch | signature_invalid`). Signature verification pluggable via `SignatureVerifier` interface — structural integrity always checked in-core. New subpath export `@agentskit/os-core/audit/batch`.
+- ce66961: Add pure runtime helpers:
+
+  - `auth/verify` — `verifyCapability(ctx, action, resource, now?)` returns `VerifyDecision = allow | deny`. Structural check only (no signature crypto — that lives in `os-security`). Implements wildcard suffix glob (`flow:*` matches `flow:pr-review:node:n1`) and expiry honoring `constraints.expiresAt`. Prefers a non-expired matching capability when multiple match.
+  - `secrets/refs` — pure `${vault:key}` reference utilities. `findVaultRefs(input)` returns deduped key list; `resolveVaultRefs(input, resolver)` substitutes references via async pluggable resolver, caches lookups, records `resolvedKeys` and `missingKeys` (missing refs left in place rather than throwing — caller decides policy).
+
+  New subpath exports `@agentskit/os-core/auth/verify` and `@agentskit/os-core/secrets/refs`.
+
+- 14b572c: Add pure config utilities under `config/`:
+
+  - `config/merge` — 5-layer merge per ADR-0003 (`defaults → global → workspace → env → runtime`). Plain-object deep merge; arrays replace, not concatenate. `buildProvenance` reports which layer set each leaf.
+  - `config/migrate` — versioned migration framework. Strict 1-version increments via registered `MigrationStep[]`. Typed `MigrationError` codes (`config.future_version`, `config.migration_gap`, `config.migration_skip`, `config.migration_invalid_output`).
+  - `config/diff` — structural diff over plain objects. Emits typed `ConfigChangeOp` (`add | remove | replace`). Arrays treated as opaque values. Powers `agentskit-os config diff` CLI command later.
+
+  Pure functions only — no FS, no I/O. Loaders (TS/YAML/GUI/env/CLI) live in higher packages and feed objects here.
+
+  New subpath exports `@agentskit/os-core/config/{merge,migrate,diff}`.
+
+- d12e33e: Add `ConfigRoot` capstone schema. Composes Workspace, Vault, Security, Observability, optional Cloud, plus arrays of plugins, agents, flows, triggers, and a memory map. Validates cross-references via `superRefine`:
+
+  - `workspace.schemaVersion` matches root `schemaVersion`
+  - unique ids across plugins, agents, flows, triggers
+  - every `trigger.flow` resolves to a real `flow.id`
+  - every `flow.nodes[].agent` (for agent nodes) resolves to a real `agent.id`
+  - every `agent.memory.ref` resolves to a key in the memory map
+  - when `security.requireSignedPlugins` is true, every plugin must have a signature
+
+  New subpath export `@agentskit/os-core/schema/config-root`. M1 schema layer is complete.
+
+- 6ec36ab: Add egress allowlist primitives per ADR-0011. `EgressPolicy` Zod schema (mode `deny | allow`, allowlist + blocklist of `EgressGrant` strings, per-plugin overrides, optional outbound proxy with vault-aware mTLS cert). `checkEgress(policy, requested, pluginId?)` returns `EgressDecision = allow | deny`. Default blocklist covers cloud-metadata endpoints (169.254.169.254, metadata.google.internal), localhost, and link-local addresses. Bare `net:fetch:*` rejected at parse — explicit `net:fetch:any` required for opt-in. `SecurityConfig.egress` wires it into the workspace config tree. New subpath export `@agentskit/os-core/security/egress`.
+- ecf6e45: Add `EventBus` interface + `InMemoryEventBus` reference implementation per ADR-0005. Topic-pattern matching: exact, single-segment wildcard (`agent.*`, `agent.*.completed`), or `*` for all events. Handler errors isolated via injectable `onHandlerError` sink. Async handlers awaited. `close()` prevents further publish/subscribe. New subpath export `@agentskit/os-core/events/bus`.
+- b981e69: Add workspace lockfile primitives per RFC-0002. `Lockfile` Zod schema covers plugins (with sha512 integrity + ed25519 signature), agents (with model `pinnedVersion` + `contentHash` + optional `promptHash`), flows (with node-level tool/agent refs + versions), providers (with `apiVersion`), tools (with `sideEffects` + `contentHash`), templates, and `schemas` versions (osCore + workspaceConfig). Sub-resource integrity uses `sha256:<hex64>` and `sha512:<hex128>` formats validated via regex.
+
+  Pure helpers: `canonicalJson()` (key-sorted JSON for hashing), `sha256OfCanonical()` (Web Crypto, returns `sha256:<hex64>`). `detectLockDrift()` returns typed `LockDriftIssue[]` with codes `plugin_version_mismatch | plugin_missing_in_lock | plugin_missing_in_workspace | config_hash_mismatch | agent_content_drift | flow_content_drift`.
+
+  New subpath export `@agentskit/os-core/lockfile/lock`.
+
+- f1b65fb: Land RFC-0003 (Accepted): five multi-agent pattern nodes added to `FlowNode` discriminated union.
+
+  - `compare` — fan-out, side-by-side; selection mode `manual | eval | judge | first | all`
+  - `vote` — odd-count consensus (zod superRefine); ballot `majority | weighted | unanimous | quorum`; `onTie=judge` requires `judgeAgent`
+  - `debate` — proponent + opponent + judge; rounds 1–6; format `open | point-counterpoint | cross-examination`
+  - `auction` — bidders compete on `lowest-cost | highest-confidence | fastest | custom`; reserve price + fallback + timeout
+  - `blackboard` — shared scratchpad (in-memory / sqlite / memory-store ref); schedule `round-robin | volunteer | priority`; termination `rounds | consensus | agent-signal | budget`
+
+  Strictly additive — existing flows still validate. New configs require new code to read.
+
+- da7d3ce: Add plugin extension catalog per ADR-0012. 24 extension points enumerated (`trigger`, `tool`, `skill`, `agent-template`, `flow-node-kind`, `memory-backend`, `vault-backend`, `sandbox-runtime`, `egress-enforcer`, `obs-exporter`, `firewall-rule`, `output-guard`, `pii-category`, `run-mode`, `audit-signer`, `cost-meter`, `ui-panel`, `ui-widget`, `command-palette-action`, `mcp-bridge-adapter`, `migration-importer`, `template-pack`, `consent-policy`, `brand-kit-validator`).
+
+  `stabilityOf(point)` returns `stable | experimental | internal` (4 experimental at v1: `flow-node-kind`, `consent-policy`, `brand-kit-validator`, `cost-meter`). `isHotReloadable(point)` reports whether registration changes apply without restart.
+
+  `PluginEntrypoint` Zod schema (`id`, `extensionApi` semver range, `registers: ExtensionRegistration[]`). `PluginRegistry` class with conflict detection (different plugin claiming same `(point, id)` key returns typed `RegistryConflict`), idempotent self-update, scoped `unregisterPlugin`, point-filtered listing. `isApiCompatible(host, plugin)` checks major-version match. `EXTENSION_API_VERSION = '1.0'`.
+
+  New subpath export `@agentskit/os-core/plugins/catalog`.
+
+- 31eba8d: Add `RagConfig` schema. Composed of `ChunkerConfig` (5 strategies: fixed/sentence/paragraph/semantic/markdown), `EmbeddingsConfig` (provider + model + dimensions + batchSize), 4 loader kinds (`file`, `url`, `sql`, `api`) discriminated on `kind`, and `RetrieverConfig` (topK, similarityThreshold, hybridSearch, optional `RerankerConfig` for cohere/jina/voyage/cross-encoder/graph).
+
+  `ConfigRoot.rag: RagConfig[]` (default `[]`). Cross-reference validation: every `rag.store` must point to a real key in `memory`. Unique-id check across the rag array.
+
+  New subpath export `@agentskit/os-core/schema/rag`. Closes the AGENTSKIT-COVERAGE action item for RAG primitives in os-core.
+
+- 51c6f12: Land RFC-0001 (Accepted): align `PluginConfig` with ADR-0006 capability model.
+
+  **Breaking (pre-1.0, no public consumers):**
+
+  - `PluginConfig.capabilities` → `PluginConfig.contributes` (same enum, clearer name)
+  - Type renamed: `PluginCapability` → `PluginContribution`
+
+  **Additive:**
+
+  - `PluginPermission` (resource + actions + reason + optional `CapabilityConstraints` + `required`) — manifest of grants the plugin requests at install time
+  - `PluginConfig.permissions: PluginPermission[]` (default `[]`)
+  - `WorkspaceConfig.limits` (`WorkspaceLimits`) — per-run + per-day token/USD caps, wall-clock, concurrency, max-steps
+  - `docs/COMPAT-MATRIX.md` — versioned OS↔AgentsKit compatibility matrix
+
+  Reason: pre-M1 collision between "what the plugin provides" (contributes) and ADR-0006 capability tokens (RBAC grants). Renaming now closes the door before public consumers exist.
+
+- 66066b1: Add run-mode runtime contracts per ADR-0009. Six modes: `real`, `preview`, `dry_run`, `replay`, `simulate`, `deterministic`. Each has a `RunModePolicy` (llm source, side-effects scope, state persistence, cost charging). `escalationRule(from, to)` returns one of `allowed | allowed-with-hitl | forbidden-must-branch | forbidden-must-reauthor | forbidden-must-demote`. `checkDeterminism()` reports typed `DeterminismIssue`s for non-zero temperature, unpinned models, missing tool stubs, and uncontrolled randomness. `RunContext` Zod schema (runMode + workspaceId + runId + parentRunId + startedAt). New subpath export `@agentskit/os-core/runtime/run-mode`.
+- 2201a66: Add tool side-effects + sandbox levels per ADR-0010.
+
+  `tools/side-effects`: 5-level taxonomy `none | read | write | destructive | external`. `maxSeverity()` aggregates multi-effect tools (defaults to `external` for empty list — most restrictive). `decideToolAction(mode, effects)` resolves the full RunMode × SideEffect policy table from ADR-0009, returning a typed `ModeAction` (`run | run-with-audit | run-with-audit-and-egress-check | block | stub | replay | replay-no-op | mocked | run-require-fixture`).
+
+  `tools/sandbox`: 5-level isolation enum `none | process | container | vm | webcontainer`. `MIN_SANDBOX_FOR` policy matrix. `decideSandbox(effects, requested?, force?)` returns `apply | reject`. Workspace can elevate above minimum freely; weakening below minimum requires `force: true` (warning logged). `SandboxRuntime` interface for plugin-registered runtimes. `ToolManifest` Zod schema (id + name + sideEffects[] + optional minSandbox).
+
+  New subpath exports `@agentskit/os-core/tools/side-effects` and `@agentskit/os-core/tools/sandbox`.
+
 ## 0.1.0
 
 ### Minor Changes

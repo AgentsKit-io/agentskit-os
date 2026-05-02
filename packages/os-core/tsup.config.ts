@@ -18,6 +18,7 @@ export default defineConfig({
     'src/auth/capability.ts',
     'src/errors/codes.ts',
     'src/errors/error.ts',
+    'src/schema/config-root.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

@@ -117,6 +117,13 @@ export {
 } from './schema/cloud.js'
 
 export {
+  ConfigRoot,
+  CONFIG_ROOT_VERSION,
+  parseConfigRoot,
+  safeParseConfigRoot,
+} from './schema/config-root.js'
+
+export {
   EVENT_SPEC_VERSION,
   RESERVED_TOPIC_ROOTS,
   EventType,

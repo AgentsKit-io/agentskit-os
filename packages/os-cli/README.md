@@ -12,25 +12,28 @@ pnpm add -D @agentskit/os-cli
 
 | Command | Status |
 |---|---|
+| `agentskit-os init` | M1 alpha |
+| `agentskit-os run <config> --flow <id>` | M1 alpha |
+| `agentskit-os doctor` | M1 alpha |
 | `agentskit-os config validate <path>` | M1 alpha |
+| `agentskit-os config explain --<layer> <path>...` | M1 alpha |
+| `agentskit-os config diff <prev> <next>` | M1 alpha |
+| `agentskit-os config migrate <path>` | M1 alpha |
 | `agentskit-os --version` | M1 alpha |
 | `agentskit-os --help` | M1 alpha |
-| `agentskit-os init` | planned |
-| `agentskit-os doctor` | planned |
-| `agentskit-os run` | planned |
 | `agentskit-os deploy` | planned |
 | `agentskit-os sync` | planned |
-| `agentskit-os config explain` | planned |
-| `agentskit-os config diff` | planned |
+| `agentskit-os lock` | planned |
 
 ## Exit codes
 
 | Code | Meaning |
 |---|---|
 | 0 | success |
-| 1 | schema / parse error |
+| 1 | schema / parse error / flow failed |
 | 2 | usage error (unknown command, missing arg, --help) |
 | 3 | read / I/O error |
+| 4 | flow paused (HITL or budget) |
 | 70 | unhandled fatal |
 
 ## License

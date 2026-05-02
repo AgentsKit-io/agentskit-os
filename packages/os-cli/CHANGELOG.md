@@ -1,5 +1,13 @@
 # @agentskit/os-cli
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [5638f27]
+- Updated dependencies [90be5f3]
+  - @agentskit/os-core@0.3.0
+
 ## 1.0.0
 
 ### Minor Changes

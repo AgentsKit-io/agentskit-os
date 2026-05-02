@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-cli",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "AgentsKitOS CLI — init, doctor, run, sync, config commands.",
   "keywords": [
     "agentskit",

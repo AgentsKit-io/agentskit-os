@@ -1,7 +1,14 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/topo.ts', 'src/runner.ts', 'src/handlers.ts', 'src/durable.ts'],
+  entry: [
+    'src/index.ts',
+    'src/topo.ts',
+    'src/runner.ts',
+    'src/handlers.ts',
+    'src/durable.ts',
+    'src/bus-bridge.ts',
+  ],
   format: ['esm', 'cjs'],
   dts: true,
   sourcemap: true,

@@ -263,6 +263,25 @@ export {
   detectLockDrift,
 } from './lockfile/lock.js'
 export type { LockDriftIssue, DriftCheckInput } from './lockfile/lock.js'
+
+export {
+  BrandKit,
+  VoiceConfig,
+  VoiceTone,
+  Severity,
+  VocabularyConfig,
+  PreferredTerm,
+  BannedPhrase,
+  RequiredDisclaimer,
+  GlossaryEntry,
+  FormattingConfig,
+  IdentityConfig,
+  parseBrandKit,
+  safeParseBrandKit,
+  validateAgainstBrandKit,
+  hasBlockingViolation,
+} from './brand/brand-kit.js'
+export type { BrandViolation, ValidationOptions } from './brand/brand-kit.js'
 export type {
   RunModePolicy,
   EscalationRule,

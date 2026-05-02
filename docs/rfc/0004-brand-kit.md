@@ -1,6 +1,6 @@
 # RFC-0004 — BrandKit + Content Guardrails Primitive
 
-- **Status:** Draft
+- **Status:** Accepted
 - **Authors:** @EmersonBraun
 - **Created:** 2026-05-01
 - **Updated:** 2026-05-01

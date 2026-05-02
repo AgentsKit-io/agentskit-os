@@ -173,6 +173,15 @@ export {
   parseRunContext,
   safeParseRunContext,
 } from './runtime/run-mode.js'
+
+export {
+  EgressPolicy,
+  EgressProxy,
+  checkEgress,
+  parseEgressPolicy,
+  safeParseEgressPolicy,
+} from './security/egress.js'
+export type { EgressGrant, EgressDecision } from './security/egress.js'
 export type {
   RunModePolicy,
   EscalationRule,

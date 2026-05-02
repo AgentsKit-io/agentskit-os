@@ -141,6 +141,11 @@
       "types": "./dist/runtime/run-mode.d.ts",
       "import": "./dist/runtime/run-mode.js",
       "require": "./dist/runtime/run-mode.cjs"
+    },
+    "./security/egress": {
+      "types": "./dist/security/egress.d.ts",
+      "import": "./dist/security/egress.js",
+      "require": "./dist/security/egress.cjs"
     }
   },
   "files": [

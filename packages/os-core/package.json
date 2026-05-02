@@ -96,6 +96,11 @@
       "types": "./dist/errors/error.d.ts",
       "import": "./dist/errors/error.js",
       "require": "./dist/errors/error.cjs"
+    },
+    "./schema/config-root": {
+      "types": "./dist/schema/config-root.d.ts",
+      "import": "./dist/schema/config-root.js",
+      "require": "./dist/schema/config-root.cjs"
     }
   },
   "files": ["dist"],

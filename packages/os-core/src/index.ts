@@ -202,6 +202,22 @@ export {
   safeParseToolManifest,
 } from './tools/sandbox.js'
 export type { SandboxDecision, SandboxRuntime } from './tools/sandbox.js'
+
+export {
+  AUDIT_SCHEMA_VERSION,
+  GENESIS_PREV_HASH,
+  AuditBatch,
+  AuditSignature,
+  AuditKeyCustody,
+  AnchorRecord,
+  SignedEventRef,
+  computeMerkleRoot,
+  computeBatchDigest,
+  verifyChain,
+  parseAuditBatch,
+  safeParseAuditBatch,
+} from './audit/batch.js'
+export type { ChainBreak, SignatureVerifier } from './audit/batch.js'
 export type {
   RunModePolicy,
   EscalationRule,

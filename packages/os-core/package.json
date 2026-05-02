@@ -156,6 +156,11 @@
       "types": "./dist/tools/sandbox.d.ts",
       "import": "./dist/tools/sandbox.js",
       "require": "./dist/tools/sandbox.cjs"
+    },
+    "./audit/batch": {
+      "types": "./dist/audit/batch.d.ts",
+      "import": "./dist/audit/batch.js",
+      "require": "./dist/audit/batch.cjs"
     }
   },
   "files": [

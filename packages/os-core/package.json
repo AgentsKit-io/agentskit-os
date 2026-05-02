@@ -161,6 +161,11 @@
       "types": "./dist/audit/batch.d.ts",
       "import": "./dist/audit/batch.js",
       "require": "./dist/audit/batch.cjs"
+    },
+    "./plugins/catalog": {
+      "types": "./dist/plugins/catalog.d.ts",
+      "import": "./dist/plugins/catalog.js",
+      "require": "./dist/plugins/catalog.cjs"
     }
   },
   "files": [

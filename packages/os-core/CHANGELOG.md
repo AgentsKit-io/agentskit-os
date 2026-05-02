@@ -1,5 +1,32 @@
 # @agentskit/os-core
 
+## 0.3.0
+
+### Minor Changes
+
+- 5638f27: Land RFC-0004 (Accepted): `BrandKit` primitive + `validateAgainstBrandKit` output guard. Pure schema + decision logic; no LLM calls.
+
+  `BrandKit` covers:
+
+  - Voice (5 tones: formal/casual/playful/technical/empathetic, optional persona, good/bad examples)
+  - Vocabulary (preferred-term substitution, banned phrases with `severity: warn | block`, required disclaimers with trigger words + placement, glossary)
+  - Formatting (titleCase, oxfordComma, quoteStyle, emoji policy, length limits with per-channel overrides)
+  - Identity (productName, legalName, capitalizationRules, pronouns)
+
+  `validateAgainstBrandKit(text, kit, { channel? })` returns typed `BrandViolation[]` with codes `banned_phrase | preferred_term | missing_disclaimer | length_below_min | length_above_max | capitalization`. `hasBlockingViolation()` flags violations that should reject output.
+
+  New subpath export `@agentskit/os-core/brand/brand-kit`.
+
+- 90be5f3: Land RFC-0005 (Accepted): consent + break-glass primitives. Pure schema + decision logic.
+
+  `Sensitivity` enum (7 levels: public/internal/confidential/pii/financial/legal-privileged/phi) with `compareSensitivity()` ordering and `requiresConsent()` helper.
+
+  `ConsentRef` Zod schema (Ulid, subject hash, scope grammar `data:* | purpose:* | recipient:*`, ed25519 signed proof, jurisdiction tags, parent consent for amendments). `checkConsent(consent, requiredScope, now?)` returns `ConsentDecision` with codes `consent_missing | consent_expired | consent_scope_violation`.
+
+  `BreakGlassActivation` schema (canonical reasons + org-extended slug, principal initiator, bypasses array `hitl|consent|cost-budget|egress-allowlist|rate-limit`, scope with duration + resources, postHocReview discriminated union `mandatory|team-queue`, ttl, optional twoPersonRule). `evaluateBreakGlass(activation, { now?, allowedExtraReasons? })` returns `BreakGlassDecision` with rejection codes `two_person_required | ttl_expired | unknown_reason_disallowed | no_bypasses_declared`. Two-person rule auto-required for `safety-of-life`.
+
+  New subpath export `@agentskit/os-core/consent/consent`.
+
 ## 0.2.0
 
 ### Minor Changes

@@ -123,6 +123,21 @@ export {
   safeParseConfigRoot,
 } from './schema/config-root.js'
 
+export { CONFIG_LAYERS, mergeLayers, buildProvenance } from './config/merge.js'
+export type {
+  ConfigLayer,
+  ConfigInputs,
+  DeepPartial,
+  ProvenanceEntry,
+  ProvenanceMap,
+} from './config/merge.js'
+
+export { MigrationError, migrateConfig } from './config/migrate.js'
+export type { MigrationStep, MigrationRegistry, MigrationResult } from './config/migrate.js'
+
+export { diffConfigs } from './config/diff.js'
+export type { ConfigChangeOp } from './config/diff.js'
+
 export {
   EVENT_SPEC_VERSION,
   RESERVED_TOPIC_ROOTS,

@@ -181,6 +181,11 @@
       "types": "./dist/consent/consent.d.ts",
       "import": "./dist/consent/consent.js",
       "require": "./dist/consent/consent.cjs"
+    },
+    "./obs/gen-ai-semconv": {
+      "types": "./dist/obs/gen-ai-semconv.d.ts",
+      "import": "./dist/obs/gen-ai-semconv.js",
+      "require": "./dist/obs/gen-ai-semconv.cjs"
     }
   },
   "files": [

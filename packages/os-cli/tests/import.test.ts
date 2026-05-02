@@ -149,10 +149,32 @@ describe('import', () => {
     expect(r.stdout).toContain('imported from langflow')
   })
 
-  it('dify placeholder still reports not-implemented', async () => {
-    const dify = JSON.stringify({ app: {}, workflow: {} })
+  it('translates a dify workflow', async () => {
+    const dify = JSON.stringify({
+      app: { name: 'Support Bot', mode: 'workflow' },
+      workflow: {
+        graph: {
+          nodes: [
+            { id: 's', data: { type: 'start', title: 'Start' } },
+            {
+              id: 'l',
+              data: {
+                type: 'llm',
+                title: 'Classifier',
+                model: { provider: 'openai', name: 'gpt-4o' },
+              },
+            },
+            { id: 'e', data: { type: 'end', title: 'End' } },
+          ],
+          edges: [
+            { source: 's', target: 'l' },
+            { source: 'l', target: 'e' },
+          ],
+        },
+      },
+    })
     const r = await route(['import', 'd.json'], fakeIo({ '/work/d.json': dify }))
-    expect(r.code).toBe(1)
-    expect(r.stderr).toContain('not yet implemented')
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('imported from dify')
   })
 })

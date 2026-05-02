@@ -22,5 +22,8 @@ export type {
   ResumeOptions,
 } from './durable.js'
 
+export { createBusOnEvent, FLOW_EVENT_TYPES } from './bus-bridge.js'
+export type { BridgeOptions, BridgeEvent, FlowEventType } from './bus-bridge.js'
+
 export const PACKAGE_NAME = '@agentskit/os-flow' as const
 export const PACKAGE_VERSION = '0.0.0' as const

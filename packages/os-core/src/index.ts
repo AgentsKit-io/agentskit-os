@@ -117,6 +117,24 @@ export {
 } from './schema/cloud.js'
 
 export {
+  RagConfig,
+  RagPipeline,
+  RagPipelineRef,
+  RagLoader,
+  ChunkerConfig,
+  ChunkerStrategy,
+  EmbedderConfig,
+  VectorStoreConfig,
+  RerankerConfig,
+  RerankerKind,
+  HybridSearchConfig,
+  parseRagConfig,
+  safeParseRagConfig,
+  parseRagPipeline,
+  safeParseRagPipeline,
+} from './schema/rag.js'
+
+export {
   ConfigRoot,
   CONFIG_ROOT_VERSION,
   parseConfigRoot,

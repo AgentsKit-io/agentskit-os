@@ -9,6 +9,7 @@ import { MemoryConfig } from './memory.js'
 import { ObservabilityConfig } from './observability.js'
 import { SecurityConfig } from './security.js'
 import { CloudSyncConfig } from './cloud.js'
+import { RagConfig } from './rag.js'
 
 export const CONFIG_ROOT_VERSION = SCHEMA_VERSION
 
@@ -42,6 +43,7 @@ export const ConfigRoot = z
     flows: z.array(FlowConfig).max(2048).default([]),
     triggers: z.array(TriggerConfig).max(2048).default([]),
     memory: z.record(z.string().min(1).max(64), MemoryConfig).default({}),
+    rag: RagConfig.optional(),
   })
   .superRefine((root, ctx) => {
     if (root.workspace.schemaVersion !== root.schemaVersion) {
@@ -89,6 +91,12 @@ export const ConfigRoot = z
       })
     })
 
+    const ragIds = new Set((root.rag?.pipelines ?? []).map((p) => p.id))
+    if (root.rag) {
+      const ids = root.rag.pipelines.map((p) => p.id)
+      if (!checkUnique(ids, ctx, ['rag', 'pipelines'], 'rag pipeline')) return
+    }
+
     root.agents.forEach((a, i) => {
       if (a.memory && !memoryRefs.has(a.memory.ref)) {
         ctx.addIssue({
@@ -97,6 +105,15 @@ export const ConfigRoot = z
           message: `agent references unknown memory ref "${a.memory.ref}"`,
         })
       }
+      a.ragRefs.forEach((ref, ri) => {
+        if (!ragIds.has(ref)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['agents', i, 'ragRefs', ri],
+            message: `agent references unknown rag pipeline "${ref}"`,
+          })
+        }
+      })
     })
 
     if (root.security.requireSignedPlugins) {

@@ -34,6 +34,7 @@ export const AgentConfig = z.object({
   tools: z.array(ToolRef).max(128).default([]),
   skills: z.array(SkillRef).max(64).default([]),
   memory: AgentMemoryRef.optional(),
+  ragRefs: z.array(Slug).max(16).default([]),
   tags: TagList.default([]),
 })
 export type AgentConfig = z.infer<typeof AgentConfig>

@@ -131,9 +131,9 @@ Snapshot of every package + module in [AgentsKit](https://github.com/AgentsKit-i
 
 **Upstream**: `chunker`, `loaders`, `rerank`, `rerankers`, `vector-store`, `rag`, `types`.
 
-**OS consumption**: needs explicit `RagConfig` in workspace schema. **Currently not in os-core**. Add in M1 follow-up.
+**OS consumption**: `RagConfig` schema in `os-core` wires upstream into workspace. 9 loader kinds (fs, web, pdf, notion, confluence, github, s3, firecrawl, plugin), 9 vector stores (sqlite, turso, redis, file, pgvector, qdrant, pinecone, weaviate, plugin), 7 reranker kinds, hybrid search. `AgentConfig.ragRefs` binds agents to pipelines. ConfigRoot validates references.
 
-**Status**: gap — OS to add `schema/rag.ts` referencing upstream.
+**Status**: covered.
 
 ### `@agentskit/eval`
 
@@ -202,14 +202,14 @@ Snapshot of every package + module in [AgentsKit](https://github.com/AgentsKit-i
 | Skills | 100% | 19 upstream + marketplace distribution |
 | Observability | 100% | OS extends with semconv + audit chain |
 | Sandbox | 100% (e2b) + OS adds 4 more tiers as plugins |
-| RAG | **0%** until OS adds `schema/rag.ts` |
+| RAG | 100% — `schema/rag.ts` ships in os-core |
 | Eval | 100% via consumer + RFC-0003 |
 | Frontend | 100% across 7 frameworks |
 | **Triggers** | ~80% — gaps: generic email, Teams, postgres CDC |
 
 ## Action items
 
-1. **Add `schema/rag.ts`** to os-core M1 — wires `@agentskit/rag` chunker / loader / reranker / vector-store into `WorkspaceConfig`.
+1. ~~**Add `schema/rag.ts`** to os-core M1~~ — done (#158).
 2. **Upstream contribution**: generic SMTP/IMAP email tool (blocks T-4 email trigger).
 3. **Upstream contribution**: Microsoft Teams integration (T-6).
 4. **Upstream contribution**: postgres CDC mode (T-9).

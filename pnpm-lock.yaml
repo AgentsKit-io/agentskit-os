@@ -274,6 +274,9 @@ importers:
       '@agentskit/os-core':
         specifier: workspace:*
         version: link:../os-core
+      '@agentskit/os-flow':
+        specifier: workspace:*
+        version: link:../os-flow
       '@agentskit/os-runtime':
         specifier: workspace:*
         version: link:../os-runtime

@@ -166,6 +166,11 @@
       "types": "./dist/plugins/catalog.d.ts",
       "import": "./dist/plugins/catalog.js",
       "require": "./dist/plugins/catalog.cjs"
+    },
+    "./lockfile/lock": {
+      "types": "./dist/lockfile/lock.d.ts",
+      "import": "./dist/lockfile/lock.js",
+      "require": "./dist/lockfile/lock.cjs"
     }
   },
   "files": [

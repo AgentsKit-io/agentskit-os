@@ -282,6 +282,27 @@ export {
   hasBlockingViolation,
 } from './brand/brand-kit.js'
 export type { BrandViolation, ValidationOptions } from './brand/brand-kit.js'
+
+export {
+  SENSITIVITY_LEVELS,
+  Sensitivity,
+  ConsentScope,
+  ConsentRef,
+  BreakGlassActivation,
+  BreakGlassBypass,
+  BreakGlassReason,
+  BreakGlassPostHoc,
+  BREAK_GLASS_BYPASSES,
+  compareSensitivity,
+  requiresConsent,
+  checkConsent,
+  evaluateBreakGlass,
+  parseConsentRef,
+  safeParseConsentRef,
+  parseBreakGlassActivation,
+  safeParseBreakGlassActivation,
+} from './consent/consent.js'
+export type { ConsentDecision, BreakGlassDecision } from './consent/consent.js'
 export type {
   RunModePolicy,
   EscalationRule,

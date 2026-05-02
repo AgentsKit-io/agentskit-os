@@ -34,6 +34,7 @@ export default defineConfig({
     'src/plugins/catalog.ts',
     'src/lockfile/lock.ts',
     'src/brand/brand-kit.ts',
+    'src/consent/consent.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

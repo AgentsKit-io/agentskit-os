@@ -101,6 +101,21 @@
       "types": "./dist/schema/config-root.d.ts",
       "import": "./dist/schema/config-root.js",
       "require": "./dist/schema/config-root.cjs"
+    },
+    "./config/merge": {
+      "types": "./dist/config/merge.d.ts",
+      "import": "./dist/config/merge.js",
+      "require": "./dist/config/merge.cjs"
+    },
+    "./config/migrate": {
+      "types": "./dist/config/migrate.d.ts",
+      "import": "./dist/config/migrate.js",
+      "require": "./dist/config/migrate.cjs"
+    },
+    "./config/diff": {
+      "types": "./dist/config/diff.d.ts",
+      "import": "./dist/config/diff.js",
+      "require": "./dist/config/diff.cjs"
     }
   },
   "files": [

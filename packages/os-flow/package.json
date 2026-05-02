@@ -1,0 +1,55 @@
+{
+  "name": "@agentskit/os-flow",
+  "version": "0.0.0",
+  "description": "AgentsKitOS flow DAG executor — durable, cycle-safe, run-mode-aware.",
+  "keywords": ["agentskit", "agentskit-os", "flow", "dag", "orchestration"],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "@agentskit/os-core": "workspace:^",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@agentskit/os-core": "workspace:*",
+    "@types/node": "^25.6.0",
+    "tsup": "^8.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5",
+    "zod": "^4.4.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "agentskitos": {
+    "stability": "alpha",
+    "stabilityNote": "Pre-1.0. M1 alpha — DAG executor."
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-flow",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
+    "directory": "packages/os-flow"
+  },
+  "bugs": {
+    "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
+  },
+  "author": "AgentsKit Contributors"
+}

@@ -203,55 +203,67 @@ describe('ConfigRoot', () => {
       expect(r.success).toBe(false)
     })
 
-    it('rejects rag pointing at unknown memory store', () => {
+    it('rejects agent ragRefs pointing at unknown pipeline', () => {
       const r = safeParseConfigRoot({
         ...minimal,
-        rag: [
+        agents: [
           {
-            id: 'docs',
-            name: 'Docs',
-            store: 'ghost',
-            embeddings: { provider: 'openai', model: 'text-embedding-3-small', dimensions: 1536 },
+            id: 'a',
+            name: 'A',
+            model: { provider: 'openai', model: 'gpt-4o' },
+            ragRefs: ['ghost'],
           },
         ],
+        rag: {
+          pipelines: [
+            {
+              id: 'docs',
+              loader: { kind: 'fs', path: '/data' },
+              embedder: { provider: 'openai', model: 'text-embedding-3-small' },
+              vectorStore: { kind: 'sqlite', path: '/tmp/r.db' },
+            },
+          ],
+        },
       })
       expect(r.success).toBe(false)
     })
 
-    it('accepts rag with valid memory store', () => {
+    it('accepts rag with valid pipeline', () => {
       const c = parseConfigRoot({
         ...minimal,
-        memory: { docs_vec: { backend: 'vector', provider: 'lancedb', collection: 'docs', dimensions: 1536, embeddings: { provider: 'openai', model: 'm' } } },
-        rag: [
-          {
-            id: 'docs',
-            name: 'Docs',
-            store: 'docs_vec',
-            embeddings: { provider: 'openai', model: 'text-embedding-3-small', dimensions: 1536 },
-          },
-        ],
+        rag: {
+          pipelines: [
+            {
+              id: 'docs',
+              loader: { kind: 'fs', path: '/data' },
+              embedder: { provider: 'openai', model: 'text-embedding-3-small' },
+              vectorStore: { kind: 'sqlite', path: '/tmp/r.db' },
+            },
+          ],
+        },
       })
-      expect(c.rag).toHaveLength(1)
+      expect(c.rag?.pipelines).toHaveLength(1)
     })
 
-    it('rejects duplicate rag ids', () => {
+    it('rejects duplicate rag pipeline ids', () => {
       const r = safeParseConfigRoot({
         ...minimal,
-        memory: { m: { backend: 'in-memory' } },
-        rag: [
-          {
-            id: 'dup',
-            name: 'A',
-            store: 'm',
-            embeddings: { provider: 'openai', model: 'm', dimensions: 1536 },
-          },
-          {
-            id: 'dup',
-            name: 'B',
-            store: 'm',
-            embeddings: { provider: 'openai', model: 'm', dimensions: 1536 },
-          },
-        ],
+        rag: {
+          pipelines: [
+            {
+              id: 'dup',
+              loader: { kind: 'fs', path: '/a' },
+              embedder: { provider: 'openai', model: 'm' },
+              vectorStore: { kind: 'sqlite', path: '/tmp/a.db' },
+            },
+            {
+              id: 'dup',
+              loader: { kind: 'fs', path: '/b' },
+              embedder: { provider: 'openai', model: 'm' },
+              vectorStore: { kind: 'sqlite', path: '/tmp/b.db' },
+            },
+          ],
+        },
       })
       expect(r.success).toBe(false)
     })

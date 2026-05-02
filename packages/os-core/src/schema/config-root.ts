@@ -43,7 +43,7 @@ export const ConfigRoot = z
     flows: z.array(FlowConfig).max(2048).default([]),
     triggers: z.array(TriggerConfig).max(2048).default([]),
     memory: z.record(z.string().min(1).max(64), MemoryConfig).default({}),
-    rag: z.array(RagConfig).max(256).default([]),
+    rag: RagConfig.optional(),
   })
   .superRefine((root, ctx) => {
     if (root.workspace.schemaVersion !== root.schemaVersion) {
@@ -60,17 +60,17 @@ export const ConfigRoot = z
     const flowIds = root.flows.map((f) => f.id)
     const triggerIds = root.triggers.map((t) => t.id)
     const memoryRefs = new Set(Object.keys(root.memory))
-
-    const ragIds = root.rag.map((r) => r.id)
+    const pipelineIds = (root.rag?.pipelines ?? []).map((p) => p.id)
 
     if (!checkUnique(pluginIds, ctx, ['plugins'], 'plugin')) return
     if (!checkUnique(agentIds, ctx, ['agents'], 'agent')) return
     if (!checkUnique(flowIds, ctx, ['flows'], 'flow')) return
     if (!checkUnique(triggerIds, ctx, ['triggers'], 'trigger')) return
-    if (!checkUnique(ragIds, ctx, ['rag'], 'rag')) return
+    if (!checkUnique(pipelineIds, ctx, ['rag', 'pipelines'], 'rag pipeline')) return
 
     const flowSet = new Set(flowIds)
     const agentSet = new Set(agentIds)
+    const ragPipelineSet = new Set(pipelineIds)
 
     root.triggers.forEach((t, i) => {
       if (!flowSet.has(t.flow)) {
@@ -102,16 +102,15 @@ export const ConfigRoot = z
           message: `agent references unknown memory ref "${a.memory.ref}"`,
         })
       }
-    })
-
-    root.rag.forEach((r, i) => {
-      if (!memoryRefs.has(r.store)) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['rag', i, 'store'],
-          message: `rag references unknown memory store "${r.store}"`,
-        })
-      }
+      a.ragRefs?.forEach((ref, ri) => {
+        if (!ragPipelineSet.has(ref)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['agents', i, 'ragRefs', ri],
+            message: `agent references unknown rag pipeline "${ref}"`,
+          })
+        }
+      })
     })
 
     if (root.security.requireSignedPlugins) {

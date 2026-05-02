@@ -31,6 +31,7 @@ export default defineConfig({
     'src/tools/side-effects.ts',
     'src/tools/sandbox.ts',
     'src/audit/batch.ts',
+    'src/plugins/catalog.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

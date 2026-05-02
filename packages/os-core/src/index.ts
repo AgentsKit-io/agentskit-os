@@ -218,6 +218,22 @@ export {
   safeParseAuditBatch,
 } from './audit/batch.js'
 export type { ChainBreak, SignatureVerifier } from './audit/batch.js'
+
+export {
+  EXTENSION_API_VERSION,
+  EXTENSION_POINTS,
+  ExtensionPoint,
+  ExtensionRegistration,
+  PluginEntrypoint,
+  PluginRegistry,
+  StabilityTier,
+  stabilityOf,
+  isHotReloadable,
+  isApiCompatible,
+  parsePluginEntrypoint,
+  safeParsePluginEntrypoint,
+} from './plugins/catalog.js'
+export type { RegistryConflict } from './plugins/catalog.js'
 export type {
   RunModePolicy,
   EscalationRule,

@@ -54,17 +54,22 @@ const FEATURES = [
 
 export function Features() {
   return (
-    <section id="features" className="bg-surface-dim py-24 md:py-32">
+    <section id="features" className="bg-surface py-24 md:py-32">
       <div className="container-x">
         <div className="text-center mb-16">
           <p className="text-eyebrow uppercase tracking-widest text-accent">Capabilities</p>
-          <h2 className="mt-3 text-h2 text-balance">Everything serious teams need.</h2>
+          <h2 className="mt-3 text-h2 text-balance text-ink">Everything serious teams need.</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-line/60 rounded-3xl overflow-hidden border border-line">
           {FEATURES.map((f) => (
-            <div key={f.title} className="bg-white p-7 hover:bg-surface-alt/40 transition">
-              <f.icon className="h-5 w-5 text-accent mb-4" />
-              <h3 className="text-[15px] font-semibold tracking-tight">{f.title}</h3>
+            <div
+              key={f.title}
+              className="bg-panel p-7 hover:bg-panel-alt transition group"
+            >
+              <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-surface-alt border border-line text-accent mb-4 group-hover:ring-glow transition">
+                <f.icon className="h-4 w-4" />
+              </div>
+              <h3 className="text-[15px] font-semibold tracking-tight text-ink">{f.title}</h3>
               <p className="mt-2 text-[13.5px] leading-relaxed text-ink-muted">{f.body}</p>
             </div>
           ))}

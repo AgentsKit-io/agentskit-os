@@ -7,12 +7,12 @@ export function TrustStrip() {
     { k: "MIT", v: "Open license" },
   ];
   return (
-    <section className="border-y border-line py-10">
+    <section className="border-y border-line bg-surface-alt py-10">
       <div className="container-x">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 gap-x-4">
           {items.map((i) => (
             <div key={i.v} className="text-center">
-              <div className="text-2xl font-semibold tracking-tight">{i.k}</div>
+              <div className="text-2xl font-semibold tracking-tight text-ink">{i.k}</div>
               <div className="mt-1 text-[12px] uppercase tracking-widest text-ink-subtle">{i.v}</div>
             </div>
           ))}

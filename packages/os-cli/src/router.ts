@@ -9,6 +9,7 @@ import { run } from './commands/run.js'
 import { lock } from './commands/lock.js'
 import { importCmd } from './commands/import.js'
 import { newCmd } from './commands/new.js'
+import { publish } from './commands/publish.js'
 import { version } from './commands/version.js'
 
 export const COMMANDS: readonly CliCommand[] = [
@@ -17,6 +18,7 @@ export const COMMANDS: readonly CliCommand[] = [
   importCmd,
   run,
   lock,
+  publish,
   configValidate,
   configExplain,
   configDiff,

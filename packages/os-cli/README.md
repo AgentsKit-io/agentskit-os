@@ -25,6 +25,7 @@ pnpm add -D @agentskit/os-cli
 | `agentskit-os config migrate <path>` | M1 alpha |
 | `agentskit-os --version` | M1 alpha |
 | `agentskit-os --help` | M1 alpha |
+| `agentskit-os publish [<dir>]` | M1 alpha (build bundle) |
 | `agentskit-os deploy` | planned |
 | `agentskit-os sync` | planned |
 

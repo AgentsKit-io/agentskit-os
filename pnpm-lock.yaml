@@ -118,6 +118,9 @@ importers:
       '@agentskit/os-import':
         specifier: workspace:*
         version: link:../os-import
+      '@agentskit/os-marketplace-sdk':
+        specifier: workspace:*
+        version: link:../os-marketplace-sdk
       '@agentskit/os-storage':
         specifier: workspace:*
         version: link:../os-storage

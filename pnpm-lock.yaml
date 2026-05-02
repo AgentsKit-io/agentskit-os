@@ -75,6 +75,9 @@ importers:
       '@agentskit/os-storage':
         specifier: workspace:*
         version: link:../os-storage
+      '@agentskit/os-templates':
+        specifier: workspace:*
+        version: link:../os-templates
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0

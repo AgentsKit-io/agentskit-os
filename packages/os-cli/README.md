@@ -13,7 +13,8 @@ pnpm add -D @agentskit/os-cli
 | Command | Status |
 |---|---|
 | `agentskit-os init` | M1 alpha |
-| `agentskit-os import <input>` | M1 alpha (n8n full; Langflow/Dify placeholders) |
+| `agentskit-os new <template> [--list]` | M1 alpha |
+| `agentskit-os import <input>` | M1 alpha (n8n + Langflow + Dify) |
 | `agentskit-os run <config> --flow <id>` | M1 alpha |
 | `agentskit-os run --store <dir> [--resume <runId>]` | M1 alpha |
 | `agentskit-os lock <config> [--check]` | M1 alpha |

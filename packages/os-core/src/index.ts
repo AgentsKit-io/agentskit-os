@@ -7,8 +7,11 @@ export {
   SCHEMA_VERSION,
   WorkspaceConfig,
   WorkspaceIsolation,
+  WorkspaceLimits,
   parseWorkspaceConfig,
   safeParseWorkspaceConfig,
+  parseWorkspaceLimits,
+  safeParseWorkspaceLimits,
 } from './schema/workspace.js'
 
 export {
@@ -52,7 +55,8 @@ export {
 
 export {
   PluginConfig,
-  PluginCapability,
+  PluginContribution,
+  PluginPermission,
   PluginSignature,
   parsePluginConfig,
   safeParsePluginConfig,

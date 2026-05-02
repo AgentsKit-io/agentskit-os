@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { route } from '../src/router.js'
-import type { CliIo } from '../src/types.js'
-
-const fakeIo = (files: Record<string, string>): CliIo => ({
-  cwd: () => '/work',
-  readFile: async (path) => {
-    if (!(path in files)) throw new Error(`ENOENT: ${path}`)
-    return files[path]!
-  },
-})
+import { fakeIo } from './_fake-io.js'
 
 describe('config explain', () => {
   it('shows help when no layers provided', async () => {

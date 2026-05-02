@@ -1,7 +1,12 @@
 import { z } from 'zod'
 import { Slug, TagList } from './_primitives.js'
+import {
+  Action,
+  CapabilityConstraints,
+  ResourceRef,
+} from '../auth/capability.js'
 
-export const PluginCapability = z.enum([
+export const PluginContribution = z.enum([
   'tool',
   'trigger',
   'skill',
@@ -10,7 +15,7 @@ export const PluginCapability = z.enum([
   'ui-widget',
   'observability',
 ])
-export type PluginCapability = z.infer<typeof PluginCapability>
+export type PluginContribution = z.infer<typeof PluginContribution>
 
 export const PluginSignature = z.object({
   algorithm: z.enum(['ed25519', 'rsa-sha256']),
@@ -18,6 +23,15 @@ export const PluginSignature = z.object({
   signature: z.string().min(64).max(8192),
 })
 export type PluginSignature = z.infer<typeof PluginSignature>
+
+export const PluginPermission = z.object({
+  resource: ResourceRef,
+  actions: z.array(Action).min(1).max(16),
+  reason: z.string().min(1).max(280),
+  constraints: CapabilityConstraints.optional(),
+  required: z.boolean().default(true),
+})
+export type PluginPermission = z.infer<typeof PluginPermission>
 
 const SemverRange = z
   .string()
@@ -41,7 +55,8 @@ export const PluginConfig = z.object({
     z.string().regex(/^marketplace:[a-z0-9-]+$/, { message: 'must be marketplace:<id>' }),
     z.string().regex(/^file:.+$/, { message: 'must be file:<path>' }),
   ]),
-  capabilities: z.array(PluginCapability).min(1).max(16),
+  contributes: z.array(PluginContribution).min(1).max(16),
+  permissions: z.array(PluginPermission).max(64).default([]),
   enginesOs: SemverRange.optional(),
   signature: PluginSignature.optional(),
   config: z.record(z.string(), z.unknown()).optional(),

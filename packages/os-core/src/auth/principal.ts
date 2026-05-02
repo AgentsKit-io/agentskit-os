@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import { Slug } from '../schema/_primitives.js'
-import { PluginSignature } from '../schema/plugin.js'
+
+const PluginSignatureShape = z.object({
+  algorithm: z.enum(['ed25519', 'rsa-sha256']),
+  publicKey: z.string().min(64).max(8192),
+  signature: z.string().min(64).max(8192),
+})
 
 export const PrincipalKind = z.enum(['user', 'agent', 'plugin', 'trigger', 'system', 'service'])
 export type PrincipalKind = z.infer<typeof PrincipalKind>
@@ -27,7 +32,7 @@ const PluginPrincipal = z.object({
   kind: z.literal('plugin'),
   id: Slug,
   workspaceId: WorkspaceId,
-  signature: PluginSignature,
+  signature: PluginSignatureShape,
 })
 
 const TriggerPrincipal = z.object({

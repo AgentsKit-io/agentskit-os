@@ -8,10 +8,12 @@ import { init } from './commands/init.js'
 import { run } from './commands/run.js'
 import { lock } from './commands/lock.js'
 import { importCmd } from './commands/import.js'
+import { newCmd } from './commands/new.js'
 import { version } from './commands/version.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
+  newCmd,
   importCmd,
   run,
   lock,

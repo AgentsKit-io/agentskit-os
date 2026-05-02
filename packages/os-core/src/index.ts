@@ -380,3 +380,21 @@ export type {
   GenAiResponse,
   OsRunHints,
 } from './obs/gen-ai-semconv.js'
+
+export {
+  Currency,
+  ModelPricing,
+  CostMeter,
+  CostBudgetCheck,
+  computeCost,
+  checkBudget,
+  parseModelPricing,
+  safeParseModelPricing,
+} from './cost/cost-meter.js'
+export type {
+  Usage,
+  CostBreakdown,
+  CostKey,
+  CostMeterId,
+  BudgetDecision,
+} from './cost/cost-meter.js'

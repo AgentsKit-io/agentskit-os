@@ -186,6 +186,11 @@
       "types": "./dist/obs/gen-ai-semconv.d.ts",
       "import": "./dist/obs/gen-ai-semconv.js",
       "require": "./dist/obs/gen-ai-semconv.cjs"
+    },
+    "./cost/cost-meter": {
+      "types": "./dist/cost/cost-meter.d.ts",
+      "import": "./dist/cost/cost-meter.js",
+      "require": "./dist/cost/cost-meter.cjs"
     }
   },
   "files": [

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { EgressPolicy } from '../security/egress.js'
 
 export const PiiCategory = z.enum([
   'email',
@@ -52,6 +53,7 @@ export const SecurityConfig = z.object({
   piiRedaction: PiiRedactionConfig.default(() => PiiRedactionConfig.parse({})),
   sandbox: SandboxConfig.default(() => SandboxConfig.parse({})),
   auditLog: AuditLogConfig.default(() => AuditLogConfig.parse({})),
+  egress: EgressPolicy.default(() => EgressPolicy.parse({})),
   requireSignedPlugins: z.boolean().default(false),
 })
 export type SecurityConfig = z.infer<typeof SecurityConfig>

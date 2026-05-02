@@ -182,6 +182,26 @@ export {
   safeParseEgressPolicy,
 } from './security/egress.js'
 export type { EgressGrant, EgressDecision } from './security/egress.js'
+
+export {
+  SIDE_EFFECTS,
+  SideEffect,
+  SideEffectList,
+  decideToolAction,
+  maxSeverity,
+} from './tools/side-effects.js'
+export type { ModeAction } from './tools/side-effects.js'
+
+export {
+  SANDBOX_LEVELS,
+  SandboxLevel,
+  MIN_SANDBOX_FOR,
+  ToolManifest,
+  decideSandbox,
+  parseToolManifest,
+  safeParseToolManifest,
+} from './tools/sandbox.js'
+export type { SandboxDecision, SandboxRuntime } from './tools/sandbox.js'
 export type {
   RunModePolicy,
   EscalationRule,

@@ -146,6 +146,16 @@
       "types": "./dist/security/egress.d.ts",
       "import": "./dist/security/egress.js",
       "require": "./dist/security/egress.cjs"
+    },
+    "./tools/side-effects": {
+      "types": "./dist/tools/side-effects.d.ts",
+      "import": "./dist/tools/side-effects.js",
+      "require": "./dist/tools/side-effects.cjs"
+    },
+    "./tools/sandbox": {
+      "types": "./dist/tools/sandbox.d.ts",
+      "import": "./dist/tools/sandbox.js",
+      "require": "./dist/tools/sandbox.cjs"
     }
   },
   "files": [

@@ -1,8 +1,12 @@
 {
   "name": "@agentskit/os-cli",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "AgentsKitOS CLI — init, doctor, run, sync, config commands.",
-  "keywords": ["agentskit", "agentskit-os", "cli"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "cli"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -17,7 +21,10 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "bin"],
+  "files": [
+    "dist",
+    "bin"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

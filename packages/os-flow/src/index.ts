@@ -14,5 +14,13 @@ export type { NodeHandler, NodeHandlerMap, NodeOutcome } from './handlers.js'
 export { runFlow } from './runner.js'
 export type { RunResult, RunOptions, CheckpointFn } from './runner.js'
 
+export { InMemoryCheckpointStore, resumeFlow } from './durable.js'
+export type {
+  CheckpointStore,
+  CheckpointRecord,
+  DurableRunResult,
+  ResumeOptions,
+} from './durable.js'
+
 export const PACKAGE_NAME = '@agentskit/os-flow' as const
 export const PACKAGE_VERSION = '0.0.0' as const

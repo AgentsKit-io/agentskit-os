@@ -116,6 +116,16 @@
       "types": "./dist/config/diff.d.ts",
       "import": "./dist/config/diff.js",
       "require": "./dist/config/diff.cjs"
+    },
+    "./auth/verify": {
+      "types": "./dist/auth/verify.d.ts",
+      "import": "./dist/auth/verify.js",
+      "require": "./dist/auth/verify.cjs"
+    },
+    "./secrets/refs": {
+      "types": "./dist/secrets/refs.d.ts",
+      "import": "./dist/secrets/refs.js",
+      "require": "./dist/secrets/refs.cjs"
     }
   },
   "files": [

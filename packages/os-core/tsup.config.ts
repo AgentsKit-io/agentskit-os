@@ -22,6 +22,8 @@ export default defineConfig({
     'src/config/merge.ts',
     'src/config/migrate.ts',
     'src/config/diff.ts',
+    'src/auth/verify.ts',
+    'src/secrets/refs.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

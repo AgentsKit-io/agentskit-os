@@ -1,0 +1,61 @@
+{
+  "name": "@agentskit/os-cli",
+  "version": "0.0.0",
+  "description": "AgentsKitOS CLI — init, doctor, run, sync, config commands.",
+  "keywords": ["agentskit", "agentskit-os", "cli"],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "agentskit-os": "./bin/agentskit-os.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist", "bin"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "yaml": "^2.6.1"
+  },
+  "peerDependencies": {
+    "@agentskit/os-core": "workspace:^",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@agentskit/os-core": "workspace:*",
+    "@types/node": "^25.6.0",
+    "tsup": "^8.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5",
+    "zod": "^4.4.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "agentskitos": {
+    "stability": "alpha",
+    "stabilityNote": "Pre-1.0. M1 alpha — config commands first."
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
+    "directory": "packages/os-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
+  },
+  "author": "AgentsKit Contributors"
+}

@@ -9,5 +9,12 @@ export default defineConfig({
   treeshake: true,
   splitting: false,
   target: 'es2022',
-  external: ['zod', '@agentskit/os-core', '@agentskit/os-flow', '@agentskit/os-storage', 'yaml'],
+  external: [
+    'zod',
+    '@agentskit/os-core',
+    '@agentskit/os-flow',
+    '@agentskit/os-import',
+    '@agentskit/os-storage',
+    'yaml',
+  ],
 })

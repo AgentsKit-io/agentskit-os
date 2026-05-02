@@ -1,6 +1,6 @@
 # RFC-0005 — Patient Consent + Break-Glass Primitives (Healthcare-Grade)
 
-- **Status:** Draft
+- **Status:** Accepted
 - **Authors:** @EmersonBraun
 - **Created:** 2026-05-01
 - **Updated:** 2026-05-01

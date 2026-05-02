@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pure foundation for AgentsKitOS — contracts, event bus, workspace model, config schema. Zero runtime deps.",
   "keywords": [
     "agentskit",
@@ -131,6 +131,56 @@
       "types": "./dist/events/bus.d.ts",
       "import": "./dist/events/bus.js",
       "require": "./dist/events/bus.cjs"
+    },
+    "./schema/rag": {
+      "types": "./dist/schema/rag.d.ts",
+      "import": "./dist/schema/rag.js",
+      "require": "./dist/schema/rag.cjs"
+    },
+    "./runtime/run-mode": {
+      "types": "./dist/runtime/run-mode.d.ts",
+      "import": "./dist/runtime/run-mode.js",
+      "require": "./dist/runtime/run-mode.cjs"
+    },
+    "./security/egress": {
+      "types": "./dist/security/egress.d.ts",
+      "import": "./dist/security/egress.js",
+      "require": "./dist/security/egress.cjs"
+    },
+    "./tools/side-effects": {
+      "types": "./dist/tools/side-effects.d.ts",
+      "import": "./dist/tools/side-effects.js",
+      "require": "./dist/tools/side-effects.cjs"
+    },
+    "./tools/sandbox": {
+      "types": "./dist/tools/sandbox.d.ts",
+      "import": "./dist/tools/sandbox.js",
+      "require": "./dist/tools/sandbox.cjs"
+    },
+    "./audit/batch": {
+      "types": "./dist/audit/batch.d.ts",
+      "import": "./dist/audit/batch.js",
+      "require": "./dist/audit/batch.cjs"
+    },
+    "./plugins/catalog": {
+      "types": "./dist/plugins/catalog.d.ts",
+      "import": "./dist/plugins/catalog.js",
+      "require": "./dist/plugins/catalog.cjs"
+    },
+    "./lockfile/lock": {
+      "types": "./dist/lockfile/lock.d.ts",
+      "import": "./dist/lockfile/lock.js",
+      "require": "./dist/lockfile/lock.cjs"
+    },
+    "./brand/brand-kit": {
+      "types": "./dist/brand/brand-kit.d.ts",
+      "import": "./dist/brand/brand-kit.js",
+      "require": "./dist/brand/brand-kit.cjs"
+    },
+    "./consent/consent": {
+      "types": "./dist/consent/consent.d.ts",
+      "import": "./dist/consent/consent.js",
+      "require": "./dist/consent/consent.cjs"
     }
   },
   "files": [
@@ -159,7 +209,7 @@
   "agentskitos": {
     "stability": "alpha",
     "stabilityNote": "Pre-1.0. Contracts landing across M1.",
-    "sizeBudgetGzipped": "15KB"
+    "sizeBudgetGzipped": "25KB"
   },
   "license": "MIT",
   "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-core",

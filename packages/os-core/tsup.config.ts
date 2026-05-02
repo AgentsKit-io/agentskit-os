@@ -24,6 +24,7 @@ export default defineConfig({
     'src/config/diff.ts',
     'src/auth/verify.ts',
     'src/secrets/refs.ts',
+    'src/events/bus.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

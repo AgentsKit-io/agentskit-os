@@ -144,6 +144,9 @@ export type { VerifyDecision } from './auth/verify.js'
 export { findVaultRefs, resolveVaultRefs } from './secrets/refs.js'
 export type { VaultResolver, ResolveResult } from './secrets/refs.js'
 
+export { InMemoryEventBus } from './events/bus.js'
+export type { EventBus, EventHandler, Subscription } from './events/bus.js'
+
 export {
   EVENT_SPEC_VERSION,
   RESERVED_TOPIC_ROOTS,

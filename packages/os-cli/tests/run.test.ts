@@ -51,10 +51,7 @@ describe('run', () => {
   })
 
   it('errors when --flow missing', async () => {
-    const r = await route(
-      ['run', 'cfg.yaml'],
-      fakeIo({ '/work/cfg.yaml': validConfig }),
-    )
+    const r = await route(['run', 'cfg.yaml'], fakeIo({ '/work/cfg.yaml': validConfig }))
     expect(r.code).toBe(2)
     expect(r.stderr).toContain('--flow')
   })
@@ -118,5 +115,54 @@ describe('run', () => {
   it('propagates read error with code 3', async () => {
     const r = await route(['run', 'missing.yaml', '--flow', 'x'], fakeIo({}))
     expect(r.code).toBe(3)
+  })
+
+  it('--resume without --store errors usage', async () => {
+    const r = await route(
+      ['run', 'cfg.yaml', '--flow', 'pr-review', '--resume', 'run_x'],
+      fakeIo({ '/work/cfg.yaml': validConfig }),
+    )
+    expect(r.code).toBe(2)
+    expect(r.stderr).toContain('--resume requires --store')
+  })
+
+  it('--store flag enables durable mode', async () => {
+    const { mkdtemp, rm } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const dir = await mkdtemp(`${tmpdir()}/agentskitos-`)
+    try {
+      const r = await route(
+        ['run', 'cfg.yaml', '--flow', 'pr-review', '--store', dir],
+        fakeIo({ '/work/cfg.yaml': validConfig }),
+      )
+      expect(r.code).toBe(0)
+      expect(r.stdout).toContain('(durable)')
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('--resume reuses provided runId', async () => {
+    const { mkdtemp, rm } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const dir = await mkdtemp(`${tmpdir()}/agentskitos-`)
+    try {
+      const r1 = await route(
+        ['run', 'cfg.yaml', '--flow', 'pr-review', '--store', dir],
+        fakeIo({ '/work/cfg.yaml': validConfig }),
+      )
+      expect(r1.code).toBe(0)
+      const match = /run (run_\S+)/.exec(r1.stdout)
+      expect(match).not.toBeNull()
+      const runId = match![1]!
+      const r2 = await route(
+        ['run', 'cfg.yaml', '--flow', 'pr-review', '--store', dir, '--resume', runId],
+        fakeIo({ '/work/cfg.yaml': validConfig }),
+      )
+      expect(r2.code).toBe(0)
+      expect(r2.stdout).toContain(`run ${runId}`)
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })

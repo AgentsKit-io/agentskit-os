@@ -100,3 +100,61 @@ export {
   parseSecurityConfig,
   safeParseSecurityConfig,
 } from './schema/security.js'
+
+export {
+  CloudSyncConfig,
+  CloudPlan,
+  SyncStrategy,
+  SsoProvider,
+  RbacRole,
+  TeamSeat,
+  parseCloudSyncConfig,
+  safeParseCloudSyncConfig,
+} from './schema/cloud.js'
+
+export {
+  EVENT_SPEC_VERSION,
+  RESERVED_TOPIC_ROOTS,
+  EventType,
+  EventSource,
+  DataSchemaUri,
+  Ulid,
+  EventEnvelope,
+  AnyEvent,
+  parseEvent,
+  safeParseEvent,
+} from './events/event.js'
+
+export {
+  PrincipalKind,
+  Principal,
+  PrincipalRef,
+  parsePrincipal,
+  safeParsePrincipal,
+} from './auth/principal.js'
+
+export {
+  Action,
+  ResourceRef,
+  CapabilityConstraints,
+  CapabilitySignature,
+  Capability,
+  AuthContext,
+  parseCapability,
+  safeParseCapability,
+  parseAuthContext,
+  safeParseAuthContext,
+} from './auth/capability.js'
+
+export {
+  ErrorCategory,
+  ErrorCode,
+  RESERVED_DOMAINS,
+} from './errors/codes.js'
+
+export {
+  ERROR_SCHEMA_VERSION,
+  OsErrorEnvelope,
+  parseOsError,
+  safeParseOsError,
+} from './errors/error.js'

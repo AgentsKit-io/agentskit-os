@@ -66,6 +66,36 @@
       "types": "./dist/schema/security.d.ts",
       "import": "./dist/schema/security.js",
       "require": "./dist/schema/security.cjs"
+    },
+    "./schema/cloud": {
+      "types": "./dist/schema/cloud.d.ts",
+      "import": "./dist/schema/cloud.js",
+      "require": "./dist/schema/cloud.cjs"
+    },
+    "./events/event": {
+      "types": "./dist/events/event.d.ts",
+      "import": "./dist/events/event.js",
+      "require": "./dist/events/event.cjs"
+    },
+    "./auth/principal": {
+      "types": "./dist/auth/principal.d.ts",
+      "import": "./dist/auth/principal.js",
+      "require": "./dist/auth/principal.cjs"
+    },
+    "./auth/capability": {
+      "types": "./dist/auth/capability.d.ts",
+      "import": "./dist/auth/capability.js",
+      "require": "./dist/auth/capability.cjs"
+    },
+    "./errors/codes": {
+      "types": "./dist/errors/codes.d.ts",
+      "import": "./dist/errors/codes.js",
+      "require": "./dist/errors/codes.cjs"
+    },
+    "./errors/error": {
+      "types": "./dist/errors/error.d.ts",
+      "import": "./dist/errors/error.js",
+      "require": "./dist/errors/error.cjs"
     }
   },
   "files": ["dist"],

@@ -26,6 +26,7 @@ export default defineConfig({
     'src/secrets/refs.ts',
     'src/events/bus.ts',
     'src/schema/rag.ts',
+    'src/runtime/run-mode.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

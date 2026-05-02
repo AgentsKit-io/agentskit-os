@@ -136,6 +136,11 @@
       "types": "./dist/schema/rag.d.ts",
       "import": "./dist/schema/rag.js",
       "require": "./dist/schema/rag.cjs"
+    },
+    "./runtime/run-mode": {
+      "types": "./dist/runtime/run-mode.d.ts",
+      "import": "./dist/runtime/run-mode.js",
+      "require": "./dist/runtime/run-mode.cjs"
     }
   },
   "files": [

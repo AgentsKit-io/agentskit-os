@@ -164,6 +164,23 @@ export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 
 export {
+  RUN_MODES,
+  RUN_MODE_POLICY,
+  RunMode,
+  RunContext,
+  escalationRule,
+  checkDeterminism,
+  parseRunContext,
+  safeParseRunContext,
+} from './runtime/run-mode.js'
+export type {
+  RunModePolicy,
+  EscalationRule,
+  DeterminismIssue,
+  DeterminismCheckInput,
+} from './runtime/run-mode.js'
+
+export {
   EVENT_SPEC_VERSION,
   RESERVED_TOPIC_ROOTS,
   EventType,

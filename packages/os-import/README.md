@@ -4,7 +4,7 @@ Migration importers for AgentsKitOS. Pure transformation, no I/O.
 
 ## Status
 
-Pre-1.0 alpha. M1 ships **n8n** + **Langflow** importers fully; **Dify** is a detect-only placeholder (parse stub raises).
+Pre-1.0 alpha. M1 ships **n8n**, **Langflow**, and **Dify** importers fully.
 
 ## Importers
 
@@ -12,7 +12,7 @@ Pre-1.0 alpha. M1 ships **n8n** + **Langflow** importers fully; **Dify** is a de
 |---|---|---|
 | n8n | ✓ | ✓ |
 | Langflow | ✓ | ✓ |
-| Dify | ✓ | M2 |
+| Dify | ✓ | ✓ |
 
 ## Usage
 

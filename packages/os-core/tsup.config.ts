@@ -36,6 +36,7 @@ export default defineConfig({
     'src/brand/brand-kit.ts',
     'src/consent/consent.ts',
     'src/obs/gen-ai-semconv.ts',
+    'src/cost/cost-meter.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

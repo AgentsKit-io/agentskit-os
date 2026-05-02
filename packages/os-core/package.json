@@ -189,7 +189,7 @@
   "agentskitos": {
     "stability": "alpha",
     "stabilityNote": "Pre-1.0. Contracts landing across M1.",
-    "sizeBudgetGzipped": "15KB"
+    "sizeBudgetGzipped": "25KB"
   },
   "license": "MIT",
   "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-core",

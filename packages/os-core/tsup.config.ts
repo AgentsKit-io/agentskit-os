@@ -25,6 +25,7 @@ export default defineConfig({
     'src/auth/verify.ts',
     'src/secrets/refs.ts',
     'src/events/bus.ts',
+    'src/schema/rag.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

@@ -107,4 +107,64 @@ describe('WorkspaceConfig schema', () => {
       expect(typeof WorkspaceConfig.parse).toBe('function')
     })
   })
+
+  describe('limits', () => {
+    it('parses with full limits block', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        limits: {
+          tokensPerRun: 100_000,
+          usdPerRun: 5,
+          tokensPerDay: 10_000_000,
+          usdPerDay: 500,
+          wallClockMsPerRun: 60_000,
+          maxConcurrentRuns: 10,
+          maxStepsPerRun: 1000,
+        },
+      })
+      expect(result.limits?.tokensPerRun).toBe(100_000)
+    })
+
+    it('accepts partial limits', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        limits: { usdPerRun: 1.5 },
+      })
+      expect(result.limits?.usdPerRun).toBe(1.5)
+    })
+
+    it('rejects negative usdPerRun', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        limits: { usdPerRun: -1 },
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects zero maxConcurrentRuns', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        limits: { maxConcurrentRuns: 0 },
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects non-integer tokensPerRun', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        limits: { tokensPerRun: 1.5 },
+      })
+      expect(result.success).toBe(false)
+    })
+  })
 })

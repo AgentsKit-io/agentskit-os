@@ -202,6 +202,59 @@ describe('ConfigRoot', () => {
       })
       expect(r.success).toBe(false)
     })
+
+    it('rejects rag pointing at unknown memory store', () => {
+      const r = safeParseConfigRoot({
+        ...minimal,
+        rag: [
+          {
+            id: 'docs',
+            name: 'Docs',
+            store: 'ghost',
+            embeddings: { provider: 'openai', model: 'text-embedding-3-small', dimensions: 1536 },
+          },
+        ],
+      })
+      expect(r.success).toBe(false)
+    })
+
+    it('accepts rag with valid memory store', () => {
+      const c = parseConfigRoot({
+        ...minimal,
+        memory: { docs_vec: { backend: 'vector', provider: 'lancedb', collection: 'docs', dimensions: 1536, embeddings: { provider: 'openai', model: 'm' } } },
+        rag: [
+          {
+            id: 'docs',
+            name: 'Docs',
+            store: 'docs_vec',
+            embeddings: { provider: 'openai', model: 'text-embedding-3-small', dimensions: 1536 },
+          },
+        ],
+      })
+      expect(c.rag).toHaveLength(1)
+    })
+
+    it('rejects duplicate rag ids', () => {
+      const r = safeParseConfigRoot({
+        ...minimal,
+        memory: { m: { backend: 'in-memory' } },
+        rag: [
+          {
+            id: 'dup',
+            name: 'A',
+            store: 'm',
+            embeddings: { provider: 'openai', model: 'm', dimensions: 1536 },
+          },
+          {
+            id: 'dup',
+            name: 'B',
+            store: 'm',
+            embeddings: { provider: 'openai', model: 'm', dimensions: 1536 },
+          },
+        ],
+      })
+      expect(r.success).toBe(false)
+    })
   })
 
   describe('size limits', () => {

@@ -9,6 +9,7 @@ import { MemoryConfig } from './memory.js'
 import { ObservabilityConfig } from './observability.js'
 import { SecurityConfig } from './security.js'
 import { CloudSyncConfig } from './cloud.js'
+import { RagConfig } from './rag.js'
 
 export const CONFIG_ROOT_VERSION = SCHEMA_VERSION
 
@@ -42,6 +43,7 @@ export const ConfigRoot = z
     flows: z.array(FlowConfig).max(2048).default([]),
     triggers: z.array(TriggerConfig).max(2048).default([]),
     memory: z.record(z.string().min(1).max(64), MemoryConfig).default({}),
+    rag: z.array(RagConfig).max(256).default([]),
   })
   .superRefine((root, ctx) => {
     if (root.workspace.schemaVersion !== root.schemaVersion) {
@@ -59,10 +61,13 @@ export const ConfigRoot = z
     const triggerIds = root.triggers.map((t) => t.id)
     const memoryRefs = new Set(Object.keys(root.memory))
 
+    const ragIds = root.rag.map((r) => r.id)
+
     if (!checkUnique(pluginIds, ctx, ['plugins'], 'plugin')) return
     if (!checkUnique(agentIds, ctx, ['agents'], 'agent')) return
     if (!checkUnique(flowIds, ctx, ['flows'], 'flow')) return
     if (!checkUnique(triggerIds, ctx, ['triggers'], 'trigger')) return
+    if (!checkUnique(ragIds, ctx, ['rag'], 'rag')) return
 
     const flowSet = new Set(flowIds)
     const agentSet = new Set(agentIds)
@@ -95,6 +100,16 @@ export const ConfigRoot = z
           code: 'custom',
           path: ['agents', i, 'memory', 'ref'],
           message: `agent references unknown memory ref "${a.memory.ref}"`,
+        })
+      }
+    })
+
+    root.rag.forEach((r, i) => {
+      if (!memoryRefs.has(r.store)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['rag', i, 'store'],
+          message: `rag references unknown memory store "${r.store}"`,
         })
       }
     })

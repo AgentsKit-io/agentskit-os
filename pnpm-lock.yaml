@@ -48,6 +48,9 @@ importers:
       '@agentskit/os-flow':
         specifier: workspace:*
         version: link:../os-flow
+      '@agentskit/os-import':
+        specifier: workspace:*
+        version: link:../os-import
       '@agentskit/os-storage':
         specifier: workspace:*
         version: link:../os-storage

@@ -10,5 +10,12 @@ export type {
   AgentskitLlmAdapterOptions,
 } from './llm-adapter.js'
 
+export { createAgentskitToolExecutor } from './tool-executor.js'
+export type {
+  AgentskitTool,
+  AgentskitToolReturn,
+  AgentskitToolExecutorOptions,
+} from './tool-executor.js'
+
 export const PACKAGE_NAME = '@agentskit/os-runtime-agentskit' as const
 export const PACKAGE_VERSION = '0.0.0' as const

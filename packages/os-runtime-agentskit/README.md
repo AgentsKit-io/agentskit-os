@@ -28,6 +28,6 @@ const llm = createAgentskitLlmAdapter(
 ## Roadmap
 
 - ✅ `createAgentskitLlmAdapter`
-- ⏳ `createAgentskitToolExecutor` — wraps `@agentskit/tools`
+- ✅ `createAgentskitToolExecutor` — wraps `@agentskit/tools`
 - ⏳ `createAgentskitMemoryAdapter` — wraps `@agentskit/memory`
 - ⏳ `createAgentskitRegistry` — convenience bundler

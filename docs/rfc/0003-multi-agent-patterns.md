@@ -1,6 +1,6 @@
 # RFC-0003 — Multi-Agent Pattern Nodes (Compare, Vote, Debate, Auction, Blackboard)
 
-- **Status:** Draft
+- **Status:** Accepted
 - **Authors:** @EmersonBraun
 - **Created:** 2026-05-01
 - **Updated:** 2026-05-01

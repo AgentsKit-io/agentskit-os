@@ -40,6 +40,7 @@
     "@agentskit/os-flow": "workspace:^",
     "@agentskit/os-import": "workspace:^",
     "@agentskit/os-storage": "workspace:^",
+    "@agentskit/os-templates": "workspace:^",
     "zod": "^4.0.0"
   },
   "devDependencies": {
@@ -47,6 +48,7 @@
     "@agentskit/os-flow": "workspace:*",
     "@agentskit/os-import": "workspace:*",
     "@agentskit/os-storage": "workspace:*",
+    "@agentskit/os-templates": "workspace:*",
     "@types/node": "^25.6.0",
     "tsup": "^8.5.0",
     "typescript": "^6.0.3",

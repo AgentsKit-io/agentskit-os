@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup'
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/llm-adapter.ts'],
+  entry: ['src/index.ts', 'src/llm-adapter.ts', 'src/tool-executor.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   sourcemap: true,

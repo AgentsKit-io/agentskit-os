@@ -29,5 +29,20 @@ const llm = createAgentskitLlmAdapter(
 
 - ✅ `createAgentskitLlmAdapter`
 - ✅ `createAgentskitToolExecutor` — wraps `@agentskit/tools`
-- ⏳ `createAgentskitMemoryAdapter` — wraps `@agentskit/memory`
-- ⏳ `createAgentskitRegistry` — convenience bundler
+- ✅ `createAgentskitMemoryAdapter` — wraps `@agentskit/memory`
+- ✅ `createAgentskitRegistry` — convenience bundler
+
+## One-liner registry
+
+```ts
+import { buildLiveHandlers } from '@agentskit/os-runtime'
+import { createAgentskitRegistry } from '@agentskit/os-runtime-agentskit'
+
+const handlers = buildLiveHandlers({
+  registry: createAgentskitRegistry({
+    llm: anthropicAdapter,
+    tools: [webSearch, calculator],
+    memory: redisStore,
+  }),
+})
+```

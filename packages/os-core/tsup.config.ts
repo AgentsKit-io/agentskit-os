@@ -27,6 +27,7 @@ export default defineConfig({
     'src/events/bus.ts',
     'src/schema/rag.ts',
     'src/runtime/run-mode.ts',
+    'src/security/egress.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

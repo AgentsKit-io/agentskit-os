@@ -21,5 +21,12 @@ export { createParallelHandler } from './handlers/parallel.js'
 export { buildLiveHandlers } from './registry.js'
 export type { LiveHandlerOptions } from './registry.js'
 
+export {
+  CostTracker,
+  meteredLlmAdapter,
+  summarizeRun,
+} from './cost-tracker.js'
+export type { CostEntry, RunCost, MeterAdapterOptions } from './cost-tracker.js'
+
 export const PACKAGE_NAME = '@agentskit/os-runtime' as const
 export const PACKAGE_VERSION = '0.0.0' as const

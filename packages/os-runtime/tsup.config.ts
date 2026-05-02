@@ -10,6 +10,7 @@ export default defineConfig({
     'src/handlers/condition.ts',
     'src/handlers/parallel.ts',
     'src/registry.ts',
+    'src/cost-tracker.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

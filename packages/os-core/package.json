@@ -176,6 +176,11 @@
       "types": "./dist/brand/brand-kit.d.ts",
       "import": "./dist/brand/brand-kit.js",
       "require": "./dist/brand/brand-kit.cjs"
+    },
+    "./consent/consent": {
+      "types": "./dist/consent/consent.d.ts",
+      "import": "./dist/consent/consent.js",
+      "require": "./dist/consent/consent.cjs"
     }
   },
   "files": [

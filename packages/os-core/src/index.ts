@@ -126,18 +126,20 @@ export {
 
 export {
   RagConfig,
+  RagPipeline,
+  RagPipelineRef,
+  RagLoader,
   ChunkerConfig,
-  ChunkStrategy,
-  EmbeddingsConfig,
-  LoaderConfig,
-  FileLoader,
-  UrlLoader,
-  SqlLoader,
-  ApiLoader,
-  RetrieverConfig,
+  ChunkerStrategy,
+  EmbedderConfig,
+  VectorStoreConfig,
   RerankerConfig,
+  RerankerKind,
+  HybridSearchConfig,
   parseRagConfig,
   safeParseRagConfig,
+  parseRagPipeline,
+  safeParseRagPipeline,
 } from './schema/rag.js'
 
 export {
@@ -356,3 +358,4 @@ export {
   parseOsError,
   safeParseOsError,
 } from './errors/error.js'
+

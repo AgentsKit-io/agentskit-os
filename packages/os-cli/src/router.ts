@@ -6,11 +6,13 @@ import { configMigrate } from './commands/config-migrate.js'
 import { doctor } from './commands/doctor.js'
 import { init } from './commands/init.js'
 import { run } from './commands/run.js'
+import { lock } from './commands/lock.js'
 import { version } from './commands/version.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
   run,
+  lock,
   configValidate,
   configExplain,
   configDiff,

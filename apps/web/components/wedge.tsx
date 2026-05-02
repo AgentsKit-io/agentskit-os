@@ -2,17 +2,17 @@ import { Lock, GitBranch, Shield } from "lucide-react";
 
 export function Wedge() {
   return (
-    <section className="py-24 md:py-32">
+    <section className="bg-surface-alt py-24 md:py-32">
       <div className="container-x">
         <div className="text-center mb-16">
           <p className="text-eyebrow uppercase tracking-widest text-accent">Why it&apos;s different</p>
-          <h2 className="mt-3 text-h2 text-balance">Foundation over speed.</h2>
+          <h2 className="mt-3 text-h2 text-balance text-ink">Foundation over speed.</h2>
           <p className="mx-auto mt-5 max-w-2xl text-ink-muted">
             Existing agent platforms optimized speed-of-shipping. The result: drift, lock-in,
             abandoned plugins. We optimize the opposite.
           </p>
         </div>
-        <div className="grid gap-px bg-line/60 rounded-3xl overflow-hidden border border-line">
+        <div className="grid md:grid-cols-3 gap-px bg-line/60 rounded-3xl overflow-hidden border border-line">
           <Pillar
             icon={<Lock className="h-5 w-5" />}
             title="Stable contracts"
@@ -36,11 +36,11 @@ export function Wedge() {
 
 function Pillar({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="bg-white p-8 md:p-12 first:md:col-span-1">
-      <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-surface-alt text-ink mb-5">
+    <div className="bg-panel p-8 md:p-12">
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-surface-alt border border-line text-accent mb-5">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+      <h3 className="text-xl font-semibold tracking-tight text-ink">{title}</h3>
       <p className="mt-3 text-[15px] leading-relaxed text-ink-muted">{body}</p>
     </div>
   );

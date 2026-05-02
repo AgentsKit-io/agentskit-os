@@ -6,31 +6,46 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: [
+          "Inter",
           "-apple-system",
           "BlinkMacSystemFont",
           "SF Pro Display",
           "SF Pro Text",
-          "Inter",
           "system-ui",
           "sans-serif",
         ],
-        mono: ["SF Mono", "ui-monospace", "Menlo", "Monaco", "monospace"],
+        mono: [
+          "JetBrains Mono",
+          "SF Mono",
+          "ui-monospace",
+          "Menlo",
+          "Monaco",
+          "monospace",
+        ],
       },
       colors: {
         ink: {
-          DEFAULT: "#1d1d1f",
-          muted: "#6e6e73",
-          subtle: "#86868b",
+          DEFAULT: "#f5f5f7",
+          muted: "#a1a1aa",
+          subtle: "#71717a",
         },
         surface: {
-          DEFAULT: "#ffffff",
-          alt: "#f5f5f7",
-          dim: "#fbfbfd",
+          DEFAULT: "#08090c",
+          alt: "#0d0e12",
+          dim: "#0a0b0e",
         },
-        line: "#d2d2d7",
+        panel: {
+          DEFAULT: "#111217",
+          alt: "#16171d",
+        },
+        line: {
+          DEFAULT: "#1f2025",
+          soft: "#141519",
+        },
         accent: {
-          DEFAULT: "#0071e3",
-          hover: "#0077ed",
+          DEFAULT: "#22d3ee",
+          hover: "#67e8f9",
+          dim: "#0e7490",
         },
       },
       letterSpacing: {

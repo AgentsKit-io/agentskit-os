@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t border-line bg-white py-14">
+    <footer className="border-t border-line bg-surface py-14">
       <div className="container-x grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
-          <div className="font-semibold tracking-tight">AgentsKitOS</div>
+          <div className="font-semibold tracking-tight text-ink">AgentsKitOS</div>
           <p className="mt-3 max-w-sm text-[13.5px] text-ink-muted">
             OS-layer on top of AgentsKit. Visual harness, SDLC, orchestrator, marketplace for agents.
             MIT licensed.
@@ -44,7 +44,9 @@ function Col({ title, children }: { title: string; children: React.ReactNode }) 
 function Item({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <li>
-      <Link href={href} className="text-ink-muted hover:text-ink transition">{children}</Link>
+      <Link href={href} className="text-ink-muted hover:text-ink transition">
+        {children}
+      </Link>
     </li>
   );
 }

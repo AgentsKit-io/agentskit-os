@@ -14,6 +14,7 @@ export default defineConfig({
     '@agentskit/os-core',
     '@agentskit/os-flow',
     '@agentskit/os-import',
+    '@agentskit/os-marketplace-sdk',
     '@agentskit/os-storage',
     '@agentskit/os-templates',
     'yaml',

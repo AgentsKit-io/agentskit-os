@@ -359,3 +359,24 @@ export {
   safeParseOsError,
 } from './errors/error.js'
 
+
+export {
+  SEMCONV_VERSION,
+  GenAiAttr,
+  GEN_AI_OPERATION_NAMES,
+  GEN_AI_FINISH_REASONS,
+  GenAiOperationName,
+  GenAiFinishReason,
+  GenAiSpanAttributes,
+  parseGenAiAttributes,
+  safeParseGenAiAttributes,
+  spanName,
+  buildRequestAttributes,
+  buildResponseAttributes,
+} from './obs/gen-ai-semconv.js'
+export type {
+  GenAiAttrName,
+  GenAiRequest,
+  GenAiResponse,
+  OsRunHints,
+} from './obs/gen-ai-semconv.js'

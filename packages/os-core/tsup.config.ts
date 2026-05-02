@@ -35,6 +35,7 @@ export default defineConfig({
     'src/lockfile/lock.ts',
     'src/brand/brand-kit.ts',
     'src/consent/consent.ts',
+    'src/obs/gen-ai-semconv.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

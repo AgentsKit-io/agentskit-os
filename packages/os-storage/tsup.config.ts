@@ -6,6 +6,7 @@ export default defineConfig({
     'src/file-checkpoint-store.ts',
     'src/lockfile-store.ts',
     'src/fs-utils.ts',
+    'src/sqlite-checkpoint-store.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

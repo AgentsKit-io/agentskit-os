@@ -1,6 +1,13 @@
 export { FileCheckpointStore } from './file-checkpoint-store.js'
 export type { FileCheckpointStoreOptions } from './file-checkpoint-store.js'
 
+export { SqliteCheckpointStore } from './sqlite-checkpoint-store.js'
+export type {
+  SqliteCheckpointStoreOptions,
+  SqliteDatabase,
+  SqliteStatement,
+} from './sqlite-checkpoint-store.js'
+
 export { LockfileStore } from './lockfile-store.js'
 export type { LockfileStoreOptions } from './lockfile-store.js'
 

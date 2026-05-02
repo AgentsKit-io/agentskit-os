@@ -1,19 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { difyImporter, langflowImporter } from '../src/index.js'
-
-describe('langflowImporter (M2 placeholder)', () => {
-  it('detect matches Langflow shape', () => {
-    expect(langflowImporter.detect({ name: 'x', data: {} })).toBe(true)
-  })
-
-  it('detect rejects non-Langflow', () => {
-    expect(langflowImporter.detect({})).toBe(false)
-  })
-
-  it('parse throws "not yet implemented"', () => {
-    expect(() => langflowImporter.parse({ name: 'x', data: {} })).toThrow(/not yet implemented/)
-  })
-})
+import { difyImporter } from '../src/index.js'
 
 describe('difyImporter (M2 placeholder)', () => {
   it('detect matches Dify shape', () => {

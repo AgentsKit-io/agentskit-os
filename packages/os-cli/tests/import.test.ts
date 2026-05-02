@@ -119,9 +119,39 @@ describe('import', () => {
     expect(quiet.stdout).not.toContain('warning')
   })
 
-  it('langflow placeholder reports parse error', async () => {
-    const langflow = JSON.stringify({ name: 'x', data: {} })
+  it('langflow with empty nodes reports parse error', async () => {
+    const langflow = JSON.stringify({ name: 'x', data: { nodes: [], edges: [] } })
     const r = await route(['import', 'lf.json'], fakeIo({ '/work/lf.json': langflow }))
+    expect(r.code).toBe(1)
+    expect(r.stderr).toContain('no nodes')
+  })
+
+  it('translates a langflow workflow', async () => {
+    const langflow = JSON.stringify({
+      name: 'LF Test',
+      data: {
+        nodes: [
+          { id: 'ChatInput-1', data: { type: 'ChatInput', display_name: 'In' } },
+          {
+            id: 'OpenAI-1',
+            data: {
+              type: 'OpenAIComponent',
+              display_name: 'GPT',
+              node: { template: { model_name: { value: 'gpt-4o' } } },
+            },
+          },
+        ],
+        edges: [{ source: 'ChatInput-1', target: 'OpenAI-1' }],
+      },
+    })
+    const r = await route(['import', 'lf.json'], fakeIo({ '/work/lf.json': langflow }))
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('imported from langflow')
+  })
+
+  it('dify placeholder still reports not-implemented', async () => {
+    const dify = JSON.stringify({ app: {}, workflow: {} })
+    const r = await route(['import', 'd.json'], fakeIo({ '/work/d.json': dify }))
     expect(r.code).toBe(1)
     expect(r.stderr).toContain('not yet implemented')
   })

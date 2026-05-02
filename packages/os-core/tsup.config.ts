@@ -30,6 +30,7 @@ export default defineConfig({
     'src/security/egress.ts',
     'src/tools/side-effects.ts',
     'src/tools/sandbox.ts',
+    'src/audit/batch.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

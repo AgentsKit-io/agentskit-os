@@ -7,6 +7,13 @@ export type { BatchStore } from './batch-store.js'
 export { FileBatchStore } from './file-batch-store.js'
 export type { FileBatchStoreOptions } from './file-batch-store.js'
 
+export { SqliteBatchStore } from './sqlite-batch-store.js'
+export type {
+  SqliteBatchStoreOptions,
+  SqliteDatabase,
+  SqliteStatement,
+} from './sqlite-batch-store.js'
+
 export { nodeFs, safeWorkspaceId } from './fs.js'
 export type { FileSystem } from './fs.js'
 

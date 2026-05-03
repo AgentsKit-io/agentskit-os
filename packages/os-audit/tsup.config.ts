@@ -8,6 +8,7 @@ export default defineConfig({
     'src/file-batch-store.ts',
     'src/event-hash.ts',
     'src/fs.ts',
+    'src/sqlite-batch-store.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

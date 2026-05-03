@@ -1,0 +1,47 @@
+/**
+ * @agentskit/os-ui — Cyber-minimal theme tokens (D-4)
+ *
+ * Dark base + neon cyan + magenta accents + glassy frosted overlays.
+ * Import this file alongside tokens.css to enable [data-theme="cyber"].
+ *
+ * Usage:
+ *   import "@agentskit/os-ui/tokens-cyber.css";
+ */
+
+[data-theme="cyber"] {
+  /* Surfaces — deep near-black with subtle blue tint */
+  --ag-surface: #050508;
+  --ag-surface-alt: #0a0a10;
+  --ag-surface-dim: #07070c;
+
+  /* Panels — glassy frosted layer */
+  --ag-panel: #0d0d18;
+  --ag-panel-alt: #12121f;
+
+  /* Lines */
+  --ag-line: #1a1a2e;
+  --ag-line-soft: #111122;
+
+  /* Ink */
+  --ag-ink: #e8e8ff;
+  --ag-ink-muted: #9090bb;
+  --ag-ink-subtle: #6060aa;
+
+  /* Accent — neon cyan */
+  --ag-accent: #00f5ff;
+  --ag-accent-hover: #66faff;
+  --ag-accent-dim: #003d40;
+
+  /* Magenta accent (cyber-specific) */
+  --ag-accent-2: #ff00cc;
+  --ag-accent-2-hover: #ff66e0;
+  --ag-accent-2-dim: #3d0033;
+
+  /* Glow helpers for neon effects */
+  --ag-glow-cyan: 0 0 8px #00f5ff, 0 0 20px rgba(0, 245, 255, 0.4);
+  --ag-glow-magenta: 0 0 8px #ff00cc, 0 0 20px rgba(255, 0, 204, 0.4);
+
+  /* Glass overlay */
+  --ag-glass-bg: rgba(13, 13, 24, 0.7);
+  --ag-glass-border: rgba(0, 245, 255, 0.15);
+}

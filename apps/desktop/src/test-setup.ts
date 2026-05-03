@@ -13,3 +13,27 @@ vi.mock('@tauri-apps/api/core', () => ({
 vi.mock('@tauri-apps/api/event', () => ({
   listen: vi.fn().mockResolvedValue(() => undefined),
 }))
+
+// In-memory localStorage stub for jsdom-based tests.
+const store: Record<string, string> = {}
+const localStorageMock: Storage = {
+  getItem: (key: string) =>
+    Object.prototype.hasOwnProperty.call(store, key) ? store[key]! : null,
+  setItem: (key: string, value: string) => {
+    store[key] = value
+  },
+  removeItem: (key: string) => {
+    delete store[key]
+  },
+  clear: () => {
+    for (const key of Object.keys(store)) delete store[key]
+  },
+  get length() {
+    return Object.keys(store).length
+  },
+  key: (index: number) => Object.keys(store)[index] ?? null,
+}
+Object.defineProperty(globalThis, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+})

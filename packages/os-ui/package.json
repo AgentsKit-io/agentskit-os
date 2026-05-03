@@ -2,7 +2,15 @@
   "name": "@agentskit/os-ui",
   "version": "0.0.0",
   "description": "AgentsKitOS UI — shadcn-based React primitives + dark cyan theme tokens shared by the desktop shell and any embedder.",
-  "keywords": ["agentskit", "agentskit-os", "ui", "react", "components", "shadcn", "tailwind"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "ui",
+    "react",
+    "components",
+    "shadcn",
+    "tailwind"
+  ],
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.cjs",
@@ -15,9 +23,16 @@
       "require": "./dist/index.cjs"
     },
     "./tokens.css": "./tokens.css",
+    "./tokens-cyber.css": "./tokens-cyber.css",
     "./styles.css": "./styles.css"
   },
-  "files": ["dist", "tokens.css", "styles.css", "README.md"],
+  "files": [
+    "dist",
+    "tokens.css",
+    "tokens-cyber.css",
+    "styles.css",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
@@ -34,7 +49,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.513.0",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",

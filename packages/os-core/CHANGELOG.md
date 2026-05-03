@@ -1,5 +1,115 @@
 # @agentskit/os-core
 
+## 0.4.0-alpha.0
+
+### Minor Changes
+
+- 39d14db: Add cost meter primitive per ADR-0012 `cost-meter` extension point. Pure schema + computation; no live API calls in core. Pricing tables registered by plugins.
+
+  `ModelPricing` Zod schema (provider + model + optional pinnedVersion + per-million input/output/cached-input rates + optional images-per-call + audio-per-second + Currency + effectiveFrom/effectiveTo windows + source URL).
+
+  `computeCost(usage, pricing)` returns typed `CostBreakdown` (currency + per-component costs + total). Cached tokens auto-deducted from billable input.
+
+  `CostMeter` class: register/unregister/lookup/meter. Falls back to unpinned model when pinnedVersion not registered. Honors `effectiveFrom`/`effectiveTo` time windows.
+
+  `checkBudget(input, prospectiveCost?)` returns `BudgetDecision` (`within | exceeded`) with scope (`daily | monthly`), limit, projected spent. Daily takes precedence when both exceeded.
+
+  `Currency` enum: USD/EUR/GBP/BRL/JPY/CNY.
+
+  New subpath export `@agentskit/os-core/cost/cost-meter`.
+
+- 4e2496a: Implement RFC-0006 OpenTelemetry GenAI semantic conventions. Pure constants + Zod validators; no OTel SDK dependency. Exporters in os-observability translate these into SDK calls.
+
+  `GenAiAttr` namespace exposes stable attribute names (`gen_ai.system`, `gen_ai.operation.name`, `gen_ai.request.*`, `gen_ai.response.*`, `gen_ai.usage.*`, `server.*`, `error.type`). OS extensions namespaced under `agentskitos.*` (workspace_id, run_id, run_mode, agent_id, flow_id, node_id, principal_id, cost_usd, cache_hit, consent_ref_id, brand_kit_id) — covers gaps without forking the standard.
+
+  `GEN_AI_OPERATION_NAMES` (chat/completion/embedding/tool/agent/rerank). `GEN_AI_FINISH_REASONS` (stop/length/tool_calls/content_filter/error). `GenAiSpanAttributes` Zod schema with passthrough for non-genai attributes. BigInt usage tokens auto-coerced to number.
+
+  Adapter helpers: `buildRequestAttributes(req, hints?)`, `buildResponseAttributes(res, hints?)`, `spanName(op, target?)`. `SEMCONV_VERSION = '1.29.0'`.
+
+  New subpath export `@agentskit/os-core/obs/gen-ai-semconv`.
+
+- e496ac7: Add `RagConfig` Zod schema wiring `@agentskit/rag` (chunker, loaders, vector stores, rerankers, hybrid search) into `WorkspaceConfig`. New `AgentConfig.ragRefs` field binds agents to pipelines. Closes the RAG coverage gap (AgentsKit-io/agentskit-os#158).
+
+  - 9 loader kinds: fs, web, pdf, notion, confluence, github, s3, firecrawl, plugin
+  - 9 vector stores: sqlite, turso, redis, file, pgvector, qdrant, pinecone, weaviate, plugin
+  - 7 reranker kinds: cohere, voyage, jina, cross-encoder, mmr, rrf, plugin
+  - Hybrid search (BM25/TFIDF/SPLADE × dense)
+  - ConfigRoot enforces unique pipeline ids + agent.ragRefs resolves to known pipelines
+
+- aad7f5b: M1 polish: BrandKit OutputGuard, patient consent, air-gap enforcement, adapter fallback chain.
+
+  Four issues shipped together to minimise schema conflict surface:
+
+  **#195 — BrandKit + OutputGuard (RFC-0004)**
+  `validateAgainstBrandKit` and `hasBlockingViolation` provide pure content-guard logic covering banned phrases (case-insensitive), required disclaimers, length limits, and capitalization rules. Multi-client override resolution via `BrandKit.client` slug. Full test coverage in `tests/brand/`.
+
+  **#186 — Patient consent + break-glass (RFC-0005)**
+  `checkConsent` enforces scope matching and TTL on `ConsentRef`. `evaluateBreakGlass` enforces two-person rule, TTL, and approved-reason list on `BreakGlassActivation`. Pure helpers — no I/O. Full test coverage in `tests/consent/`.
+
+  **#184 — Air-gap mode enforcement**
+  `airGapEnforce(policy, request)` decides whether telemetry, marketplace, cloudSync, externalLlm, or egress requests are permitted. When `policy.airGapped`, external LLMs are denied unless the provider is in `policy.localProviders`; egress is restricted to loopback (`localhost`, `127.0.0.1`, `::1`). Error code: `os.security.airgap_blocked`. Full test coverage in `tests/security/`.
+
+  **#194 — Adapter fallback chain**
+  `pickAdapter({ primary, fallbacks, available, preferLocal })` selects the first reachable provider. With `preferLocal: true`, local providers (tagged `local: true` on `FallbackEntry`) are preferred over network providers. Throws `NoAdapterAvailableError` (code `os.runtime.no_adapter_available`) when no provider is reachable. `AgentModelConfig.fallbackChain` field added. Full test coverage in `tests/runtime/`.
+
+### Patch Changes
+
+- 8167412: Internal: ADR-0014 publish vs bundle policy. Three distribution tiers — `public` (npm published, plugin authors compile against), `bundled-private` (`"private": true`, ships inside Tauri desktop bundle, not on npm), `internal-only` (tooling/fixtures, neither bundled nor published). All current packages declare `agentskitos.distribution: "public"`. CI lint `scripts/check-distribution.mjs` enforces field presence + private-flag pairing. No public API change.
+- 9fedb8d: Land RFC-0007 (Pre-1.0 Contract Freeze).
+
+  Defines three concentric rings of "public contract":
+
+  - **Ring 0** — wire formats (AuditBatch JSONL/SQL, CheckpointRecord, event envelope, plugin manifest, bundle JSON, lockfile)
+  - **Ring 1** — TypeScript public exports of `distribution: public` packages
+  - **Ring 2** — semantic behaviors (deterministic event ordering per workspace, audit chain continuity, ed25519 signatures, ULID ids, RunMode outcomes)
+
+  Pre-1.0: breakage allowed in minor bumps with changeset; post-1.0: breakage costs majors.
+
+  Adds `scripts/check-public-api.mjs` enforcement:
+
+  - Walks every `distribution: public` package
+  - Parses `dist/index.d.ts` for top-level export names + kinds (function / class / interface / type / const / reexport)
+  - Diffs against committed snapshots in `.agentskitos-api/<package>.json`
+  - Names + kinds only — purely structural type changes are not flagged
+  - Removed exports / kind changes → CI failure
+  - New exports → informational; CI passes
+
+  Initial snapshots committed for 14 in-tree public packages.
+
+  New scripts:
+
+  - `pnpm check:rfc-0007` — CI-side check
+  - `pnpm api:update` — local-side refresh after intentional public-API change
+
+- 2c2fd18: feat(os-flow): M1 polish — four issues in one PR
+
+  **#205 — Event-sourced RunSnapshot for time-travel debug**
+
+  - New `packages/os-flow/src/snapshot.ts`: `RunSnapshot` Zod schema with `runId`, `flowId`, `runMode`, `executedOrder`, `outcomes` (serialised as `[nodeId, outcome][]`), `enabledSet`, `startedAt`, `snapshotAt`.
+  - `captureSnapshot()`, `outcomesFromSnapshot()`, `buildSnapshotEmitter()` helpers.
+  - `RunOptions.snapshot?: SnapshotOptions` — host provides `onSnapshot` callback and optional `everyN` throttle.
+  - Runner emits a snapshot after each node (or every N nodes).
+
+  **#206 — Branch-from-past-step replay**
+
+  - New `packages/os-flow/src/branch.ts`: `branchFromSnapshot()` validates that `branchPoint` is in `snapshot.executedOrder`, truncates history, returns `{ seedOutcomes, executedOrder, parentRunId, initialInput?, handlerOverrides? }`.
+  - `RunOptions.seedOutcomes?: ReadonlyMap<string, NodeOutcome>` — seeded nodes are skipped by the runner; enabled set is re-derived from their outcomes.
+  - Throws `FlowBranchError` (code `os.flow.invalid_branch_point`) for unknown branch points.
+
+  **#188 — Two-person HITL approval**
+
+  - New `packages/os-flow/src/human-handler.ts`: `createHumanHandler({ approverGate })` factory.
+  - Host-injected `approverGate(node, ctx) => Promise<ApproverGateDecision>`.
+  - Reads `node.quorum` (default 1) to require N signers; emits `paused` if insufficient signers, `failed` (code `os.flow.hitl_quorum_unmet`) on rejection or gate throw.
+  - **os-core**: `HumanNode` gains `quorum: number` (default 1, max 32). Minimal surgical change.
+
+  **#199 — Cost stream cancel signal (engine half; UI blocks on M2 desktop)**
+
+  - `RunOptions.signal?: AbortSignal` — runner checks `signal.aborted` before each node.
+  - Returns `{ status: 'cancelled', reason: 'os.flow.cancelled' }` immediately if aborted before or between nodes; completing run is a no-op.
+  - Bus-bridge: new `run:cancelled` event kind maps to `flow.run.cancelled` CloudEvents envelope.
+  - New error codes: `os.flow.invalid_branch_point`, `os.flow.cancelled`, `os.flow.hitl_quorum_unmet`.
+
 ## 0.3.0
 
 ### Minor Changes

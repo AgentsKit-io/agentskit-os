@@ -1,8 +1,14 @@
 {
   "name": "@agentskit/os-observability-otel",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "OpenTelemetry binding for @agentskit/os-observability — span exporter, log writer, metric sink adapters.",
-  "keywords": ["agentskit", "agentskit-os", "observability", "opentelemetry", "otel"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "observability",
+    "opentelemetry",
+    "otel"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +20,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

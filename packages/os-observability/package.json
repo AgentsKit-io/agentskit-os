@@ -1,8 +1,16 @@
 {
   "name": "@agentskit/os-observability",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "AgentsKitOS observability — pure decision logic converting OS events into structured logs / traces / metrics. Pluggable sinks.",
-  "keywords": ["agentskit", "agentskit-os", "observability", "telemetry", "logs", "traces", "metrics"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "observability",
+    "telemetry",
+    "logs",
+    "traces",
+    "metrics"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +22,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

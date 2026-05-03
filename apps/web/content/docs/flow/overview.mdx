@@ -1,0 +1,26 @@
+---
+title: Flow overview
+description: DAG-native, durable, time-travel debuggable flow execution.
+---
+
+A **flow** is a DAG of steps that drives one or more agents to a goal.
+`@agentskit/os-flow` executes flows; `@agentskit/os-core` defines the schema.
+
+## Key properties
+
+- **DAG, not chain.** Cycles are detected at compile time. Branches are
+  first-class.
+- **Durable.** Every step writes a checkpoint. Resume after crash, redeploy,
+  or HITL pause.
+- **Run-mode-aware.** Every node respects `--mode`. See [run modes](./run-modes).
+- **Branch from past step.** Pick any historical checkpoint and re-execute
+  from there with new inputs or a new agent.
+- **Pre-flight cost estimate.** `--estimate` projects token + dollar cost
+  before any LLM call.
+- **Multi-agent topologies built in** — see [patterns](./multi-agent-patterns).
+
+## Authoring
+
+Flows live in `workspace.yaml` or `flows/*.yaml`. Schema is Zod-validated
+through `os-core`. The CLI's `agentskit-os run <flow>` is the canonical way
+to execute one.

@@ -1,0 +1,30 @@
+---
+title: "@agentskit/os-runtime"
+description: Handler factories with pluggable LLM, tool, and memory adapters.
+---
+
+```bash
+pnpm add @agentskit/os-runtime @agentskit/os-core
+```
+
+## What it does
+
+Defines runtime contracts that `os-flow` invokes during a run.
+
+- `LlmAdapter` — provider-agnostic generation contract.
+- `ToolExecutor` — capability-checked tool invocation.
+- `MemoryAdapter` — chat + vector memory contract.
+- `meteredLlmAdapter` — wraps any adapter with token + dollar accounting,
+  feeding the cost tracker.
+
+## Bring your own adapter
+
+Implement the contract directly, or use one of:
+
+- [`@agentskit/os-runtime-agentskit`](./os-runtime-agentskit) — adapts AgentsKit
+  upstream (`@agentskit/adapters`, `@agentskit/tools`).
+- A community plugin published via the marketplace (M5+).
+
+## Status
+
+Shipping in M1. 38+ tests. Cost tracker merged in #274.

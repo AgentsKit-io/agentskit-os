@@ -1,0 +1,28 @@
+---
+title: "@agentskit/os-storage"
+description: File-backed CheckpointStore + lockfile reader/writer.
+---
+
+```bash
+pnpm add @agentskit/os-storage @agentskit/os-core
+```
+
+## What it does
+
+Default storage backend for AgentsKitOS workspaces.
+
+- **`FileCheckpointStore`** — writes flow checkpoints to `.agentskitos/sqlite/`.
+  Crash-safe, atomic via temp + rename. Used by `os-flow` durable execution.
+- **Lockfile reader/writer** — implements RFC-0002. Canonical JSON, sorted
+  keys, deterministic hash.
+- **Atomic file ops** — small utility set used across the OS for tamper-safe
+  writes.
+
+## When to swap it
+
+Plugin authors can replace the `CheckpointStore` with postgres, redis, S3, or
+any custom backend. The contract lives in `os-core`.
+
+## Status
+
+Shipping in M1. 16+ tests.

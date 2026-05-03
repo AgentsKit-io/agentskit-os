@@ -1,0 +1,32 @@
+---
+title: "@agentskit/os-marketplace-sdk"
+description: Manifest builder, integrity hashing, signing, bundle metadata.
+---
+
+```bash
+pnpm add @agentskit/os-marketplace-sdk @agentskit/os-core
+```
+
+## What it does
+
+Pure-logic helpers for publishing plugins and templates. HTTP transports
+plug in.
+
+- `canonicalJson` — deterministic key sort
+- `sha256OfBytes` / `sha512OfBytes` / `sha256OfCanonical` / `sha512OfCanonical`
+- `verifyIntegrity` — checks a manifest's declared hash
+- `buildManifest(raw, { signer? })` — validates against `PluginConfig`,
+  optionally signs via injected `ManifestSigner`
+- `stripSignature` — for re-signing flows
+- `buildBundle(manifest, assets)` — per-asset SHA-256, sorts by path,
+  produces bundle SHA-512
+
+## Used by
+
+- `@agentskit/os-cli publish` — wraps `buildManifest` + `buildBundle` and
+  writes `agentskit-os.bundle.json`.
+- `@agentskit/os-plugins` — verifies signatures on install.
+
+## Status
+
+Shipping in M1. 28+ tests. Scaffold merged in #279.

@@ -1,0 +1,32 @@
+---
+title: "@agentskit/os-plugins"
+description: Plugin loader — validate manifests, signatures, capabilities; register extension contributions.
+---
+
+```bash
+pnpm add @agentskit/os-plugins @agentskit/os-core
+```
+
+## What it does
+
+Loads, validates, and registers plugins inside an AgentsKitOS workspace.
+
+- Validates manifests against the `PluginConfig` Zod schema in `os-core`.
+- Verifies bundle signatures (via `os-marketplace-sdk` integrity primitives).
+- Aligns declared capabilities with extension-point contributions
+  ([RFC-0001](/docs/rfcs)).
+- Routes contributions to the right extension points
+  ([ADR-0012](/docs/adrs)).
+
+## Extension points (ADR-0012)
+
+- `tool` — adds a tool to the workspace inventory
+- `flow.node` — adds a custom DAG node
+- `trigger` — adds a trigger source
+- `memory.backend` — adds a memory backend
+- `sandbox.runtime` — adds a sandbox runtime
+- `storage.checkpoint` — adds a CheckpointStore backend
+
+## Status
+
+Shipping in M1. 23+ tests. Loader scaffold merged in #273.

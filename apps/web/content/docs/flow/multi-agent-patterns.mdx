@@ -1,0 +1,49 @@
+---
+title: Multi-agent patterns (RFC-0003)
+description: compare · vote · debate · auction · blackboard.
+---
+
+Five built-in patterns for orchestrating multiple agents on the same task.
+
+## `compare`
+
+Run two or more agents on identical input. Output: each agent's result, plus
+a comparison node (often an LLM-judge or a deterministic reducer).
+
+Use for: PR reviews, draft generation, A/B prompt evaluation.
+
+## `vote`
+
+Run N agents, then aggregate via quorum, weighted vote, or judge.
+
+Use for: high-stakes decisions where you need consensus or want to detect
+disagreement.
+
+## `debate`
+
+Two agents alternate proposing + critiquing. A moderator agent (or HITL)
+decides when to stop and which view wins.
+
+Use for: complex reasoning where adversarial pressure improves output.
+
+## `auction`
+
+Agents bid on a task. The winning bid (lowest cost, highest confidence,
+fastest, etc.) executes.
+
+Use for: cost-sensitive workloads with heterogeneous agents.
+
+## `blackboard`
+
+A shared workspace agents read from and write to. Useful for emergent
+coordination.
+
+Use for: research-style problems with no fixed sequence.
+
+## Combinations
+
+Patterns compose. A common shape is `compare → vote → branch` for
+PR-review-style flows. Pre-flight `--estimate` shows the multi-agent cost
+fan-out before you commit.
+
+> Source: [RFC-0003](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/rfc/0003-multi-agent-patterns.md).

@@ -1,0 +1,27 @@
+---
+title: Run modes (ADR-0009)
+description: production · preview · dry-run · replay · simulate · deterministic.
+---
+
+Every flow run picks a **mode**. Modes constrain what the flow can do, with
+matching guarantees about side effects, cost, and reproducibility.
+
+| Mode | Network | Tools | LLM | Determinism | Use for |
+|---|---|---|---|---|---|
+| `real` | yes | real | real | non-det | production |
+| `preview` | yes (read-only) | read tools | real | non-det | safe inspection |
+| `dry_run` | no | mocked | mocked | non-det | local dev |
+| `replay` | no | recorded | recorded | bit-identical | debug, audit |
+| `simulate` | no | scripted | scripted | bit-identical | test |
+| `deterministic` | yes | real | seeded | bit-identical | regulated workloads |
+
+## Why it matters
+
+- **Healthcare / finance** — `deterministic` mode pins seeds and round-trip
+  schemas so an audit can reproduce the exact run six months later.
+- **PR review** — `preview` lets a reviewer see what the agent *would* do
+  without it actually merging.
+- **Cost control** — `dry_run` lets agents run end-to-end in CI without
+  burning provider credits.
+
+> Source: [ADR-0009](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0009-run-modes.md).

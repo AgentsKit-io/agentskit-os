@@ -1,0 +1,29 @@
+---
+title: "@agentskit/os-sandbox"
+description: Sandbox runtimes — built-in none + process; container/vm via plugins.
+---
+
+```bash
+pnpm add @agentskit/os-sandbox @agentskit/os-core
+```
+
+## What it does
+
+Provides isolation runtimes for tool execution.
+
+- **`none`** — no isolation. Dev only.
+- **`process`** — child-process isolation with capability + egress checks.
+- **`container`** — Docker / Podman, via plugin.
+- **`vm`** — firecracker, kata, e2b. Via plugin.
+
+## Side-effect declarations (ADR-0010)
+
+Every tool declares its side effects (`network`, `filesystem`, `shell`, `db`,
+`payment`, `pii`). Sandboxes use those declarations to choose isolation level
+and to gate dangerous combinations behind capability checks.
+
+> Source: [ADR-0010](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0010-tool-side-effects-sandbox.md).
+
+## Status
+
+Shipping in M1. 16+ tests. Scaffold merged in #275.

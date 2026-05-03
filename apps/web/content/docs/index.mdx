@@ -1,0 +1,36 @@
+---
+title: AgentsKitOS
+description: OS-layer on top of AgentsKit. Visual harness, SDLC, orchestrator, marketplace for agents — with stable contracts.
+---
+
+> **Status: pre-alpha. Milestone M1 — Core schemas + CLI alpha.**
+> `@agentskit/os-core` ships Zod contracts only — no runtime yet. 990+ tests, &lt;15 KB gzipped.
+
+AgentsKitOS is the operating system layer for AI agents. It owns the workspace,
+flow DAG + durable execution, triggers, marketplace, plugin host, MCP bridge v2,
+generative OS (NL→agent/flow), cloud sync, collab, desktop UX, vault++, and a
+signed audit log.
+
+It does **not** duplicate AgentsKit. Adapters, runtime primitives, memory, tools,
+skills, RAG, sandbox, eval — all imported as dependencies.
+
+## Start here
+
+- **Evaluating?** → [Architecture overview](/docs/architecture/overview) · [Philosophy](/docs/philosophy)
+- **Installing?** → [Get started](/docs/get-started) · [CLI reference](/docs/get-started/cli)
+- **Building?** → [Packages](/docs/packages) · [Flow engine](/docs/flow/overview)
+- **Shipping to prod?** → [Run modes](/docs/flow/run-modes) · [Audit log](/docs/security/audit-log) · [Sandbox levels](/docs/security/sandbox-levels)
+- **Curious about scope?** → [Roadmap](/docs/roadmap) · [ADRs](/docs/adrs) · [RFCs](/docs/rfcs)
+
+## Headline targets (1.0)
+
+| Axis | Target |
+|---|---|
+| Installer size | &lt;15 MB |
+| Cold start | &lt;800 ms |
+| Core gzipped | &lt;15 KB |
+| Time to first agent | &lt;60 s |
+| Provider lock-in | Zero |
+| Self-host | Day 1 |
+| Air-gap mode | First-class |
+| Test coverage core | &gt;90% |

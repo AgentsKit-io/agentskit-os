@@ -1,0 +1,40 @@
+---
+title: Depend on AgentsKit (ADR-0002)
+description: How AgentsKitOS imports — and never duplicates — upstream AgentsKit packages.
+---
+
+AgentsKitOS sits on top of [AgentsKit](https://github.com/AgentsKit-io/agentskit).
+Every concern AgentsKit already solves stays upstream.
+
+## What AgentsKit owns
+
+| Concern | Package |
+|---|---|
+| LLM adapters (30+: Anthropic, OpenAI, Azure, Bedrock, Gemini, Groq, Mistral, Ollama, vLLM, …) | `@agentskit/adapters` |
+| Runtime (ReAct, durable, background, delegates, topologies, speculate, shared-context) | `@agentskit/runtime` |
+| Memory backends (sqlite, turso, redis, file, graph, hierarchical, encrypted) | `@agentskit/memory` |
+| Tools (filesystem, shell, fetch, web-search, slack, sqlite-query, mcp, plus integrations) | `@agentskit/tools` |
+| Skills (coder, reviewer, planner, researcher, summarizer, …) | `@agentskit/skills` |
+| RAG (chunker, loaders, rerank, vector-store) | `@agentskit/rag` |
+| Observability (OTel, Langsmith, Datadog, Axiom, audit-log, cost-guard, trace-viewer) | `@agentskit/observability` |
+| Sandbox (e2b backend, policy, types) | `@agentskit/sandbox` |
+| Eval | `@agentskit/eval` |
+
+## What the OS owns
+
+Workspace model · flow DAG + durable · triggers · marketplace · plugin host ·
+MCP bridge v2 · generative OS (NL→agent/flow) · cloud sync · collab ·
+desktop UX · vault++ · signed audit log.
+
+## Gaps to upstream
+
+- **Email trigger** — Gmail tool exists upstream; generic SMTP/IMAP not yet.
+  OS proposes upstream contribution before T-4.
+- **Microsoft Teams** — not yet upstream; T-6 may seed.
+- **Postgres CDC** — `tools/integrations/postgres.ts` is query-mode; CDC mode
+  (T-9) requires upstream extension.
+- **Graph reranker / advanced RAG patterns** — RAG primitives upstream;
+  production-grade rerank pipelines may be OS-layer templates rather than core
+  additions.
+
+> Source: [ADR-0002](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0002-depend-on-agentskit.md).

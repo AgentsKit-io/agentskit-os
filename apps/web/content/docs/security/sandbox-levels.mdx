@@ -1,0 +1,34 @@
+---
+title: Sandbox levels (ADR-0010)
+description: Side-effect declarations + tiered isolation.
+---
+
+Tools declare what they do. Sandboxes choose isolation accordingly.
+
+## Side-effect declarations
+
+Every tool registers its side effects:
+
+- `network` — outbound HTTP / sockets
+- `filesystem` — read / write
+- `shell` — process exec
+- `db` — database mutation
+- `payment` — money movement
+- `pii` — touches personal data
+
+The runtime uses these to:
+
+1. Pick an appropriate sandbox tier.
+2. Enforce capability checks before the call.
+3. Annotate audit events with the actual side effects observed.
+
+## Sandbox tiers
+
+| Tier | Provided by | Use |
+|---|---|---|
+| `none` | core | dev only |
+| `process` | `os-sandbox` | most tools |
+| `container` | plugin | risky / community tools |
+| `vm` | plugin (e2b, firecracker) | full code-execution sandboxes |
+
+> Source: [ADR-0010](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0010-tool-side-effects-sandbox.md).

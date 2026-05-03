@@ -1,0 +1,24 @@
+---
+title: Audit log signing (ADR-0008)
+description: Tamper-evident audit trail via Merkle batch chain, HSM-ready.
+---
+
+Every interesting event lands in the audit log. The log is structured for
+SOC 2, HIPAA, and GDPR review without per-event signing overhead.
+
+## Shape
+
+- Events stream through the os-core bus.
+- `@agentskit/os-audit` batches them into **Merkle trees**.
+- Each batch's root references the previous batch's root, forming a chain.
+- The chain head can be signed via HSM / KMS in production deployments.
+
+## What this gives you
+
+- Tamper-evident by design — flipping one event invalidates the chain.
+- Per-event verifiability without per-event signature cost.
+- Forwards-compatible with SIEM ingestion.
+- Air-gap-friendly — chain export is a single file, importable into any
+  external auditor's verifier.
+
+> Source: [ADR-0008](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0008-audit-log-signing.md).

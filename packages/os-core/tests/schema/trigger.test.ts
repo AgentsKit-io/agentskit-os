@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   parseTriggerConfig,
   safeParseTriggerConfig,
+  effectiveLimitsFor,
 } from '../../src/schema/trigger.js'
 
 const base = { id: 'daily-pr', name: 'Daily PR', flow: 'pr-review' }
@@ -124,5 +125,112 @@ describe('TriggerConfig — discriminated union', () => {
     it('throws on parseTriggerConfig with invalid input', () => {
       expect(() => parseTriggerConfig({})).toThrow()
     })
+  })
+
+  describe('per-trigger limits field', () => {
+    it('accepts a cron trigger with a limits block', () => {
+      const t = parseTriggerConfig({
+        ...base,
+        kind: 'cron',
+        cron: '0 6 * * *',
+        limits: { usdPerRun: 2.5, maxStepsPerRun: 500 },
+      })
+      expect(t.limits?.usdPerRun).toBe(2.5)
+      expect(t.limits?.maxStepsPerRun).toBe(500)
+    })
+
+    it('limits is optional — absent by default', () => {
+      const t = parseTriggerConfig({ ...base, kind: 'cron', cron: '0 9 * * *' })
+      expect(t.limits).toBeUndefined()
+    })
+
+    it('rejects negative usdPerRun in trigger limits', () => {
+      expect(
+        safeParseTriggerConfig({
+          ...base,
+          kind: 'cron',
+          cron: '0 9 * * *',
+          limits: { usdPerRun: -1 },
+        }).success,
+      ).toBe(false)
+    })
+  })
+})
+
+describe('effectiveLimitsFor', () => {
+  it('returns empty object when both workspace and trigger are undefined', () => {
+    const result = effectiveLimitsFor({})
+    expect(result.usdPerRun).toBeUndefined()
+    expect(result.tokensPerRun).toBeUndefined()
+  })
+
+  it('returns workspace limits when no trigger override is set', () => {
+    const result = effectiveLimitsFor({
+      workspace: { usdPerRun: 10, maxStepsPerRun: 1000 },
+    })
+    expect(result.usdPerRun).toBe(10)
+    expect(result.maxStepsPerRun).toBe(1000)
+  })
+
+  it('trigger override wins over workspace for usdPerRun', () => {
+    const result = effectiveLimitsFor({
+      workspace: { usdPerRun: 10, tokensPerRun: 50_000 },
+      trigger: { usdPerRun: 2 },
+    })
+    expect(result.usdPerRun).toBe(2)
+    // workspace value inherited for unoverridden field
+    expect(result.tokensPerRun).toBe(50_000)
+  })
+
+  it('partial trigger override inherits remaining workspace fields', () => {
+    const result = effectiveLimitsFor({
+      workspace: {
+        usdPerRun: 5,
+        tokensPerDay: 1_000_000,
+        maxConcurrentRuns: 4,
+      },
+      trigger: { maxConcurrentRuns: 1 },
+    })
+    expect(result.maxConcurrentRuns).toBe(1)
+    expect(result.usdPerRun).toBe(5)
+    expect(result.tokensPerDay).toBe(1_000_000)
+  })
+
+  it('full trigger override replaces all workspace fields', () => {
+    const workspace = {
+      tokensPerRun: 100_000,
+      usdPerRun: 5,
+      tokensPerDay: 1_000_000,
+      usdPerDay: 50,
+      wallClockMsPerRun: 60_000,
+      maxConcurrentRuns: 10,
+      maxStepsPerRun: 1_000,
+    }
+    const trigger = {
+      tokensPerRun: 10_000,
+      usdPerRun: 0.5,
+      tokensPerDay: 100_000,
+      usdPerDay: 5,
+      wallClockMsPerRun: 30_000,
+      maxConcurrentRuns: 2,
+      maxStepsPerRun: 100,
+    }
+    const result = effectiveLimitsFor({ workspace, trigger })
+    expect(result.tokensPerRun).toBe(10_000)
+    expect(result.usdPerRun).toBe(0.5)
+    expect(result.tokensPerDay).toBe(100_000)
+    expect(result.usdPerDay).toBe(5)
+    expect(result.wallClockMsPerRun).toBe(30_000)
+    expect(result.maxConcurrentRuns).toBe(2)
+    expect(result.maxStepsPerRun).toBe(100)
+  })
+
+  it('trigger-only (no workspace) returns trigger values', () => {
+    const result = effectiveLimitsFor({
+      trigger: { usdPerRun: 3, maxStepsPerRun: 200 },
+    })
+    expect(result.usdPerRun).toBe(3)
+    expect(result.maxStepsPerRun).toBe(200)
+    expect(result.tokensPerRun).toBeUndefined()
   })
 })

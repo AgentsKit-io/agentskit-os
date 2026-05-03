@@ -23,14 +23,17 @@
   },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "man",
+    "scripts"
   ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "manpages": "node scripts/gen-manpages.mjs"
   },
   "dependencies": {
     "yaml": "^2.6.1"

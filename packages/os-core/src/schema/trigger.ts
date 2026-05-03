@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { Slug, TagList, VaultSecretRef } from './_primitives.js'
+import { WorkspaceLimits } from './workspace.js'
 
 const SecretOrPlain = z.union([VaultSecretRef, z.string().min(1).max(2048)])
 
@@ -9,6 +10,11 @@ const Common = {
   enabled: z.boolean().default(true),
   flow: Slug,
   tags: TagList.default([]),
+  /**
+   * Per-trigger budget override. Any field set here takes precedence over the
+   * workspace-level WorkspaceLimits. Unset fields inherit the workspace value.
+   */
+  limits: WorkspaceLimits.optional(),
 }
 
 export const CronTrigger = z.object({
@@ -100,3 +106,24 @@ export type TriggerConfig = z.infer<typeof TriggerConfig>
 
 export const parseTriggerConfig = (input: unknown): TriggerConfig => TriggerConfig.parse(input)
 export const safeParseTriggerConfig = (input: unknown) => TriggerConfig.safeParse(input)
+
+/**
+ * Merge workspace-level limits with per-trigger limits.
+ * Fields present on `trigger.limits` override the corresponding workspace field.
+ * Fields absent on `trigger.limits` inherit from `workspace`.
+ */
+export const effectiveLimitsFor = ({
+  workspace,
+  trigger,
+}: {
+  workspace?: WorkspaceLimits
+  trigger?: WorkspaceLimits
+}): WorkspaceLimits => ({
+  tokensPerRun: trigger?.tokensPerRun ?? workspace?.tokensPerRun,
+  usdPerRun: trigger?.usdPerRun ?? workspace?.usdPerRun,
+  tokensPerDay: trigger?.tokensPerDay ?? workspace?.tokensPerDay,
+  usdPerDay: trigger?.usdPerDay ?? workspace?.usdPerDay,
+  wallClockMsPerRun: trigger?.wallClockMsPerRun ?? workspace?.wallClockMsPerRun,
+  maxConcurrentRuns: trigger?.maxConcurrentRuns ?? workspace?.maxConcurrentRuns,
+  maxStepsPerRun: trigger?.maxStepsPerRun ?? workspace?.maxStepsPerRun,
+})

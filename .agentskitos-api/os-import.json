@@ -1,0 +1,40 @@
+{
+  "exports": {
+    "ImportResult": {
+      "kind": "reexport"
+    },
+    "ImportWarning": {
+      "kind": "reexport"
+    },
+    "Importer": {
+      "kind": "reexport"
+    },
+    "ImporterRegistry": {
+      "kind": "reexport"
+    },
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "builtInImporters": {
+      "kind": "const"
+    },
+    "detectImporter": {
+      "kind": "const"
+    },
+    "difyImporter": {
+      "kind": "reexport"
+    },
+    "importWorkflow": {
+      "kind": "const"
+    },
+    "langflowImporter": {
+      "kind": "reexport"
+    },
+    "n8nImporter": {
+      "kind": "reexport"
+    }
+  }
+}

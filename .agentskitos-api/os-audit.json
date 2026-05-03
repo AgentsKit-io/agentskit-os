@@ -1,0 +1,58 @@
+{
+  "exports": {
+    "AuditEmitter": {
+      "kind": "reexport"
+    },
+    "BatchStore": {
+      "kind": "reexport"
+    },
+    "EmitterOptions": {
+      "kind": "reexport"
+    },
+    "FileBatchStore": {
+      "kind": "reexport"
+    },
+    "FileBatchStoreOptions": {
+      "kind": "reexport"
+    },
+    "FileSystem": {
+      "kind": "reexport"
+    },
+    "InMemoryBatchStore": {
+      "kind": "reexport"
+    },
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "SignedEventRef": {
+      "kind": "reexport"
+    },
+    "Signer": {
+      "kind": "reexport"
+    },
+    "SqliteBatchStore": {
+      "kind": "reexport"
+    },
+    "SqliteBatchStoreOptions": {
+      "kind": "reexport"
+    },
+    "SqliteDatabase": {
+      "kind": "reexport"
+    },
+    "SqliteStatement": {
+      "kind": "reexport"
+    },
+    "hashEvent": {
+      "kind": "reexport"
+    },
+    "nodeFs": {
+      "kind": "reexport"
+    },
+    "safeWorkspaceId": {
+      "kind": "reexport"
+    }
+  }
+}

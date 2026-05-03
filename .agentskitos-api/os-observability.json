@@ -6,6 +6,15 @@
     "ConsoleLogWriterOptions": {
       "kind": "reexport"
     },
+    "CostBridgeLabels": {
+      "kind": "reexport"
+    },
+    "CostEntryShape": {
+      "kind": "reexport"
+    },
+    "CostMetricsRecorderOptions": {
+      "kind": "reexport"
+    },
     "CounterAgg": {
       "kind": "reexport"
     },
@@ -78,7 +87,13 @@
     "consoleLogWriter": {
       "kind": "reexport"
     },
+    "costEntryToMetricPoints": {
+      "kind": "reexport"
+    },
     "costRule": {
+      "kind": "reexport"
+    },
+    "createCostMetricsRecorder": {
       "kind": "reexport"
     },
     "createLogSink": {

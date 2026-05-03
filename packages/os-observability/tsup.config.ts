@@ -8,6 +8,8 @@ export default defineConfig({
     'src/replay.ts',
     'src/trace-collector.ts',
     'src/in-memory-span-exporter.ts',
+    'src/metrics-registry.ts',
+    'src/in-memory-metric-sink.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

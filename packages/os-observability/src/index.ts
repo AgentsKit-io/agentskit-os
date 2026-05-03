@@ -16,5 +16,22 @@ export type { ConsoleLogWriterOptions } from './console-writer.js'
 
 export { replayEvents } from './replay.js'
 
+export {
+  createTraceCollector,
+  defaultClassifyLifecycle,
+  defaultKindOf,
+  defaultNameOf,
+} from './trace-collector.js'
+export type {
+  Span,
+  SpanExporter,
+  SpanKind,
+  SpanStatus,
+  SpanLifecycle,
+  TraceCollectorOptions,
+} from './trace-collector.js'
+
+export { InMemorySpanExporter } from './in-memory-span-exporter.js'
+
 export const PACKAGE_NAME = '@agentskit/os-observability' as const
 export const PACKAGE_VERSION = '0.0.0' as const

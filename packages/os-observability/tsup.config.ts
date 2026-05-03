@@ -6,6 +6,8 @@ export default defineConfig({
     'src/log-sink.ts',
     'src/console-writer.ts',
     'src/replay.ts',
+    'src/trace-collector.ts',
+    'src/in-memory-span-exporter.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

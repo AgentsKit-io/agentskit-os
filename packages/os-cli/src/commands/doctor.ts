@@ -4,6 +4,47 @@ import { CLI_VERSION } from './version.js'
 
 type Check = { name: string; ok: boolean; detail: string }
 
+export type LiveCheckStatus = 'ok' | 'fail' | 'skipped'
+
+export type LiveChecks = {
+  readonly llm: LiveCheckStatus
+  readonly sandbox: LiveCheckStatus
+  readonly llmDetail?: string
+  readonly sandboxDetail?: string
+}
+
+/** Minimal LlmAdapter shape for the doctor probe — no provider SDK import. */
+export type DoctorLlmAdapter = {
+  invoke(call: {
+    readonly system: string
+    readonly model: string
+    readonly messages: ReadonlyArray<{ role: 'user'; content: string }>
+    readonly maxTokens?: number
+  }): Promise<{ readonly text: string; readonly finishReason: string }>
+}
+
+/** Minimal sandbox spawner shape for the doctor probe — injectable for tests. */
+export type DoctorSandboxSpawner = {
+  spawn(opts: {
+    command: string
+    args: readonly string[]
+    stdio: 'pipe'
+  }): Promise<{ pid: number; exitCode: Promise<number> }>
+}
+
+export type DoctorLiveOpts = {
+  readonly llmAdapter?: DoctorLlmAdapter
+  readonly sandboxSpawner?: DoctorSandboxSpawner
+  /** Override timeouts. Defaults: llm=10_000ms, sandbox=5_000ms. */
+  readonly timeoutMs?: { readonly llm?: number; readonly sandbox?: number }
+}
+
+export type DoctorReport = {
+  readonly checks: readonly Check[]
+  readonly failed: number
+  readonly liveChecks?: LiveChecks
+}
+
 const MIN_NODE_MAJOR = 22
 
 const checkNodeVersion = (): Check => {
@@ -39,13 +80,147 @@ const checkAgentskitOsHome = (): Check => {
     : { name: 'AGENTSKITOS_HOME', ok: true, detail: '(unset, will default to ~/.agentskitos)' }
 }
 
-const help = `agentskit-os doctor
+const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('os.cli.doctor_live_timeout'))
+    }, ms)
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v) },
+      (err) => { clearTimeout(timer); reject(err) },
+    )
+  })
+
+const probeLlm = async (
+  adapter: DoctorLlmAdapter,
+  timeoutMs: number,
+): Promise<{ status: LiveCheckStatus; detail: string }> => {
+  try {
+    const result = await withTimeout(
+      adapter.invoke({
+        system: 'You are a ping utility.',
+        model: 'default',
+        messages: [{ role: 'user', content: 'ping' }],
+        maxTokens: 8,
+      }),
+      timeoutMs,
+    )
+    if (typeof result.text !== 'string' || typeof result.finishReason !== 'string') {
+      return { status: 'fail', detail: 'invalid response shape from LLM adapter' }
+    }
+    return { status: 'ok', detail: `llm responded (finishReason=${result.finishReason})` }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return { status: 'fail', detail: msg }
+  }
+}
+
+const probeSandbox = async (
+  spawner: DoctorSandboxSpawner,
+  timeoutMs: number,
+): Promise<{ status: LiveCheckStatus; detail: string }> => {
+  try {
+    const handle = await withTimeout(
+      spawner.spawn({ command: 'true', args: [], stdio: 'pipe' }),
+      timeoutMs,
+    )
+    const code = await withTimeout(handle.exitCode, timeoutMs)
+    if (code !== 0) {
+      return { status: 'fail', detail: `sandbox exited with code ${code}` }
+    }
+    return { status: 'ok', detail: `sandbox round-trip ok (pid=${handle.pid}, exit=0)` }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return { status: 'fail', detail: msg }
+  }
+}
+
+const runLiveChecks = async (opts: DoctorLiveOpts): Promise<LiveChecks> => {
+  const llmTimeout = opts.timeoutMs?.llm ?? 10_000
+  const sandboxTimeout = opts.timeoutMs?.sandbox ?? 5_000
+
+  const [llmResult, sandboxResult] = await Promise.all([
+    opts.llmAdapter
+      ? probeLlm(opts.llmAdapter, llmTimeout)
+      : Promise.resolve({ status: 'skipped' as const, detail: 'no LLM adapter injected' }),
+    opts.sandboxSpawner
+      ? probeSandbox(opts.sandboxSpawner, sandboxTimeout)
+      : Promise.resolve({ status: 'skipped' as const, detail: 'no sandbox spawner injected' }),
+  ])
+
+  return {
+    llm: llmResult.status,
+    sandbox: sandboxResult.status,
+    llmDetail: llmResult.detail,
+    sandboxDetail: sandboxResult.detail,
+  }
+}
+
+export const runDoctor = async (live: boolean, liveOpts?: DoctorLiveOpts): Promise<DoctorReport> => {
+  const checks: Check[] = [
+    checkNodeVersion(),
+    checkPlatform(),
+    checkOsCore(),
+    checkAgentskitOsHome(),
+  ]
+  const failed = checks.filter((c) => !c.ok).length
+
+  if (!live) {
+    return { checks, failed }
+  }
+
+  const liveChecks = await runLiveChecks(liveOpts ?? {})
+  return { checks, failed, liveChecks }
+}
+
+const formatReport = (report: DoctorReport): CliExit => {
+  const lines = report.checks.map(
+    (c) => `${c.ok ? '[ok]' : '[FAIL]'} ${c.name.padEnd(20)} ${c.detail}`,
+  )
+
+  if (report.liveChecks) {
+    const lc = report.liveChecks
+    const llmIcon = lc.llm === 'ok' ? '[ok]' : lc.llm === 'fail' ? '[FAIL]' : '[skip]'
+    const sbIcon = lc.sandbox === 'ok' ? '[ok]' : lc.sandbox === 'fail' ? '[FAIL]' : '[skip]'
+    lines.push(`${llmIcon} ${'live:llm'.padEnd(20)} ${lc.llmDetail ?? lc.llm}`)
+    lines.push(`${sbIcon} ${'live:sandbox'.padEnd(20)} ${lc.sandboxDetail ?? lc.sandbox}`)
+  }
+
+  const liveFailed =
+    report.liveChecks
+      ? (report.liveChecks.llm === 'fail' ? 1 : 0) +
+        (report.liveChecks.sandbox === 'fail' ? 1 : 0)
+      : 0
+  const totalFailed = report.failed + liveFailed
+
+  const summary =
+    totalFailed === 0
+      ? `\nall checks passed (cli ${CLI_VERSION})`
+      : `\n${totalFailed} check(s) failed`
+
+  const out = `${lines.join('\n')}${summary}\n`
+  return {
+    code: totalFailed === 0 ? 0 : 1,
+    stdout: totalFailed === 0 ? out : '',
+    stderr: totalFailed === 0 ? '' : out,
+  }
+}
+
+const help = `agentskit-os doctor [--live]
 
 Diagnoses CLI environment: node version, platform, linked os-core,
 AGENTSKITOS_HOME. Exits 0 when all critical checks pass, 1 otherwise.
+
+Options:
+  --live    Also run live LLM probe (10s timeout) and sandbox round-trip (5s timeout).
+            Adapters are injected by the host via createDoctor().
 `
 
-export const doctor: CliCommand = {
+/**
+ * Factory for the doctor command, allowing dependency injection of live
+ * probe adapters for testing without importing provider SDKs.
+ */
+export const createDoctor = (liveOpts?: DoctorLiveOpts): CliCommand => ({
   name: 'doctor',
   summary: 'Diagnose CLI environment + linked package versions',
   run: async (argv): Promise<CliExit> => {
@@ -53,21 +228,11 @@ export const doctor: CliCommand = {
       return { code: 2, stdout: '', stderr: help }
     }
 
-    const checks: Check[] = [
-      checkNodeVersion(),
-      checkPlatform(),
-      checkOsCore(),
-      checkAgentskitOsHome(),
-    ]
-
-    const lines = checks.map((c) => `${c.ok ? '[ok]' : '[FAIL]'} ${c.name.padEnd(20)} ${c.detail}`)
-    const failed = checks.filter((c) => !c.ok).length
-    const summary = failed === 0 ? `\nall checks passed (cli ${CLI_VERSION})` : `\n${failed} check(s) failed`
-
-    return {
-      code: failed === 0 ? 0 : 1,
-      stdout: failed === 0 ? `${lines.join('\n')}${summary}\n` : '',
-      stderr: failed === 0 ? '' : `${lines.join('\n')}${summary}\n`,
-    }
+    const live = argv.includes('--live')
+    const report = await runDoctor(live, live ? liveOpts : undefined)
+    return formatReport(report)
   },
-}
+})
+
+/** Default doctor command — live checks skipped unless adapters injected at runtime. */
+export const doctor: CliCommand = createDoctor()

@@ -25,6 +25,9 @@ import {
 import { NotificationBell } from './notifications/notification-bell'
 import { NotificationPanel } from './notifications/notification-panel'
 import { useCommandPalette } from './command-palette/command-palette-provider'
+import { ShortcutProvider } from './keyboard/shortcut-provider'
+import { ShortcutsPanel } from './keyboard/shortcuts-panel'
+import { useShortcutHandler } from './keyboard/shortcut-handlers'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -180,29 +183,50 @@ export function App() {
   return (
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
-      <NotificationsProvider>
-        <OnboardingProvider>
-          <CommandPaletteProvider
-            onNavigate={handleNavigate}
-            onClearEventFeed={handleClearEventFeed}
-          >
-            <FocusProvider>
-              <NotificationCommandBridge />
-              <AppShell
-                activeScreen={activeScreen}
-                setActiveScreen={setActiveScreen}
-                serviceBanner={serviceBanner}
-                setServiceBanner={setServiceBanner}
-              />
-              <CommandPalette />
-              <NotificationPanel />
-            </FocusProvider>
-          </CommandPaletteProvider>
-          <OnboardingTour />
-        </OnboardingProvider>
-      </NotificationsProvider>
+      <ShortcutProvider>
+        <NotificationsProvider>
+          <OnboardingProvider>
+            <CommandPaletteProvider
+              onNavigate={handleNavigate}
+              onClearEventFeed={handleClearEventFeed}
+            >
+              <FocusProvider>
+                <NotificationCommandBridge />
+                <ShortcutWirer />
+                <AppShell
+                  activeScreen={activeScreen}
+                  setActiveScreen={setActiveScreen}
+                  serviceBanner={serviceBanner}
+                  setServiceBanner={setServiceBanner}
+                />
+                <CommandPalette />
+                <NotificationPanel />
+              </FocusProvider>
+            </CommandPaletteProvider>
+            <OnboardingTour />
+          </OnboardingProvider>
+        </NotificationsProvider>
+      </ShortcutProvider>
     </ThemeProvider>
   )
+}
+
+/** Wires the "shortcuts.open" keyboard shortcut + palette command to render the panel. */
+function ShortcutWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useShortcutHandler('shortcuts.open', () => setOpen(true))
+  useEffect(() => {
+    registerCommand({
+      id: 'shortcuts.open',
+      label: 'Open keyboard shortcuts',
+      keywords: ['shortcuts', 'keyboard', 'bindings', 'hotkeys'],
+      category: 'System',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  if (!open) return null
+  return <ShortcutsPanel onClose={() => setOpen(false)} />
 }
 
 /** Registers palette commands that interact with the notification center. */

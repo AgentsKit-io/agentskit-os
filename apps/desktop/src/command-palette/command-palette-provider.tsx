@@ -18,6 +18,8 @@ import {
 import { useTheme } from '@agentskit/os-ui'
 import { pauseRuns, resumeRuns } from '../lib/sidecar'
 import { createBuiltInCommands, type Command } from './commands'
+import { getBuiltIn } from '../keyboard/shortcut-registry'
+import { matchesBinding } from '../keyboard/shortcut-types'
 
 // ---------------------------------------------------------------------------
 // Context
@@ -123,11 +125,18 @@ export function CommandPaletteProvider({
     [builtInCommands, extraCommands],
   )
 
-  // Global keyboard shortcut: Cmd+K / Ctrl+K
+  // Global keyboard shortcut: read binding from the shortcut registry so the
+  // registry is the single source of truth for the palette toggle key.
+  // We also accept the ctrl-equivalent for cross-platform support (Windows/Linux).
   useEffect(() => {
+    const paletteShortcut = getBuiltIn('palette.toggle')
+    const binding = paletteShortcut?.defaultBinding ?? 'meta+k'
+    // Derive a ctrl-variant: substitute 'meta' with 'ctrl' so the palette
+    // opens on Ctrl+K for Windows / Linux users.
+    const ctrlVariant = binding.replace(/\bmeta\b/, 'ctrl')
+
     function handleKeyDown(e: KeyboardEvent) {
-      const modKey = e.metaKey || e.ctrlKey
-      if (modKey && (e.key === 'k' || e.key === 'K')) {
+      if (matchesBinding(e, binding) || matchesBinding(e, ctrlVariant)) {
         e.preventDefault()
         setOpen((prev) => !prev)
       }

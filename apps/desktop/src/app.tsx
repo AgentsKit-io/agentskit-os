@@ -28,6 +28,8 @@ import { useCommandPalette } from './command-palette/command-palette-provider'
 import { ShortcutProvider } from './keyboard/shortcut-provider'
 import { ShortcutsPanel } from './keyboard/shortcuts-panel'
 import { useShortcutHandler } from './keyboard/shortcut-handlers'
+import { WorkspacesProvider } from './workspaces/workspaces-provider'
+import { WorkspaceSwitcher } from './workspaces/workspace-switcher'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -83,6 +85,7 @@ type SidebarProps = {
 function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
   return (
     <aside className="w-52 border-r border-[var(--ag-line)] bg-[var(--ag-surface-alt)]">
+      <WorkspaceSwitcher />
       <div className="flex items-center justify-between px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
         <span>Navigation</span>
         <span className="flex items-center gap-1 normal-case tracking-normal">
@@ -184,28 +187,30 @@ export function App() {
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
       <ShortcutProvider>
-        <NotificationsProvider>
-          <OnboardingProvider>
-            <CommandPaletteProvider
-              onNavigate={handleNavigate}
-              onClearEventFeed={handleClearEventFeed}
-            >
-              <FocusProvider>
-                <NotificationCommandBridge />
-                <ShortcutWirer />
-                <AppShell
-                  activeScreen={activeScreen}
-                  setActiveScreen={setActiveScreen}
-                  serviceBanner={serviceBanner}
-                  setServiceBanner={setServiceBanner}
-                />
-                <CommandPalette />
-                <NotificationPanel />
-              </FocusProvider>
-            </CommandPaletteProvider>
-            <OnboardingTour />
-          </OnboardingProvider>
-        </NotificationsProvider>
+        <WorkspacesProvider>
+          <NotificationsProvider>
+            <OnboardingProvider>
+              <CommandPaletteProvider
+                onNavigate={handleNavigate}
+                onClearEventFeed={handleClearEventFeed}
+              >
+                <FocusProvider>
+                  <NotificationCommandBridge />
+                  <ShortcutWirer />
+                  <AppShell
+                    activeScreen={activeScreen}
+                    setActiveScreen={setActiveScreen}
+                    serviceBanner={serviceBanner}
+                    setServiceBanner={setServiceBanner}
+                  />
+                  <CommandPalette />
+                  <NotificationPanel />
+                </FocusProvider>
+              </CommandPaletteProvider>
+              <OnboardingTour />
+            </OnboardingProvider>
+          </NotificationsProvider>
+        </WorkspacesProvider>
       </ShortcutProvider>
     </ThemeProvider>
   )

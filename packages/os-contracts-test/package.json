@@ -1,0 +1,60 @@
+{
+  "name": "@agentskit/os-contracts-test",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Golden contract test suites for AgentsKitOS backend impls (CheckpointStore, BatchStore, EventBus). Internal-only until 1.0 (ADR-0014).",
+  "keywords": ["agentskit", "agentskit-os", "contracts", "test", "fixtures"],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "@agentskit/os-audit": "workspace:^",
+    "@agentskit/os-core": "workspace:^",
+    "@agentskit/os-flow": "workspace:^",
+    "vitest": "^4.0.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@agentskit/os-audit": "workspace:*",
+    "@agentskit/os-core": "workspace:*",
+    "@agentskit/os-flow": "workspace:*",
+    "@agentskit/os-storage": "workspace:*",
+    "@types/node": "^25.6.0",
+    "tsup": "^8.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5",
+    "zod": "^4.4.1"
+  },
+  "agentskitos": {
+    "distribution": "internal-only",
+    "stability": "alpha",
+    "stabilityNote": "Pre-1.0 internal-only per ADR-0014. Becomes a published devDep for plugin authors at 1.0."
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-contracts-test",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
+    "directory": "packages/os-contracts-test"
+  },
+  "bugs": {
+    "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
+  },
+  "author": "AgentsKit Contributors"
+}

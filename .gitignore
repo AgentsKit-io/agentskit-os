@@ -15,3 +15,4 @@ coverage
 .agentskitos/
 target/
 *.tsbuildinfo
+.claude/worktrees/

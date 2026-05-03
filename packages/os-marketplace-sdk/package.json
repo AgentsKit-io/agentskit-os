@@ -1,8 +1,14 @@
 {
   "name": "@agentskit/os-marketplace-sdk",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "AgentsKitOS marketplace SDK — manifest builder, integrity hashing, signing, bundle metadata.",
-  "keywords": ["agentskit", "agentskit-os", "marketplace", "sdk", "publish"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "marketplace",
+    "sdk",
+    "publish"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +20,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

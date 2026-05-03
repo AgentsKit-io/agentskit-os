@@ -1,8 +1,14 @@
 {
   "name": "@agentskit/os-runtime",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "AgentsKitOS runtime — handler factories with pluggable LLM, tool, memory adapters.",
-  "keywords": ["agentskit", "agentskit-os", "runtime", "handlers", "adapters"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "runtime",
+    "handlers",
+    "adapters"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +20,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

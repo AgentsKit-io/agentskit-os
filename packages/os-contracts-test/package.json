@@ -1,9 +1,15 @@
 {
   "name": "@agentskit/os-contracts-test",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "private": true,
   "description": "Golden contract test suites for AgentsKitOS backend impls (CheckpointStore, BatchStore, EventBus). Internal-only until 1.0 (ADR-0014).",
-  "keywords": ["agentskit", "agentskit-os", "contracts", "test", "fixtures"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "contracts",
+    "test",
+    "fixtures"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -15,7 +21,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

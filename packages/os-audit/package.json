@@ -1,8 +1,14 @@
 {
   "name": "@agentskit/os-audit",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "AgentsKitOS audit emitter — build Merkle batch chains from event stream.",
-  "keywords": ["agentskit", "agentskit-os", "audit", "merkle", "tamper-evident"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "audit",
+    "merkle",
+    "tamper-evident"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +20,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

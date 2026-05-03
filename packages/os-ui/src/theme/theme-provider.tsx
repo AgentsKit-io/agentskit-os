@@ -6,12 +6,18 @@ import {
   useMemo,
   useState,
 } from 'react'
+import {
+  applyThemeToDocument,
+  buildThemeRegistry,
+  defaultThemes,
+} from './theme-registry'
+import type { ThemeRegistry } from './theme-registry'
 
-export type Theme = 'dark' | 'light' | 'system'
+export type Theme = 'dark' | 'light' | 'cyber' | 'system'
 
 export interface ThemeContextValue {
   theme: Theme
-  resolvedTheme: 'dark' | 'light'
+  resolvedTheme: 'dark' | 'light' | 'cyber'
   setTheme: (theme: Theme) => void
 }
 
@@ -20,13 +26,21 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 export interface ThemeProviderProps {
   children: React.ReactNode
   defaultTheme?: Theme
+  /** Optional additional theme definitions to merge into the registry. */
+  themes?: ThemeRegistry
 }
 
 export function ThemeProvider({
   children,
   defaultTheme = 'dark',
+  themes,
 }: ThemeProviderProps): React.JSX.Element {
   const [theme, setThemeState] = useState<Theme>(defaultTheme)
+
+  const registry = useMemo(
+    () => buildThemeRegistry(themes),
+    [themes],
+  )
 
   const resolveSystemTheme = useCallback((): 'dark' | 'light' => {
     if (typeof window === 'undefined') return 'dark'
@@ -35,13 +49,15 @@ export function ThemeProvider({
       : 'light'
   }, [])
 
-  const resolvedTheme: 'dark' | 'light' =
+  const resolvedTheme: 'dark' | 'light' | 'cyber' =
     theme === 'system' ? resolveSystemTheme() : theme
 
   useEffect(() => {
     if (typeof document === 'undefined') return
-    document.documentElement.setAttribute('data-theme', resolvedTheme)
-  }, [resolvedTheme])
+    const themeDefinition =
+      registry[resolvedTheme] ?? defaultThemes[resolvedTheme] ?? { name: resolvedTheme }
+    applyThemeToDocument(themeDefinition)
+  }, [resolvedTheme, registry])
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next)

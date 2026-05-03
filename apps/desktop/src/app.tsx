@@ -2,17 +2,18 @@
  * AgentsKitOS Desktop — root application component.
  *
  * Wires sidebar navigation between Dashboard and Traces, the tray-driven
- * "Service mode active" banner, and the global Cmd/Ctrl+K command palette
- * overlay (D-6).
+ * "Service mode active" banner, the global Cmd/Ctrl+K command palette
+ * overlay (D-6), and the theme switcher with persisted choice (D-9 / D-4).
  */
 
 import { useCallback, useEffect, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
-import { Kbd, ThemeProvider } from '@agentskit/os-ui'
+import { Kbd, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { Dashboard } from './screens/dashboard'
 import { TracesScreen } from './screens/traces'
 import { CommandPaletteProvider } from './command-palette/command-palette-provider'
 import { CommandPalette } from './command-palette'
+import { getTheme, setTheme } from './lib/theme-store'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -24,6 +25,15 @@ const NAV_ITEMS: ReadonlyArray<{
   { id: 'dashboard', label: 'Dashboard', icon: '▤' },
   { id: 'traces', label: 'Traces', icon: '◈' },
 ]
+
+/** Syncs theme changes to the persistent store. Must be inside ThemeProvider. */
+function ThemeSync(): null {
+  const { theme } = useTheme()
+  useEffect(() => {
+    setTheme(theme)
+  }, [theme])
+  return null
+}
 
 function ServiceModeBanner({
   visible,
@@ -87,6 +97,9 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
           </button>
         ))}
       </div>
+      <div className="mt-4 border-t border-[var(--ag-line)] px-3 pt-3">
+        <ThemeSwitcher />
+      </div>
     </aside>
   )
 }
@@ -94,6 +107,7 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
 export function App() {
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('dashboard')
   const [serviceBanner, setServiceBanner] = useState(false)
+  const initialTheme = getTheme()
 
   useEffect(() => {
     const unlisten = listen<void>('tray://window-hidden', () => {
@@ -104,14 +118,11 @@ export function App() {
     }
   }, [])
 
-  const handleNavigate = useCallback(
-    (screen: string) => {
-      if (screen === 'dashboard' || screen === 'traces') {
-        setActiveScreen(screen)
-      }
-    },
-    [],
-  )
+  const handleNavigate = useCallback((screen: string) => {
+    if (screen === 'dashboard' || screen === 'traces') {
+      setActiveScreen(screen)
+    }
+  }, [])
 
   const handleClearEventFeed = useCallback(() => {
     // No-op for now; Dashboard will register its own clear via the palette
@@ -119,7 +130,8 @@ export function App() {
   }, [])
 
   return (
-    <ThemeProvider defaultTheme="dark">
+    <ThemeProvider defaultTheme={initialTheme}>
+      <ThemeSync />
       <CommandPaletteProvider
         onNavigate={handleNavigate}
         onClearEventFeed={handleClearEventFeed}

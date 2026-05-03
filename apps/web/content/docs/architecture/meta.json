@@ -6,6 +6,7 @@
     "workspace-model",
     "event-bus",
     "principal-rbac",
-    "errors"
+    "errors",
+    "distribution-tiers"
   ]
 }

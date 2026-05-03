@@ -4,6 +4,7 @@ description: Trigger sources — cron, webhook, file, email, slack, github, line
 ---
 
 > **Status: planned — Milestone M4.**
+> **Distribution: `public`** (when shipped).
 
 Wraps trigger sources behind a uniform contract. Every trigger feeds events
 onto the os-core bus and into matching flows.
@@ -22,3 +23,9 @@ onto the os-core bus and into matching flows.
 Triggers are I/O-heavy and benefit from dedicated process / runtime
 isolation. Splitting them keeps `os-core` zero-dep and lets users swap or
 disable trigger sources independently.
+
+## Install (when published)
+
+```bash
+pnpm add @agentskit/os-triggers @agentskit/os-core
+```

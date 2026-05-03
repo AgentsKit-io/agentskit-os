@@ -4,6 +4,7 @@ description: Trace viewer, replay, anomaly detection — atop AgentsKit observab
 ---
 
 > **Status: planned — Milestone M6.**
+> **Distribution: `public`** (when shipped). Embedders can install it.
 
 Builds on `@agentskit/observability` (OTel, audit-log, cost-guard, trace-tracker).
 
@@ -14,3 +15,9 @@ Builds on `@agentskit/observability` (OTel, audit-log, cost-guard, trace-tracker
 - Anomaly detection (latency, cost, retry rate, tool failure rate).
 - OTel `gen_ai.*` semantic conventions ([RFC-0006](/docs/rfcs)).
 - Drop-in compatible with Datadog, Honeycomb, Langfuse, New Relic, Grafana, PostHog.
+
+## Install (when published)
+
+```bash
+pnpm add @agentskit/os-observability @agentskit/os-core
+```

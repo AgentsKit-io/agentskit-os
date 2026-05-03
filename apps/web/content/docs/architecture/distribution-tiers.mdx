@@ -1,0 +1,89 @@
+---
+title: Distribution tiers (ADR-0014)
+description: Not every package ships to npm. Three tiers — public, bundled-private, internal-only — decide where a package goes.
+---
+
+End users get AgentsKitOS as a signed Tauri bundle (`.dmg` / `.exe` /
+`.AppImage`). They never `npm install` anything. But plugin authors and
+embedders do. To serve both audiences without bloating npm or leaking
+internal API, every `packages/os-*` declares its **distribution tier**.
+
+## Three tiers
+
+| Tier | On npm | In desktop bundle | `private:` |
+|---|---|---|---|
+| `public` | yes | yes (when needed) | `false` |
+| `bundled-private` | **no** | yes | `true` |
+| `internal-only` | **no** | **no** | `true` |
+
+Every `package.json` declares the tier explicitly:
+
+```json
+{
+  "agentskitos": {
+    "distribution": "public" | "bundled-private" | "internal-only",
+    "stability": "alpha" | "beta" | "stable"
+  }
+}
+```
+
+A CI lint (`pnpm check:adr-0014`) fails the build if any package omits or
+mis-declares its tier.
+
+## What each tier is for
+
+### `public` — published to npm
+
+Pick this when **plugin authors or embedders compile against it**. They need
+the types, schemas, and runtime contracts.
+
+Today (M1):
+
+- All 12 shipping packages are `public`.
+
+In the long term, public stays narrow. Each promotion to `public` requires:
+
+- A stable contract (1.0 or an explicit alpha note)
+- A fresh dependency audit
+- A compat-matrix entry
+
+### `bundled-private` — only inside the desktop bundle
+
+Pick this when the package is **runtime feature** — useful at runtime, but
+nobody compiles against it from outside.
+
+Planned:
+
+- [`@agentskit/os-desktop`](../packages/os-desktop)
+- [`@agentskit/os-cloud-sync`](../packages/os-cloud-sync)
+- [`@agentskit/os-collab`](../packages/os-collab)
+- [`@agentskit/os-generative`](../packages/os-generative)
+- [`@agentskit/os-mcp-bridge`](../packages/os-mcp-bridge)
+- `@agentskit/os-marketplace` (server-side install logic)
+
+You can still import them across the workspace via `workspace:*` — they're
+just not on npm.
+
+### `internal-only` — never ship
+
+Tooling, fixtures, contract test suites. Never bundled, never published.
+
+Planned:
+
+- `@agentskit/os-contracts-test` — golden fixtures for plugin authors.
+  Stays `internal-only` while pre-1.0; flips to `public` (as a devDep) at 1.0.
+- Build helper packages.
+
+## "Use one piece without the desktop" — clarification
+
+The original [non-negotiable #3](../philosophy/non-negotiables) reads "every
+package independently installable." ADR-0014 refines that: every **public**
+package is independently installable. `bundled-private` packages are
+features of the bundle, not standalone units.
+
+This keeps two promises intact:
+
+1. **Plugin authors and embedders** get a stable, narrow npm surface.
+2. **End users** get a single signed binary that just works.
+
+> Source: [ADR-0014](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0014-publish-vs-bundle.md).

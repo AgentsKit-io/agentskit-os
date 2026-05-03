@@ -9,6 +9,16 @@ export { cn } from './lib/cn'
 export { ThemeProvider, useTheme } from './theme/theme-provider'
 export type { Theme, ThemeContextValue, ThemeProviderProps } from './theme/theme-provider'
 
+export {
+  defaultThemes,
+  buildThemeRegistry,
+  applyThemeToDocument,
+  clearThemeOverrides,
+  ThemeDefinitionSchema,
+  ThemeRegistrySchema,
+} from './theme/theme-registry'
+export type { ThemeDefinition, ThemeRegistry } from './theme/theme-registry'
+
 // Components
 export { Button, buttonVariants } from './components/button'
 export type { ButtonProps, ButtonVariant, ButtonSize } from './components/button'
@@ -33,3 +43,6 @@ export type { TooltipProps, TooltipTriggerProps } from './components/tooltip'
 
 export { GlassPanel } from './components/glass-panel'
 export type { GlassPanelProps } from './components/glass-panel'
+
+export { ThemeSwitcher } from './components/theme-switcher'
+export type { ThemeSwitcherProps } from './components/theme-switcher'

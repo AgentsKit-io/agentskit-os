@@ -39,5 +39,17 @@ export type {
   PolicyToolHandlerOptions,
 } from './tool-policy.js'
 
+export {
+  estimateFlowCost,
+  priceKey,
+} from './cost-estimator.js'
+export type {
+  NodeCostEstimate,
+  FlowCostEstimate,
+  AgentMap,
+  PriceMap,
+  EstimateOptions,
+} from './cost-estimator.js'
+
 export const PACKAGE_NAME = '@agentskit/os-flow' as const
 export const PACKAGE_VERSION = '0.0.0' as const

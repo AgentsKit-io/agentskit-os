@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-runtime",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "AgentsKitOS runtime — handler factories with pluggable LLM, tool, memory adapters.",
   "keywords": [
     "agentskit",

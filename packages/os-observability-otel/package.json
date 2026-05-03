@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-observability-otel",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "OpenTelemetry binding for @agentskit/os-observability — span exporter, log writer, metric sink adapters.",
   "keywords": [
     "agentskit",

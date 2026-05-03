@@ -1,8 +1,14 @@
 {
   "name": "@agentskit/os-headless",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "AgentsKitOS headless runner — first-class bridge between a workspace config and a running agent without any UI.",
-  "keywords": ["agentskit", "agentskit-os", "headless", "runner", "flow"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "headless",
+    "runner",
+    "flow"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +20,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

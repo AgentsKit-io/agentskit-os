@@ -9,10 +9,11 @@ import {
   type AgentRegistryEntry,
   type ToolRegistryEntry,
 } from './mode-policy.js'
+import { buildSnapshotEmitter, type SnapshotOptions } from './snapshot.js'
 import { auditGraph, buildAdjacency, topoSort } from './topo.js'
 
 export type RunResult = {
-  readonly status: 'completed' | 'failed' | 'paused' | 'skipped'
+  readonly status: 'completed' | 'failed' | 'paused' | 'skipped' | 'cancelled'
   readonly outcomes: ReadonlyMap<string, NodeOutcome>
   readonly executedOrder: readonly string[]
   readonly stoppedAt?: string
@@ -44,6 +45,20 @@ export type RunOptions = {
     readonly tools?: ReadonlyArray<ToolRegistryEntry>
     readonly randomnessSources?: ReadonlyArray<string>
   }
+  /**
+   * #205 — Snapshot sink. Called after each node (or every everyN nodes).
+   */
+  readonly snapshot?: SnapshotOptions
+  /**
+   * #206 — Pre-seeded outcomes from a prior run / branch. Nodes whose id
+   * appears in the map are treated as already-completed and skipped.
+   */
+  readonly seedOutcomes?: ReadonlyMap<string, NodeOutcome>
+  /**
+   * #199 — Cancellation signal. Runner checks `signal.aborted` between nodes.
+   * If aborted the run returns `{ status: 'cancelled', reason: 'os.flow.cancelled' }`.
+   */
+  readonly signal?: AbortSignal
 }
 
 const edgeMatches = (edge: FlowEdge, outcome: NodeOutcome): boolean => {
@@ -62,6 +77,16 @@ const edgeMatches = (edge: FlowEdge, outcome: NodeOutcome): boolean => {
 }
 
 export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunResult> => {
+  // #199 — check before we do any real work
+  if (opts.signal?.aborted) {
+    return {
+      status: 'cancelled',
+      outcomes: new Map(),
+      executedOrder: [],
+      reason: 'os.flow.cancelled',
+    }
+  }
+
   const issues = auditGraph(flow)
   if (issues.length > 0) {
     return {
@@ -103,14 +128,49 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
 
   const adj = buildAdjacency(flow.edges, flow.nodes.map((n) => n.id))
   const byId = new Map<string, FlowNode>(flow.nodes.map((n) => [n.id, n]))
-  const outcomes = new Map<string, NodeOutcome>()
+
+  // #206 — seed prior outcomes; expand enabled set from them
+  const outcomes = new Map<string, NodeOutcome>(opts.seedOutcomes ?? [])
   const executed: string[] = []
-  const enabled = new Set<string>([flow.entry])
+  const enabled = new Set<string>()
+
+  if (outcomes.size === 0) {
+    enabled.add(flow.entry)
+  } else {
+    // Re-derive the enabled set from the seeded outcomes
+    for (const [id, outcome] of outcomes) {
+      for (const next of adj.get(id) ?? []) {
+        if (edgeMatches({ from: id, to: next.to, on: next.on }, outcome)) {
+          enabled.add(next.to)
+        }
+      }
+    }
+    // Remove already-seeded nodes
+    for (const id of outcomes.keys()) {
+      enabled.delete(id)
+    }
+  }
+
+  // #205 — snapshot emitter (created once; stateful counter inside)
+  const emitSnapshot = opts.snapshot ? buildSnapshotEmitter(opts.snapshot) : null
 
   for (const id of sorted.order) {
+    // #206 — skip seeded nodes
+    if (outcomes.has(id) && !executed.includes(id)) continue
     if (!enabled.has(id)) continue
     const node = byId.get(id)
     if (!node) continue
+
+    // #199 — check abort signal between nodes
+    if (opts.signal?.aborted) {
+      return {
+        status: 'cancelled',
+        outcomes,
+        executedOrder: executed,
+        stoppedAt: id,
+        reason: 'os.flow.cancelled',
+      }
+    }
 
     opts.onEvent?.({ kind: 'node:start', nodeId: id })
 
@@ -140,6 +200,19 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
 
     if (opts.checkpoint) await opts.checkpoint(id, outcome, opts.ctx)
     opts.onEvent?.({ kind: 'node:end', nodeId: id, outcome })
+
+    // #205 — emit snapshot after node completes
+    if (emitSnapshot) {
+      emitSnapshot({
+        runId: opts.ctx.runId,
+        flowId: flow.id,
+        runMode: opts.ctx.runMode,
+        executedOrder: executed,
+        outcomes,
+        enabledSet: enabled,
+        startedAt: opts.ctx.startedAt,
+      })
+    }
 
     if (outcome.kind === 'failed') {
       return {

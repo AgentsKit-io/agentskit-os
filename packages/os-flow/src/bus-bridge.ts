@@ -63,10 +63,18 @@ export type BridgeEvent =
   | { kind: 'node:start'; nodeId: string }
   | { kind: 'node:end'; nodeId: string; outcome: NodeOutcome }
   | { kind: 'node:resumed'; nodeId: string; outcome: NodeOutcome }
+  /** #199 — emitted when the runner is cancelled via AbortSignal. */
+  | { kind: 'run:cancelled'; reason: string }
 
 export const createBusOnEvent = (opts: BridgeOptions) => {
   return async (event: BridgeEvent): Promise<void> => {
     const runMode = opts.ctx.runMode
+    if (event.kind === 'run:cancelled') {
+      await opts.bus.publish(
+        buildEnvelope('flow.run.cancelled', { reason: event.reason, runMode }, opts),
+      )
+      return
+    }
     if (event.kind === 'node:start') {
       await opts.bus.publish(
         buildEnvelope('flow.node.started', { nodeId: event.nodeId, runMode }, opts),
@@ -116,5 +124,6 @@ export const FLOW_EVENT_TYPES = [
   'flow.node.paused',
   'flow.node.skipped',
   'flow.node.resumed',
+  'flow.run.cancelled',
 ] as const
 export type FlowEventType = (typeof FLOW_EVENT_TYPES)[number]

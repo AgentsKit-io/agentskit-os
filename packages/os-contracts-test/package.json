@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-contracts-test",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "private": true,
   "description": "Golden contract test suites for AgentsKitOS backend impls (CheckpointStore, BatchStore, EventBus). Internal-only until 1.0 (ADR-0014).",
   "keywords": [

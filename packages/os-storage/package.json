@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-storage",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "AgentsKitOS storage adapters — file-backed CheckpointStore + lockfile reader/writer.",
   "keywords": [
     "agentskit",

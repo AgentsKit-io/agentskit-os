@@ -17,7 +17,8 @@
     "@agentskit/os-runtime-agentskit": "0.0.0",
     "@agentskit/os-sandbox": "0.0.0",
     "@agentskit/os-storage": "0.0.0",
-    "@agentskit/os-templates": "0.0.0"
+    "@agentskit/os-templates": "0.0.0",
+    "@agentskit/os-headless": "0.0.0"
   },
   "changesets": [
     "m1-adr-0014-distribution",
@@ -31,6 +32,7 @@
     "m1-cli-run",
     "m1-cost-meter",
     "m1-dify-importer",
+    "m1-followups-batch-1",
     "m1-langflow-importer",
     "m1-os-audit-file-store",
     "m1-os-audit-scaffold",
@@ -69,6 +71,7 @@
     "os-flow-multi-agent-handlers",
     "os-flow-runmode-plumbing",
     "os-flow-tool-policy",
+    "os-headless-and-doctor-live",
     "os-sandbox-egress-enforcer",
     "web-fumadocs-docs",
     "web-vercel-deploy",

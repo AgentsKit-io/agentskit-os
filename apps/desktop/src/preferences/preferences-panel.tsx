@@ -89,9 +89,11 @@ export type PreferencesPanelProps = {
   readonly onClose: () => void
   /** Optional callback to open the shortcuts panel. */
   readonly onOpenShortcuts?: () => void
+  /** Optional callback to open the snapshot panel. */
+  readonly onOpenSnapshot?: () => void
 }
 
-export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts }: PreferencesPanelProps) {
+export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts, onOpenSnapshot }: PreferencesPanelProps) {
   const { prefs, set, reset, exportJson } = usePreferences()
   const [activeTab, setActiveTab] = useState<TabId>('general')
   // Buffer local changes until Save is clicked
@@ -223,14 +225,26 @@ export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts }: Preferenc
 
           {/* Footer */}
           <div className="flex items-center justify-between border-t border-[var(--ag-line)] px-5 py-3">
-            <button
-              type="button"
-              data-testid="reset-preferences"
-              onClick={handleReset}
-              className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-            >
-              Reset to defaults
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                data-testid="reset-preferences"
+                onClick={handleReset}
+                className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+              >
+                Reset to defaults
+              </button>
+              {onOpenSnapshot && (
+                <button
+                  type="button"
+                  data-testid="open-snapshot-btn"
+                  onClick={onOpenSnapshot}
+                  className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+                >
+                  Snapshot…
+                </button>
+              )}
+            </div>
             <div className="flex gap-2">
               <button
                 type="button"

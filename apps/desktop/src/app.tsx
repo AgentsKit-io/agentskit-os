@@ -36,6 +36,7 @@ import { StatusLineProvider } from './status-line/status-line-provider'
 import { StatusLine } from './status-line/status-line'
 import { StatusLineConfigPanel } from './status-line/status-line-config-panel'
 import { ThemeEditorPanel } from './theme-editor/theme-editor-panel'
+import { SnapshotPanel } from './snapshot/snapshot-panel'
 import { NotificationPreferencesProvider } from './notifications/preferences/notification-preferences-provider'
 import { NotificationPreferencesPanel } from './notifications/preferences/preferences-panel'
 
@@ -229,6 +230,7 @@ export function App() {
                       <ShortcutWirer />
                       <PreferencesWirer />
                       <ThemeEditorWirer />
+                      <SnapshotWirer />
                       <NotificationPrefsWirer />
                       <AppShell
                         activeScreen={activeScreen}
@@ -372,4 +374,27 @@ function NotificationPrefsWirer(): React.JSX.Element | null {
     })
   }, [registerCommand])
   return <NotificationPreferencesPanel isOpen={open} onClose={() => setOpen(false)} />
+}
+
+/** Wires snapshot export/import palette commands + modal. */
+function SnapshotWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'snapshot.export',
+      label: 'Export desktop snapshot',
+      keywords: ['snapshot', 'export', 'backup'],
+      category: 'System',
+      run: () => setOpen(true),
+    })
+    registerCommand({
+      id: 'snapshot.import',
+      label: 'Import desktop snapshot',
+      keywords: ['snapshot', 'import', 'restore'],
+      category: 'System',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return <SnapshotPanel isOpen={open} onClose={() => setOpen(false)} />
 }

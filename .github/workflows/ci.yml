@@ -22,7 +22,24 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Check for changeset
+        env:
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
+          # Skip release version PRs — they consume changesets, never add new ones.
+          case "$PR_BRANCH" in
+            chore/release-*)
+              echo "Release branch ($PR_BRANCH) — skipping changeset check."
+              exit 0
+              ;;
+          esac
+          case "$PR_TITLE" in
+            'chore(release)'*)
+              echo "Release title ($PR_TITLE) — skipping changeset check."
+              exit 0
+              ;;
+          esac
+
           CHANGED=$(git diff --name-only origin/main...HEAD)
           NEEDS_CHANGESET=$(echo "$CHANGED" | grep -E '^packages/' || true)
           if [ -z "$NEEDS_CHANGESET" ]; then

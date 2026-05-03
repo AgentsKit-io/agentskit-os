@@ -1,8 +1,16 @@
 {
   "name": "@agentskit/os-import",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "AgentsKitOS migration importers — Langflow, n8n, Dify → ConfigRoot.",
-  "keywords": ["agentskit", "agentskit-os", "import", "migration", "langflow", "n8n", "dify"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "import",
+    "migration",
+    "langflow",
+    "n8n",
+    "dify"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +22,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

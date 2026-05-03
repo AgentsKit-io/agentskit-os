@@ -1,8 +1,14 @@
 {
   "name": "@agentskit/os-plugins",
-  "version": "0.0.0",
+  "version": "1.0.0-alpha.0",
   "description": "AgentsKitOS plugin loader — validate manifests, signatures, capabilities; register extension contributions.",
-  "keywords": ["agentskit", "agentskit-os", "plugins", "marketplace", "loader"],
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "plugins",
+    "marketplace",
+    "loader"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -14,7 +20,9 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

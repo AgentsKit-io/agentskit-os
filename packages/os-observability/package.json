@@ -27,7 +27,9 @@
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@agentskit/os-audit": "workspace:*",
     "@agentskit/os-core": "workspace:*",
+    "@agentskit/os-flow": "workspace:*",
     "@types/node": "^25.6.0",
     "tsup": "^8.5.0",
     "typescript": "^6.0.3",

@@ -268,9 +268,15 @@ importers:
 
   packages/os-observability:
     devDependencies:
+      '@agentskit/os-audit':
+        specifier: workspace:*
+        version: link:../os-audit
       '@agentskit/os-core':
         specifier: workspace:*
         version: link:../os-core
+      '@agentskit/os-flow':
+        specifier: workspace:*
+        version: link:../os-flow
       '@types/node':
         specifier: ^25.6.0
         version: 25.6.0

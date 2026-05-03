@@ -37,6 +37,8 @@ export default defineConfig({
     'src/consent/consent.ts',
     'src/obs/gen-ai-semconv.ts',
     'src/cost/cost-meter.ts',
+    'src/security/airgap.ts',
+    'src/runtime/adapter-fallback.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

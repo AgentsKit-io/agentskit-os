@@ -185,6 +185,15 @@ export {
 } from './runtime/run-mode.js'
 
 export {
+  FallbackEntry,
+  pickAdapter,
+  NoAdapterAvailableError,
+  parseFallbackEntry,
+  safeParseFallbackEntry,
+} from './runtime/adapter-fallback.js'
+export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-fallback.js'
+
+export {
   EgressPolicy,
   EgressProxy,
   checkEgress,
@@ -192,6 +201,14 @@ export {
   safeParseEgressPolicy,
 } from './security/egress.js'
 export type { EgressGrant, EgressDecision } from './security/egress.js'
+
+export {
+  AirGapPolicy,
+  airGapEnforce,
+  parseAirGapPolicy,
+  safeParseAirGapPolicy,
+} from './security/airgap.js'
+export type { AirGapRequest, AirGapDecision } from './security/airgap.js'
 
 export {
   SIDE_EFFECTS,

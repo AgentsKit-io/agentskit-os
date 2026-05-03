@@ -1,0 +1,68 @@
+{
+  "name": "@agentskit/os-ui",
+  "version": "0.0.0",
+  "description": "AgentsKitOS UI — shadcn-based React primitives + dark cyan theme tokens shared by the desktop shell and any embedder.",
+  "keywords": ["agentskit", "agentskit-os", "ui", "react", "components", "shadcn", "tailwind"],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./tokens.css": "./tokens.css",
+    "./styles.css": "./styles.css"
+  },
+  "files": ["dist", "tokens.css", "styles.css", "README.md"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwindcss": "^3"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.513.0",
+    "tailwind-merge": "^3.3.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.5",
+    "@types/react-dom": "^19.1.5",
+    "jsdom": "^26.1.0",
+    "tsup": "^8.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "agentskitos": {
+    "distribution": "public",
+    "stability": "alpha",
+    "stabilityNote": "Pre-1.0. M2 alpha — React primitives + dark cyan token system."
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
+    "directory": "packages/os-ui"
+  },
+  "bugs": {
+    "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
+  },
+  "author": "AgentsKit Contributors"
+}

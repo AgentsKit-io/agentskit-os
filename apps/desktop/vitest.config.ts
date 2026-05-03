@@ -12,6 +12,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      // Point to the os-ui source so tests can resolve the package without
+      // requiring a pre-built dist/ directory.
+      '@agentskit/os-ui': resolve(__dirname, '../../packages/os-ui/src/index.ts'),
     },
   },
 })

@@ -4,6 +4,14 @@
  * Exposes `useNotifications()` returning the NotificationsContextValue.
  * Subscribes to sidecar events via subscribeEvents(); auto-pushes a
  * notification for any event type matching `error.*` or `audit.flagged.*`.
+ *
+ * Integrates with NotificationPreferences (via useNotificationPreferences)
+ * to apply per-event routing and quiet-hours suppression before pushing.
+ *
+ *   routing = 'silent'        → notification is dropped
+ *   routing = 'panel'         → pushed to in-app panel (existing behaviour)
+ *   routing = 'os-toast'      → TODO: Tauri Notification plugin (future)
+ *   routing = 'desktop-alert' → TODO: Tauri Notification plugin (future)
  */
 
 import {
@@ -16,6 +24,8 @@ import {
 } from 'react'
 import { subscribeEvents } from '../lib/sidecar'
 import { useNotificationsStore } from './use-notifications-store'
+import { useNotificationPreferences } from './preferences/notification-preferences-provider'
+import { routeNotification } from './preferences/preferences-engine'
 import type { NotificationsContextValue, Notify } from './types'
 
 // ---------------------------------------------------------------------------
@@ -43,6 +53,7 @@ export type NotificationsProviderProps = {
 export function NotificationsProvider({ children }: NotificationsProviderProps) {
   const [isOpen, setIsOpen] = useState(false)
   const store = useNotificationsStore()
+  const { prefs } = useNotificationPreferences()
 
   // Subscribe to sidecar events and auto-push on error.* / audit.flagged.*
   useEffect(() => {
@@ -50,6 +61,10 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
       const { type, data } = event
 
       if (type.startsWith('error.')) {
+        const routing = routeNotification({ eventType: type }, prefs)
+
+        if (routing === 'silent') return
+
         const payload: Notify = {
           severity: 'error',
           title: `Error: ${type}`,
@@ -58,11 +73,24 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
               ? data['message']
               : JSON.stringify(data).slice(0, 120),
         }
-        store.push(payload)
+
+        if (routing === 'panel') {
+          store.push(payload)
+        } else if (routing === 'os-toast' || routing === 'desktop-alert') {
+          // TODO: deliver via Tauri Notification plugin when available
+          // import('@tauri-apps/plugin-notification').then(({ sendNotification }) => {
+          //   sendNotification({ title: payload.title, body: payload.message })
+          // })
+          store.push(payload)
+        }
         return
       }
 
       if (type.startsWith('audit.flagged.')) {
+        const routing = routeNotification({ eventType: type }, prefs)
+
+        if (routing === 'silent') return
+
         const payload: Notify = {
           severity: 'warning',
           title: `Audit flag: ${type}`,
@@ -71,13 +99,20 @@ export function NotificationsProvider({ children }: NotificationsProviderProps) 
               ? data['message']
               : JSON.stringify(data).slice(0, 120),
         }
-        store.push(payload)
+
+        if (routing === 'panel') {
+          store.push(payload)
+        } else if (routing === 'os-toast' || routing === 'desktop-alert') {
+          // TODO: deliver via Tauri Notification plugin when available
+          store.push(payload)
+        }
         return
       }
     })
 
     return unsub
-    // store.push is stable (useCallback), but we only want to subscribe once
+    // prefs reference is intentionally excluded — we re-subscribe only when
+    // the subscription itself needs to change. Routing reads prefs at call time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

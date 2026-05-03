@@ -26,6 +26,6 @@ bus.subscribe('*', createLogSink({ writer: consoleLogWriter() }))
 
 - ✅ `createLogSink` + `consoleLogWriter`
 - ✅ `replayEvents`
-- ⏳ `createTraceCollector` + `inMemorySpanExporter`
+- ✅ `createTraceCollector` + `InMemorySpanExporter`
 - ⏳ `createMetricsRegistry` + `inMemoryMetricSink`
 - ⏳ companion: `@agentskit/os-observability-otel`

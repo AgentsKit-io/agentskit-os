@@ -32,6 +32,9 @@ import { WorkspacesProvider } from './workspaces/workspaces-provider'
 import { WorkspaceSwitcher } from './workspaces/workspace-switcher'
 import { PreferencesProvider } from './preferences/preferences-provider'
 import { PreferencesPanel } from './preferences/preferences-panel'
+import { StatusLineProvider } from './status-line/status-line-provider'
+import { StatusLine } from './status-line/status-line'
+import { StatusLineConfigPanel } from './status-line/status-line-config-panel'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -156,6 +159,7 @@ function AppShell({
           {activeScreen === 'traces' && <TracesScreen />}
         </main>
       </div>
+      <StatusLine />
     </div>
   )
 }
@@ -189,6 +193,7 @@ export function App() {
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
       <PreferencesProvider>
+        <StatusLineProvider>
         <ShortcutProvider>
           <WorkspacesProvider>
             <NotificationsProvider>
@@ -209,6 +214,7 @@ export function App() {
                     />
                     <CommandPalette />
                     <NotificationPanel />
+                    <StatusLineConfigWirer />
                   </FocusProvider>
                 </CommandPaletteProvider>
                 <OnboardingTour />
@@ -216,6 +222,7 @@ export function App() {
             </NotificationsProvider>
           </WorkspacesProvider>
         </ShortcutProvider>
+        </StatusLineProvider>
       </PreferencesProvider>
     </ThemeProvider>
   )
@@ -253,6 +260,22 @@ function ShortcutWirer(): React.JSX.Element | null {
   }, [registerCommand])
   if (!open) return null
   return <ShortcutsPanel onClose={() => setOpen(false)} />
+}
+
+/** Wires the "status-line.configure" palette command + modal render. */
+function StatusLineConfigWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'status-line.configure',
+      label: 'Configure status line',
+      keywords: ['status', 'statusbar', 'statusline', 'segments', 'bottom bar'],
+      category: 'View',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return <StatusLineConfigPanel isOpen={open} onClose={() => setOpen(false)} />
 }
 
 /** Registers palette commands that interact with the notification center. */

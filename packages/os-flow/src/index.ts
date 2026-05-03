@@ -39,10 +39,7 @@ export type {
   PolicyToolHandlerOptions,
 } from './tool-policy.js'
 
-export {
-  estimateFlowCost,
-  priceKey,
-} from './cost-estimator.js'
+export { estimateFlowCost, priceKey } from './cost-estimator.js'
 export type {
   NodeCostEstimate,
   FlowCostEstimate,
@@ -50,6 +47,29 @@ export type {
   PriceMap,
   EstimateOptions,
 } from './cost-estimator.js'
+
+export {
+  createCompareHandler,
+  createVoteHandler,
+  createDebateHandler,
+  createAuctionHandler,
+  createBlackboardHandler,
+  InMemoryScratchpadStore,
+} from './multi-agent-handlers.js'
+export type {
+  AgentRunResult,
+  RunAgentFn,
+  ScratchpadStore,
+  CompareEvalFn,
+  CompareJudgeFn,
+  CompareHandlerOptions,
+  VoteJudgeFn,
+  VoteHandlerOptions,
+  DebateHandlerOptions,
+  AuctionScorerFn,
+  AuctionHandlerOptions,
+  BlackboardHandlerOptions,
+} from './multi-agent-handlers.js'
 
 export const PACKAGE_NAME = '@agentskit/os-flow' as const
 export const PACKAGE_VERSION = '0.0.0' as const

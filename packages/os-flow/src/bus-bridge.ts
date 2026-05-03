@@ -66,9 +66,10 @@ export type BridgeEvent =
 
 export const createBusOnEvent = (opts: BridgeOptions) => {
   return async (event: BridgeEvent): Promise<void> => {
+    const runMode = opts.ctx.runMode
     if (event.kind === 'node:start') {
       await opts.bus.publish(
-        buildEnvelope('flow.node.started', { nodeId: event.nodeId }, opts),
+        buildEnvelope('flow.node.started', { nodeId: event.nodeId, runMode }, opts),
       )
       return
     }
@@ -76,7 +77,7 @@ export const createBusOnEvent = (opts: BridgeOptions) => {
       await opts.bus.publish(
         buildEnvelope(
           'flow.node.resumed',
-          { nodeId: event.nodeId, outcomeKind: event.outcome.kind },
+          { nodeId: event.nodeId, outcomeKind: event.outcome.kind, runMode },
           opts,
         ),
       )
@@ -86,6 +87,7 @@ export const createBusOnEvent = (opts: BridgeOptions) => {
     const baseData: Record<string, unknown> = {
       nodeId: event.nodeId,
       outcomeKind: event.outcome.kind,
+      runMode,
     }
     if (event.outcome.kind === 'ok') {
       // value may be unserializable; defensive stringify

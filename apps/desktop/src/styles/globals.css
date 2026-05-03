@@ -1,0 +1,68 @@
+/*
+ * TODO(#36): import @agentskit/os-ui/styles.css once the package ships.
+ * @import '@agentskit/os-ui/styles.css';
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    color-scheme: dark;
+    /* Remove default Tauri text cursor on non-input elements */
+    user-select: none;
+  }
+
+  body {
+    @apply bg-surface text-ink font-sans;
+    font-feature-settings: "ss01", "cv11";
+    /* Prevent scroll bounce on macOS desktop */
+    overflow: hidden;
+  }
+
+  ::selection {
+    background: rgba(34, 211, 238, 0.25);
+  }
+
+  /* Allow text selection in content areas */
+  input,
+  textarea,
+  [data-selectable] {
+    user-select: text;
+  }
+}
+
+@layer utilities {
+  .hairline {
+    @apply border-line;
+  }
+
+  .glass {
+    background: rgba(8, 9, 12, 0.65);
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+  }
+
+  .ring-glow {
+    box-shadow:
+      0 0 0 1px rgba(34, 211, 238, 0.25),
+      0 0 40px -10px rgba(34, 211, 238, 0.35);
+  }
+
+  /* App-shell layout helpers */
+  .app-shell {
+    @apply flex flex-col h-screen w-screen overflow-hidden;
+  }
+
+  .sidebar {
+    @apply flex flex-col h-full w-56 shrink-0 bg-panel border-r border-line;
+  }
+
+  .main-pane {
+    @apply flex-1 min-w-0 overflow-auto bg-surface;
+  }
+}

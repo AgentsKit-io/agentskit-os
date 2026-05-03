@@ -64,6 +64,20 @@ jobs:
       - run: pnpm --filter "./packages/*" lint
       - run: pnpm test
 
+  desktop-web:
+    name: Desktop web bundle (no Rust)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter "./packages/*" build
+      - run: pnpm --filter @agentskit/desktop build:web
+
   adr:
     name: ADR enforcement
     runs-on: ubuntu-latest

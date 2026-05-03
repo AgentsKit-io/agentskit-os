@@ -71,5 +71,17 @@ export type {
   BlackboardHandlerOptions,
 } from './multi-agent-handlers.js'
 
+// #205 — event-sourced RunSnapshot
+export { captureSnapshot, outcomesFromSnapshot, buildSnapshotEmitter, RunSnapshot } from './snapshot.js'
+export type { RunSnapshot as RunSnapshotType, SnapshotInput, SnapshotOptions } from './snapshot.js'
+
+// #206 — branch-from-past-step replay
+export { branchFromSnapshot, FlowBranchError } from './branch.js'
+export type { BranchFromSnapshotOptions, BranchResult, BranchOverride } from './branch.js'
+
+// #188 — two-person HITL approval
+export { createHumanHandler } from './human-handler.js'
+export type { ApproverGate, ApproverGateDecision, HumanHandlerOptions } from './human-handler.js'
+
 export const PACKAGE_NAME = '@agentskit/os-flow' as const
 export const PACKAGE_VERSION = '0.0.0' as const

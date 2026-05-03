@@ -18,13 +18,17 @@ pnpm --filter @agentskit/web start
 
 ## Deploy (Vercel)
 
-Project root: `apps/web`. Framework auto-detect: Next.js. Other settings live in [`vercel.json`](./vercel.json).
+In the Vercel dashboard:
+
+1. **Root Directory**: `apps/web`
+2. **Include source files outside of the Root Directory in the Build Step**: ON (lets workspace packages resolve)
+3. Framework auto-detects as Next.js. Build/install commands come from [`vercel.json`](./vercel.json).
 
 Required env vars:
 
 - `NEXT_PUBLIC_SITE_URL` — canonical site URL (used by sitemap, robots, OG).
 
-The `ignoreCommand` skips builds when no relevant files changed in `apps/web`, the lockfile, or `pnpm-workspace.yaml`.
+Vercel's built-in monorepo skipping handles "did anything affecting this project change?" via the Root Directory + Turborepo dep graph. No custom `ignoreCommand` needed.
 
 ## Structure
 

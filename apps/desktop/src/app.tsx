@@ -36,6 +36,8 @@ import { StatusLineProvider } from './status-line/status-line-provider'
 import { StatusLine } from './status-line/status-line'
 import { StatusLineConfigPanel } from './status-line/status-line-config-panel'
 import { ThemeEditorPanel } from './theme-editor/theme-editor-panel'
+import { NotificationPreferencesProvider } from './notifications/preferences/notification-preferences-provider'
+import { NotificationPreferencesPanel } from './notifications/preferences/preferences-panel'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -215,32 +217,35 @@ export function App() {
         <StatusLineProvider>
         <ShortcutProvider>
           <WorkspacesProvider>
-            <NotificationsProvider>
-              <OnboardingProvider>
-                <CommandPaletteProvider
-                  onNavigate={handleNavigate}
-                  onClearEventFeed={handleClearEventFeed}
-                >
-                  <FocusProvider>
-                    <NotificationCommandBridge onAnnounce={setAnnouncement} />
-                    <ShortcutWirer />
-                    <PreferencesWirer />
-                    <ThemeEditorWirer />
-                    <AppShell
-                      activeScreen={activeScreen}
-                      setActiveScreen={setActiveScreen}
-                      serviceBanner={serviceBanner}
-                      setServiceBanner={setServiceBanner}
-                      announcement={announcement}
-                    />
-                    <CommandPalette />
-                    <NotificationPanel />
-                    <StatusLineConfigWirer />
-                  </FocusProvider>
-                </CommandPaletteProvider>
-                <OnboardingTour />
-              </OnboardingProvider>
-            </NotificationsProvider>
+            <NotificationPreferencesProvider>
+              <NotificationsProvider>
+                <OnboardingProvider>
+                  <CommandPaletteProvider
+                    onNavigate={handleNavigate}
+                    onClearEventFeed={handleClearEventFeed}
+                  >
+                    <FocusProvider>
+                      <NotificationCommandBridge onAnnounce={setAnnouncement} />
+                      <ShortcutWirer />
+                      <PreferencesWirer />
+                      <ThemeEditorWirer />
+                      <NotificationPrefsWirer />
+                      <AppShell
+                        activeScreen={activeScreen}
+                        setActiveScreen={setActiveScreen}
+                        serviceBanner={serviceBanner}
+                        setServiceBanner={setServiceBanner}
+                        announcement={announcement}
+                      />
+                      <CommandPalette />
+                      <NotificationPanel />
+                      <StatusLineConfigWirer />
+                    </FocusProvider>
+                  </CommandPaletteProvider>
+                  <OnboardingTour />
+                </OnboardingProvider>
+              </NotificationsProvider>
+            </NotificationPreferencesProvider>
           </WorkspacesProvider>
         </ShortcutProvider>
         </StatusLineProvider>
@@ -351,4 +356,20 @@ function NotificationCommandBridge({
     })
   }, [registerCommand, open, close, isOpen, clear, onAnnounce])
   return null
+}
+
+/** Wires the "notifications.configure" palette command + modal render. */
+function NotificationPrefsWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'notifications.configure',
+      label: 'Configure notifications',
+      keywords: ['notifications', 'preferences', 'routing', 'quiet', 'hours'],
+      category: 'System',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return <NotificationPreferencesPanel isOpen={open} onClose={() => setOpen(false)} />
 }

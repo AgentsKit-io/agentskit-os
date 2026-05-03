@@ -15,6 +15,19 @@ import { createElement, act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { NotificationsProvider, useNotifications } from '../notifications-provider'
 import type { NotificationsContextValue } from '../types'
+import { DEFAULT_NOTIFICATION_PREFERENCES } from '../preferences/preferences-types'
+
+// ---------------------------------------------------------------------------
+// Mock notification preferences provider
+// ---------------------------------------------------------------------------
+
+vi.mock('../preferences/notification-preferences-provider', () => ({
+  useNotificationPreferences: () => ({
+    prefs: DEFAULT_NOTIFICATION_PREFERENCES,
+    save: vi.fn(),
+    reset: vi.fn(),
+  }),
+}))
 
 // ---------------------------------------------------------------------------
 // Mock sidecar subscribeEvents

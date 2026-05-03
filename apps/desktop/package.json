@@ -2,36 +2,32 @@
   "name": "@agentskit/desktop",
   "version": "0.0.0",
   "private": true,
-  "description": "AgentsKitOS desktop shell — Tauri 2 + React 19 + Tailwind + shadcn.",
+  "description": "AgentsKit Desktop — Tauri 2 shell (React + Vite front-end).",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tauri build",
     "build:web": "vite build",
-    "tauri": "tauri",
+    "preview": "vite preview",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@agentskit/os-core": "workspace:*",
-    "@agentskit/os-headless": "workspace:*",
-    "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-shell": "^2",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "@agentskit/os-ui": "workspace:^",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "lucide-react": "^0.513.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2",
-    "@types/node": "^25.6.0",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^4",
+    "@vitejs/plugin-react": "^4.5.1",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
-    "tailwindcss": "^3.4",
-    "typescript": "^5.6",
-    "vite": "^5"
+    "tailwindcss": "^3.4.17",
+    "typescript": "^6.0.3",
+    "vite": "^6.3.5"
   },
   "agentskitos": {
-    "distribution": "bundled-private"
+    "distribution": "private",
+    "stability": "alpha"
   }
 }

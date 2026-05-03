@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { Slug, TagList } from './_primitives.js'
+import { FallbackEntry } from '../runtime/adapter-fallback.js'
 
 export const ProviderRef = z.string().min(1).max(64)
 export type ProviderRef = z.infer<typeof ProviderRef>
@@ -16,6 +17,11 @@ export const AgentModelConfig = z.object({
   temperature: z.number().min(0).max(2).optional(),
   maxTokens: z.number().int().positive().max(1_000_000).optional(),
   topP: z.number().min(0).max(1).optional(),
+  /**
+   * Ordered fallback adapters to try when the primary provider is unavailable.
+   * Consumed by `pickAdapter()` from `@agentskit/os-core/runtime/adapter-fallback`.
+   */
+  fallbackChain: z.array(FallbackEntry).max(16).default([]),
 })
 export type AgentModelConfig = z.infer<typeof AgentModelConfig>
 

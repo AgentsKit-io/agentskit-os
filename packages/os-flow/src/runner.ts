@@ -3,6 +3,12 @@
 
 import type { FlowConfig, FlowEdge, FlowNode, RunContext } from '@agentskit/os-core'
 import type { NodeHandler, NodeHandlerMap, NodeOutcome } from './handlers.js'
+import {
+  applyModeStubs,
+  validateDeterministicFlow,
+  type AgentRegistryEntry,
+  type ToolRegistryEntry,
+} from './mode-policy.js'
 import { auditGraph, buildAdjacency, topoSort } from './topo.js'
 
 export type RunResult = {
@@ -29,6 +35,15 @@ export type RunOptions = {
       | { kind: 'node:start'; nodeId: string }
       | { kind: 'node:end'; nodeId: string; outcome: NodeOutcome },
   ) => void
+  /**
+   * Optional registries used by `deterministic` mode to enforce ADR-0009's
+   * determinism rules before the first node runs. Ignored in other modes.
+   */
+  readonly deterministic?: {
+    readonly agents?: ReadonlyArray<AgentRegistryEntry>
+    readonly tools?: ReadonlyArray<ToolRegistryEntry>
+    readonly randomnessSources?: ReadonlyArray<string>
+  }
 }
 
 const edgeMatches = (edge: FlowEdge, outcome: NodeOutcome): boolean => {
@@ -57,6 +72,25 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
     }
   }
 
+  if (opts.ctx.runMode === 'deterministic') {
+    const detIssues = validateDeterministicFlow({
+      flow,
+      agents: opts.deterministic?.agents,
+      tools: opts.deterministic?.tools,
+      randomnessSources: opts.deterministic?.randomnessSources,
+    })
+    if (detIssues.length > 0) {
+      return {
+        status: 'failed',
+        outcomes: new Map(),
+        executedOrder: [],
+        reason: `flow.determinism_violation: ${detIssues.map((i) => i.code).join(',')}`,
+      }
+    }
+  }
+
+  const handlers = applyModeStubs(opts.handlers, opts.ctx.runMode)
+
   const sorted = topoSort(flow)
   if (!sorted.ok) {
     return {
@@ -80,7 +114,7 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
 
     opts.onEvent?.({ kind: 'node:start', nodeId: id })
 
-    const handler = opts.handlers[node.kind] as NodeHandler | undefined
+    const handler = handlers[node.kind] as NodeHandler | undefined
     let outcome: NodeOutcome
     if (!handler) {
       outcome = {

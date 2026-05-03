@@ -1,0 +1,32 @@
+---
+title: "@agentskit/os-cli"
+description: Init, doctor, new, run, lock, publish, deploy.
+---
+
+```bash
+pnpm add -D @agentskit/os-cli
+```
+
+## What it does
+
+The first-class CLI for AgentsKitOS workspaces. See [CLI reference](../get-started/cli) for the full command list.
+
+| Command | Purpose |
+|---|---|
+| `init` | Scaffold workspace + sane defaults |
+| `doctor` | Diagnose env, providers, sandbox, lockfile |
+| `new <template>` | Scaffold from `@agentskit/os-templates` |
+| `run <flow>` | Execute flow with run-mode + cost estimate |
+| `lock` | Write `agentskit-os.lock` for reproducibility |
+| `publish` | Build marketplace bundle (manifest + assets + SHA) |
+| `deploy` | Ship to docker / node target |
+
+## Architecture
+
+The CLI is a thin shell over `@agentskit/os-core` schemas plus injectable IO.
+The `CliIo` interface lets fakes swap in for testing — every command has unit
+coverage that doesn't touch the real filesystem.
+
+## Status
+
+Shipping in M1. 102+ tests.

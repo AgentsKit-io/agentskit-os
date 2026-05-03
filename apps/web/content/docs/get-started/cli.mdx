@@ -1,0 +1,35 @@
+---
+title: CLI reference
+description: Commands available in @agentskit/os-cli.
+---
+
+```bash
+agentskit-os <command> [options]
+```
+
+## Commands
+
+| Command | Status | Purpose |
+|---|---|---|
+| `init` | M1 | Scaffold workspace + sane defaults |
+| `doctor` | M1 | Diagnose env, providers, sandbox |
+| `new <template>` | M1 | Scaffold from [`os-templates`](../packages/os-templates) |
+| `run <flow>` | M1 | Execute flow with run-mode + estimate |
+| `lock` | M1 | Write `agentskit-os.lock` for reproducibility |
+| `publish` | M1 | Build marketplace bundle (manifest + assets + SHA) |
+| `deploy` | M1 | Ship to docker / node target |
+| `sync` | M8 | Push/pull workspace via cloud sync |
+
+## Common flags
+
+- `--mode <real|preview|dry_run|replay|simulate|deterministic>` — see [run modes](../flow/run-modes).
+- `--estimate` — pre-flight token/dollar projection before any LLM call.
+- `--workspace <path>` — point at a non-default workspace dir.
+- `--unsigned` — allow unsigned manifests on `publish` (dev/internal only).
+
+## Exit codes
+
+- `0` — ok
+- `1` — runtime / build error
+- `2` — usage / argument error
+- `3` — read / IO error

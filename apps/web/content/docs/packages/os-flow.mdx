@@ -1,0 +1,30 @@
+---
+title: "@agentskit/os-flow"
+description: Flow DAG executor — durable, cycle-safe, run-mode-aware.
+---
+
+```bash
+pnpm add @agentskit/os-flow @agentskit/os-core
+```
+
+## What it does
+
+Executes the flow DAG declared in your workspace.
+
+- **Cycle detection** at compile time, not at run time.
+- **Durable** — checkpoints to a `CheckpointStore` (default: file-backed via
+  `@agentskit/os-storage`; pluggable for postgres / redis).
+- **Run-mode aware** — every node respects the active mode (`real`, `preview`,
+  `dry_run`, `replay`, `simulate`, `deterministic`). See [run modes](../flow/run-modes).
+- **HITL gates** — pauses for human approval, persists state, resumes on
+  callback.
+- **Bus bridge** — every step emits CloudEvents on the os-core bus.
+
+## Multi-agent topologies (RFC-0003)
+
+Built-in nodes for `compare`, `vote`, `debate`, `auction`, `blackboard`. See
+[multi-agent patterns](../flow/multi-agent-patterns).
+
+## Status
+
+Shipping in M1. 41+ tests. Bus bridge merged in #276.

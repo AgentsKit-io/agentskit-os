@@ -1,0 +1,32 @@
+---
+title: "@agentskit/os-audit"
+description: Build Merkle batch chains from the event stream — tamper-evident audit log.
+---
+
+```bash
+pnpm add @agentskit/os-audit @agentskit/os-core
+```
+
+## What it does
+
+Subscribes to the event bus and emits **batched, Merkle-chained audit
+records**. Each batch references the previous batch's root, making any
+in-place tampering detectable.
+
+- `BatchStore` interface — pluggable backend for batches (file, postgres,
+  S3, …).
+- Built-in `FileBatchStore` (#272).
+- HSM-ready signing slots — production deployments plug in their KMS / HSM in
+  M6 alongside the rest of the security stack.
+
+## Why batches?
+
+Per-event signing is expensive at high throughput. Batching with Merkle
+proofs gives you per-event verifiability *without* per-event signature cost.
+SOC 2, HIPAA, and GDPR all accept this shape.
+
+> Source: [ADR-0008](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0008-audit-log-signing.md).
+
+## Status
+
+Shipping in M1. 28+ tests. File-backed `BatchStore` merged in #272.

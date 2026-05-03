@@ -1,0 +1,60 @@
+---
+title: Quickstart
+description: Six commands to your first agent.
+---
+
+## 1. Scaffold
+
+```bash
+pnpm agentskit-os init
+```
+
+Creates:
+
+- `agentskit-os.config.ts` — Zod-validated config (defineConfig helper)
+- `workspace.yaml` — workspace declaration
+- `.agentskitos/` — runtime directory (sqlite, vault, traces)
+- `agentskit-os.lock` — see [RFC-0002](/docs/rfcs)
+
+## 2. Diagnose
+
+```bash
+pnpm agentskit-os doctor
+```
+
+Reports environment health: Node version, package resolution, optional
+providers, sandbox runtimes available, lockfile state.
+
+## 3. Generate from a template
+
+```bash
+pnpm agentskit-os new pr-review
+```
+
+Picks a starter from [`@agentskit/os-templates`](../packages/os-templates).
+
+## 4. Run with cost preview
+
+```bash
+pnpm agentskit-os run pr-review --mode preview --estimate
+```
+
+`--mode preview` is read-only. `--estimate` gives a token + dollar projection
+before any LLM call. See [run modes](../flow/run-modes).
+
+## 5. Lock for reproducibility
+
+```bash
+pnpm agentskit-os lock
+```
+
+Writes `agentskit-os.lock` so re-runs on other machines are byte-identical.
+
+## 6. Ship
+
+```bash
+pnpm agentskit-os deploy --target docker
+```
+
+Or `--target node` for a process binary. M5 will add cloud targets via
+[`@agentskit/os-marketplace-sdk`](../packages/os-marketplace-sdk).

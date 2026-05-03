@@ -1,0 +1,32 @@
+---
+title: Error model (ADR-0007)
+description: Structured, typed errors with stable codes — no thrown strings.
+---
+
+Every error in AgentsKitOS extends a base `OsError` class with:
+
+- `code` — stable string identifier, namespaced (`os.flow.cycle_detected`)
+- `message` — human-readable summary
+- `cause` — optional originating error
+- `data` — typed payload (Zod schema per code)
+
+Errors are never thrown as raw strings. Catching code can switch on `code` to
+recover or surface the right UX.
+
+## Why stable codes
+
+- Localization and translation can key off `code`.
+- Audit entries reference `code` so dashboards and alerts don't break across
+  message wording changes.
+- LLM-judge evaluations can be deterministic ("did this run produce code X?").
+
+## Categories
+
+- `os.config.*` — schema, layered config conflicts
+- `os.workspace.*` — lock mismatches, missing files
+- `os.flow.*` — cycle, deadline, HITL timeout, branch invalid
+- `os.runtime.*` — provider failure, tool failure, retry exhausted
+- `os.security.*` — capability denied, egress denied, sandbox escape attempt
+- `os.audit.*` — chain break, signature invalid
+
+> Source: [ADR-0007](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0007-error-model.md).

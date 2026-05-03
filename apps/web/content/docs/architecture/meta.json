@@ -1,0 +1,11 @@
+{
+  "title": "Architecture",
+  "pages": [
+    "overview",
+    "os-core",
+    "workspace-model",
+    "event-bus",
+    "principal-rbac",
+    "errors"
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "title": "Security",
+  "pages": ["audit-log", "sandbox-levels", "egress-allowlist"]
+}

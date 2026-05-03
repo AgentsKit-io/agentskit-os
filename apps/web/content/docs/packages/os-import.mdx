@@ -1,0 +1,32 @@
+---
+title: "@agentskit/os-import"
+description: Migration importers — Langflow, n8n, Dify → ConfigRoot.
+---
+
+```bash
+pnpm add -D @agentskit/os-import
+```
+
+## What it does
+
+Reads exports from other agent platforms and produces a validated
+AgentsKitOS `ConfigRoot`.
+
+Supported sources:
+
+- **Langflow** — JSON flow exports
+- **n8n** — workflow JSON
+- **Dify** — agent + workflow exports
+
+The output is always Zod-validated. Anything that doesn't fit a stable
+contract surfaces as a structured warning rather than silent loss.
+
+## Why migrate
+
+Existing platforms ship features fast but break contracts. AgentsKitOS gives
+you stable contracts, signed audit, run modes, and capability-based RBAC
+without rewriting your flows from scratch.
+
+## Status
+
+Shipping in M1. 43+ tests.

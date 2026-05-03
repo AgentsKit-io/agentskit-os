@@ -1,0 +1,30 @@
+---
+title: "@agentskit/os-runtime-agentskit"
+description: AgentsKitOS runtime binding for AgentsKit — adapts @agentskit/adapters and @agentskit/tools.
+---
+
+```bash
+pnpm add @agentskit/os-runtime-agentskit @agentskit/os-runtime @agentskit/os-core
+```
+
+## What it does
+
+Bridges upstream AgentsKit packages into the OS runtime contracts.
+
+- `createAgentskitLlmAdapter(...)` — wrap any `@agentskit/adapters` provider
+  (Anthropic, OpenAI, Bedrock, Gemini, …) into an `os-runtime` `LlmAdapter`.
+- `createAgentskitToolExecutor(...)` — register `@agentskit/tools` tools and
+  expose them via the OS `ToolExecutor` interface.
+- `createAgentskitMemoryAdapter(...)` — bind `@agentskit/memory` backends to
+  the OS `MemoryAdapter` contract.
+- A registry of factory functions for the most common combos.
+
+## ADR-0015
+
+This package is the *only* sanctioned bridge to AgentsKit. The rest of the OS
+talks to it through the contracts in `os-runtime`, never directly. Read
+[ADR-0015](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0015-agentskit-binding.md) for details.
+
+## Status
+
+Shipping in M1. New package as of #281, executor + memory adapters in #282.

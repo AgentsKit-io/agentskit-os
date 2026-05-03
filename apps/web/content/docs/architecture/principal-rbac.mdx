@@ -1,0 +1,32 @@
+---
+title: Principal & RBAC (ADR-0006)
+description: Capability-based access control for agents, tools, and workspaces.
+---
+
+Every action in AgentsKitOS is performed by a **principal** (human, agent, or
+system) and gated by an explicit **capability**.
+
+## Why capabilities, not roles
+
+Role-based models couple permissions to identity. Capability-based models
+couple them to *intent*. An agent that needs `tool:fetch-url` carries that
+capability — not a role that vaguely "can do internet things".
+
+This matters for:
+
+- **Plugins** — every contribution declares the capabilities it requires
+  (RFC-0001). Users can audit and revoke per-capability instead of per-plugin.
+- **Sandboxes** — capability checks happen inside the sandbox runtime, before
+  side effects.
+- **Audit** — the capability used is part of every audit entry. Tamper-evident
+  via the Merkle chain (ADR-0008).
+
+## Built-in capability namespaces
+
+- `tool:*` — tool execution
+- `flow:*` — flow execution, branch-from-step
+- `vault:*` — secret read/write
+- `workspace:*` — config / lockfile changes
+- `egress:*` — network destinations (default-deny, ADR-0011)
+
+> Source: [ADR-0006](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0006-principal-rbac.md).

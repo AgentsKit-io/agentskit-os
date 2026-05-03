@@ -1,0 +1,35 @@
+---
+title: Architecture Decision Records
+description: Public ADRs — what we decided and why.
+---
+
+## Foundation
+
+- [ADR-0001 — Philosophy & non-negotiables](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0001-philosophy.md)
+- [ADR-0002 — Depend on AgentsKit, never duplicate](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0002-depend-on-agentskit.md)
+- [ADR-0003 — Config schema (Zod, layered)](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0003-config-schema.md)
+- [ADR-0004 — Zod as peer dep](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0004-zod-as-peer-dep.md)
+
+## Contracts
+
+- [ADR-0005 — Event bus (CloudEvents)](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0005-event-bus.md)
+- [ADR-0006 — Principal & capability-based RBAC](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0006-principal-rbac.md)
+- [ADR-0007 — Structured error model](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0007-error-model.md)
+
+## Security & execution
+
+- [ADR-0008 — Audit log signing (Merkle chain)](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0008-audit-log-signing.md)
+- [ADR-0009 — Run modes](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0009-run-modes.md)
+- [ADR-0010 — Tool side-effect declaration + sandbox levels](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0010-tool-side-effects-sandbox.md)
+- [ADR-0011 — Egress default-deny + allowlist](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0011-egress-allowlist.md)
+- [ADR-0012 — Plugin extension point catalog](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0012-plugin-extension-points.md)
+
+## Bindings
+
+- [ADR-0015 — AgentsKit binding (`os-runtime-agentskit`)](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0015-agentskit-binding.md)
+
+## Process
+
+- New architectural changes ship an ADR.
+- Breaking contract changes ship an [RFC](./rfcs).
+- See [`docs/RFC-PROCESS.md`](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/RFC-PROCESS.md).

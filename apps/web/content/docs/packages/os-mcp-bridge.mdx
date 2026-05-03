@@ -1,0 +1,19 @@
+---
+title: "@agentskit/os-mcp-bridge (planned)"
+description: Publish AgentsKit tools as MCP servers. Consume any MCP server. Bidirectional.
+---
+
+> **Status: planned — Milestone M4.**
+
+Bridges between the [Model Context Protocol](https://modelcontextprotocol.io)
+and AgentsKitOS workspaces.
+
+## Targeted scope
+
+- **Publish** any `@agentskit/tools` tool as an MCP server, capability-gated.
+- **Consume** any MCP server as an OS tool, with side-effect annotations
+  derived from the server manifest where possible.
+- Signed MCP manifests via `os-marketplace-sdk` for distribution.
+
+This is what makes AgentsKitOS interoperable with the broader MCP ecosystem
+without requiring users to choose between the two.

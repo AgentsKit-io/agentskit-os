@@ -30,6 +30,8 @@ import { ShortcutsPanel } from './keyboard/shortcuts-panel'
 import { useShortcutHandler } from './keyboard/shortcut-handlers'
 import { WorkspacesProvider } from './workspaces/workspaces-provider'
 import { WorkspaceSwitcher } from './workspaces/workspace-switcher'
+import { PreferencesProvider } from './preferences/preferences-provider'
+import { PreferencesPanel } from './preferences/preferences-panel'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -186,34 +188,53 @@ export function App() {
   return (
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
-      <ShortcutProvider>
-        <WorkspacesProvider>
-          <NotificationsProvider>
-            <OnboardingProvider>
-              <CommandPaletteProvider
-                onNavigate={handleNavigate}
-                onClearEventFeed={handleClearEventFeed}
-              >
-                <FocusProvider>
-                  <NotificationCommandBridge />
-                  <ShortcutWirer />
-                  <AppShell
-                    activeScreen={activeScreen}
-                    setActiveScreen={setActiveScreen}
-                    serviceBanner={serviceBanner}
-                    setServiceBanner={setServiceBanner}
-                  />
-                  <CommandPalette />
-                  <NotificationPanel />
-                </FocusProvider>
-              </CommandPaletteProvider>
-              <OnboardingTour />
-            </OnboardingProvider>
-          </NotificationsProvider>
-        </WorkspacesProvider>
-      </ShortcutProvider>
+      <PreferencesProvider>
+        <ShortcutProvider>
+          <WorkspacesProvider>
+            <NotificationsProvider>
+              <OnboardingProvider>
+                <CommandPaletteProvider
+                  onNavigate={handleNavigate}
+                  onClearEventFeed={handleClearEventFeed}
+                >
+                  <FocusProvider>
+                    <NotificationCommandBridge />
+                    <ShortcutWirer />
+                    <PreferencesWirer />
+                    <AppShell
+                      activeScreen={activeScreen}
+                      setActiveScreen={setActiveScreen}
+                      serviceBanner={serviceBanner}
+                      setServiceBanner={setServiceBanner}
+                    />
+                    <CommandPalette />
+                    <NotificationPanel />
+                  </FocusProvider>
+                </CommandPaletteProvider>
+                <OnboardingTour />
+              </OnboardingProvider>
+            </NotificationsProvider>
+          </WorkspacesProvider>
+        </ShortcutProvider>
+      </PreferencesProvider>
     </ThemeProvider>
   )
+}
+
+/** Wires the "preferences.open" palette command + modal render. */
+function PreferencesWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'preferences.open',
+      label: 'Open preferences',
+      keywords: ['preferences', 'settings', 'config'],
+      category: 'System',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return <PreferencesPanel isOpen={open} onClose={() => setOpen(false)} />
 }
 
 /** Wires the "shortcuts.open" keyboard shortcut + palette command to render the panel. */

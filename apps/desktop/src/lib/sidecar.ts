@@ -3,13 +3,14 @@
  * @agentskit/os-headless sidecar process (JSON-RPC 2.0 over stdio via Tauri).
  *
  * In a full Tauri build, these call `@tauri-apps/api` invoke() / listen().
- * For now (web-only dev / test), they are stubbed to keep the build green
- * and the UI usable while the sidecar is not connected.
+ * In dev / web build (no Tauri runtime), they fall back to no-op stubs so
+ * the UI keeps working without the sidecar.
+ *
+ * IPC contract (ADR-0018 §3.2):
+ *   request  — front → sidecar (user-initiated actions)
+ *   event    — sidecar → front (observability stream)
+ *   audit    — sidecar → front (signed audit records)
  */
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 export type RunMode = 'real' | 'preview' | 'dry_run' | 'sandbox'
 
@@ -24,27 +25,23 @@ export type SidecarEvent = {
 
 export type SidecarStatus = 'connected' | 'disconnected' | 'error'
 
+const hasTauri = (): boolean =>
+  typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+
 // ---------------------------------------------------------------------------
 // Request
 // ---------------------------------------------------------------------------
 
-/**
- * Send a typed JSON-RPC request to the sidecar.
- * Returns the result or throws on error.
- *
- * In the real Tauri desktop this delegates to `invoke('sidecar_request', ...)`.
- * In the web / vite dev build, it always resolves to a stub result.
- */
-export async function sidecarRequest<T>(
+export async function sidecarRequest<T = unknown>(
   method: string,
-  params?: Record<string, unknown>,
+  params: Record<string, unknown> = {},
 ): Promise<T> {
-  // TODO(tauri): replace with:
-  //   const { invoke } = await import('@tauri-apps/api/core')
-  //   return invoke<T>('sidecar_request', { method, params })
-  void method
-  void params
-  return {} as T
+  if (!hasTauri()) {
+    // Dev / web build — sidecar not available.
+    return {} as T
+  }
+  const { invoke } = await import('@tauri-apps/api/core')
+  return invoke<T>('sidecar_request', { method, params })
 }
 
 // ---------------------------------------------------------------------------
@@ -53,25 +50,21 @@ export async function sidecarRequest<T>(
 
 export type UnsubscribeFn = () => void
 
-/**
- * Subscribe to the sidecar event stream.
- * Each call to `onEvent` receives one `SidecarEvent`.
- * Returns an unsubscribe function.
- *
- * In the real Tauri desktop this delegates to `listen('sidecar_event', ...)`.
- */
 export function subscribeEvents(onEvent: (event: SidecarEvent) => void): UnsubscribeFn {
-  // TODO(tauri): replace with:
-  //   let unlisten: (() => void) | undefined
-  //   import('@tauri-apps/api/event').then(({ listen }) => {
-  //     listen<SidecarEvent>('sidecar_event', (e) => onEvent(e.payload)).then(
-  //       (fn) => { unlisten = fn }
-  //     )
-  //   })
-  //   return () => { unlisten?.() }
-  void onEvent
+  if (!hasTauri()) {
+    void onEvent
+    return () => undefined
+  }
+  let unlisten: (() => void) | undefined
+  void import('@tauri-apps/api/event').then(({ listen }) => {
+    listen<SidecarEvent>('sidecar://event', (e) => onEvent(e.payload)).then(
+      (fn) => {
+        unlisten = fn
+      },
+    )
+  })
   return () => {
-    // no-op in web stub
+    unlisten?.()
   }
 }
 
@@ -79,12 +72,35 @@ export function subscribeEvents(onEvent: (event: SidecarEvent) => void): Unsubsc
 // Connection probe
 // ---------------------------------------------------------------------------
 
-/**
- * Returns the current sidecar connection status.
- * In the Tauri build this reads a Tauri store value set by Rust on sidecar
- * spawn / crash.  In the web stub it always returns 'disconnected'.
- */
 export async function getSidecarStatus(): Promise<SidecarStatus> {
-  // TODO(tauri): invoke('sidecar_status')
-  return 'disconnected'
+  if (!hasTauri()) return 'disconnected'
+  return sidecarRequest<SidecarStatus>('sidecar_status').catch(() => 'error' as const)
+}
+
+// ---------------------------------------------------------------------------
+// Runner control (D-3 tray menu)
+// ---------------------------------------------------------------------------
+
+/**
+ * Pause all queued agent runs.
+ * TODO(Refs #240): sidecar implementation of runner.pause is pending.
+ */
+export async function pauseRuns(): Promise<void> {
+  await sidecarRequest('runner.pause', {})
+}
+
+/**
+ * Resume paused agent runs.
+ * TODO(Refs #240): sidecar implementation of runner.resume is pending.
+ */
+export async function resumeRuns(): Promise<void> {
+  await sidecarRequest('runner.resume', {})
+}
+
+/**
+ * Ask the sidecar to dispose cleanly (flush audit events, close handles).
+ * Called before the app exits via the tray Quit action.
+ */
+export async function disposeSidecar(): Promise<void> {
+  await sidecarRequest('lifecycle.dispose', {})
 }

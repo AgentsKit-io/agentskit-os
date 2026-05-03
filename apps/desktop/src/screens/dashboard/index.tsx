@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { getSidecarStatus, type RunMode, type SidecarStatus } from '../../lib/sidecar'
 import { useDashboardStats } from './use-dashboard-stats'
@@ -54,10 +54,27 @@ function Header({ workspaceName, runMode, status }: HeaderProps) {
 // Dashboard
 // ---------------------------------------------------------------------------
 
-export function Dashboard() {
+type DashboardProps = {
+  /**
+   * Optional ref-setter called once on mount so a parent (e.g. the command
+   * palette provider) can imperatively trigger `clearEventFeed`.
+   */
+  onRegisterClear?: (clear: () => void) => void
+}
+
+export function Dashboard({ onRegisterClear }: DashboardProps) {
   const [sidecarStatus, setSidecarStatus] = useState<SidecarStatus>('disconnected')
   const { stats, isLoading } = useDashboardStats()
-  const { events, isPaused, toggle } = useEventFeed()
+  const { events, isPaused, toggle, clear } = useEventFeed()
+
+  // Expose `clear` to the parent once it stabilises.
+  const registeredRef = useRef(false)
+  useEffect(() => {
+    if (!registeredRef.current && onRegisterClear) {
+      registeredRef.current = true
+      onRegisterClear(clear)
+    }
+  }, [clear, onRegisterClear])
 
   useEffect(() => {
     getSidecarStatus().then(setSidecarStatus).catch(() => {

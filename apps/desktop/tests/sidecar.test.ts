@@ -5,7 +5,7 @@
  * running Tauri runtime.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock @tauri-apps/api/core before importing the module under test
@@ -16,6 +16,15 @@ const mockInvoke = vi.fn();
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: mockInvoke,
 }));
+
+beforeAll(() => {
+  // sidecar.ts gates calls on `__TAURI_INTERNALS__` being present on window.
+  // In jsdom we synthesize the marker so the dynamic import path is exercised.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(globalThis as any).window = (globalThis as any).window ?? {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(globalThis as any).window.__TAURI_INTERNALS__ = {}
+})
 
 // Import after mocking
 const { sidecarRequest, pauseRuns, resumeRuns, disposeSidecar } = await import(

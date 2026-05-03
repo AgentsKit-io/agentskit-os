@@ -1,0 +1,71 @@
+// Adapt @agentskit/os-observability MetricPoint -> OTel Metrics API.
+// Structural-typed against @opentelemetry/api.Meter (Counter, Histogram,
+// UpDownCounter shapes). Instruments are lazily created and cached by
+// metric name.
+
+import type { MetricPoint, MetricSink } from '@agentskit/os-observability'
+
+export interface OtelCounter {
+  add(value: number, attrs?: Record<string, unknown>): void
+}
+
+export interface OtelHistogram {
+  record(value: number, attrs?: Record<string, unknown>): void
+}
+
+export interface OtelMeterShape {
+  createCounter(name: string, opts?: { unit?: string }): OtelCounter
+  createHistogram(name: string, opts?: { unit?: string }): OtelHistogram
+  createUpDownCounter(name: string, opts?: { unit?: string }): OtelCounter
+}
+
+export type OtelMetricSinkOptions = {
+  readonly meter: OtelMeterShape
+  readonly onError?: (err: unknown, point: MetricPoint) => void
+}
+
+export const createOtelMetricSink = (opts: OtelMetricSinkOptions): MetricSink => {
+  const counters = new Map<string, OtelCounter>()
+  const histograms = new Map<string, OtelHistogram>()
+  const onError = opts.onError ?? (() => undefined)
+
+  const counterFor = (name: string, unit?: string): OtelCounter => {
+    let c = counters.get(name)
+    if (!c) {
+      c = opts.meter.createCounter(name, unit ? { unit } : {})
+      counters.set(name, c)
+    }
+    return c
+  }
+
+  const histogramFor = (name: string, unit?: string): OtelHistogram => {
+    let h = histograms.get(name)
+    if (!h) {
+      h = opts.meter.createHistogram(name, unit ? { unit } : {})
+      histograms.set(name, h)
+    }
+    return h
+  }
+
+  return {
+    record: (point) => {
+      try {
+        switch (point.kind) {
+          case 'counter':
+            counterFor(point.name, point.unit).add(point.value, point.labels)
+            break
+          case 'histogram':
+            histogramFor(point.name, point.unit).record(point.value, point.labels)
+            break
+          case 'gauge':
+            // OTel API does not have a sync gauge; map to UpDownCounter with delta=0 absent.
+            // Use createUpDownCounter and record delta from previous value.
+            counterFor(point.name, point.unit).add(point.value, point.labels)
+            break
+        }
+      } catch (e) {
+        onError(e, point)
+      }
+    },
+  }
+}

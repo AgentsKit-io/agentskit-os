@@ -9,6 +9,7 @@ export type EventFeedState = {
   pause: () => void
   resume: () => void
   toggle: () => void
+  clear: () => void
 }
 
 /**
@@ -73,5 +74,10 @@ export function useEventFeed(): EventFeedState {
     })
   }, [])
 
-  return { events, isPaused, pause, resume, toggle }
+  const clear = useCallback(() => {
+    buffer.current.splice(0)
+    setEvents([])
+  }, [])
+
+  return { events, isPaused, pause, resume, toggle, clear }
 }

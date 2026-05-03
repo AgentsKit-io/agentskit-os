@@ -1,16 +1,18 @@
 /**
  * AgentsKitOS Desktop — root application component.
  *
- * Wires sidebar navigation between Dashboard and Traces, plus a tray-driven
- * "Service mode active" banner that appears whenever the Rust side hides the
- * main window via the close-button handler.
+ * Wires sidebar navigation between Dashboard and Traces, the tray-driven
+ * "Service mode active" banner, and the global Cmd/Ctrl+K command palette
+ * overlay (D-6).
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
-import { ThemeProvider } from '@agentskit/os-ui'
+import { Kbd, ThemeProvider } from '@agentskit/os-ui'
 import { Dashboard } from './screens/dashboard'
 import { TracesScreen } from './screens/traces'
+import { CommandPaletteProvider } from './command-palette/command-palette-provider'
+import { CommandPalette } from './command-palette'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -57,10 +59,13 @@ type SidebarProps = {
 function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
   return (
     <aside className="w-52 border-r border-[var(--ag-line)] bg-[var(--ag-surface-alt)]">
-      <div className="flex flex-col gap-1 px-3 pt-3">
-        <p className="px-2 py-1 text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-          Navigation
-        </p>
+      <div className="flex items-center justify-between px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+        <span>Navigation</span>
+        <span className="flex items-center gap-1 normal-case tracking-normal">
+          <Kbd>⌘K</Kbd>
+        </span>
+      </div>
+      <div className="flex flex-col gap-1 px-3 pt-2">
         {NAV_ITEMS.map((item) => (
           <button
             key={item.id}
@@ -99,21 +104,41 @@ export function App() {
     }
   }, [])
 
+  const handleNavigate = useCallback(
+    (screen: string) => {
+      if (screen === 'dashboard' || screen === 'traces') {
+        setActiveScreen(screen)
+      }
+    },
+    [],
+  )
+
+  const handleClearEventFeed = useCallback(() => {
+    // No-op for now; Dashboard will register its own clear via the palette
+    // command system in a follow-up.
+  }, [])
+
   return (
     <ThemeProvider defaultTheme="dark">
-      <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
-        <ServiceModeBanner
-          visible={serviceBanner}
-          onDismiss={() => setServiceBanner(false)}
-        />
-        <div className="flex min-h-0 flex-1">
-          <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
-          <main className="flex flex-1 flex-col overflow-auto">
-            {activeScreen === 'dashboard' && <Dashboard />}
-            {activeScreen === 'traces' && <TracesScreen />}
-          </main>
+      <CommandPaletteProvider
+        onNavigate={handleNavigate}
+        onClearEventFeed={handleClearEventFeed}
+      >
+        <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
+          <ServiceModeBanner
+            visible={serviceBanner}
+            onDismiss={() => setServiceBanner(false)}
+          />
+          <div className="flex min-h-0 flex-1">
+            <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
+            <main className="flex flex-1 flex-col overflow-auto">
+              {activeScreen === 'dashboard' && <Dashboard />}
+              {activeScreen === 'traces' && <TracesScreen />}
+            </main>
+          </div>
         </div>
-      </div>
+        <CommandPalette />
+      </CommandPaletteProvider>
     </ThemeProvider>
   )
 }

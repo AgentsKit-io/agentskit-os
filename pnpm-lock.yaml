@@ -53,6 +53,9 @@ importers:
       '@tauri-apps/plugin-shell':
         specifier: ^2
         version: 2.3.5
+      lucide-react:
+        specifier: ^0.513.0
+        version: 0.513.0(react@19.2.5)
       react:
         specifier: ^19.2.5
         version: 19.2.5
@@ -91,13 +94,13 @@ importers:
         specifier: ^8.5.3
         version: 8.5.13
       tailwindcss:
-        specifier: ^3.4
+        specifier: ^3.4.17
         version: 3.4.19(yaml@2.8.3)
       typescript:
-        specifier: ^5.6
+        specifier: ^5.6.3
         version: 5.9.3
       vite:
-        specifier: ^6
+        specifier: ^6.3.5
         version: 6.4.2(@types/node@25.6.0)(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.8.3)
       vitest:
         specifier: ^4.1.5

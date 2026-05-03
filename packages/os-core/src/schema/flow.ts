@@ -36,6 +36,12 @@ export const HumanNode = z.object({
   kind: z.literal('human'),
   prompt: z.string().min(1).max(2048),
   approvers: z.array(z.string().min(1).max(128)).max(32).default([]),
+  /**
+   * Minimum number of distinct approvers required before the node is
+   * considered approved. Defaults to 1 (single-person approval).
+   * Two-person HITL: set to 2.
+   */
+  quorum: z.number().int().min(1).max(32).default(1),
 })
 export type HumanNode = z.infer<typeof HumanNode>
 

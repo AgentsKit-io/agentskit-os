@@ -15,14 +15,15 @@ const ctx = parseRunContext({
 })
 
 describe('FLOW_EVENT_TYPES', () => {
-  it('exposes 6 stable types', () => {
-    expect(FLOW_EVENT_TYPES.length).toBe(6)
+  it('exposes 7 stable types including flow.run.cancelled', () => {
+    expect(FLOW_EVENT_TYPES.length).toBe(7)
     expect(FLOW_EVENT_TYPES).toContain('flow.node.started')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.completed')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.failed')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.paused')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.skipped')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.resumed')
+    expect(FLOW_EVENT_TYPES).toContain('flow.run.cancelled')
   })
 })
 

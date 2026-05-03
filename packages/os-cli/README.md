@@ -26,7 +26,7 @@ pnpm add -D @agentskit/os-cli
 | `agentskit-os --version` | M1 alpha |
 | `agentskit-os --help` | M1 alpha |
 | `agentskit-os publish [<dir>]` | M1 alpha (build bundle) |
-| `agentskit-os deploy` | planned |
+| `agentskit-os deploy [<bundle>]` | M1 alpha (verify + ship via Publisher) |
 | `agentskit-os sync` | planned |
 
 ## Exit codes

@@ -8,7 +8,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
-import { Kbd, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
+import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { Dashboard } from './screens/dashboard'
 import { TracesScreen } from './screens/traces'
 import { CommandPaletteProvider } from './command-palette/command-palette-provider'
@@ -86,38 +86,43 @@ type SidebarProps = {
 
 function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
   return (
-    <aside className="w-52 border-r border-[var(--ag-line)] bg-[var(--ag-surface-alt)]">
+    <aside
+      aria-label="Application sidebar"
+      className="w-52 border-r border-[var(--ag-line)] bg-[var(--ag-surface-alt)]"
+    >
       <WorkspaceSwitcher />
       <div className="flex items-center justify-between px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-        <span>Navigation</span>
+        <span aria-hidden>Navigation</span>
         <span className="flex items-center gap-1 normal-case tracking-normal">
           <NotificationBell />
           <FocusToggle />
           <Kbd>⌘K</Kbd>
         </span>
       </div>
-      <div className="flex flex-col gap-1 px-3 pt-2">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            data-testid={`nav-${item.id}`}
-            onClick={() => onNavigate(item.id)}
-            aria-current={activeScreen === item.id ? 'page' : undefined}
-            className={[
-              'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-              activeScreen === item.id
-                ? 'bg-[var(--ag-accent)]/15 font-medium text-[var(--ag-accent)]'
-                : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
-            ].join(' ')}
-          >
-            <span aria-hidden className="h-4 w-4 shrink-0 text-center text-[12px]">
-              {item.icon}
-            </span>
-            <span className="truncate">{item.label}</span>
-          </button>
-        ))}
-      </div>
+      <nav aria-label="Main navigation">
+        <div className="flex flex-col gap-1 px-3 pt-2">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              data-testid={`nav-${item.id}`}
+              onClick={() => onNavigate(item.id)}
+              aria-current={activeScreen === item.id ? 'page' : undefined}
+              className={[
+                'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+                activeScreen === item.id
+                  ? 'bg-[var(--ag-accent)]/15 font-medium text-[var(--ag-accent)]'
+                  : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
+              ].join(' ')}
+            >
+              <span aria-hidden className="h-4 w-4 shrink-0 text-center text-[12px]">
+                {item.icon}
+              </span>
+              <span className="truncate">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
       <div className="mt-4 border-t border-[var(--ag-line)] px-3 pt-3">
         <ThemeSwitcher />
       </div>
@@ -131,27 +136,34 @@ function AppShell({
   setActiveScreen,
   serviceBanner,
   setServiceBanner,
+  announcement,
 }: {
   activeScreen: ActiveScreen
   setActiveScreen: (screen: ActiveScreen) => void
   serviceBanner: boolean
   setServiceBanner: (visible: boolean) => void
+  announcement: string
 }) {
   const { active: focusActive } = useFocus()
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
+      {/* Global live region for screen-reader announcements */}
+      <LiveRegion message={announcement} politeness="polite" />
+
       {!focusActive && (
-        <ServiceModeBanner
-          visible={serviceBanner}
-          onDismiss={() => setServiceBanner(false)}
-        />
+        <header aria-label="Application header">
+          <ServiceModeBanner
+            visible={serviceBanner}
+            onDismiss={() => setServiceBanner(false)}
+          />
+        </header>
       )}
       <div className="flex min-h-0 flex-1">
         {!focusActive && (
           <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
         )}
-        <main className="flex flex-1 flex-col overflow-auto">
+        <main id="main-content" aria-label="Main content" className="flex flex-1 flex-col overflow-auto">
           {activeScreen === 'dashboard' && <Dashboard />}
           {activeScreen === 'traces' && <TracesScreen />}
         </main>
@@ -163,6 +175,7 @@ function AppShell({
 export function App() {
   const [activeScreen, setActiveScreen] = useState<ActiveScreen>('dashboard')
   const [serviceBanner, setServiceBanner] = useState(false)
+  const [announcement, setAnnouncement] = useState('')
   const initialTheme = getTheme()
 
   useEffect(() => {
@@ -176,7 +189,10 @@ export function App() {
 
   const handleNavigate = useCallback((screen: string) => {
     if (screen === 'dashboard' || screen === 'traces') {
-      setActiveScreen(screen)
+      setActiveScreen(screen as ActiveScreen)
+      setAnnouncement(
+        screen === 'dashboard' ? 'Navigated to Dashboard' : 'Navigated to Traces',
+      )
     }
   }, [])
 
@@ -188,6 +204,8 @@ export function App() {
   return (
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
+      {/* Skip-to-content must be the very first focusable element */}
+      <SkipToContent targetId="main-content" />
       <PreferencesProvider>
         <ShortcutProvider>
           <WorkspacesProvider>
@@ -198,7 +216,7 @@ export function App() {
                   onClearEventFeed={handleClearEventFeed}
                 >
                   <FocusProvider>
-                    <NotificationCommandBridge />
+                    <NotificationCommandBridge onAnnounce={setAnnouncement} />
                     <ShortcutWirer />
                     <PreferencesWirer />
                     <AppShell
@@ -206,6 +224,7 @@ export function App() {
                       setActiveScreen={setActiveScreen}
                       serviceBanner={serviceBanner}
                       setServiceBanner={setServiceBanner}
+                      announcement={announcement}
                     />
                     <CommandPalette />
                     <NotificationPanel />
@@ -256,7 +275,11 @@ function ShortcutWirer(): React.JSX.Element | null {
 }
 
 /** Registers palette commands that interact with the notification center. */
-function NotificationCommandBridge(): null {
+function NotificationCommandBridge({
+  onAnnounce,
+}: {
+  onAnnounce: (msg: string) => void
+}): null {
   const { registerCommand } = useCommandPalette()
   const { open, close, isOpen, clear } = useNotifications()
   useEffect(() => {
@@ -265,15 +288,26 @@ function NotificationCommandBridge(): null {
       label: 'Toggle notifications',
       keywords: ['notifications', 'alerts', 'bell'],
       category: 'View',
-      run: () => (isOpen ? close() : open()),
+      run: () => {
+        if (isOpen) {
+          close()
+          onAnnounce('Notifications panel closed')
+        } else {
+          open()
+          onAnnounce('Notifications panel opened')
+        }
+      },
     })
     registerCommand({
       id: 'notifications.clear',
       label: 'Clear notifications',
       keywords: ['notifications', 'clear', 'reset'],
       category: 'View',
-      run: () => clear(),
+      run: () => {
+        clear()
+        onAnnounce('Notifications cleared')
+      },
     })
-  }, [registerCommand, open, close, isOpen, clear])
+  }, [registerCommand, open, close, isOpen, clear, onAnnounce])
   return null
 }

@@ -84,7 +84,16 @@ const TraceRowItem = ({
       data-testid="trace-row"
       data-trace-id={row.traceId}
       data-selected={selected ? 'true' : 'false'}
+      role="row"
+      aria-selected={selected}
+      tabIndex={0}
       onClick={() => onSelect(row.traceId)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onSelect(row.traceId)
+        }
+      }}
       className={[
         'cursor-pointer transition-colors',
         selected
@@ -175,6 +184,7 @@ export const TraceList = ({
     <div className={`overflow-auto ${className ?? ''}`}>
       <table
         data-testid="trace-list-table"
+        aria-label="Trace list"
         className="w-full border-collapse"
       >
         <thead>

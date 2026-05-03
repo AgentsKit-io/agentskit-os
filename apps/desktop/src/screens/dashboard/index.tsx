@@ -83,7 +83,7 @@ export function Dashboard({ onRegisterClear }: DashboardProps) {
   }, [])
 
   return (
-    <div className="flex flex-col">
+    <section aria-label="Dashboard" className="flex flex-col">
       <Header
         workspaceName="My Workspace"
         runMode="preview"
@@ -95,6 +95,6 @@ export function Dashboard({ onRegisterClear }: DashboardProps) {
         <RecentRuns runs={[]} />
         <EventFeed events={events} isPaused={isPaused} toggle={toggle} />
       </div>
-    </div>
+    </section>
   )
 }

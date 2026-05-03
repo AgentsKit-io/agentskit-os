@@ -125,3 +125,59 @@
   color: var(--ag-ink);
   border: 1px solid var(--ag-line);
 }
+
+/* --------------------------------------------------------------------------
+   Focus-visible fallback
+   Every focusable element gets a visible focus ring via :focus-visible.
+   Components that define their own ring (e.g. Button via Tailwind) are
+   unaffected; this rule only fires when the browser's focus heuristic
+   determines a ring is appropriate (keyboard navigation, not mouse click).
+   -------------------------------------------------------------------------- */
+
+:focus-visible {
+  outline: 2px solid var(--ag-accent);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   prefers-reduced-motion — disable transitions / animations for users who
+   have requested reduced motion in their OS accessibility settings.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   prefers-contrast: more — high-contrast mode overrides.
+   Bumps border widths to 2 px and raises the accent to a higher-contrast
+   value so text and interactive elements remain distinguishable.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-contrast: more) {
+  :root,
+  [data-theme="dark"],
+  [data-theme="light"],
+  [data-theme="cyber"] {
+    --ag-line: #6b6b75;
+    --ag-accent: #00b8d4;
+    --ag-accent-hover: #00d6f5;
+    --ag-ink-subtle: #9999a8;
+  }
+
+  .ag-panel {
+    border-width: 2px;
+  }
+
+  .ag-badge-default,
+  .ag-badge-outline {
+    border-width: 2px;
+  }
+}

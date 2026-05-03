@@ -18,6 +18,13 @@ import { OnboardingTour } from './onboarding'
 import { getTheme, setTheme } from './lib/theme-store'
 import { FocusProvider, useFocus } from './focus/focus-provider'
 import { FocusToggle } from './focus/focus-toggle'
+import {
+  NotificationsProvider,
+  useNotifications,
+} from './notifications/notifications-provider'
+import { NotificationBell } from './notifications/notification-bell'
+import { NotificationPanel } from './notifications/notification-panel'
+import { useCommandPalette } from './command-palette/command-palette-provider'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -76,6 +83,7 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
       <div className="flex items-center justify-between px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
         <span>Navigation</span>
         <span className="flex items-center gap-1 normal-case tracking-normal">
+          <NotificationBell />
           <FocusToggle />
           <Kbd>⌘K</Kbd>
         </span>
@@ -172,23 +180,50 @@ export function App() {
   return (
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
-      <OnboardingProvider>
-        <CommandPaletteProvider
-          onNavigate={handleNavigate}
-          onClearEventFeed={handleClearEventFeed}
-        >
-          <FocusProvider>
-            <AppShell
-              activeScreen={activeScreen}
-              setActiveScreen={setActiveScreen}
-              serviceBanner={serviceBanner}
-              setServiceBanner={setServiceBanner}
-            />
-            <CommandPalette />
-          </FocusProvider>
-        </CommandPaletteProvider>
-        <OnboardingTour />
-      </OnboardingProvider>
+      <NotificationsProvider>
+        <OnboardingProvider>
+          <CommandPaletteProvider
+            onNavigate={handleNavigate}
+            onClearEventFeed={handleClearEventFeed}
+          >
+            <FocusProvider>
+              <NotificationCommandBridge />
+              <AppShell
+                activeScreen={activeScreen}
+                setActiveScreen={setActiveScreen}
+                serviceBanner={serviceBanner}
+                setServiceBanner={setServiceBanner}
+              />
+              <CommandPalette />
+              <NotificationPanel />
+            </FocusProvider>
+          </CommandPaletteProvider>
+          <OnboardingTour />
+        </OnboardingProvider>
+      </NotificationsProvider>
     </ThemeProvider>
   )
+}
+
+/** Registers palette commands that interact with the notification center. */
+function NotificationCommandBridge(): null {
+  const { registerCommand } = useCommandPalette()
+  const { open, close, isOpen, clear } = useNotifications()
+  useEffect(() => {
+    registerCommand({
+      id: 'notifications.toggle',
+      label: 'Toggle notifications',
+      keywords: ['notifications', 'alerts', 'bell'],
+      category: 'View',
+      run: () => (isOpen ? close() : open()),
+    })
+    registerCommand({
+      id: 'notifications.clear',
+      label: 'Clear notifications',
+      keywords: ['notifications', 'clear', 'reset'],
+      category: 'View',
+      run: () => clear(),
+    })
+  }, [registerCommand, open, close, isOpen, clear])
+  return null
 }

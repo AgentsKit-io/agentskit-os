@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { Slug, Tag, TagList, VaultSecretRef } from '../../src/schema/_primitives.js'
+import {
+  Slug,
+  Tag,
+  TagList,
+  VaultSecretRef,
+  RepoRef,
+  parseRepoRef,
+  safeParseRepoRef,
+} from '../../src/schema/_primitives.js'
 
 describe('schema primitives', () => {
   describe('Slug', () => {
@@ -59,6 +67,95 @@ describe('schema primitives', () => {
       ['raw-secret'],
     ])('rejects %s', (value) => {
       expect(VaultSecretRef.safeParse(value).success).toBe(false)
+    })
+  })
+
+  describe('RepoRef', () => {
+    it('accepts a bare HTTPS URL with branch ref', () => {
+      const r = parseRepoRef({
+        url: 'https://github.com/AgentsKit-io/agentskit-os.git',
+        ref: 'main',
+      })
+      expect(r.url).toBe('https://github.com/AgentsKit-io/agentskit-os.git')
+      expect(r.ref).toBe('main')
+      expect(r.worktreePath).toBeUndefined()
+    })
+
+    it('accepts a tag ref', () => {
+      const r = parseRepoRef({
+        url: 'https://github.com/org/repo.git',
+        ref: 'v1.2.3',
+      })
+      expect(r.ref).toBe('v1.2.3')
+    })
+
+    it('accepts a SHA ref', () => {
+      const r = parseRepoRef({
+        url: 'https://github.com/org/repo.git',
+        ref: 'abc1234def5678',
+      })
+      expect(r.ref).toBe('abc1234def5678')
+    })
+
+    it('accepts an abbreviated SHA ref', () => {
+      const r = parseRepoRef({
+        url: 'https://github.com/org/repo.git',
+        ref: 'deadbeef',
+      })
+      expect(r.ref).toBe('deadbeef')
+    })
+
+    it('accepts worktreePath', () => {
+      const r = parseRepoRef({
+        url: 'https://github.com/org/repo.git',
+        ref: 'main',
+        worktreePath: '/tmp/checkouts/my-feature',
+      })
+      expect(r.worktreePath).toBe('/tmp/checkouts/my-feature')
+    })
+
+    it('worktreePath is optional', () => {
+      const r = safeParseRepoRef({
+        url: 'https://github.com/org/repo.git',
+        ref: 'main',
+      })
+      expect(r.success).toBe(true)
+      if (r.success) expect(r.data.worktreePath).toBeUndefined()
+    })
+
+    it('rejects invalid URL', () => {
+      expect(
+        safeParseRepoRef({ url: 'not-a-url', ref: 'main' }).success,
+      ).toBe(false)
+    })
+
+    it('rejects empty ref', () => {
+      expect(
+        safeParseRepoRef({ url: 'https://github.com/org/repo.git', ref: '' }).success,
+      ).toBe(false)
+    })
+
+    it('rejects ref exceeding 255 chars', () => {
+      expect(
+        safeParseRepoRef({
+          url: 'https://github.com/org/repo.git',
+          ref: 'x'.repeat(256),
+        }).success,
+      ).toBe(false)
+    })
+
+    it('rejects worktreePath exceeding 1024 chars', () => {
+      expect(
+        safeParseRepoRef({
+          url: 'https://github.com/org/repo.git',
+          ref: 'main',
+          worktreePath: '/a'.repeat(513),
+        }).success,
+      ).toBe(false)
+    })
+
+    it('throws on parseRepoRef with invalid input', () => {
+      expect(() => parseRepoRef({})).toThrow()
     })
   })
 })

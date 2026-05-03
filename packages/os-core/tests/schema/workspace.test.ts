@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   SCHEMA_VERSION,
   WorkspaceConfig,
+  DataResidencyConfig,
   parseWorkspaceConfig,
   safeParseWorkspaceConfig,
 } from '../../src/schema/workspace.js'
@@ -165,6 +166,113 @@ describe('WorkspaceConfig schema', () => {
         limits: { tokensPerRun: 1.5 },
       })
       expect(result.success).toBe(false)
+    })
+  })
+
+  describe('dataResidency', () => {
+    it('is optional — absent by default', () => {
+      const result = parseWorkspaceConfig({ schemaVersion: 1, id: 'ws', name: 'WS' })
+      expect(result.dataResidency).toBeUndefined()
+    })
+
+    it('accepts macro-region "eu" with pinned true', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'eu', pinned: true },
+      })
+      expect(result.dataResidency?.region).toBe('eu')
+      expect(result.dataResidency?.pinned).toBe(true)
+    })
+
+    it('accepts macro-region "us" with pinned false default', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'us', pinned: false },
+      })
+      expect(result.dataResidency?.pinned).toBe(false)
+    })
+
+    it('defaults pinned to false when not provided', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'apac' },
+      })
+      expect(result.dataResidency?.pinned).toBe(false)
+    })
+
+    it('accepts ISO 3166-1 alpha-2 country code', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'de', pinned: true },
+      })
+      expect(result.dataResidency?.region).toBe('de')
+    })
+
+    it('accepts ISO 3166-1 alpha-3 country code', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'deu', pinned: false },
+      })
+      expect(result.dataResidency?.region).toBe('deu')
+    })
+
+    it('accepts exemptions list', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: {
+          region: 'eu',
+          pinned: true,
+          exemptions: ['openai-adapter', 'gcs-tool'],
+        },
+      })
+      expect(result.dataResidency?.exemptions).toEqual(['openai-adapter', 'gcs-tool'])
+    })
+
+    it('accepts empty exemptions array', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'us', pinned: true, exemptions: [] },
+      })
+      expect(result.dataResidency?.exemptions).toEqual([])
+    })
+
+    it('rejects region shorter than 2 chars', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'x', pinned: false },
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects region longer than 8 chars', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ws',
+        name: 'WS',
+        dataResidency: { region: 'toolongregion', pinned: false },
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('DataResidencyConfig schema parses standalone', () => {
+      const r = DataResidencyConfig.safeParse({ region: 'global', pinned: true })
+      expect(r.success).toBe(true)
     })
   })
 })

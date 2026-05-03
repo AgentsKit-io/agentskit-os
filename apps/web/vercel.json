@@ -4,7 +4,7 @@
   "buildCommand": "pnpm --filter @agentskit/web build",
   "installCommand": "pnpm install --frozen-lockfile",
   "outputDirectory": ".next",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- apps/web pnpm-lock.yaml pnpm-workspace.yaml && exit 0 || exit 1",
+  "ignoreCommand": "npx -y turbo-ignore @agentskit/web --fallback=HEAD^1",
   "git": { "deploymentEnabled": { "main": true } },
   "github": { "silent": true }
 }

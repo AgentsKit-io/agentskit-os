@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { afterEach, vi } from 'vitest'
 
 // React 19 + @testing-library/react requires this flag at startup.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,4 +36,9 @@ const localStorageMock: Storage = {
 Object.defineProperty(globalThis, 'localStorage', {
   value: localStorageMock,
   writable: true,
+})
+
+// Reset shared state between tests so suites don't leak.
+afterEach(() => {
+  localStorageMock.clear()
 })

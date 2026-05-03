@@ -1,42 +1,37 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "AgentsKitOS",
-  "identifier": "dev.agentskit.os",
-  "version": "0.0.0",
+  "identifier": "io.agentskit.desktop",
+  "version": "0.1.0",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "pnpm dev:vite",
     "beforeBuildCommand": "pnpm build:web"
   },
   "app": {
     "withGlobalTauri": false,
+    "macOSPrivateApi": true,
     "windows": [
       {
+        "label": "main",
         "title": "AgentsKitOS",
-        "width": 1200,
+        "width": 1280,
         "height": 800,
-        "minWidth": 960,
-        "minHeight": 640,
+        "minWidth": 900,
+        "minHeight": 600,
         "resizable": true,
         "fullscreen": false,
-        "decorations": true,
-        "theme": "Dark",
-        "titleBarStyle": "Overlay"
+        "visible": true
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost"
-    },
-    "macOSPrivateApi": true,
-    "trayIcon": {
-      "iconPath": "icons/icon.png",
-      "iconAsTemplate": true
+      "csp": "default-src 'self'; connect-src ipc: asset:; style-src 'self' 'unsafe-inline'; script-src 'self'"
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["app", "dmg", "nsis", "deb", "appimage"],
+    "targets": "all",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -44,11 +39,8 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [],
-    "externalBin": [],
-    "copyright": "AgentsKit Contributors",
-    "category": "DeveloperTool",
-    "shortDescription": "OS-layer for the agent era",
-    "longDescription": "AgentsKitOS desktop shell — visual harness for running, monitoring and debugging AI agents."
+    "resources": {
+      "icons/tray.png": "icons/tray.png"
+    }
   }
 }

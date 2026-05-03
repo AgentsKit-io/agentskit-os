@@ -1,102 +1,79 @@
 # @agentskit/desktop
 
-Tauri 2 desktop shell for AgentsKitOS. Wraps the React 19 front-end around the
-`@agentskit/os-headless` sidecar, communicating over JSON-RPC stdio.
-
-Per ADR-0018. See also: #35, #36, #37, #38, #43, #44.
-
----
-
-## Prerequisites
-
-| Tool | Version |
-|---|---|
-| Node.js | >= 22 |
-| pnpm | >= 10 |
-| Rust | >= 1.77 (stable) |
-| Tauri CLI | `@tauri-apps/cli ^2` (installed as dev dep) |
-
-> **React bundle only** (no Rust): `pnpm --filter @agentskit/desktop build:web`
-
----
+Tauri 2 desktop shell for AgentsKitOS.  Rust main process + React front-end + `@agentskit/os-headless` Node sidecar.
 
 ## Development
 
-```bash
-# From repo root — install all deps
-pnpm install
+```sh
+# From the repo root
+pnpm --filter @agentskit/desktop dev
 
-# Build workspace packages the desktop depends on
-pnpm --filter @agentskit/os-core build
-pnpm --filter @agentskit/os-headless build
+# Web-only (Vite dev server, no Tauri binary required)
+pnpm --filter @agentskit/desktop dev:vite
 
-# Start the Tauri dev server + React HMR
-pnpm --filter @agentskit/desktop tauri dev
-```
-
----
-
-## Production build
-
-```bash
+# Production build (Tauri + Vite)
 pnpm --filter @agentskit/desktop build
+
+# Web bundle only (used by CI to gate bundle size)
+pnpm --filter @agentskit/desktop build:web
+
+# Type-check + lint
+pnpm --filter @agentskit/desktop lint
+
+# Unit tests
+pnpm --filter @agentskit/desktop test
 ```
 
-Produces platform installers in `apps/desktop/src-tauri/target/release/bundle/`.
+## Architecture
 
----
+See [ADR-0018](../../docs/adr/0018-desktop-shell.md) for the full architectural rationale.
 
-## Sidecar layout
+Three processes run for the app lifetime:
 
-The sidecar is a thin Node.js JSON-RPC server that wraps
-`@agentskit/os-headless`. It is spawned by the Tauri main process on startup.
+| Process | Language | Responsibilities |
+|---|---|---|
+| Tauri main (Rust) | Rust | Window management, system tray, native menus, sidecar lifecycle |
+| WebView | platform | Renders the React app; no direct fs/network access |
+| Sidecar | Node 22 | `@agentskit/os-headless` — all agent execution, audit, sandbox, egress |
 
-```
-apps/desktop/sidecar/sidecar.mjs   ← dev shim (invoked via `node sidecar/sidecar.mjs`)
-packages/os-headless/dist/         ← runtime target
-```
+## Service mode
 
-In production the sidecar is compiled to a Node SEA (Single Executable
-Application) and bundled as `agentskit-sidecar` via `bundle.externalBin` in
-`tauri.conf.json`.
+When the system tray is active (default), **closing the main window hides it instead of quitting**.  The sidecar continues running in the background so in-progress agent runs are not interrupted.  The user can reopen the window at any time via the tray icon menu.
 
-JSON-RPC methods:
+### Tray menu
 
-| Method | Description |
+| Item | Behaviour |
 |---|---|
-| `health.ping` | Liveness check — returns `{ pong: true, ts }` |
-| `runner.runFlow` | Run a flow via HeadlessRunner |
-| `runner.runAgent` | Run a single agent via HeadlessRunner |
-| `runner.dispose` | Flush audit batches + teardown |
+| **Show window** | Surfaces the main window, creating it if hidden. |
+| **Status: Running / Idle** | Read-only label updated from sidecar `status` events. |
+| **Pause runs** | Sends `runner.pause` to the sidecar — see TODO below. |
+| **Resume runs** | Sends `runner.resume` to the sidecar — see TODO below. |
+| **Settings…** | Opens the settings screen (TODO). |
+| **Quit** | Calls `app.exit(0)` after asking the sidecar to dispose. |
 
-Observability events are emitted as JSON-RPC 2.0 notifications
-(`method: "event"`) and forwarded to the front-end via `sidecar://event` Tauri
-events.
+### Opting out of service mode
 
----
+Set the environment variable `AGENTSKITOS_NO_TRAY=1` before launching the app (or pass `--no-tray` in future CLI builds).  When opted out:
 
-## Size budget
+- The system tray icon is not registered.
+- Closing the main window exits the app normally (and kills the sidecar).
 
-Front-end bundle caps (see `.size-limit.json`):
+```sh
+AGENTSKITOS_NO_TRAY=1 ./AgentsKitOS
+```
 
-| Asset | Limit (gzip) |
-|---|---|
-| JS bundle | 200 KB |
-| CSS bundle | 20 KB |
+### Pause / Resume sidecar commands
 
-Run `pnpm size` from the repo root to check.
+The **Pause runs** and **Resume runs** tray menu items map to the sidecar JSON-RPC methods `runner.pause` and `runner.resume` respectively.  Both the Rust tray handler (`src-tauri/src/tray.rs`) and the TypeScript wrapper (`src/lib/sidecar.ts`) include `TODO(Refs #240)` markers — these stubs will become functional once the sidecar implements the commands in issue #240.
 
----
+### Service mode banner
 
-## Tauri security
+When the window is reopened after having been hidden, a dismissible banner ("Service mode active — the sidecar continues running in the background.") is shown at the top of the viewport.  The banner is driven by the Tauri event `tray://window-hidden` emitted from Rust whenever the close-button handler hides the window.
 
-- Allowlist: `core` + `window` + `tray` only. No `shell.execute`, no `fs`, no `http`.
-- CSP: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' ipc: http://ipc.localhost`
-- macOS Private API enabled for native title-bar overlay.
+## Security
 
----
+- CSP: `default-src 'self'; connect-src ipc: asset:` — no remote resource loads.
+- `shell`, full `fs`, and `http` allowlist APIs are disabled in `tauri.conf.json`.
+- All file and network operations route through typed Rust commands.
 
-## Token palette
-
-Mirrors `apps/web/tailwind.config.ts`. Dark cyan accent (`#22d3ee`), dark
-surface (`#08090c`). See `tailwind.config.ts` for full token list.
+See ADR-0018 §3.4 for the full security posture.

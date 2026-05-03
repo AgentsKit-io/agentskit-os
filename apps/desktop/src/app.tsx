@@ -16,6 +16,8 @@ import { CommandPalette } from './command-palette'
 import { OnboardingProvider } from './onboarding/onboarding-provider'
 import { OnboardingTour } from './onboarding'
 import { getTheme, setTheme } from './lib/theme-store'
+import { FocusProvider, useFocus } from './focus/focus-provider'
+import { FocusToggle } from './focus/focus-toggle'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -74,6 +76,7 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
       <div className="flex items-center justify-between px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
         <span>Navigation</span>
         <span className="flex items-center gap-1 normal-case tracking-normal">
+          <FocusToggle />
           <Kbd>⌘K</Kbd>
         </span>
       </div>
@@ -103,6 +106,41 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
         <ThemeSwitcher />
       </div>
     </aside>
+  )
+}
+
+/** Inner shell that reads focus state and conditionally hides sidebar/banner. */
+function AppShell({
+  activeScreen,
+  setActiveScreen,
+  serviceBanner,
+  setServiceBanner,
+}: {
+  activeScreen: ActiveScreen
+  setActiveScreen: (screen: ActiveScreen) => void
+  serviceBanner: boolean
+  setServiceBanner: (visible: boolean) => void
+}) {
+  const { active: focusActive } = useFocus()
+
+  return (
+    <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
+      {!focusActive && (
+        <ServiceModeBanner
+          visible={serviceBanner}
+          onDismiss={() => setServiceBanner(false)}
+        />
+      )}
+      <div className="flex min-h-0 flex-1">
+        {!focusActive && (
+          <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
+        )}
+        <main className="flex flex-1 flex-col overflow-auto">
+          {activeScreen === 'dashboard' && <Dashboard />}
+          {activeScreen === 'traces' && <TracesScreen />}
+        </main>
+      </div>
+    </div>
   )
 }
 
@@ -139,20 +177,15 @@ export function App() {
           onNavigate={handleNavigate}
           onClearEventFeed={handleClearEventFeed}
         >
-          <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
-            <ServiceModeBanner
-              visible={serviceBanner}
-              onDismiss={() => setServiceBanner(false)}
+          <FocusProvider>
+            <AppShell
+              activeScreen={activeScreen}
+              setActiveScreen={setActiveScreen}
+              serviceBanner={serviceBanner}
+              setServiceBanner={setServiceBanner}
             />
-            <div className="flex min-h-0 flex-1">
-              <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
-              <main className="flex flex-1 flex-col overflow-auto">
-                {activeScreen === 'dashboard' && <Dashboard />}
-                {activeScreen === 'traces' && <TracesScreen />}
-              </main>
-            </div>
-          </div>
-          <CommandPalette />
+            <CommandPalette />
+          </FocusProvider>
         </CommandPaletteProvider>
         <OnboardingTour />
       </OnboardingProvider>

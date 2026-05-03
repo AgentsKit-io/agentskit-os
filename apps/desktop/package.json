@@ -19,10 +19,11 @@
     "@agentskit/os-headless": "workspace:*",
     "@agentskit/os-ui": "workspace:^",
     "@tauri-apps/api": "^2",
-    "lucide-react": "^0.513.0",
     "@tauri-apps/plugin-shell": "^2",
+    "lucide-react": "^0.513.0",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "zod": "^4.4.2"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

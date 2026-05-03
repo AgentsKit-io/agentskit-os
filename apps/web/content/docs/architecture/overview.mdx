@@ -1,0 +1,50 @@
+---
+title: Architecture overview
+description: How the OS layer composes on top of AgentsKit.
+---
+
+```
+┌────────────────────────────────────────────────────────────────────┐
+│  AgentsKitOS                                                       │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────────────┐ │
+│  │  os-desktop  │ │   os-cli     │ │   os-flow    │ │ os-triggers│ │
+│  │  (Tauri 2)   │ │              │ │  (DAG/HITL)  │ │            │ │
+│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘ └─────┬──────┘ │
+│         │                │                │               │        │
+│  ┌──────┴────────────────┴────────────────┴───────────────┴──────┐ │
+│  │  @agentskit/os-core (Zod contracts, event bus, principal/cap, │ │
+│  │  errors, workspace model, plugin manifest)                    │ │
+│  └──────────────────────────────┬────────────────────────────────┘ │
+│  ┌──────────────┐ ┌─────────────┴──┐ ┌──────────────┐ ┌──────────┐ │
+│  │  os-security │ │ os-marketplace │ │ os-mcp-bridge│ │ os-cloud │ │
+│  │  (vault++)   │ │  + os-plugins  │ │  (publish +  │ │  -sync   │ │
+│  │              │ │                │ │   consume)   │ │          │ │
+│  └──────────────┘ └────────────────┘ └──────────────┘ └──────────┘ │
+└────────────────────────────────┬───────────────────────────────────┘
+                                 │ peerDependency
+┌────────────────────────────────┴───────────────────────────────────┐
+│  AgentsKit (upstream)                                              │
+│  core · runtime · adapters · memory · tools · skills · rag         │
+│  observability · sandbox · eval · cli · ink · react · vue · svelte │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+## Two layers
+
+- **OS surfaces** — `os-desktop`, `os-cli`, `os-flow`, `os-triggers`. User-facing.
+- **OS services** — `os-security`, `os-marketplace`, `os-mcp-bridge`, `os-cloud-sync`. Behind the surfaces.
+
+Both depend on `@agentskit/os-core`. Nothing in the OS layer talks to AgentsKit
+internals directly except through `@agentskit/os-runtime-agentskit`.
+
+## File layout
+
+```
+agentskit-os.config.ts       # Zod-validated, defineConfig() helper
+workspace.yaml               # workspace declaration
+agentskit-os.lock            # byte-reproducible lockfile (RFC-0002)
+.agentskitos/                # runtime dir
+  sqlite/                    # checkpoints, traces
+  vault/                     # encrypted secrets
+  traces/                    # span exports
+```

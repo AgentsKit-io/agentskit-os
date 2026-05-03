@@ -1,0 +1,15 @@
+{
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "get-started",
+    "philosophy",
+    "architecture",
+    "packages",
+    "flow",
+    "security",
+    "roadmap",
+    "adrs",
+    "rfcs"
+  ]
+}

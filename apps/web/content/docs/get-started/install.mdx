@@ -1,0 +1,44 @@
+---
+title: Install
+description: Add the CLI and core contracts to a fresh project.
+---
+
+## CLI
+
+```bash
+pnpm add -D @agentskit/os-cli
+```
+
+This brings in `@agentskit/os-core` automatically. The CLI is the supported way
+to scaffold, lint, run, and deploy AgentsKitOS workspaces during M1.
+
+## Standalone packages
+
+Every package is independently installable. Pick what you need:
+
+```bash
+pnpm add @agentskit/os-core         # Zod contracts, event bus, errors
+pnpm add @agentskit/os-flow         # DAG engine, durable, checkpoint
+pnpm add @agentskit/os-runtime      # handler factories, adapter contracts
+pnpm add @agentskit/os-runtime-agentskit  # AgentsKit binding
+pnpm add @agentskit/os-storage      # file-backed checkpoint + lockfile
+pnpm add @agentskit/os-audit        # Merkle batch chain emitter
+pnpm add @agentskit/os-plugins      # plugin loader + manifest validation
+pnpm add @agentskit/os-sandbox      # sandbox runtimes (none, process)
+pnpm add @agentskit/os-import       # Langflow/n8n/Dify importers
+pnpm add @agentskit/os-marketplace-sdk  # signing + bundle integrity
+pnpm add @agentskit/os-templates    # starter templates
+```
+
+> **Zod is a peer dep.** Install it once at the workspace root:
+> `pnpm add zod`. See [ADR-0004](/docs/adrs).
+
+## Verify
+
+```bash
+pnpm agentskit-os --version
+pnpm agentskit-os doctor
+```
+
+`doctor` checks Node version, package resolution, optional providers, sandbox
+runtimes, and lockfile state.

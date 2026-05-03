@@ -1,0 +1,19 @@
+---
+title: Non-negotiables (ADR-0001)
+description: Eight rules that govern every architectural decision in AgentsKitOS.
+---
+
+1. **`@agentskit/os-core` stays ultralight.** Contracts + event bus + workspace
+   model only. Zero LLM/UI deps. **&lt;15 KB gzipped.**
+2. **Never duplicate AgentsKit.** Import core, runtime, adapters, memory, tools,
+   skills, observability, sandbox, RAG, eval as deps. OS = thin layer.
+3. **Every package independently installable.** Use one piece without the
+   desktop.
+4. **Strict TS, no `any`.** Zod at every boundary. Named exports only.
+5. **ADR before architecture. RFC before breaking contracts.** Public process.
+6. **SemVer strict.** Backward-compat within a major.
+7. **Native security + observability.** Sandbox, audit log, trace viewer not
+   optional.
+8. **Self-host day 1.** Air-gap supported. MIT.
+
+> Source: [ADR-0001](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0001-philosophy.md).

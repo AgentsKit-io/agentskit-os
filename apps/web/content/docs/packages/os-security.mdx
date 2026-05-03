@@ -1,0 +1,19 @@
+---
+title: "@agentskit/os-security (planned)"
+description: Prompt firewall, PII redact, audit log signing, vault++.
+---
+
+> **Status: planned — Milestone M6.**
+
+Production security stack on top of os-core's principal/capability primitives.
+
+## Targeted scope
+
+- **Prompt firewall** — input/output policies, redact / refuse / quarantine.
+- **Safe-Harbor PII redaction** — configurable per workspace + per tenant.
+- **Audit log signing** — HSM / KMS adapters, plus the Merkle chain from
+  [`os-audit`](./os-audit).
+- **Vault++** — encrypted secrets at rest, capability-gated reads.
+- **Egress default-deny** with per-workspace allowlist ([ADR-0011](/docs/adrs)).
+
+Used heavily by healthcare, finance, and multi-tenant SaaS deployments.

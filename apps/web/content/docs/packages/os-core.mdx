@@ -1,0 +1,32 @@
+---
+title: "@agentskit/os-core"
+description: Pure foundation — contracts, event bus, workspace model, config schema. Zero runtime deps.
+---
+
+```bash
+pnpm add @agentskit/os-core zod
+```
+
+## What it does
+
+The mandatory dependency. Every other package builds on it.
+
+- Config schema (`ConfigRoot`, `WorkspaceConfig`, `AgentConfig`, `FlowConfig`, …)
+- Event bus interface (CloudEvents-shaped) and built-in in-memory implementation
+- Principal & capability primitives
+- Structured `OsError` base + code namespaces
+- Plugin manifest schema
+
+## Constraints
+
+- Zero runtime deps. Zod is a peer dep ([ADR-0004](/docs/adrs)).
+- &lt;15 KB gzipped, enforced via `size-limit` in CI.
+- Strict TS, no `any`, named exports only.
+
+## Use it directly when
+
+- You're building your own OS surface (custom CLI, IDE plugin, web UI).
+- You need to validate configs in CI before publish.
+- You're authoring a plugin and need `PluginConfig` for manifest validation.
+
+> Status: shipping in M1. 600+ tests.

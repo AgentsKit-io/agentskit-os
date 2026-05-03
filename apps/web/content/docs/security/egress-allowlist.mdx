@@ -1,0 +1,22 @@
+---
+title: Egress default-deny (ADR-0011)
+description: Per-workspace egress allowlist; outbound network blocked unless declared.
+---
+
+Outbound network access is **denied by default**. Each workspace declares an
+allowlist of domains the runtime may reach.
+
+## Why
+
+- LLM-driven tools can synthesize URLs at runtime — an allowlist prevents
+  exfiltration to arbitrary destinations.
+- Multi-tenant deployments can scope egress per tenant.
+- Air-gapped deployments simply leave the allowlist empty.
+
+## Enforcement
+
+- The sandbox runtime intercepts socket creation.
+- Violations raise `os.security.egress_denied` (see [error model](/docs/architecture/errors)).
+- Every denial is audited.
+
+> Source: [ADR-0011](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0011-egress-allowlist.md).

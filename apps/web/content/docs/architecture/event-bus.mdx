@@ -1,0 +1,31 @@
+---
+title: Event bus (ADR-0005)
+description: CloudEvents-shaped pub/sub for everything that happens in a workspace.
+---
+
+Every interesting thing — flow start, agent step, tool call, HITL gate, error —
+emits a typed event onto the bus.
+
+## Shape
+
+Events follow [CloudEvents 1.0](https://cloudevents.io/). Required fields:
+
+- `id` — ULID or UUIDv7
+- `source` — package or component emitting
+- `type` — reverse-DNS event name (`io.agentskit.os.flow.step.completed`)
+- `time` — RFC3339 UTC timestamp
+- `data` — typed payload (Zod-validated per `type`)
+
+## Why CloudEvents
+
+- Bridges to message brokers (NATS, Kafka, Redis Streams) without re-encoding.
+- Already understood by OTel, audit-log sinks, and most observability vendors.
+- Forwards-compatible — extensions live in `data` without breaking parsers.
+
+## Bus bridges (M3+)
+
+`@agentskit/os-flow` exports a bridge that forwards every flow event to the
+bus. Consumers include the audit emitter, OTel exporter, trace viewer, and
+cost-guard.
+
+> Source: [ADR-0005](https://github.com/AgentsKit-io/agentskit-os/blob/main/docs/adr/0005-event-bus.md).

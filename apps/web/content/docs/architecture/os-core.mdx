@@ -1,0 +1,28 @@
+---
+title: "@agentskit/os-core"
+description: Zod contracts, event bus, principal/capability, errors, workspace model. Zero runtime deps. <15 KB gzipped.
+---
+
+`os-core` is the only mandatory dependency. Every other package builds on it.
+
+## What's inside
+
+- **Config schema** (ADR-0003) — `ConfigRoot`, `WorkspaceConfig`, `AgentConfig`,
+  `FlowConfig`, `TriggerConfig`, `MemoryConfig`, `RagConfig`. All Zod.
+- **Event bus** (ADR-0005) — CloudEvents-shaped bus with typed channels.
+- **Principal & capability model** (ADR-0006) — capability-based RBAC.
+- **Structured error model** (ADR-0007) — typed error codes, no thrown strings.
+- **Plugin manifest** (ADR-0012) — extension point catalog and contribution
+  shape.
+
+## Constraints
+
+- Zero runtime dependencies (Zod is a peer dep — see [ADR-0004](/docs/adrs)).
+- &lt;15 KB gzipped. Enforced in CI via `size-limit`.
+- Strict TS. No `any`. Named exports only.
+
+## When to import directly
+
+- Building a custom OS surface (your own CLI, web UI, IDE plugin).
+- Validating configs in CI before publish.
+- Writing a plugin — your manifest must satisfy `PluginConfig` from os-core.

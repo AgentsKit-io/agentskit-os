@@ -1,0 +1,16 @@
+---
+title: "@agentskit/os-observability (planned)"
+description: Trace viewer, replay, anomaly detection — atop AgentsKit observability primitives.
+---
+
+> **Status: planned — Milestone M6.**
+
+Builds on `@agentskit/observability` (OTel, audit-log, cost-guard, trace-tracker).
+
+## Targeted scope
+
+- Trace viewer with span tree + flame chart.
+- Replay any run from its trace + checkpoint.
+- Anomaly detection (latency, cost, retry rate, tool failure rate).
+- OTel `gen_ai.*` semantic conventions ([RFC-0006](/docs/rfcs)).
+- Drop-in compatible with Datadog, Honeycomb, Langfuse, New Relic, Grafana, PostHog.

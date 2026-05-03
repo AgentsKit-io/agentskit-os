@@ -1,0 +1,29 @@
+{
+  "title": "Packages",
+  "pages": [
+    "index",
+    "os-core",
+    "os-cli",
+    "os-flow",
+    "os-runtime",
+    "os-runtime-agentskit",
+    "os-storage",
+    "os-audit",
+    "os-plugins",
+    "os-sandbox",
+    "os-templates",
+    "os-import",
+    "os-marketplace-sdk",
+    "---planned---",
+    "os-desktop",
+    "os-ui",
+    "os-triggers",
+    "os-marketplace",
+    "os-observability",
+    "os-security",
+    "os-cloud-sync",
+    "os-generative",
+    "os-collab",
+    "os-mcp-bridge"
+  ]
+}

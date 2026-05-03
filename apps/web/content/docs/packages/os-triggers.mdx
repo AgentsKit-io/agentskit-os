@@ -1,0 +1,24 @@
+---
+title: "@agentskit/os-triggers (planned)"
+description: Trigger sources — cron, webhook, file, email, slack, github, linear, cdc.
+---
+
+> **Status: planned — Milestone M4.**
+
+Wraps trigger sources behind a uniform contract. Every trigger feeds events
+onto the os-core bus and into matching flows.
+
+## Planned sources
+
+- `cron` — wall-clock and durable schedules
+- `webhook` — signed HTTP callbacks
+- `file` — fs watchers
+- `email` — SMTP / IMAP (gap upstream — see [ADR-0002 gap list](/docs/philosophy/depend-on-agentskit#gaps-to-upstream))
+- `slack` · `discord` · `linear` · `jira` · `github` — via upstream tools
+- `cdc` — Postgres change data capture (gap upstream)
+
+## Why a separate package
+
+Triggers are I/O-heavy and benefit from dedicated process / runtime
+isolation. Splitting them keeps `os-core` zero-dep and lets users swap or
+disable trigger sources independently.

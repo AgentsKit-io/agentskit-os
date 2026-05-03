@@ -1,0 +1,36 @@
+---
+title: Packages
+description: Every AgentsKitOS package — what ships today and what's coming.
+---
+
+## Shipping (M1)
+
+| Package | Purpose |
+|---|---|
+| [`@agentskit/os-core`](./os-core) | Zod contracts, event bus, errors, workspace model |
+| [`@agentskit/os-cli`](./os-cli) | init, doctor, run, lock, publish, deploy |
+| [`@agentskit/os-flow`](./os-flow) | DAG executor, durable, cycle-safe, run-mode-aware |
+| [`@agentskit/os-runtime`](./os-runtime) | Handler factories with pluggable LLM/tool/memory adapters |
+| [`@agentskit/os-runtime-agentskit`](./os-runtime-agentskit) | AgentsKit binding for os-runtime |
+| [`@agentskit/os-storage`](./os-storage) | File-backed CheckpointStore + lockfile reader/writer |
+| [`@agentskit/os-audit`](./os-audit) | Merkle batch chain emitter |
+| [`@agentskit/os-plugins`](./os-plugins) | Plugin loader, manifest validation, capability checks |
+| [`@agentskit/os-sandbox`](./os-sandbox) | Built-in `none` and `process` runtimes; container/vm via plugins |
+| [`@agentskit/os-templates`](./os-templates) | Starter template gallery |
+| [`@agentskit/os-import`](./os-import) | Langflow / n8n / Dify → ConfigRoot importers |
+| [`@agentskit/os-marketplace-sdk`](./os-marketplace-sdk) | Manifest builder, integrity hashing, signing, bundle metadata |
+
+## Planned
+
+| Package | Milestone | Purpose |
+|---|---|---|
+| [`@agentskit/os-desktop`](./os-desktop) | M2 | Tauri 2 shell |
+| [`@agentskit/os-ui`](./os-ui) | M2 | shadcn components: Dashboard, FlowEditor, TraceViewer, CommandPalette |
+| [`@agentskit/os-triggers`](./os-triggers) | M4 | cron, webhook, file, email, slack, github, linear, cdc |
+| [`@agentskit/os-marketplace`](./os-marketplace) | M5 | publish/install, signing, revenue share |
+| [`@agentskit/os-observability`](./os-observability) | M6 | trace viewer, replay, anomaly detect |
+| [`@agentskit/os-security`](./os-security) | M6 | prompt firewall, PII redact, audit log signing, vault |
+| [`@agentskit/os-cloud-sync`](./os-cloud-sync) | M8 | workspace sync, backup/restore, multi-device |
+| [`@agentskit/os-generative`](./os-generative) | M7 | NL → agent / flow / trigger / tool generator |
+| [`@agentskit/os-collab`](./os-collab) | M8 | CRDT real-time co-edit |
+| [`@agentskit/os-mcp-bridge`](./os-mcp-bridge) | M4 | publish AK tools as MCP servers, consume MCP servers |

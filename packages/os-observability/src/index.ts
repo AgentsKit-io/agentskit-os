@@ -51,5 +51,15 @@ export type {
 export { InMemoryMetricSink } from './in-memory-metric-sink.js'
 export type { Agg, CounterAgg, GaugeAgg, HistogramAgg } from './in-memory-metric-sink.js'
 
+export {
+  costEntryToMetricPoints,
+  createCostMetricsRecorder,
+} from './cost-bridge.js'
+export type {
+  CostEntryShape,
+  CostBridgeLabels,
+  CostMetricsRecorderOptions,
+} from './cost-bridge.js'
+
 export const PACKAGE_NAME = '@agentskit/os-observability' as const
 export const PACKAGE_VERSION = '0.0.0' as const

@@ -10,6 +10,7 @@ export default defineConfig({
     'src/in-memory-span-exporter.ts',
     'src/metrics-registry.ts',
     'src/in-memory-metric-sink.ts',
+    'src/cost-bridge.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

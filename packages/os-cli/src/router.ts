@@ -12,6 +12,7 @@ import { newCmd } from './commands/new.js'
 import { publish } from './commands/publish.js'
 import { deploy } from './commands/deploy.js'
 import { version } from './commands/version.js'
+import { sync } from './commands/sync.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
@@ -19,6 +20,7 @@ export const COMMANDS: readonly CliCommand[] = [
   importCmd,
   run,
   lock,
+  sync,
   publish,
   deploy,
   configValidate,

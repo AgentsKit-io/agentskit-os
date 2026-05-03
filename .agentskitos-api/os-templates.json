@@ -1,0 +1,46 @@
+{
+  "exports": {
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "Template": {
+      "kind": "reexport"
+    },
+    "TemplateCategory": {
+      "kind": "reexport"
+    },
+    "allCategories": {
+      "kind": "reexport"
+    },
+    "allTags": {
+      "kind": "reexport"
+    },
+    "builtInTemplates": {
+      "kind": "reexport"
+    },
+    "clinicalConsensusTemplate": {
+      "kind": "reexport"
+    },
+    "findTemplate": {
+      "kind": "reexport"
+    },
+    "listTemplates": {
+      "kind": "reexport"
+    },
+    "marketing3WayTemplate": {
+      "kind": "reexport"
+    },
+    "prReviewTemplate": {
+      "kind": "reexport"
+    },
+    "researchSummaryTemplate": {
+      "kind": "reexport"
+    },
+    "supportTriageTemplate": {
+      "kind": "reexport"
+    }
+  }
+}

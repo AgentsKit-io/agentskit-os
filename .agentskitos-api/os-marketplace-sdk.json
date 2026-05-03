@@ -1,0 +1,67 @@
+{
+  "exports": {
+    "AssetEntry": {
+      "kind": "reexport"
+    },
+    "AssetRecord": {
+      "kind": "reexport"
+    },
+    "BuildOptions": {
+      "kind": "reexport"
+    },
+    "Bundle": {
+      "kind": "reexport"
+    },
+    "InMemoryPublisher": {
+      "kind": "reexport"
+    },
+    "ManifestSigner": {
+      "kind": "reexport"
+    },
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "PublishResult": {
+      "kind": "reexport"
+    },
+    "Publisher": {
+      "kind": "reexport"
+    },
+    "buildBundle": {
+      "kind": "reexport"
+    },
+    "buildManifest": {
+      "kind": "reexport"
+    },
+    "canonicalJson": {
+      "kind": "reexport"
+    },
+    "sha256OfBytes": {
+      "kind": "reexport"
+    },
+    "sha256OfCanonical": {
+      "kind": "reexport"
+    },
+    "sha512OfBytes": {
+      "kind": "reexport"
+    },
+    "sha512OfCanonical": {
+      "kind": "reexport"
+    },
+    "stripSignature": {
+      "kind": "reexport"
+    },
+    "verifyAsset": {
+      "kind": "reexport"
+    },
+    "verifyBundleArchive": {
+      "kind": "reexport"
+    },
+    "verifyIntegrity": {
+      "kind": "reexport"
+    }
+  }
+}

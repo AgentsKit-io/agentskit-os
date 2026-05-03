@@ -1,0 +1,61 @@
+{
+  "exports": {
+    "FetchResult": {
+      "kind": "reexport"
+    },
+    "GrantPolicy": {
+      "kind": "reexport"
+    },
+    "GrantStatus": {
+      "kind": "reexport"
+    },
+    "InMemoryManifestFetcher": {
+      "kind": "reexport"
+    },
+    "LoadErrorCode": {
+      "kind": "reexport"
+    },
+    "LoadOptions": {
+      "kind": "reexport"
+    },
+    "LoadResult": {
+      "kind": "reexport"
+    },
+    "ManifestEvaluation": {
+      "kind": "reexport"
+    },
+    "ManifestFetcher": {
+      "kind": "reexport"
+    },
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "PermissionDecision": {
+      "kind": "reexport"
+    },
+    "SignatureVerifier": {
+      "kind": "reexport"
+    },
+    "decidePermission": {
+      "kind": "reexport"
+    },
+    "evaluateManifestPermissions": {
+      "kind": "reexport"
+    },
+    "filterDangerousPermissions": {
+      "kind": "reexport"
+    },
+    "loadPlugin": {
+      "kind": "reexport"
+    },
+    "tightenConstraints": {
+      "kind": "reexport"
+    },
+    "validateManifestShape": {
+      "kind": "reexport"
+    }
+  }
+}

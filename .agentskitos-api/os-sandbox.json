@@ -1,0 +1,34 @@
+{
+  "exports": {
+    "ChildHandle": {
+      "kind": "reexport"
+    },
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "ProcessRuntimeOptions": {
+      "kind": "reexport"
+    },
+    "SandboxRegistry": {
+      "kind": "reexport"
+    },
+    "Spawner": {
+      "kind": "reexport"
+    },
+    "exposeAllowedEnvKeys": {
+      "kind": "reexport"
+    },
+    "nodeSpawner": {
+      "kind": "reexport"
+    },
+    "noneSandbox": {
+      "kind": "reexport"
+    },
+    "processSandbox": {
+      "kind": "reexport"
+    }
+  }
+}

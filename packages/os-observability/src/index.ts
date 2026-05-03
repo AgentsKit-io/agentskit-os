@@ -33,5 +33,23 @@ export type {
 
 export { InMemorySpanExporter } from './in-memory-span-exporter.js'
 
+export {
+  createMetricsRegistry,
+  eventCountRule,
+  durationRule,
+  costRule,
+  DEFAULT_METRIC_RULES,
+} from './metrics-registry.js'
+export type {
+  MetricKind,
+  MetricPoint,
+  MetricSink,
+  MetricRule,
+  MetricsRegistryOptions,
+} from './metrics-registry.js'
+
+export { InMemoryMetricSink } from './in-memory-metric-sink.js'
+export type { Agg, CounterAgg, GaugeAgg, HistogramAgg } from './in-memory-metric-sink.js'
+
 export const PACKAGE_NAME = '@agentskit/os-observability' as const
 export const PACKAGE_VERSION = '0.0.0' as const

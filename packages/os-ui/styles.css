@@ -1,0 +1,127 @@
+/**
+ * @agentskit/os-ui — Base styles
+ *
+ * Minimal reset + utility classes that consume the --ag-* tokens.
+ * Useful for embedders that don't use Tailwind.
+ *
+ * Import tokens.css first, then this file.
+ *
+ * Usage:
+ *   import "@agentskit/os-ui/tokens.css";
+ *   import "@agentskit/os-ui/styles.css";
+ */
+
+/* --------------------------------------------------------------------------
+   Base reset
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Surface utilities
+   -------------------------------------------------------------------------- */
+
+.ag-surface {
+  background-color: var(--ag-surface);
+  color: var(--ag-ink);
+}
+
+.ag-surface-alt {
+  background-color: var(--ag-surface-alt);
+  color: var(--ag-ink);
+}
+
+.ag-panel {
+  background-color: var(--ag-panel);
+  color: var(--ag-ink);
+  border: 1px solid var(--ag-line);
+  border-radius: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Typography utilities
+   -------------------------------------------------------------------------- */
+
+.ag-ink {
+  color: var(--ag-ink);
+}
+
+.ag-ink-muted {
+  color: var(--ag-ink-muted);
+}
+
+.ag-ink-subtle {
+  color: var(--ag-ink-subtle);
+}
+
+.ag-accent {
+  color: var(--ag-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Glass panel
+   -------------------------------------------------------------------------- */
+
+.ag-glass {
+  background: rgba(8, 9, 12, 0.65);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid var(--ag-line);
+  border-radius: 0.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   Focus ring glow (accent)
+   -------------------------------------------------------------------------- */
+
+.ag-ring-glow {
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.25),
+    0 0 40px -10px rgba(34, 211, 238, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   Divider
+   -------------------------------------------------------------------------- */
+
+.ag-divider {
+  border: none;
+  border-top: 1px solid var(--ag-line);
+}
+
+/* --------------------------------------------------------------------------
+   Badge base
+   -------------------------------------------------------------------------- */
+
+.ag-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.25rem 0.625rem;
+  white-space: nowrap;
+}
+
+.ag-badge-default {
+  background-color: var(--ag-panel-alt);
+  color: var(--ag-ink);
+  border: 1px solid var(--ag-line);
+}
+
+.ag-badge-accent {
+  background-color: var(--ag-accent-dim);
+  color: var(--ag-accent-hover);
+  border: 1px solid var(--ag-accent-dim);
+}
+
+.ag-badge-outline {
+  background-color: transparent;
+  color: var(--ag-ink);
+  border: 1px solid var(--ag-line);
+}

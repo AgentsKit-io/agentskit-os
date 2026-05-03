@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Desktop front-end JS bundle",
+    "path": "dist/assets/*.js",
+    "gzip": true,
+    "limit": "200 KB"
+  },
+  {
+    "name": "Desktop front-end CSS bundle",
+    "path": "dist/assets/*.css",
+    "gzip": true,
+    "limit": "20 KB"
+  }
+]

@@ -35,6 +35,7 @@ import { PreferencesPanel } from './preferences/preferences-panel'
 import { StatusLineProvider } from './status-line/status-line-provider'
 import { StatusLine } from './status-line/status-line'
 import { StatusLineConfigPanel } from './status-line/status-line-config-panel'
+import { ThemeEditorPanel } from './theme-editor/theme-editor-panel'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -224,6 +225,7 @@ export function App() {
                     <NotificationCommandBridge onAnnounce={setAnnouncement} />
                     <ShortcutWirer />
                     <PreferencesWirer />
+                    <ThemeEditorWirer />
                     <AppShell
                       activeScreen={activeScreen}
                       setActiveScreen={setActiveScreen}
@@ -295,6 +297,22 @@ function StatusLineConfigWirer(): React.JSX.Element | null {
     })
   }, [registerCommand])
   return <StatusLineConfigPanel isOpen={open} onClose={() => setOpen(false)} />
+}
+
+/** Wires the "theme-editor.open" palette command + modal render. */
+function ThemeEditorWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'theme-editor.open',
+      label: 'Open theme editor',
+      keywords: ['theme', 'editor', 'colors', 'palette', 'customize', 'appearance'],
+      category: 'System',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return <ThemeEditorPanel isOpen={open} onClose={() => setOpen(false)} />
 }
 
 /** Registers palette commands that interact with the notification center. */

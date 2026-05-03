@@ -74,6 +74,10 @@ vi.mock('@agentskit/os-ui', () => {
     SkipToContent: ({ targetId = 'main-content', label = 'Skip to main content' }: { targetId?: string; label?: string }) => (
       <a href={`#${targetId}`} data-testid="skip-to-content">{label}</a>
     ),
+    applyThemeToDocument: () => undefined,
+    clearThemeOverrides: () => undefined,
+    defaultThemes: { dark: {}, light: {}, cyber: {} },
+    applyToken: () => undefined,
   }
 })
 

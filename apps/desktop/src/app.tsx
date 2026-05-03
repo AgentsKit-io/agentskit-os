@@ -13,6 +13,8 @@ import { Dashboard } from './screens/dashboard'
 import { TracesScreen } from './screens/traces'
 import { CommandPaletteProvider } from './command-palette/command-palette-provider'
 import { CommandPalette } from './command-palette'
+import { OnboardingProvider } from './onboarding/onboarding-provider'
+import { OnboardingTour } from './onboarding'
 import { getTheme, setTheme } from './lib/theme-store'
 
 type ActiveScreen = 'dashboard' | 'traces'
@@ -132,25 +134,28 @@ export function App() {
   return (
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
-      <CommandPaletteProvider
-        onNavigate={handleNavigate}
-        onClearEventFeed={handleClearEventFeed}
-      >
-        <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
-          <ServiceModeBanner
-            visible={serviceBanner}
-            onDismiss={() => setServiceBanner(false)}
-          />
-          <div className="flex min-h-0 flex-1">
-            <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
-            <main className="flex flex-1 flex-col overflow-auto">
-              {activeScreen === 'dashboard' && <Dashboard />}
-              {activeScreen === 'traces' && <TracesScreen />}
-            </main>
+      <OnboardingProvider>
+        <CommandPaletteProvider
+          onNavigate={handleNavigate}
+          onClearEventFeed={handleClearEventFeed}
+        >
+          <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
+            <ServiceModeBanner
+              visible={serviceBanner}
+              onDismiss={() => setServiceBanner(false)}
+            />
+            <div className="flex min-h-0 flex-1">
+              <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
+              <main className="flex flex-1 flex-col overflow-auto">
+                {activeScreen === 'dashboard' && <Dashboard />}
+                {activeScreen === 'traces' && <TracesScreen />}
+              </main>
+            </div>
           </div>
-        </div>
-        <CommandPalette />
-      </CommandPaletteProvider>
+          <CommandPalette />
+        </CommandPaletteProvider>
+        <OnboardingTour />
+      </OnboardingProvider>
     </ThemeProvider>
   )
 }

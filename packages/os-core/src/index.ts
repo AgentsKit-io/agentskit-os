@@ -1,13 +1,22 @@
 export const PACKAGE_NAME = '@agentskit/os-core' as const
 export const PACKAGE_VERSION = '0.0.0' as const
 
-export { Slug, Tag, TagList, VaultSecretRef } from './schema/_primitives.js'
+export {
+  Slug,
+  Tag,
+  TagList,
+  VaultSecretRef,
+  RepoRef,
+  parseRepoRef,
+  safeParseRepoRef,
+} from './schema/_primitives.js'
 
 export {
   SCHEMA_VERSION,
   WorkspaceConfig,
   WorkspaceIsolation,
   WorkspaceLimits,
+  DataResidencyConfig,
   parseWorkspaceConfig,
   safeParseWorkspaceConfig,
   parseWorkspaceLimits,
@@ -37,6 +46,7 @@ export {
   CdcTrigger,
   parseTriggerConfig,
   safeParseTriggerConfig,
+  effectiveLimitsFor,
 } from './schema/trigger.js'
 
 export {

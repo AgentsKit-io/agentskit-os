@@ -1,5 +1,12 @@
 # @agentskit/os-sandbox
 
+## 1.0.0-alpha.1
+
+### Patch Changes
+
+- Updated dependencies [84d2fed]
+  - @agentskit/os-core@0.4.0-alpha.1
+
 ## 1.0.0-alpha.0
 
 ### Minor Changes

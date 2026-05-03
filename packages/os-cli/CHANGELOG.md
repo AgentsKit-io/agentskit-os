@@ -1,5 +1,56 @@
 # @agentskit/os-cli
 
+## 3.0.0-alpha.1
+
+### Minor Changes
+
+- 84d2fed: feat(os-core): WorkspaceConfig.dataResidency field (#183)
+  feat(os-core): RepoRef primitive — git URL + ref + worktree path (#189)
+  feat(os-core): per-trigger budget override via effectiveLimitsFor (#192)
+  docs(adr): CLI verb surface ADR-0017 + man-page generator (#181)
+- e8e42b4: feat(os-cli): doctor tests live LLM call + sandbox round-trip (#225)
+
+  Extends `packages/os-cli/src/commands/doctor.ts`:
+
+  - New `--live` flag (default off). When set, doctor runs two extra checks:
+    1. **Live LLM probe** — calls a host-injected `DoctorLlmAdapter.invoke()` with a tiny "ping" prompt (max 8 tokens), verifies the response shape. 10 s timeout, error code `os.cli.doctor_live_timeout`.
+    2. **Sandbox round-trip** — spawns a no-op command through a host-injected `DoctorSandboxSpawner` and confirms the child exits 0. 5 s timeout, same error code.
+  - Both probes use dependency injection (`createDoctor(liveOpts?)`) so tests use fast fakes without spawning real processes or hitting real LLMs.
+  - Output adds `live:llm` and `live:sandbox` lines to the doctor report.
+  - Without `--live`, behaviour is unchanged.
+  - Exports `createDoctor`, `runDoctor`, `DoctorLlmAdapter`, `DoctorSandboxSpawner`, `DoctorLiveOpts`, `LiveChecks`, `DoctorReport`.
+
+  feat: @agentskit/os-headless — first-class headless runner (initial release) (#223)
+
+  New public package `@agentskit/os-headless` (`distribution: public`, `stability: alpha`).
+
+  Provides the **first-class headless agent runner** — bridge between a workspace config and a running agent without any UI.
+
+  Public surface:
+
+  - `createHeadlessRunner(opts)` → `HeadlessRunner` with `runFlow`, `runAgent`, `dispose`.
+  - `runWorkspace(opts)` — convenience single-call wrapper.
+  - `runFlowHeadless` — alias for `runWorkspace`.
+
+  Key behaviours:
+
+  - Live modes (`real`, `deterministic`) use `buildLiveHandlers` from `os-runtime`.
+  - Stub modes (`dry_run`, `simulate`, `replay`, `preview`) use `defaultStubHandlers` from `os-flow`.
+  - `dispose()` flushes audit batches via `AuditEmitter.flushAll()`.
+  - Cancellation via `AbortSignal` propagated to `os-flow` runner.
+  - Flow lookup from `Map<string, FlowConfig>` or `Record<string, FlowConfig>`; accepts `FlowConfig` directly.
+  - Observability hook forwarded to `os-flow` `onEvent`.
+
+### Patch Changes
+
+- Updated dependencies [84d2fed]
+  - @agentskit/os-core@0.4.0-alpha.1
+  - @agentskit/os-flow@1.0.0-alpha.1
+  - @agentskit/os-import@1.0.0-alpha.1
+  - @agentskit/os-marketplace-sdk@1.0.0-alpha.1
+  - @agentskit/os-storage@1.0.0-alpha.1
+  - @agentskit/os-templates@1.0.0-alpha.1
+
 ## 3.0.0-alpha.0
 
 ### Minor Changes

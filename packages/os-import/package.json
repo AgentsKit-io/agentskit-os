@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-import",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "AgentsKitOS migration importers — Langflow, n8n, Dify → ConfigRoot.",
   "keywords": [
     "agentskit",

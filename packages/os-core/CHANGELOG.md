@@ -1,5 +1,14 @@
 # @agentskit/os-core
 
+## 0.4.0-alpha.1
+
+### Minor Changes
+
+- 84d2fed: feat(os-core): WorkspaceConfig.dataResidency field (#183)
+  feat(os-core): RepoRef primitive — git URL + ref + worktree path (#189)
+  feat(os-core): per-trigger budget override via effectiveLimitsFor (#192)
+  docs(adr): CLI verb surface ADR-0017 + man-page generator (#181)
+
 ## 0.4.0-alpha.0
 
 ### Minor Changes

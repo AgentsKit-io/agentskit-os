@@ -1,0 +1,82 @@
+{
+  "exports": {
+    "OTEL_SEVERITY": {
+      "kind": "reexport"
+    },
+    "OTEL_SPAN_KIND_INTERNAL": {
+      "kind": "reexport"
+    },
+    "OTEL_SPAN_STATUS_ERROR": {
+      "kind": "reexport"
+    },
+    "OTEL_SPAN_STATUS_OK": {
+      "kind": "reexport"
+    },
+    "OTEL_SPAN_STATUS_UNSET": {
+      "kind": "reexport"
+    },
+    "OtelCounter": {
+      "kind": "reexport"
+    },
+    "OtelExportResult": {
+      "kind": "reexport"
+    },
+    "OtelHistogram": {
+      "kind": "reexport"
+    },
+    "OtelLogRecord": {
+      "kind": "reexport"
+    },
+    "OtelLogWriterOptions": {
+      "kind": "reexport"
+    },
+    "OtelLoggerShape": {
+      "kind": "reexport"
+    },
+    "OtelMeterShape": {
+      "kind": "reexport"
+    },
+    "OtelMetricSinkOptions": {
+      "kind": "reexport"
+    },
+    "OtelReadableSpan": {
+      "kind": "reexport"
+    },
+    "OtelSpanContext": {
+      "kind": "reexport"
+    },
+    "OtelSpanExporterAdapterOptions": {
+      "kind": "reexport"
+    },
+    "OtelSpanExporterShape": {
+      "kind": "reexport"
+    },
+    "OtelSpanStatusCode": {
+      "kind": "reexport"
+    },
+    "OtelTraceFlags": {
+      "kind": "reexport"
+    },
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "createOtelLogWriter": {
+      "kind": "reexport"
+    },
+    "createOtelMetricSink": {
+      "kind": "reexport"
+    },
+    "createOtelSpanExporter": {
+      "kind": "reexport"
+    },
+    "toOtelLogRecord": {
+      "kind": "reexport"
+    },
+    "toOtelSpan": {
+      "kind": "reexport"
+    }
+  }
+}

@@ -14,7 +14,12 @@ to scaffold, lint, run, and deploy AgentsKitOS workspaces during M1.
 
 ## Standalone packages
 
-Every package is independently installable. Pick what you need:
+Every **public** package is independently installable. Pick what you need.
+
+> Some planned packages (`os-desktop`, `os-cloud-sync`, `os-collab`,
+> `os-generative`, `os-mcp-bridge`, `os-marketplace`) are
+> [`bundled-private`](../architecture/distribution-tiers) — they ship inside
+> the desktop bundle and aren't on npm.
 
 ```bash
 pnpm add @agentskit/os-core         # Zod contracts, event bus, errors

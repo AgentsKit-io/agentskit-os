@@ -1,9 +1,11 @@
 ---
 title: "@agentskit/os-desktop (planned)"
-description: Tauri 2 shell — the desktop AgentsKitOS surface.
+description: Tauri 2 shell — the desktop AgentsKitOS surface. Bundled-private; ships inside the desktop installer.
 ---
 
 > **Status: planned — Milestone M2.**
+> **Distribution: `bundled-private`.** Not on npm. Ships inside the signed
+> Tauri bundle. See [distribution tiers](../architecture/distribution-tiers).
 
 A native cross-platform shell built on Tauri 2.
 
@@ -18,3 +20,10 @@ A native cross-platform shell built on Tauri 2.
 The desktop is one OS surface among many. Everything you can do in the
 desktop, you can do via the CLI or programmatically through `os-core` +
 `os-runtime`.
+
+## Why bundled-private
+
+Plugin authors and embedders never compile against the desktop shell
+directly. They target stable contracts (`os-core`) or rendering primitives
+(`os-ui`). Keeping the shell off npm means we can refactor it freely without
+breaking external consumers.

@@ -4,6 +4,7 @@ description: Prompt firewall, PII redact, audit log signing, vault++.
 ---
 
 > **Status: planned — Milestone M6.**
+> **Distribution: `public`** (when shipped).
 
 Production security stack on top of os-core's principal/capability primitives.
 
@@ -17,3 +18,9 @@ Production security stack on top of os-core's principal/capability primitives.
 - **Egress default-deny** with per-workspace allowlist ([ADR-0011](/docs/adrs)).
 
 Used heavily by healthcare, finance, and multi-tenant SaaS deployments.
+
+## Install (when published)
+
+```bash
+pnpm add @agentskit/os-security @agentskit/os-core
+```

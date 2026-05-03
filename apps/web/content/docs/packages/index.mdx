@@ -1,9 +1,18 @@
 ---
 title: Packages
-description: Every AgentsKitOS package — what ships today and what's coming.
+description: Every AgentsKitOS package — what ships today and what's coming. Includes distribution tier per ADR-0014.
 ---
 
-## Shipping (M1)
+Each package declares a **distribution tier** ([ADR-0014](../architecture/distribution-tiers)):
+
+- **`public`** — published to npm. `pnpm add @agentskit/os-…` works.
+- **`bundled-private`** — ships inside the desktop bundle only. Not on npm.
+- **`internal-only`** — tooling / fixtures. Never shipped.
+
+End users never run `npm install`. They get a signed Tauri bundle.
+Plugin authors and embedders install only the **public** packages.
+
+## Shipping (M1) — all `public`
 
 | Package | Purpose |
 |---|---|
@@ -15,22 +24,22 @@ description: Every AgentsKitOS package — what ships today and what's coming.
 | [`@agentskit/os-storage`](./os-storage) | File-backed CheckpointStore + lockfile reader/writer |
 | [`@agentskit/os-audit`](./os-audit) | Merkle batch chain emitter |
 | [`@agentskit/os-plugins`](./os-plugins) | Plugin loader, manifest validation, capability checks |
-| [`@agentskit/os-sandbox`](./os-sandbox) | Built-in `none` and `process` runtimes; container/vm via plugins |
+| [`@agentskit/os-sandbox`](./os-sandbox) | Built-in `none` and `process` runtimes |
 | [`@agentskit/os-templates`](./os-templates) | Starter template gallery |
 | [`@agentskit/os-import`](./os-import) | Langflow / n8n / Dify → ConfigRoot importers |
 | [`@agentskit/os-marketplace-sdk`](./os-marketplace-sdk) | Manifest builder, integrity hashing, signing, bundle metadata |
 
 ## Planned
 
-| Package | Milestone | Purpose |
-|---|---|---|
-| [`@agentskit/os-desktop`](./os-desktop) | M2 | Tauri 2 shell |
-| [`@agentskit/os-ui`](./os-ui) | M2 | shadcn components: Dashboard, FlowEditor, TraceViewer, CommandPalette |
-| [`@agentskit/os-triggers`](./os-triggers) | M4 | cron, webhook, file, email, slack, github, linear, cdc |
-| [`@agentskit/os-marketplace`](./os-marketplace) | M5 | publish/install, signing, revenue share |
-| [`@agentskit/os-observability`](./os-observability) | M6 | trace viewer, replay, anomaly detect |
-| [`@agentskit/os-security`](./os-security) | M6 | prompt firewall, PII redact, audit log signing, vault |
-| [`@agentskit/os-cloud-sync`](./os-cloud-sync) | M8 | workspace sync, backup/restore, multi-device |
-| [`@agentskit/os-generative`](./os-generative) | M7 | NL → agent / flow / trigger / tool generator |
-| [`@agentskit/os-collab`](./os-collab) | M8 | CRDT real-time co-edit |
-| [`@agentskit/os-mcp-bridge`](./os-mcp-bridge) | M4 | publish AK tools as MCP servers, consume MCP servers |
+| Package | Milestone | Tier | Purpose |
+|---|---|---|---|
+| [`@agentskit/os-desktop`](./os-desktop) | M2 | `bundled-private` | Tauri 2 shell |
+| [`@agentskit/os-ui`](./os-ui) | M2 | `public` | shadcn components: Dashboard, FlowEditor, TraceViewer, CommandPalette |
+| [`@agentskit/os-triggers`](./os-triggers) | M4 | `public` | cron, webhook, file, email, slack, github, linear, cdc |
+| [`@agentskit/os-mcp-bridge`](./os-mcp-bridge) | M4 | `bundled-private` | publish AK tools as MCP servers, consume MCP servers |
+| [`@agentskit/os-marketplace`](./os-marketplace) | M5 | `bundled-private` | publish/install, signing, revenue share (server) |
+| [`@agentskit/os-observability`](./os-observability) | M6 | `public` | trace viewer, replay, anomaly detect |
+| [`@agentskit/os-security`](./os-security) | M6 | `public` | prompt firewall, PII redact, audit log signing, vault |
+| [`@agentskit/os-generative`](./os-generative) | M7 | `bundled-private` | NL → agent / flow / trigger / tool generator |
+| [`@agentskit/os-cloud-sync`](./os-cloud-sync) | M8 | `bundled-private` | workspace sync, backup/restore, multi-device |
+| [`@agentskit/os-collab`](./os-collab) | M8 | `bundled-private` | CRDT real-time co-edit |

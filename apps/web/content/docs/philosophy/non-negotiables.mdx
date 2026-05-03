@@ -7,8 +7,9 @@ description: Eight rules that govern every architectural decision in AgentsKitOS
    model only. Zero LLM/UI deps. **&lt;15 KB gzipped.**
 2. **Never duplicate AgentsKit.** Import core, runtime, adapters, memory, tools,
    skills, observability, sandbox, RAG, eval as deps. OS = thin layer.
-3. **Every package independently installable.** Use one piece without the
-   desktop.
+3. **Every public package independently installable.** Use one piece without
+   the desktop. (See [distribution tiers](../architecture/distribution-tiers)
+   — `bundled-private` packages ship inside the desktop bundle, not on npm.)
 4. **Strict TS, no `any`.** Zod at every boundary. Named exports only.
 5. **ADR before architecture. RFC before breaking contracts.** Public process.
 6. **SemVer strict.** Backward-compat within a major.

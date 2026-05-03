@@ -1,15 +1,20 @@
 ---
 title: "@agentskit/os-marketplace (planned)"
-description: Publish, install, sign, and revenue-share for plugins and templates.
+description: Publish, install, sign, and revenue-share for plugins and templates. Bundled-private server-side logic.
 ---
 
 > **Status: planned — Milestone M5.**
+> **Distribution: `bundled-private`.** Server-side install logic, not on npm.
+> Plugin authors interact with the marketplace via
+> [`@agentskit/os-marketplace-sdk`](./os-marketplace-sdk) (which **is** public).
+> See [distribution tiers](../architecture/distribution-tiers).
 
 The hosted marketplace. Plugins and templates flow through here.
 
 ## Targeted scope
 
-- Publish via `@agentskit/os-marketplace-sdk` + `@agentskit/os-cli publish`
+- Publish via [`@agentskit/os-marketplace-sdk`](./os-marketplace-sdk) +
+  `agentskit-os publish`
 - Install via the desktop or CLI
 - Signature verification (Merkle bundle, optional HSM-signed manifest)
 - Revenue share for paid plugins

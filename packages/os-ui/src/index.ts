@@ -46,3 +46,9 @@ export type { GlassPanelProps } from './components/glass-panel'
 
 export { ThemeSwitcher } from './components/theme-switcher'
 export type { ThemeSwitcherProps } from './components/theme-switcher'
+
+export { LiveRegion } from './components/live-region'
+export type { LiveRegionProps } from './components/live-region'
+
+export { SkipToContent } from './components/skip-to-content'
+export type { SkipToContentProps } from './components/skip-to-content'

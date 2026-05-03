@@ -135,7 +135,7 @@ export const TracesScreen = (): React.JSX.Element => {
   const [selectedTraceId, setSelectedTraceId] = useState<string | null>(null)
 
   return (
-    <div className="flex flex-col h-full">
+    <section aria-label="Traces" className="flex flex-col h-full">
       {/* Page header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-line shrink-0">
         <h1 className="text-lg font-semibold text-ink tracking-tight">Traces</h1>
@@ -147,7 +147,7 @@ export const TracesScreen = (): React.JSX.Element => {
       {/* Split body */}
       <div className="flex flex-1 min-h-0 divide-x divide-line">
         {/* Left: trace list */}
-        <div className="w-[55%] min-w-0 flex flex-col">
+        <div role="region" aria-label="Trace list" className="w-[55%] min-w-0 flex flex-col">
           <TraceList
             selectedTraceId={selectedTraceId}
             onSelect={setSelectedTraceId}
@@ -156,7 +156,7 @@ export const TracesScreen = (): React.JSX.Element => {
         </div>
 
         {/* Right: span tree / detail */}
-        <div className="flex-1 min-w-0 bg-surface/50">
+        <div role="region" aria-label="Trace detail" className="flex-1 min-w-0 bg-surface/50">
           {selectedTraceId !== null ? (
             <TraceDetail traceId={selectedTraceId} />
           ) : (
@@ -164,6 +164,6 @@ export const TracesScreen = (): React.JSX.Element => {
           )}
         </div>
       </div>
-    </div>
+    </section>
   )
 }

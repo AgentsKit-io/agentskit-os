@@ -11,6 +11,7 @@ import { listen } from '@tauri-apps/api/event'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { Dashboard } from './screens/dashboard'
 import { TracesScreen } from './screens/traces'
+import { ExampleScreen } from './example-library/example-screen'
 import { CommandPaletteProvider } from './command-palette/command-palette-provider'
 import { CommandPalette } from './command-palette'
 import { OnboardingProvider } from './onboarding/onboarding-provider'
@@ -48,7 +49,7 @@ import { ForkProvider } from './fork/fork-provider'
 import { ArtifactViewerProvider, useArtifactViewer } from './artifacts/use-artifact-viewer'
 import { ArtifactViewer } from './artifacts/artifact-viewer'
 
-type ActiveScreen = 'dashboard' | 'traces'
+type ActiveScreen = 'dashboard' | 'traces' | 'examples'
 
 const NAV_ITEMS: ReadonlyArray<{
   readonly id: ActiveScreen
@@ -57,6 +58,7 @@ const NAV_ITEMS: ReadonlyArray<{
 }> = [
   { id: 'dashboard', label: 'Dashboard', icon: '▤' },
   { id: 'traces', label: 'Traces', icon: '◈' },
+  { id: 'examples', label: 'Examples', icon: '✦' },
 ]
 
 /** Syncs theme changes to the persistent store. Must be inside ThemeProvider. */
@@ -181,6 +183,7 @@ function AppShell({
         <main id="main-content" aria-label="Main content" className="flex flex-1 flex-col overflow-auto">
           {activeScreen === 'dashboard' && <Dashboard />}
           {activeScreen === 'traces' && <TracesScreen />}
+          {activeScreen === 'examples' && <ExampleScreen />}
         </main>
       </div>
       <StatusLine />
@@ -204,11 +207,14 @@ export function App() {
   }, [])
 
   const handleNavigate = useCallback((screen: string) => {
-    if (screen === 'dashboard' || screen === 'traces') {
+    if (screen === 'dashboard' || screen === 'traces' || screen === 'examples') {
       setActiveScreen(screen as ActiveScreen)
-      setAnnouncement(
-        screen === 'dashboard' ? 'Navigated to Dashboard' : 'Navigated to Traces',
-      )
+      const labels: Record<ActiveScreen, string> = {
+        dashboard: 'Navigated to Dashboard',
+        traces: 'Navigated to Traces',
+        examples: 'Navigated to Examples',
+      }
+      setAnnouncement(labels[screen as ActiveScreen])
     }
   }, [])
 
@@ -240,6 +246,7 @@ export function App() {
                           <ForkProvider>
                           <ArtifactViewerProvider>
                           <NotificationCommandBridge onAnnounce={setAnnouncement} />
+                          <ExamplesWirer onNavigate={handleNavigate} />
                           <ShortcutWirer />
                           <PreferencesWirer />
                           <ThemeEditorWirer />
@@ -436,6 +443,21 @@ function SearchWirer(): null {
       run: () => open(),
     })
   }, [registerCommand, open])
+  return null
+}
+
+/** Registers the "examples.browse" palette command — navigates to the Examples screen. */
+function ExamplesWirer({ onNavigate }: { onNavigate: (screen: string) => void }): null {
+  const { registerCommand } = useCommandPalette()
+  useEffect(() => {
+    registerCommand({
+      id: 'examples.browse',
+      label: 'Browse examples',
+      keywords: ['examples', 'library', 'templates', 'starter', 'browse', 'intent'],
+      category: 'Navigation',
+      run: () => onNavigate('examples'),
+    })
+  }, [registerCommand, onNavigate])
   return null
 }
 

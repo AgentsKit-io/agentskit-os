@@ -10,7 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-ui'
 import { StatsGrid } from '../screens/dashboard/stats-grid'
 import { RecentRuns } from '../screens/dashboard/recent-runs'
 import { EventFeed } from '../screens/dashboard/event-feed'
+import { CustomWidgetRenderer } from './custom/custom-widget-renderer'
+import { isCustomWidgetKind, customWidgetIdFromKind } from './widget-registry'
+import { getCustomWidget } from './custom/custom-widget-store'
 import type { WidgetRenderContext } from './widget-registry'
+import type { CustomWidget } from './custom/custom-widget-types'
+import type { Widget } from './types'
 
 // ---------------------------------------------------------------------------
 // Per-kind render functions
@@ -96,7 +101,29 @@ const RENDERERS: Record<string, (ctx: WidgetRenderContext) => ReactNode> = {
   'traces-summary': renderTracesSummary,
 }
 
-export function renderWidget(kind: string, ctx: WidgetRenderContext): ReactNode {
+export function renderWidget(
+  kind: string,
+  ctx: WidgetRenderContext,
+  widget?: Widget,
+): ReactNode {
+  // Custom widgets: resolve definition from props (template-applied) or store
+  if (isCustomWidgetKind(kind)) {
+    const widgetId = customWidgetIdFromKind(kind)
+    // Check props first (populated when applied from a marketplace template)
+    const fromProps =
+      widget?.props?.['customWidgetDef'] as CustomWidget | undefined
+    const definition = fromProps ?? getCustomWidget(widgetId)
+
+    if (!definition) {
+      return (
+        <div className="flex h-full items-center justify-center text-xs text-[var(--ag-ink-subtle)]">
+          Custom widget not found: {widgetId}
+        </div>
+      )
+    }
+    return <CustomWidgetRenderer widget={definition} />
+  }
+
   const fn = RENDERERS[kind]
   if (!fn) {
     return (

@@ -49,6 +49,9 @@ import { ForkProvider } from './fork/fork-provider'
 import { ArtifactViewerProvider, useArtifactViewer } from './artifacts/use-artifact-viewer'
 import { ArtifactViewer } from './artifacts/artifact-viewer'
 import { MultiMonitorPanel } from './multi-monitor/multi-monitor-panel'
+import { CustomWidgetEditor } from './dashboards/custom/custom-widget-editor'
+import { MarketplacePanel } from './dashboards/marketplace/marketplace-panel'
+import { useDashboards } from './dashboards/dashboards-provider'
 
 type ActiveScreen = 'dashboard' | 'traces' | 'examples'
 
@@ -269,6 +272,8 @@ export function App() {
                           <ArtifactViewer />
                           <ArtifactViewerWirer />
                           <MultiMonitorWirer />
+                          <CustomWidgetWirer />
+                          <MarketplaceWirer />
                           <StatusLineConfigWirer />
                           </ArtifactViewerProvider>
                           </ForkProvider>
@@ -522,4 +527,52 @@ function MultiMonitorWirer(): React.JSX.Element | null {
     })
   }, [registerCommand])
   return <MultiMonitorPanel isOpen={open} onClose={() => setOpen(false)} />
+}
+
+/** Wires "New custom widget" palette command + editor modal. */
+function CustomWidgetWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'custom-widget.new',
+      label: 'New custom widget',
+      keywords: ['custom', 'widget', 'metric', 'dashboard'],
+      category: 'View',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return (
+    <CustomWidgetEditor
+      isOpen={open}
+      onClose={() => setOpen(false)}
+      onSaved={() => setOpen(false)}
+    />
+  )
+}
+
+/** Wires "Browse dashboard templates" palette command + marketplace modal. */
+function MarketplaceWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const { createFromTemplate } = useDashboards()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'dashboard-marketplace.open',
+      label: 'Browse dashboard templates',
+      keywords: ['dashboard', 'marketplace', 'template', 'gallery'],
+      category: 'View',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return (
+    <MarketplacePanel
+      isOpen={open}
+      onClose={() => setOpen(false)}
+      onApplyTemplate={(t) => {
+        createFromTemplate(t)
+        setOpen(false)
+      }}
+    />
+  )
 }

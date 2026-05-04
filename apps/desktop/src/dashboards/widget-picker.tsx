@@ -1,24 +1,42 @@
 /**
- * WidgetPicker — modal listing all built-in widget kinds.
+ * WidgetPicker — modal listing built-in and custom widget kinds.
+ *
+ * Sections:
+ *   - Built-in widgets (always shown)
+ *   - Custom widgets (user-defined, from localStorage)
+ *     + "New / Edit" button to open the CustomWidgetEditor
  *
  * Props:
- *   isOpen   — controls visibility
- *   onClose  — called when closed without adding
- *   onAdd    — called with the chosen widget kind
+ *   isOpen        — controls visibility
+ *   onClose       — called when closed without adding
+ *   onAdd         — called with the chosen widget kind
+ *   onNewCustom   — called when the user wants to create/edit a custom widget
  */
 
-import { useCallback, useEffect, useRef } from 'react'
-import { BUILT_IN_WIDGETS } from './widget-registry'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { BUILT_IN_WIDGETS, kindForCustomWidget } from './widget-registry'
+import { loadCustomWidgets } from './custom/custom-widget-store'
 import { Button } from '@agentskit/os-ui'
+import type { CustomWidget } from './custom/custom-widget-types'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
   onAdd: (kind: string) => void
+  /** Opens the custom widget editor; undefined if not supported */
+  onNewCustom?: () => void
 }
 
-export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
+export function WidgetPicker({ isOpen, onClose, onAdd, onNewCustom }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
+  const [customWidgets, setCustomWidgets] = useState<CustomWidget[]>([])
+
+  // Reload custom widgets whenever the picker opens
+  useEffect(() => {
+    if (isOpen) {
+      setCustomWidgets(loadCustomWidgets())
+    }
+  }, [isOpen])
 
   // Sync native dialog open/close
   useEffect(() => {
@@ -73,6 +91,12 @@ export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
         </button>
       </div>
 
+      {/* Built-in widgets */}
+      <div className="px-5 pb-1 pt-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+          Built-in
+        </p>
+      </div>
       <ul role="list" className="flex flex-col divide-y divide-[var(--ag-line)]">
         {BUILT_IN_WIDGETS.map((entry) => (
           <li
@@ -96,6 +120,68 @@ export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
           </li>
         ))}
       </ul>
+
+      {/* Custom widgets */}
+      <div className="border-t border-[var(--ag-line)] px-5 pb-1 pt-4">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+            Custom widgets
+          </p>
+          {onNewCustom && (
+            <Button
+              size="sm"
+              variant="ghost"
+              data-testid="open-custom-widget-editor"
+              onClick={onNewCustom}
+            >
+              + New
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {customWidgets.length === 0 ? (
+        <div className="px-5 py-4 text-sm text-[var(--ag-ink-subtle)]">
+          No custom widgets yet.{' '}
+          {onNewCustom ? (
+            <button
+              type="button"
+              className="underline hover:text-[var(--ag-ink)]"
+              onClick={onNewCustom}
+            >
+              Create one
+            </button>
+          ) : null}
+        </div>
+      ) : (
+        <ul
+          role="list"
+          data-testid="custom-widgets-list"
+          className="flex flex-col divide-y divide-[var(--ag-line)]"
+        >
+          {customWidgets.map((cw) => (
+            <li
+              key={cw.id}
+              className="flex items-center justify-between px-5 py-3"
+            >
+              <div>
+                <p className="text-sm font-medium text-[var(--ag-ink)]">{cw.title}</p>
+                <p className="mt-0.5 text-xs text-[var(--ag-ink-subtle)]">
+                  {cw.kind} · {cw.source.method}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                data-testid={`add-custom-widget-${cw.id}`}
+                onClick={() => handleAdd(kindForCustomWidget(cw))}
+              >
+                Add
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
     </dialog>
   )
 }

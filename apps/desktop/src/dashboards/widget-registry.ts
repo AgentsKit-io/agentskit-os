@@ -17,6 +17,7 @@
 import type { ReactNode } from 'react'
 import type { DashboardStats } from '../screens/dashboard/use-dashboard-stats'
 import type { SidecarEvent } from '../lib/sidecar'
+import type { CustomWidget } from './custom/custom-widget-types'
 
 // ---------------------------------------------------------------------------
 // Render context
@@ -100,4 +101,47 @@ export function getWidgetEntry(kind: string): WidgetRegistryEntry | undefined {
 
 export function getAllWidgetKinds(): readonly string[] {
   return BUILT_IN_WIDGETS.map((e) => e.kind)
+}
+
+// ---------------------------------------------------------------------------
+// Custom widget registry
+//
+// Custom widgets use kind "custom:<widgetId>" and are resolved at render time
+// by looking up the CustomWidget definition from the widget's props or the
+// localStorage store. The actual rendering is delegated to CustomWidgetRenderer.
+// ---------------------------------------------------------------------------
+
+/**
+ * Determines whether a widget kind belongs to the custom widget namespace.
+ * Custom widget kinds follow the pattern "custom:<widgetId>".
+ */
+export function isCustomWidgetKind(kind: string): boolean {
+  return kind.startsWith('custom:')
+}
+
+/**
+ * Extract the custom widget ID from a "custom:<id>" kind string.
+ */
+export function customWidgetIdFromKind(kind: string): string {
+  return kind.slice('custom:'.length)
+}
+
+/**
+ * Build a "custom:<id>" kind string for the given CustomWidget.
+ */
+export function kindForCustomWidget(widget: CustomWidget): string {
+  return `custom:${widget.id}`
+}
+
+/**
+ * Synthetic WidgetRegistryEntry for a custom widget so it can participate in
+ * the dashboard addWidget flow (which needs a defaultSize and label).
+ */
+export function makeCustomWidgetEntry(widget: CustomWidget): WidgetRegistryEntry {
+  return {
+    kind: kindForCustomWidget(widget),
+    label: widget.title,
+    defaultSize: [4, 2],
+    render: (_ctx) => null, // resolved in widget-renderers.tsx
+  }
 }

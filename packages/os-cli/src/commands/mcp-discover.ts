@@ -24,6 +24,7 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
     .helpOption('-h, --help', 'display help')
     .configureHelp({ helpWidth: 96 })
     .option('--json', 'emit JSON', false)
+    // Commander treats `--no-*` as a negated boolean: attribute is `defaults`, false when this flag is set.
     .option('--no-defaults', 'do not scan default locations (only --file paths)')
     .option('--file <path>', 'additional JSON config (repeatable)', collectFile, [])
     .action(async (opts: McpDiscoverOpts) => {

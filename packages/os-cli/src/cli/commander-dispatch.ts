@@ -6,6 +6,9 @@ const isHelpCode = (code: string | undefined): boolean =>
 /**
  * Runs a Commander program with argv sliced for this subcommand, captures stdout/stderr,
  * and maps Commander exit codes to AgentsKit CLI conventions (help → 2).
+ *
+ * Call `program.error(...)` on this same `program` instance from `.action()` handlers so
+ * `exitOverride` applies. Subcommands' `.error()` may still invoke `process.exit` under Vitest.
  */
 export const runCommander = async (
   program: Command,

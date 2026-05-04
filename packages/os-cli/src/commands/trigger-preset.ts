@@ -35,6 +35,7 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
     .action(async (id: string, opts: { json?: boolean }) => {
       const preset = getTriggerPreset(id)
       if (!preset) {
+        // Use root command so `exitOverride` from runCommander applies (subcommand.error would call process.exit).
         program.error(`unknown preset: ${id}`, { exitCode: 1 })
       } else if (opts.json) {
         result.current = { code: 0, stdout: `${JSON.stringify(preset, null, 2)}\n`, stderr: '' }

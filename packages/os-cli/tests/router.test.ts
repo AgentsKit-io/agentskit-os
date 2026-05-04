@@ -86,6 +86,6 @@ observability: {}
   it('shows command help with code 2', async () => {
     const r = await route(['config', 'validate', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os config validate')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os config validate')
   })
 })

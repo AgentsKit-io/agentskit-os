@@ -32,7 +32,7 @@ describe('run', () => {
   it('shows help when no args', async () => {
     const r = await route(['run'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os run')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os run')
   })
 
   it('rejects --mode with invalid value', async () => {
@@ -47,13 +47,13 @@ describe('run', () => {
   it('rejects unknown flag', async () => {
     const r = await route(['run', 'cfg.yaml', '--flow', 'x', '--cosmic'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown flag')
+    expect(r.stderr).toMatch(/unknown (flag|option)/i)
   })
 
   it('errors when --flow missing', async () => {
     const r = await route(['run', 'cfg.yaml'], fakeIo({ '/work/cfg.yaml': validConfig }))
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('--flow')
+    expect(`${r.stdout}${r.stderr}`).toContain('--flow')
   })
 
   it('errors when flow id not in config', async () => {

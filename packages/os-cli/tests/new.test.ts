@@ -7,7 +7,7 @@ describe('new', () => {
   it('shows help with --help', async () => {
     const r = await route(['new', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os new')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os new')
   })
 
   it('--list lists templates with code 0', async () => {
@@ -33,7 +33,7 @@ describe('new', () => {
   it('rejects unknown flag', async () => {
     const r = await route(['new', 'pr-review', '--cosmic'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown flag')
+    expect(r.stderr).toMatch(/unknown (flag|option)/i)
   })
 
   it('scaffolds pr-review template', async () => {

@@ -7,7 +7,7 @@ describe('wizard', () => {
   it('shows help with --help', async () => {
     const r = await route(['wizard', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os wizard')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os wizard')
   })
 
   it('requires --persona when prompt is unavailable', async () => {

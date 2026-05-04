@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "invoice-extractor-workspace",
+    "name": "Invoice Extractor Workspace",
+    "tags": [
+      "finance"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "invoice-extractor-lead",
+      "name": "Invoice Extractor Lead",
+      "systemPrompt": "Extracts invoice fields and routes exceptions to accounts payable. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "invoice-extractor-reviewer",
+      "name": "Invoice Extractor Reviewer",
+      "systemPrompt": "Extracts invoice fields and routes exceptions to accounts payable. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "invoice-extractor-judge",
+      "name": "Invoice Extractor Judge",
+      "systemPrompt": "Extracts invoice fields and routes exceptions to accounts payable. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "invoice-extractor-flow",
+      "name": "Invoice Extractor Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "invoice.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "invoice-extractor-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "invoice-extractor-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Invoice Extractor before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "approval.request"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "finance"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "invoice-extractor-trigger",
+      "name": "Invoice Extractor Trigger",
+      "flow": "invoice-extractor-flow",
+      "enabled": true,
+      "tags": [
+        "finance"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:invoice-extractor"
+    }
+  ]
+}

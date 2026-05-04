@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "oncall-helper-workspace",
+    "name": "Oncall Helper Workspace",
+    "tags": [
+      "coding"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "oncall-helper-lead",
+      "name": "Oncall Helper Lead",
+      "systemPrompt": "Summarizes an engineering incident and prepares the handoff for the next responder. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "oncall-helper-reviewer",
+      "name": "Oncall Helper Reviewer",
+      "systemPrompt": "Summarizes an engineering incident and prepares the handoff for the next responder. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "oncall-helper-judge",
+      "name": "Oncall Helper Judge",
+      "systemPrompt": "Summarizes an engineering incident and prepares the handoff for the next responder. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "oncall-helper-flow",
+      "name": "Oncall Helper Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "github.pr.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "oncall-helper-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "oncall-helper-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "repo.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "coding"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "oncall-helper-trigger",
+      "name": "Oncall Helper Trigger",
+      "flow": "oncall-helper-flow",
+      "enabled": true,
+      "tags": [
+        "coding"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "github",
+      "repo": "example/repo",
+      "event": "pull_request"
+    }
+  ]
+}

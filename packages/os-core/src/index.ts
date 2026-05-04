@@ -251,6 +251,20 @@ export {
 export type { EgressGrant, EgressDecision } from './security/egress.js'
 
 export {
+  computeWebhookSignature,
+  formatWebhookSignatureHeader,
+  parseWebhookSignatureHeader,
+  signWebhookRequest,
+  verifyWebhookRequest,
+} from './security/webhook-signing.js'
+export type {
+  WebhookHmacAlgorithm,
+  WebhookSignature,
+  WebhookSigningConfig,
+  WebhookVerifyDecision,
+} from './security/webhook-signing.js'
+
+export {
   AirGapPolicy,
   airGapEnforce,
   parseAirGapPolicy,

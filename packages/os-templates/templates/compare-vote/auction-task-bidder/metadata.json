@@ -1,0 +1,29 @@
+{
+  "id": "auction-task-bidder",
+  "name": "Auction Task Bidder",
+  "intent": "Lets agents bid on a task by confidence, cost, and speed.",
+  "category": "compare-vote",
+  "tags": [
+    "compare-vote",
+    "auction",
+    "task",
+    "bidder"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "auction-task-bidder-lead",
+    "auction-task-bidder-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "scratchpad.write",
+    "report.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

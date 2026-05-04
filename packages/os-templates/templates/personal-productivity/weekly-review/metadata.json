@@ -1,0 +1,28 @@
+{
+  "id": "weekly-review",
+  "name": "Weekly Review",
+  "intent": "Builds a weekly review with wins, risks, and next priorities.",
+  "category": "personal-productivity",
+  "tags": [
+    "personal-productivity",
+    "weekly",
+    "review"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "weekly-review-lead",
+    "weekly-review-reviewer"
+  ],
+  "primaryTools": [
+    "gmail.search",
+    "calendar.read",
+    "tasks.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "csv-clean-and-load-workspace",
+    "name": "CSV Clean And Load Workspace",
+    "tags": [
+      "data-pipelines"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "csv-clean-and-load-lead",
+      "name": "CSV Clean And Load Lead",
+      "systemPrompt": "Cleans CSV input and prepares a validated load plan. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "csv-clean-and-load-reviewer",
+      "name": "CSV Clean And Load Reviewer",
+      "systemPrompt": "Cleans CSV input and prepares a validated load plan. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "csv-clean-and-load-judge",
+      "name": "CSV Clean And Load Judge",
+      "systemPrompt": "Cleans CSV input and prepares a validated load plan. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "csv-clean-and-load-flow",
+      "name": "CSV Clean And Load Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "storage.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "csv-clean-and-load-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "csv-clean-and-load-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "warehouse.load"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "data-pipelines"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "csv-clean-and-load-trigger",
+      "name": "CSV Clean And Load Trigger",
+      "flow": "csv-clean-and-load-flow",
+      "enabled": true,
+      "tags": [
+        "data-pipelines"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cdc",
+      "source": "postgres",
+      "connection": "${vault:postgres_url}",
+      "table": "csv_clean_and_load",
+      "operations": [
+        "insert",
+        "update"
+      ]
+    }
+  ]
+}

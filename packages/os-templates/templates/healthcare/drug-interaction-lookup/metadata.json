@@ -1,0 +1,29 @@
+{
+  "id": "drug-interaction-lookup",
+  "name": "Drug Interaction Lookup",
+  "intent": "Looks up potential interaction warnings and routes findings to a clinician.",
+  "category": "healthcare",
+  "tags": [
+    "healthcare",
+    "drug",
+    "interaction",
+    "lookup"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "drug-interaction-lookup-lead",
+    "drug-interaction-lookup-reviewer"
+  ],
+  "primaryTools": [
+    "ehr.message.read",
+    "pii.redact",
+    "clinician.route"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

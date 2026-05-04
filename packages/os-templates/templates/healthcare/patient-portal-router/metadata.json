@@ -1,0 +1,29 @@
+{
+  "id": "patient-portal-router",
+  "name": "Patient Portal Router",
+  "intent": "Routes patient portal messages to scheduling, billing, nurse, or provider queues.",
+  "category": "healthcare",
+  "tags": [
+    "healthcare",
+    "patient",
+    "portal",
+    "router"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "patient-portal-router-lead",
+    "patient-portal-router-reviewer"
+  ],
+  "primaryTools": [
+    "ehr.message.read",
+    "pii.redact",
+    "clinician.route"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

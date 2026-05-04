@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "brand-voice-checker-workspace",
+    "name": "Brand Voice Checker Workspace",
+    "tags": [
+      "marketing-content"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "brand-voice-checker-lead",
+      "name": "Brand Voice Checker Lead",
+      "systemPrompt": "Checks copy against tone, banned phrases, and brand requirements. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "brand-voice-checker-reviewer",
+      "name": "Brand Voice Checker Reviewer",
+      "systemPrompt": "Checks copy against tone, banned phrases, and brand requirements. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "brand-voice-checker-judge",
+      "name": "Brand Voice Checker Judge",
+      "systemPrompt": "Checks copy against tone, banned phrases, and brand requirements. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "brand-voice-checker-flow",
+      "name": "Brand Voice Checker Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "brand.kit.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "brand-voice-checker-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "brand-voice-checker-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "slack.send"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "marketing-content"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "brand-voice-checker-trigger",
+      "name": "Brand Voice Checker Trigger",
+      "flow": "brand-voice-checker-flow",
+      "enabled": true,
+      "tags": [
+        "marketing-content"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "slack",
+      "channel": "#agentskit-os",
+      "event": "message"
+    }
+  ]
+}

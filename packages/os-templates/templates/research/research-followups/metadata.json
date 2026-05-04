@@ -1,0 +1,28 @@
+{
+  "id": "research-followups",
+  "name": "Research Followups",
+  "intent": "Turns research notes into follow-up questions and next experiments.",
+  "category": "research",
+  "tags": [
+    "research",
+    "research",
+    "followups"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "research-followups-lead",
+    "research-followups-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "paper.search",
+    "citation.lookup"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cron",
+  "stability": "ready"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "paper-summary",
+  "name": "Paper Summary",
+  "intent": "Summarizes an academic paper into claims, evidence, methods, and limitations.",
+  "category": "research",
+  "tags": [
+    "research",
+    "paper",
+    "summary"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "paper-summary-lead",
+    "paper-summary-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "paper.search",
+    "citation.lookup"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cron",
+  "stability": "ready"
+}

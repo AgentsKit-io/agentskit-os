@@ -1,0 +1,29 @@
+{
+  "id": "csv-clean-and-load",
+  "name": "CSV Clean And Load",
+  "intent": "Cleans CSV input and prepares a validated load plan.",
+  "category": "data-pipelines",
+  "tags": [
+    "data-pipelines",
+    "csv",
+    "clean",
+    "load"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "csv-clean-and-load-lead",
+    "csv-clean-and-load-reviewer"
+  ],
+  "primaryTools": [
+    "storage.read",
+    "sql.preview",
+    "warehouse.load"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cdc",
+  "stability": "ready"
+}

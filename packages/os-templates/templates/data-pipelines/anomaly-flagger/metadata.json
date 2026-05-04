@@ -1,0 +1,28 @@
+{
+  "id": "anomaly-flagger",
+  "name": "Anomaly Flagger",
+  "intent": "Flags anomalies in metrics or tabular records for review.",
+  "category": "data-pipelines",
+  "tags": [
+    "data-pipelines",
+    "anomaly",
+    "flagger"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "anomaly-flagger-lead",
+    "anomaly-flagger-reviewer"
+  ],
+  "primaryTools": [
+    "storage.read",
+    "sql.preview",
+    "warehouse.load"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cdc",
+  "stability": "ready"
+}

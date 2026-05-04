@@ -1,0 +1,28 @@
+{
+  "id": "incident-summary",
+  "name": "Incident Summary",
+  "intent": "Summarizes incident signals, likely impact, and current mitigation status.",
+  "category": "operations-sre",
+  "tags": [
+    "operations-sre",
+    "incident",
+    "summary"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "incident-summary-lead",
+    "incident-summary-reviewer"
+  ],
+  "primaryTools": [
+    "alerts.list",
+    "runbook.read",
+    "pagerduty.note"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

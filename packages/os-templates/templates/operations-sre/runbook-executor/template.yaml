@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "runbook-executor-workspace",
+    "name": "Runbook Executor Workspace",
+    "tags": [
+      "operations-sre"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "runbook-executor-lead",
+      "name": "Runbook Executor Lead",
+      "systemPrompt": "Runs a runbook step plan with human approval gates for risky actions. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "runbook-executor-reviewer",
+      "name": "Runbook Executor Reviewer",
+      "systemPrompt": "Runs a runbook step plan with human approval gates for risky actions. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "runbook-executor-judge",
+      "name": "Runbook Executor Judge",
+      "systemPrompt": "Runs a runbook step plan with human approval gates for risky actions. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "runbook-executor-flow",
+      "name": "Runbook Executor Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "alerts.list"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "runbook-executor-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "runbook-executor-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Runbook Executor before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "pagerduty.note"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "operations-sre"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "runbook-executor-trigger",
+      "name": "Runbook Executor Trigger",
+      "flow": "runbook-executor-flow",
+      "enabled": true,
+      "tags": [
+        "operations-sre"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/runbook-executor",
+      "method": "POST"
+    }
+  ]
+}

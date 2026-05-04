@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "blog-from-outline-workspace",
+    "name": "Blog From Outline Workspace",
+    "tags": [
+      "marketing-content"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "blog-from-outline-lead",
+      "name": "Blog From Outline Lead",
+      "systemPrompt": "Expands an outline into a blog draft with review checkpoints. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "blog-from-outline-reviewer",
+      "name": "Blog From Outline Reviewer",
+      "systemPrompt": "Expands an outline into a blog draft with review checkpoints. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "blog-from-outline-judge",
+      "name": "Blog From Outline Judge",
+      "systemPrompt": "Expands an outline into a blog draft with review checkpoints. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "blog-from-outline-flow",
+      "name": "Blog From Outline Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "brand.kit.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "blog-from-outline-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "blog-from-outline-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "slack.send"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "marketing-content"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "blog-from-outline-trigger",
+      "name": "Blog From Outline Trigger",
+      "flow": "blog-from-outline-flow",
+      "enabled": true,
+      "tags": [
+        "marketing-content"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "slack",
+      "channel": "#agentskit-os",
+      "event": "message"
+    }
+  ]
+}

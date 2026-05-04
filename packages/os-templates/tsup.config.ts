@@ -11,6 +11,8 @@ export default defineConfig({
     'src/templates/research-summary.ts',
     'src/templates/support-triage.ts',
     'src/templates/clinical-consensus.ts',
+    'src/templates/dev-orchestrator-packs.ts',
+    'src/templates/topology-packs.ts',
     'src/eval-packs/index.ts',
     'src/eval-packs/dev.ts',
     'src/eval-packs/agency.ts',

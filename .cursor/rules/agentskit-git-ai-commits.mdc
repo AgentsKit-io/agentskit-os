@@ -1,0 +1,10 @@
+---
+description: Commits — no automatic Cursor co-author; amend before push if added
+alwaysApply: true
+---
+
+# Git commits (AI-assisted)
+
+- **Do not** add `Co-authored-by: Cursor <cursoragent@cursor.com>` (or similar) unless the **human author explicitly asks** for that attribution in the task.
+- If the editor or a hook injects that trailer, **remove it before pushing**: e.g. `git log -1 --format=%B | grep -v '^Co-authored-by: Cursor' | git commit --amend -F -` then `git push --force-with-lease` when rewriting the last commit only; use `git filter-branch` / `git filter-repo` only when cleaning **multiple** commits.
+- Prefer **Conventional Commits** and messages that stand alone without tool-specific footers.

@@ -1,0 +1,65 @@
+{
+  "name": "@agentskit/os-coding-agents",
+  "version": "0.1.0-alpha.1",
+  "description": "Reference coding-agent provider adapters (Codex, Claude Code, …) built on the @agentskit/os-core contract.",
+  "keywords": [
+    "agentskit",
+    "agentskit-os",
+    "codex",
+    "claude",
+    "coding-agent"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@agentskit/os-core": "workspace:^",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@agentskit/os-core": "workspace:*",
+    "@types/node": "^25.6.0",
+    "tsup": "^8.5.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5",
+    "zod": "^4.4.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "agentskitos": {
+    "distribution": "public",
+    "stability": "alpha",
+    "stabilityNote": "M3 — subprocess adapters for external coding agent CLIs."
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-coding-agents",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
+    "directory": "packages/os-coding-agents"
+  },
+  "bugs": {
+    "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
+  },
+  "author": "AgentsKit Contributors"
+}

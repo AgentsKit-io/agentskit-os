@@ -36,25 +36,35 @@
     "manpages": "node scripts/gen-manpages.mjs"
   },
   "dependencies": {
+    "commander": "^14.0.3",
+    "ink": "^7.0.1",
+    "react": "^19.2.5",
     "yaml": "^2.6.1"
   },
   "peerDependencies": {
+    "@agentskit/os-coding-agents": "workspace:^",
     "@agentskit/os-core": "workspace:^",
+    "@agentskit/os-dev-orchestrator": "workspace:^",
     "@agentskit/os-flow": "workspace:^",
     "@agentskit/os-import": "workspace:^",
     "@agentskit/os-marketplace-sdk": "workspace:^",
+    "@agentskit/os-mcp-bridge": "workspace:^",
     "@agentskit/os-storage": "workspace:^",
     "@agentskit/os-templates": "workspace:^",
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@agentskit/os-coding-agents": "workspace:*",
     "@agentskit/os-core": "workspace:*",
+    "@agentskit/os-dev-orchestrator": "workspace:*",
     "@agentskit/os-flow": "workspace:*",
     "@agentskit/os-import": "workspace:*",
     "@agentskit/os-marketplace-sdk": "workspace:*",
+    "@agentskit/os-mcp-bridge": "workspace:*",
     "@agentskit/os-storage": "workspace:*",
     "@agentskit/os-templates": "workspace:*",
     "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
     "tsup": "^8.5.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5",

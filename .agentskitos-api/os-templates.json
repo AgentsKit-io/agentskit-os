@@ -1,15 +1,30 @@
 {
   "exports": {
+    "BUILTIN_EVAL_PACKS": {
+      "kind": "reexport"
+    },
     "PACKAGE_NAME": {
       "kind": "const"
     },
     "PACKAGE_VERSION": {
       "kind": "const"
     },
+    "TEMPLATES": {
+      "kind": "reexport"
+    },
     "Template": {
       "kind": "reexport"
     },
     "TemplateCategory": {
+      "kind": "reexport"
+    },
+    "TemplateMetadata": {
+      "kind": "reexport"
+    },
+    "TemplateMetadataSchema": {
+      "kind": "reexport"
+    },
+    "agencyPack": {
       "kind": "reexport"
     },
     "allCategories": {
@@ -24,6 +39,15 @@
     "clinicalConsensusTemplate": {
       "kind": "reexport"
     },
+    "clinicalPack": {
+      "kind": "reexport"
+    },
+    "devPack": {
+      "kind": "reexport"
+    },
+    "findPack": {
+      "kind": "reexport"
+    },
     "findTemplate": {
       "kind": "reexport"
     },
@@ -31,6 +55,9 @@
       "kind": "reexport"
     },
     "marketing3WayTemplate": {
+      "kind": "reexport"
+    },
+    "nonTechPack": {
       "kind": "reexport"
     },
     "prReviewTemplate": {

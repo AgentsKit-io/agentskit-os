@@ -231,6 +231,17 @@ export type {
 } from './runtime/workspace-paths.js'
 
 export {
+  TransitionCheck,
+  AgentLifecycleEvent,
+  evaluateTransition,
+  isTransitionAllowed,
+  requirementsFor,
+  parseAgentLifecycleEvent,
+  safeParseAgentLifecycleEvent,
+} from './runtime/agent-lifecycle.js'
+export type { TransitionRequirements, TransitionDecision } from './runtime/agent-lifecycle.js'
+
+export {
   EgressPolicy,
   EgressProxy,
   checkEgress,

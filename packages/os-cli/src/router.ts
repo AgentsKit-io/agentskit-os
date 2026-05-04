@@ -14,6 +14,7 @@ import { publish } from './commands/publish.js'
 import { deploy } from './commands/deploy.js'
 import { version } from './commands/version.js'
 import { sync } from './commands/sync.js'
+import { agentPromote } from './commands/agent-promote.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
@@ -30,6 +31,7 @@ export const COMMANDS: readonly CliCommand[] = [
   configDiff,
   configMigrate,
   doctor,
+  agentPromote,
   version,
 ]
 

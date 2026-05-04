@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/desktop",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.0",
   "private": true,
   "description": "AgentsKitOS desktop shell — Tauri 2 + React 19 + Tailwind + shadcn.",
   "type": "module",

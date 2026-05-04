@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-headless",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "AgentsKitOS headless runner — first-class bridge between a workspace config and a running agent without any UI.",
   "keywords": [
     "agentskit",

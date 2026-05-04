@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-ui",
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.0",
   "description": "AgentsKitOS UI — shadcn-based React primitives + dark cyan theme tokens shared by the desktop shell and any embedder.",
   "keywords": [
     "agentskit",

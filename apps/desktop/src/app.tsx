@@ -7,14 +7,15 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import { listen } from '@tauri-apps/api/event'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
+import { AgentsScreen } from './screens/agents'
 import { Dashboard } from './screens/dashboard'
+import { RunsScreen } from './screens/runs'
 import { TracesScreen } from './screens/traces'
 import { ExampleScreen } from './example-library/example-screen'
 import { CommandPaletteProvider } from './command-palette/command-palette-provider'
 import { CommandPalette } from './command-palette'
-import { OnboardingProvider } from './onboarding/onboarding-provider'
+import { OnboardingProvider, useOnboarding } from './onboarding/onboarding-provider'
 import { OnboardingTour } from './onboarding'
 import { getTheme, setTheme } from './lib/theme-store'
 import { FocusProvider, useFocus } from './focus/focus-provider'
@@ -57,17 +58,137 @@ import { VoiceToggle } from './voice/voice-toggle'
 import { VoiceOverlay } from './voice/voice-overlay'
 import { PluginContributionsProvider } from './plugins/plugin-contributions-provider'
 
-type ActiveScreen = 'dashboard' | 'traces' | 'examples'
+const hasTauriRuntime = (): boolean =>
+  typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
-const NAV_ITEMS: ReadonlyArray<{
+type ActiveScreen =
+  | 'dashboard'
+  | 'flows'
+  | 'runs'
+  | 'traces'
+  | 'agents'
+  | 'hitl'
+  | 'triggers'
+  | 'evals'
+  | 'benchmark'
+  | 'cost'
+  | 'security'
+  | 'examples'
+
+type NavItem = {
   readonly id: ActiveScreen
   readonly label: string
   readonly icon: string
+  readonly status: 'supported' | 'preview'
+  readonly description?: string
+}
+
+const NAV_GROUPS: ReadonlyArray<{
+  readonly label: string
+  readonly items: readonly NavItem[]
 }> = [
-  { id: 'dashboard', label: 'Dashboard', icon: '▤' },
-  { id: 'traces', label: 'Traces', icon: '◈' },
-  { id: 'examples', label: 'Examples', icon: '✦' },
+  {
+    label: 'Workspace',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: '▤', status: 'supported' },
+      {
+        id: 'flows',
+        label: 'Flows',
+        icon: '◇',
+        status: 'preview',
+        description: 'Visual flow editing is planned from ADR-0019 and will land behind typed graph contracts.',
+      },
+      {
+        id: 'runs',
+        label: 'Runs',
+        icon: '◷',
+        status: 'supported',
+      },
+      { id: 'traces', label: 'Traces', icon: '◈', status: 'supported' },
+    ],
+  },
+  {
+    label: 'Orchestration',
+    items: [
+      {
+        id: 'agents',
+        label: 'Agents',
+        icon: '◎',
+        status: 'supported',
+      },
+      {
+        id: 'hitl',
+        label: 'HITL Inbox',
+        icon: '◉',
+        status: 'preview',
+        description: 'Human approval queues require action contracts, audit events, and permission states.',
+      },
+      {
+        id: 'triggers',
+        label: 'Triggers',
+        icon: '▶',
+        status: 'preview',
+        description: 'Slack, Discord, Teams, cron, PR, and webhook triggers need typed trigger contracts.',
+      },
+    ],
+  },
+  {
+    label: 'Quality',
+    items: [
+      {
+        id: 'evals',
+        label: 'Evals',
+        icon: '✓',
+        status: 'preview',
+        description: 'Evaluation suites will surface dataset, scorer, and run-result contracts.',
+      },
+      {
+        id: 'benchmark',
+        label: 'Benchmark',
+        icon: '✦',
+        status: 'preview',
+        description: 'Benchmark arena will compare models/agents on completeness, cost, duration, and regressions.',
+      },
+    ],
+  },
+  {
+    label: 'Control',
+    items: [
+      {
+        id: 'cost',
+        label: 'Cost & Quotas',
+        icon: '$',
+        status: 'preview',
+        description: 'Cost controls need quota, budget, token, and chargeback data sources.',
+      },
+      {
+        id: 'security',
+        label: 'Security',
+        icon: '◇',
+        status: 'preview',
+        description: 'Security center will join policy, audit, vault, and compliance workflows once contracts settle.',
+      },
+    ],
+  },
 ]
+
+const SECONDARY_NAV_ITEMS: readonly NavItem[] = [
+  { id: 'examples', label: 'Examples', icon: '✦', status: 'supported' },
+]
+
+const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), ...SECONDARY_NAV_ITEMS] as const
+
+const PREVIEW_NAV_COMMAND_ITEMS = NAV_GROUPS
+  .flatMap((group) => group.items)
+  .filter((item) => item.status === 'preview')
+
+function isActiveScreen(screen: string): screen is ActiveScreen {
+  return NAV_ITEMS.some((item) => item.id === screen)
+}
+
+function labelForScreen(screen: ActiveScreen): string {
+  return NAV_ITEMS.find((item) => item.id === screen)?.label ?? screen
+}
 
 /** Syncs theme changes to the persistent store. Must be inside ThemeProvider. */
 function ThemeSync(): null {
@@ -113,12 +234,16 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
   return (
     <aside
       aria-label="Application sidebar"
-      className="w-52 border-r border-[var(--ag-line)] bg-[var(--ag-surface-alt)]"
+      data-onboarding-target="sidebar"
+      className="flex w-60 flex-col border-r border-[var(--ag-line)] bg-[var(--ag-surface-alt)]"
     >
       <WorkspaceSwitcher />
       <div className="flex items-center justify-between px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
         <span aria-hidden>Navigation</span>
-        <span className="flex items-center gap-1 normal-case tracking-normal">
+        <span
+          className="flex items-center gap-1 normal-case tracking-normal"
+          data-onboarding-target="command-palette"
+        >
           <NotificationBell />
           <VoiceToggle />
           <FocusToggle />
@@ -126,33 +251,110 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
         </span>
       </div>
       <nav aria-label="Main navigation">
-        <div className="flex flex-col gap-1 px-3 pt-2">
-          {NAV_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              data-testid={`nav-${item.id}`}
-              onClick={() => onNavigate(item.id)}
-              aria-current={activeScreen === item.id ? 'page' : undefined}
-              className={[
-                'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
-                activeScreen === item.id
-                  ? 'bg-[var(--ag-accent)]/15 font-medium text-[var(--ag-accent)]'
-                  : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              <span aria-hidden className="h-4 w-4 shrink-0 text-center text-[12px]">
-                {item.icon}
-              </span>
-              <span className="truncate">{item.label}</span>
-            </button>
+        <div className="flex flex-col gap-3 px-3 pt-2">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="flex flex-col gap-1">
+              <div className="px-2 pt-1 text-[10px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+                {group.label}
+              </div>
+              {group.items.map((item) => (
+                <SidebarNavButton
+                  key={item.id}
+                  item={item}
+                  active={activeScreen === item.id}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </nav>
-      <div className="mt-4 border-t border-[var(--ag-line)] px-3 pt-3">
+      <div className="mt-auto border-t border-[var(--ag-line)] px-3 py-3">
+        <div className="mb-3 flex flex-col gap-1">
+          {SECONDARY_NAV_ITEMS.map((item) => (
+            <SidebarNavButton
+              key={item.id}
+              item={item}
+              active={activeScreen === item.id}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </div>
         <ThemeSwitcher />
       </div>
     </aside>
+  )
+}
+
+function SidebarNavButton({
+  item,
+  active,
+  onNavigate,
+}: {
+  readonly item: NavItem
+  readonly active: boolean
+  readonly onNavigate: (screen: ActiveScreen) => void
+}) {
+  return (
+    <button
+      type="button"
+      data-testid={`nav-${item.id}`}
+      data-onboarding-target={`nav-${item.id}`}
+      onClick={() => onNavigate(item.id)}
+      aria-current={active ? 'page' : undefined}
+      className={[
+        'flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ag-accent)]',
+        active
+          ? 'bg-[var(--ag-accent)]/15 font-medium text-[var(--ag-accent)]'
+          : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
+      ].join(' ')}
+    >
+      <span aria-hidden className="h-4 w-4 shrink-0 text-center text-[12px]">
+        {item.icon}
+      </span>
+      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+      {item.status === 'preview' && (
+        <span className="rounded-full border border-[var(--ag-line)] px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-[var(--ag-ink-subtle)]">
+          Preview
+        </span>
+      )}
+    </button>
+  )
+}
+
+function PreviewSurface({ screen }: { readonly screen: ActiveScreen }) {
+  const item = NAV_ITEMS.find((navItem) => navItem.id === screen)
+  const title = `${item?.label ?? 'Surface'} Is In Preview`
+  return (
+    <section
+      aria-labelledby="preview-surface-title"
+      className="flex min-h-full flex-1 items-center justify-center bg-[var(--ag-surface)] p-8"
+    >
+      <div className="max-w-xl rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-6 shadow-sm">
+        <div className="mb-3 inline-flex rounded-full border border-[var(--ag-line)] px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-[var(--ag-ink-subtle)]">
+          Preview
+        </div>
+        <h1 id="preview-surface-title" className="text-xl font-semibold text-[var(--ag-ink)]">
+          {title}
+        </h1>
+        <p className="mt-2 text-sm leading-6 text-[var(--ag-ink-muted)]">
+          {item?.description ??
+            'This area is part of the AgentsKitOS roadmap. It will become available when its data contract and backend workflow are ready.'}
+        </p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel-alt)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
+            onClick={() => window.open('https://github.com/orgs/AgentsKit-io/projects/2/views/1', '_blank', 'noopener,noreferrer')}
+          >
+            View Roadmap
+          </button>
+          <span className="inline-flex items-center rounded-md border border-[var(--ag-line)] px-3 py-1.5 text-sm text-[var(--ag-ink-muted)]">
+            Open the command palette with <span className="ml-1"><Kbd>⌘K</Kbd></span>
+          </span>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -191,8 +393,13 @@ function AppShell({
         )}
         <main id="main-content" aria-label="Main content" className="flex flex-1 flex-col overflow-auto">
           {activeScreen === 'dashboard' && <Dashboard />}
+          {activeScreen === 'runs' && <RunsScreen />}
           {activeScreen === 'traces' && <TracesScreen />}
+          {activeScreen === 'agents' && <AgentsScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'examples' && (
+            <PreviewSurface screen={activeScreen} />
+          )}
         </main>
       </div>
       <StatusLine />
@@ -207,23 +414,36 @@ export function App() {
   const initialTheme = getTheme()
 
   useEffect(() => {
-    const unlisten = listen<void>('tray://window-hidden', () => {
-      setServiceBanner(true)
-    })
+    if (!hasTauriRuntime()) return undefined
+
+    let disposed = false
+    let unlisten: (() => void) | undefined
+
+    void import('@tauri-apps/api/event')
+      .then(({ listen }) =>
+        listen<void>('tray://window-hidden', () => {
+          setServiceBanner(true)
+        }),
+      )
+      .then((fn) => {
+        if (disposed) {
+          fn()
+          return
+        }
+        unlisten = fn
+      })
+      .catch(() => undefined)
+
     return () => {
-      unlisten.then((fn) => fn()).catch(() => undefined)
+      disposed = true
+      unlisten?.()
     }
   }, [])
 
   const handleNavigate = useCallback((screen: string) => {
-    if (screen === 'dashboard' || screen === 'traces' || screen === 'examples') {
-      setActiveScreen(screen as ActiveScreen)
-      const labels: Record<ActiveScreen, string> = {
-        dashboard: 'Navigated to Dashboard',
-        traces: 'Navigated to Traces',
-        examples: 'Navigated to Examples',
-      }
-      setAnnouncement(labels[screen as ActiveScreen])
+    if (isActiveScreen(screen)) {
+      setActiveScreen(screen)
+      setAnnouncement(`Navigated to ${labelForScreen(screen)}`)
     }
   }, [])
 
@@ -257,6 +477,8 @@ export function App() {
                           <ForkProvider>
                           <ArtifactViewerProvider>
                           <NotificationCommandBridge onAnnounce={setAnnouncement} />
+                          <OnboardingCommandWirer onAnnounce={setAnnouncement} />
+                          <PreviewNavigationCommandWirer onNavigate={handleNavigate} />
                           <ExamplesWirer onNavigate={handleNavigate} />
                           <ShortcutWirer />
                           <PreferencesWirer />
@@ -319,6 +541,58 @@ function PreferencesWirer(): React.JSX.Element | null {
     })
   }, [registerCommand])
   return <PreferencesPanel isOpen={open} onClose={() => setOpen(false)} />
+}
+
+/** Registers a command to re-run the first-use product tour. */
+function OnboardingCommandWirer({
+  onAnnounce,
+}: {
+  onAnnounce: (msg: string) => void
+}): null {
+  const { registerCommand, closePalette } = useCommandPalette()
+  const { restart } = useOnboarding()
+
+  useEffect(() => {
+    registerCommand({
+      id: 'onboarding.restart',
+      label: 'Restart onboarding tour',
+      keywords: ['onboarding', 'tour', 'guide', 'intro', 'help'],
+      category: 'System',
+      run: () => {
+        closePalette()
+        restart()
+        onAnnounce('Onboarding tour restarted')
+      },
+    })
+  }, [registerCommand, closePalette, restart, onAnnounce])
+
+  return null
+}
+
+/** Registers keyboard-first navigation commands for preview roadmap surfaces. */
+function PreviewNavigationCommandWirer({
+  onNavigate,
+}: {
+  onNavigate: (screen: string) => void
+}): null {
+  const { registerCommand, closePalette } = useCommandPalette()
+
+  useEffect(() => {
+    for (const item of PREVIEW_NAV_COMMAND_ITEMS) {
+      registerCommand({
+        id: `nav.${item.id}`,
+        label: `Go to ${item.label}`,
+        keywords: [item.id, item.label.toLowerCase(), 'preview', 'roadmap'],
+        category: 'Navigation',
+        run: () => {
+          onNavigate(item.id)
+          closePalette()
+        },
+      })
+    }
+  }, [registerCommand, closePalette, onNavigate])
+
+  return null
 }
 
 /** Wires the "shortcuts.open" keyboard shortcut + palette command to render the panel. */

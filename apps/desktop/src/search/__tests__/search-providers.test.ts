@@ -96,6 +96,10 @@ describe('traceEntities', () => {
     expect(entities[0]?.subtitle).toContain('my-flow')
     expect(entities[0]?.id).toBe('trace:trace-001')
   })
+
+  it('returns an empty list for non-array sidecar fallback payloads', () => {
+    expect(traceEntities({})).toEqual([])
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -151,6 +155,17 @@ describe('gatherEntities', () => {
   it('includes built-in doc links by default', () => {
     const entities = gatherEntities({ workspaces: [], commands: [], traces: [] })
     expect(entities.some((e) => e.kind === 'doc')).toBe(true)
+  })
+
+  it('tolerates non-array provider inputs from dev sidecar fallbacks', () => {
+    const entities = gatherEntities({
+      workspaces: {},
+      commands: {},
+      traces: {},
+    } as unknown as Parameters<typeof gatherEntities>[0])
+
+    expect(entities.map((entity) => entity.id)).toEqual(docEntities(BUILT_IN_DOC_LINKS).map((entity) => entity.id))
+    expect(entities.every((entity) => entity.kind === 'doc')).toBe(true)
   })
 
   it('returns unique ids across kinds', () => {

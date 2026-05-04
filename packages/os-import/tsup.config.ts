@@ -7,6 +7,7 @@ export default defineConfig({
     'src/importers/n8n.ts',
     'src/importers/langflow.ts',
     'src/importers/dify.ts',
+    'src/importers/langgraph.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

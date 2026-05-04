@@ -10,6 +10,7 @@ import { ObservabilityConfig } from './observability.js'
 import { SecurityConfig } from './security.js'
 import { CloudSyncConfig } from './cloud.js'
 import { RagConfig } from './rag.js'
+import { AgentRegistryEntry } from './agent-registry.js'
 
 export const CONFIG_ROOT_VERSION = SCHEMA_VERSION
 
@@ -40,6 +41,7 @@ export const ConfigRoot = z
     cloud: CloudSyncConfig.optional(),
     plugins: z.array(PluginConfig).max(512).default([]),
     agents: z.array(AgentConfig).max(1024).default([]),
+    agentRegistry: z.array(AgentRegistryEntry).max(4096).default([]),
     flows: z.array(FlowConfig).max(2048).default([]),
     triggers: z.array(TriggerConfig).max(2048).default([]),
     memory: z.record(z.string().min(1).max(64), MemoryConfig).default({}),
@@ -57,6 +59,7 @@ export const ConfigRoot = z
 
     const pluginIds = root.plugins.map((p) => p.id)
     const agentIds = root.agents.map((a) => a.id)
+    const registryAgentIds = root.agentRegistry.map((e) => e.agentId)
     const flowIds = root.flows.map((f) => f.id)
     const triggerIds = root.triggers.map((t) => t.id)
     const memoryRefs = new Set(Object.keys(root.memory))
@@ -64,6 +67,7 @@ export const ConfigRoot = z
 
     if (!checkUnique(pluginIds, ctx, ['plugins'], 'plugin')) return
     if (!checkUnique(agentIds, ctx, ['agents'], 'agent')) return
+    if (!checkUnique(registryAgentIds, ctx, ['agentRegistry'], 'agent registry entry')) return
     if (!checkUnique(flowIds, ctx, ['flows'], 'flow')) return
     if (!checkUnique(triggerIds, ctx, ['triggers'], 'trigger')) return
     if (!checkUnique(pipelineIds, ctx, ['rag', 'pipelines'], 'rag pipeline')) return
@@ -108,6 +112,31 @@ export const ConfigRoot = z
             code: 'custom',
             path: ['agents', i, 'ragRefs', ri],
             message: `agent references unknown rag pipeline "${ref}"`,
+          })
+        }
+      })
+    })
+
+    root.agentRegistry.forEach((e, i) => {
+      if (!agentSet.has(e.agentId)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['agentRegistry', i, 'agentId'],
+          message: `agentRegistry references unknown agent "${e.agentId}"`,
+        })
+      }
+    })
+
+    const pipelinesById = new Map((root.rag?.pipelines ?? []).map((p) => [p.id, p] as const))
+    root.agents.forEach((a, ai) => {
+      a.ragRefs?.forEach((ref, ri) => {
+        const pipeline = pipelinesById.get(ref)
+        const allowedAgents = pipeline?.governance?.allowedAgents
+        if (allowedAgents && !allowedAgents.includes(a.id)) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['agents', ai, 'ragRefs', ri],
+            message: `rag pipeline "${ref}" does not allow agent "${a.id}"`,
           })
         }
       })

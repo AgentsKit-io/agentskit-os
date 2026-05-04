@@ -14,6 +14,8 @@ export {
 export {
   SCHEMA_VERSION,
   WorkspaceConfig,
+  WorkspaceKind,
+  ClientRef,
   WorkspaceIsolation,
   WorkspaceLimits,
   DataResidencyConfig,
@@ -139,6 +141,11 @@ export {
   RagPipeline,
   RagPipelineRef,
   RagLoader,
+  KnowledgeGovernance,
+  KnowledgeSensitivity,
+  KnowledgeTrustLevel,
+  KnowledgeFallbackBehavior,
+  CitationRequirement,
   ChunkerConfig,
   ChunkerStrategy,
   EmbedderConfig,
@@ -151,6 +158,20 @@ export {
   parseRagPipeline,
   safeParseRagPipeline,
 } from './schema/rag.js'
+
+export {
+  AgentRegistryEntry,
+  AgentLifecycleState,
+  AgentRiskTier,
+  AgentEnvironment,
+  SupportContact,
+  SloRef,
+  SlaRef,
+  AgentDependency,
+  AuditMetadata,
+  parseAgentRegistryEntry,
+  safeParseAgentRegistryEntry,
+} from './schema/agent-registry.js'
 
 export {
   ConfigRoot,

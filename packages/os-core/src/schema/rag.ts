@@ -3,6 +3,41 @@ import { Slug, TagList, VaultSecretRef } from './_primitives.js'
 
 const SecretOrPlain = z.union([VaultSecretRef, z.string().min(1).max(2048)])
 
+export const KnowledgeSensitivity = z.enum(['public', 'internal', 'confidential', 'regulated'])
+export type KnowledgeSensitivity = z.infer<typeof KnowledgeSensitivity>
+
+export const KnowledgeTrustLevel = z.enum(['untrusted', 'low', 'medium', 'high', 'verified'])
+export type KnowledgeTrustLevel = z.infer<typeof KnowledgeTrustLevel>
+
+export const KnowledgeFallbackBehavior = z.enum(['allow', 'warn', 'block'])
+export type KnowledgeFallbackBehavior = z.infer<typeof KnowledgeFallbackBehavior>
+
+export const CitationRequirement = z.object({
+  required: z.boolean().default(false),
+  /** If provided, consumers should enforce that citations match at least one of these patterns (e.g., URL prefixes). */
+  allowlist: z.array(z.string().min(1).max(256)).max(64).optional(),
+})
+export type CitationRequirement = z.infer<typeof CitationRequirement>
+
+export const KnowledgeGovernance = z.object({
+  owner: z.string().min(1).max(256),
+  sensitivity: KnowledgeSensitivity.default('internal'),
+  trust: KnowledgeTrustLevel.default('medium'),
+  /** When set, knowledge older than this window is considered stale */
+  freshnessWindowDays: z.number().int().positive().max(3650).optional(),
+  /** Optional explicit expiry date; after this, knowledge is treated as stale */
+  expiresAt: z.string().datetime().optional(),
+  citation: CitationRequirement.default(() => CitationRequirement.parse({})),
+  /** Default reindex schedule (cron); can be overridden by `refresh` */
+  reindexCron: z.string().max(128).optional(),
+  /** If set, only these agents may reference this pipeline id in `AgentConfig.ragRefs` */
+  allowedAgents: z.array(Slug).max(1024).optional(),
+  /** Behavior when knowledge is stale or trust is below threshold */
+  onStale: KnowledgeFallbackBehavior.default('warn'),
+  minTrustToUse: KnowledgeTrustLevel.optional(),
+})
+export type KnowledgeGovernance = z.infer<typeof KnowledgeGovernance>
+
 export const ChunkerStrategy = z.enum(['fixed', 'recursive', 'semantic', 'sentence', 'markdown', 'code'])
 export type ChunkerStrategy = z.infer<typeof ChunkerStrategy>
 
@@ -178,6 +213,7 @@ export const RagPipeline = z.object({
   chunker: ChunkerConfig.default(() => ChunkerConfig.parse({})),
   embedder: EmbedderConfig,
   vectorStore: VectorStoreConfig,
+  governance: KnowledgeGovernance.optional(),
   rerankers: z.array(RerankerConfig).max(8).default([]),
   topK: z.number().int().positive().max(1000).default(10),
   hybridSearch: HybridSearchConfig.optional(),

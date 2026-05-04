@@ -24,7 +24,7 @@ export type DebuggerBeforeNodeInput = {
 
 export type DebuggerBeforeNodeDecision =
   | { readonly kind: 'continue' }
-  | { readonly kind: 'pause'; readonly reason: 'breakpoint' }
+  | { readonly kind: 'pause'; readonly reason: 'breakpoint' | 'manual' | 'step' }
   | { readonly kind: 'mock'; readonly outcome: NodeOutcome }
 
 export type DebuggerAfterNodeInput = {
@@ -47,6 +47,7 @@ export interface FlowDebugger {
 
 export const createInMemoryDebugger = (): FlowDebugger => {
   let mode: DebuggerMode = 'run'
+  let pausedReason: 'breakpoint' | 'manual' | 'step' = 'manual'
   const breakpoints = new Set<NodeId>()
   const mocks = new Map<NodeId, NodeOutcome>()
 
@@ -63,6 +64,7 @@ export const createInMemoryDebugger = (): FlowDebugger => {
     },
     pause() {
       mode = 'paused'
+      pausedReason = 'manual'
     },
     step() {
       mode = 'step'
@@ -81,15 +83,19 @@ export const createInMemoryDebugger = (): FlowDebugger => {
       const mock = mocks.get(node.id)
       if (mock) return { kind: 'mock', outcome: mock }
 
-      if (mode === 'paused') return { kind: 'pause', reason: 'breakpoint' }
+      if (mode === 'paused') return { kind: 'pause', reason: pausedReason }
       if (mode !== 'step' && breakpoints.has(node.id)) {
         mode = 'paused'
-        return { kind: 'pause', reason: 'breakpoint' }
+        pausedReason = 'breakpoint'
+        return { kind: 'pause', reason: pausedReason }
       }
       return { kind: 'continue' }
     },
     afterNode() {
-      if (mode === 'step') mode = 'paused'
+      if (mode === 'step') {
+        mode = 'paused'
+        pausedReason = 'step'
+      }
     },
   }
 }

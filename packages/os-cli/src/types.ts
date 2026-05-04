@@ -13,5 +13,10 @@ export type CliIo = {
   readonly mkdir: (path: string) => Promise<void>
   readonly exists: (path: string) => Promise<boolean>
   readonly readdir?: (path: string) => Promise<readonly string[]>
+  /**
+   * Optional interactive prompt for commands that support a wizard UX.
+   * If omitted, the command MUST provide a non-interactive fallback.
+   */
+  readonly prompt?: (message: string) => Promise<string>
   readonly cwd: () => string
 }

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "sql-from-natural-language-workspace",
+    "name": "SQL From Natural Language Workspace",
+    "tags": [
+      "data-pipelines"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "sql-from-natural-language-lead",
+      "name": "SQL From Natural Language Lead",
+      "systemPrompt": "Drafts SQL from a natural-language request and asks for approval before execution. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "sql-from-natural-language-reviewer",
+      "name": "SQL From Natural Language Reviewer",
+      "systemPrompt": "Drafts SQL from a natural-language request and asks for approval before execution. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "sql-from-natural-language-judge",
+      "name": "SQL From Natural Language Judge",
+      "systemPrompt": "Drafts SQL from a natural-language request and asks for approval before execution. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "sql-from-natural-language-flow",
+      "name": "SQL From Natural Language Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "storage.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "sql-from-natural-language-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "sql-from-natural-language-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "warehouse.load"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "data-pipelines"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "sql-from-natural-language-trigger",
+      "name": "SQL From Natural Language Trigger",
+      "flow": "sql-from-natural-language-flow",
+      "enabled": true,
+      "tags": [
+        "data-pipelines"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cdc",
+      "source": "postgres",
+      "connection": "${vault:postgres_url}",
+      "table": "sql_from_natural_language",
+      "operations": [
+        "insert",
+        "update"
+      ]
+    }
+  ]
+}

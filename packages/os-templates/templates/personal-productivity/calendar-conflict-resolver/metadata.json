@@ -1,0 +1,29 @@
+{
+  "id": "calendar-conflict-resolver",
+  "name": "Calendar Conflict Resolver",
+  "intent": "Finds meeting conflicts and proposes rescheduling options.",
+  "category": "personal-productivity",
+  "tags": [
+    "personal-productivity",
+    "calendar",
+    "conflict",
+    "resolver"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "calendar-conflict-resolver-lead",
+    "calendar-conflict-resolver-reviewer"
+  ],
+  "primaryTools": [
+    "gmail.search",
+    "calendar.read",
+    "tasks.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

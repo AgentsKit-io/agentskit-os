@@ -1,0 +1,28 @@
+{
+  "id": "dashboard-explainer",
+  "name": "Dashboard Explainer",
+  "intent": "Explains dashboard changes and identifies likely drivers.",
+  "category": "data-pipelines",
+  "tags": [
+    "data-pipelines",
+    "dashboard",
+    "explainer"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "dashboard-explainer-lead",
+    "dashboard-explainer-reviewer"
+  ],
+  "primaryTools": [
+    "storage.read",
+    "sql.preview",
+    "warehouse.load"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cdc",
+  "stability": "ready"
+}

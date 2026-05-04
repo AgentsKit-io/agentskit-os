@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "blackboard-research-swarm-workspace",
+    "name": "Blackboard Research Swarm Workspace",
+    "tags": [
+      "compare-vote"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "blackboard-research-swarm-lead",
+      "name": "Blackboard Research Swarm Lead",
+      "systemPrompt": "Coordinates a research swarm through a shared blackboard scratchpad. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "blackboard-research-swarm-reviewer",
+      "name": "Blackboard Research Swarm Reviewer",
+      "systemPrompt": "Coordinates a research swarm through a shared blackboard scratchpad. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "blackboard-research-swarm-judge",
+      "name": "Blackboard Research Swarm Judge",
+      "systemPrompt": "Coordinates a research swarm through a shared blackboard scratchpad. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "blackboard-research-swarm-flow",
+      "name": "Blackboard Research Swarm Flow",
+      "entry": "swarm",
+      "nodes": [
+        {
+          "id": "swarm",
+          "kind": "blackboard",
+          "agents": [
+            "blackboard-research-swarm-lead",
+            "blackboard-research-swarm-reviewer",
+            "blackboard-research-swarm-judge"
+          ],
+          "scratchpad": {
+            "kind": "in-memory"
+          },
+          "schedule": {
+            "mode": "round-robin"
+          },
+          "termination": {
+            "mode": "rounds",
+            "n": 3
+          }
+        },
+        {
+          "id": "report",
+          "kind": "tool",
+          "tool": "report.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "swarm",
+          "to": "report"
+        }
+      ],
+      "tags": [
+        "compare-vote"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "blackboard-research-swarm-trigger",
+      "name": "Blackboard Research Swarm Trigger",
+      "flow": "blackboard-research-swarm-flow",
+      "enabled": true,
+      "tags": [
+        "compare-vote"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/blackboard-research-swarm",
+      "method": "POST"
+    }
+  ]
+}

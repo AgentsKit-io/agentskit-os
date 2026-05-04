@@ -1,0 +1,28 @@
+{
+  "id": "daily-summary",
+  "name": "Daily Summary",
+  "intent": "Summarizes the day across messages, meetings, and tasks.",
+  "category": "personal-productivity",
+  "tags": [
+    "personal-productivity",
+    "daily",
+    "summary"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "daily-summary-lead",
+    "daily-summary-reviewer"
+  ],
+  "primaryTools": [
+    "gmail.search",
+    "calendar.read",
+    "tasks.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "dependency-upgrade",
+  "name": "Dependency Upgrade",
+  "intent": "Plans and reviews a dependency upgrade with tests, risk notes, and rollback guidance.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "dependency",
+    "upgrade"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "dependency-upgrade-lead",
+    "dependency-upgrade-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "ad-copy-tester-workspace",
+    "name": "Ad Copy Tester Workspace",
+    "tags": [
+      "marketing-content"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "ad-copy-tester-lead",
+      "name": "Ad Copy Tester Lead",
+      "systemPrompt": "Generates and compares multiple ad copy variants against a campaign goal. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "ad-copy-tester-reviewer",
+      "name": "Ad Copy Tester Reviewer",
+      "systemPrompt": "Generates and compares multiple ad copy variants against a campaign goal. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "ad-copy-tester-judge",
+      "name": "Ad Copy Tester Judge",
+      "systemPrompt": "Generates and compares multiple ad copy variants against a campaign goal. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "ad-copy-tester-flow",
+      "name": "Ad Copy Tester Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "brand.kit.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "ad-copy-tester-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "ad-copy-tester-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "slack.send"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "marketing-content"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "ad-copy-tester-trigger",
+      "name": "Ad Copy Tester Trigger",
+      "flow": "ad-copy-tester-flow",
+      "enabled": true,
+      "tags": [
+        "marketing-content"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "slack",
+      "channel": "#agentskit-os",
+      "event": "message"
+    }
+  ]
+}

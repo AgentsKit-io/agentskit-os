@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "escalation-router-workspace",
+    "name": "Escalation Router Workspace",
+    "tags": [
+      "customer-support"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "escalation-router-lead",
+      "name": "Escalation Router Lead",
+      "systemPrompt": "Routes high-risk customer conversations to the right escalation owner. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "escalation-router-reviewer",
+      "name": "Escalation Router Reviewer",
+      "systemPrompt": "Routes high-risk customer conversations to the right escalation owner. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "escalation-router-judge",
+      "name": "Escalation Router Judge",
+      "systemPrompt": "Routes high-risk customer conversations to the right escalation owner. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "escalation-router-flow",
+      "name": "Escalation Router Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "zendesk.ticket.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "escalation-router-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "escalation-router-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "kb.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "customer-support"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "escalation-router-trigger",
+      "name": "Escalation Router Trigger",
+      "flow": "escalation-router-flow",
+      "enabled": true,
+      "tags": [
+        "customer-support"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/escalation-router",
+      "method": "POST"
+    }
+  ]
+}

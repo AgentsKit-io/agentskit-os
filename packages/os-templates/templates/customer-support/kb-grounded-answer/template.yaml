@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "kb-grounded-answer-workspace",
+    "name": "Kb Grounded Answer Workspace",
+    "tags": [
+      "customer-support"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "kb-grounded-answer-lead",
+      "name": "Kb Grounded Answer Lead",
+      "systemPrompt": "Answers customer questions using a knowledge-base lookup before drafting. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "kb-grounded-answer-reviewer",
+      "name": "Kb Grounded Answer Reviewer",
+      "systemPrompt": "Answers customer questions using a knowledge-base lookup before drafting. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "kb-grounded-answer-judge",
+      "name": "Kb Grounded Answer Judge",
+      "systemPrompt": "Answers customer questions using a knowledge-base lookup before drafting. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "kb-grounded-answer-flow",
+      "name": "Kb Grounded Answer Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "zendesk.ticket.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "kb-grounded-answer-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "kb-grounded-answer-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "kb.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "customer-support"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "kb-grounded-answer-trigger",
+      "name": "Kb Grounded Answer Trigger",
+      "flow": "kb-grounded-answer-flow",
+      "enabled": true,
+      "tags": [
+        "customer-support"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/kb-grounded-answer",
+      "method": "POST"
+    }
+  ]
+}

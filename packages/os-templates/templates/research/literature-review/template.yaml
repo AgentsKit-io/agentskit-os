@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "literature-review-workspace",
+    "name": "Literature Review Workspace",
+    "tags": [
+      "research"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "literature-review-lead",
+      "name": "Literature Review Lead",
+      "systemPrompt": "Collects sources and synthesizes a literature review with open questions. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "literature-review-reviewer",
+      "name": "Literature Review Reviewer",
+      "systemPrompt": "Collects sources and synthesizes a literature review with open questions. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "literature-review-judge",
+      "name": "Literature Review Judge",
+      "systemPrompt": "Collects sources and synthesizes a literature review with open questions. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "literature-review-flow",
+      "name": "Literature Review Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "fetch-url"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "literature-review-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "literature-review-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "citation.lookup"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "research"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "literature-review-trigger",
+      "name": "Literature Review Trigger",
+      "flow": "literature-review-flow",
+      "enabled": true,
+      "tags": [
+        "research"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cron",
+      "cron": "0 9 * * 1",
+      "timezone": "UTC"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "escalation-router",
+  "name": "Escalation Router",
+  "intent": "Routes high-risk customer conversations to the right escalation owner.",
+  "category": "customer-support",
+  "tags": [
+    "customer-support",
+    "escalation",
+    "router"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "escalation-router-lead",
+    "escalation-router-reviewer"
+  ],
+  "primaryTools": [
+    "zendesk.ticket.read",
+    "zendesk.ticket.update",
+    "kb.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

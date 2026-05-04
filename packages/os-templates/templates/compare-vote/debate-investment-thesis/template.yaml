@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "debate-investment-thesis-workspace",
+    "name": "Debate Investment Thesis Workspace",
+    "tags": [
+      "compare-vote"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "debate-investment-thesis-lead",
+      "name": "Debate Investment Thesis Lead",
+      "systemPrompt": "Runs a pro/con debate with a judge for an investment thesis. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "debate-investment-thesis-reviewer",
+      "name": "Debate Investment Thesis Reviewer",
+      "systemPrompt": "Runs a pro/con debate with a judge for an investment thesis. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "debate-investment-thesis-judge",
+      "name": "Debate Investment Thesis Judge",
+      "systemPrompt": "Runs a pro/con debate with a judge for an investment thesis. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "debate-investment-thesis-flow",
+      "name": "Debate Investment Thesis Flow",
+      "entry": "debate",
+      "nodes": [
+        {
+          "id": "debate",
+          "kind": "debate",
+          "proponent": "debate-investment-thesis-lead",
+          "opponent": "debate-investment-thesis-reviewer",
+          "judge": "debate-investment-thesis-judge",
+          "topic": "Debate Investment Thesis",
+          "rounds": 2
+        },
+        {
+          "id": "report",
+          "kind": "tool",
+          "tool": "report.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "debate",
+          "to": "report"
+        }
+      ],
+      "tags": [
+        "compare-vote"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "debate-investment-thesis-trigger",
+      "name": "Debate Investment Thesis Trigger",
+      "flow": "debate-investment-thesis-flow",
+      "enabled": true,
+      "tags": [
+        "compare-vote"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/debate-investment-thesis",
+      "method": "POST"
+    }
+  ]
+}

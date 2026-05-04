@@ -1,0 +1,28 @@
+{
+  "id": "citation-checker",
+  "name": "Citation Checker",
+  "intent": "Checks whether cited claims are supported by the provided source snippets.",
+  "category": "research",
+  "tags": [
+    "research",
+    "citation",
+    "checker"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "citation-checker-lead",
+    "citation-checker-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "paper.search",
+    "citation.lookup"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cron",
+  "stability": "ready"
+}

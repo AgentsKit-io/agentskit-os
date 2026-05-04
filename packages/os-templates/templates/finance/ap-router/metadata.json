@@ -1,0 +1,28 @@
+{
+  "id": "ap-router",
+  "name": "AP Router",
+  "intent": "Routes accounts-payable requests by vendor, amount, and policy exceptions.",
+  "category": "finance",
+  "tags": [
+    "finance",
+    "ap",
+    "router"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "ap-router-lead",
+    "ap-router-reviewer"
+  ],
+  "primaryTools": [
+    "invoice.read",
+    "erp.lookup",
+    "approval.request"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "paper-summary-workspace",
+    "name": "Paper Summary Workspace",
+    "tags": [
+      "research"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "paper-summary-lead",
+      "name": "Paper Summary Lead",
+      "systemPrompt": "Summarizes an academic paper into claims, evidence, methods, and limitations. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "paper-summary-reviewer",
+      "name": "Paper Summary Reviewer",
+      "systemPrompt": "Summarizes an academic paper into claims, evidence, methods, and limitations. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "paper-summary-judge",
+      "name": "Paper Summary Judge",
+      "systemPrompt": "Summarizes an academic paper into claims, evidence, methods, and limitations. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "paper-summary-flow",
+      "name": "Paper Summary Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "fetch-url"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "paper-summary-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "paper-summary-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "citation.lookup"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "research"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "paper-summary-trigger",
+      "name": "Paper Summary Trigger",
+      "flow": "paper-summary-flow",
+      "enabled": true,
+      "tags": [
+        "research"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cron",
+      "cron": "0 9 * * 1",
+      "timezone": "UTC"
+    }
+  ]
+}

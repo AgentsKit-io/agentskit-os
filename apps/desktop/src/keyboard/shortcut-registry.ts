@@ -1,7 +1,7 @@
 /**
  * Built-in shortcut registry — pure data, no React.
  *
- * 12 shortcuts covering the most-used actions in AgentsKitOS Desktop.
+ * 13 shortcuts covering the most-used actions in AgentsKitOS Desktop.
  * The command palette ⌘K binding lives here so it is the single
  * source of truth; the CommandPaletteProvider reads it at runtime.
  */
@@ -105,6 +105,15 @@ export const BUILT_IN_SHORTCUTS: ReadonlyArray<Shortcut> = [
     defaultBinding: 'meta+shift+h',
     description: 'Open the help documentation.',
     category: 'Help',
+  },
+
+  // ── Voice ─────────────────────────────────────────────────────────────────
+  {
+    id: 'voice.toggle',
+    label: 'Toggle Voice Mode',
+    defaultBinding: 'meta+shift+v',
+    description: 'Start or stop voice recognition (Web Speech API).',
+    category: 'View',
   },
 ] as const
 

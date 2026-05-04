@@ -11,6 +11,9 @@ export type {
 export { LockfileStore } from './lockfile-store.js'
 export type { LockfileStoreOptions } from './lockfile-store.js'
 
+export { FileRegistryStore } from './agent-registry-store.js'
+export type { FileRegistryStoreOptions } from './agent-registry-store.js'
+
 export { nodeFs, safeRunId } from './fs-utils.js'
 export type { FileSystem } from './fs-utils.js'
 

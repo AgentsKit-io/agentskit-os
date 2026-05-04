@@ -174,6 +174,40 @@ export {
 } from './schema/agent-registry.js'
 
 export {
+  AgentVersion,
+  AgentVersionSnapshot,
+  AgentsManifest,
+  AgentsManifestVersion,
+  hashSnapshot,
+  suggestBump,
+  applyBump,
+  diffSnapshots,
+  parseAgentVersion,
+  safeParseAgentVersion,
+  parseAgentsManifest,
+  safeParseAgentsManifest,
+} from './schema/agent-version.js'
+export type { BumpKind, Hasher, SnapshotDiff } from './schema/agent-version.js'
+
+export {
+  EvalKind,
+  EvalCriterion,
+  EvalDef,
+  EvalSuite,
+  EvalSuiteVersion,
+  DomainPack,
+  EvalResult,
+  EvalResultStatus,
+  passesThreshold,
+  parseEvalDef,
+  safeParseEvalDef,
+  parseEvalSuite,
+  safeParseEvalSuite,
+  parseDomainPack,
+  safeParseDomainPack,
+} from './schema/eval.js'
+
+export {
   ConfigRoot,
   CONFIG_ROOT_VERSION,
   parseConfigRoot,
@@ -216,6 +250,20 @@ export type {
   ProviderCheckStatus,
 } from './secrets/providers.js'
 
+export {
+  TelemetryConsentState,
+  TelemetryConsent,
+  TelemetryEventKind,
+  TelemetryEvent,
+  TelemetrySink,
+  TelemetryConfig,
+  decideEmit,
+  bucketDuration,
+  parseTelemetryEvent,
+  safeParseTelemetryEvent,
+  parseTelemetryConfig,
+  safeParseTelemetryConfig,
+} from './obs/telemetry.js'
 export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 
@@ -255,6 +303,14 @@ export {
   safeParseAgentLifecycleEvent,
 } from './runtime/agent-lifecycle.js'
 export type { TransitionRequirements, TransitionDecision } from './runtime/agent-lifecycle.js'
+
+export {
+  RegistryWriteResult,
+  applyLifecycleEvent,
+  replayEvents,
+  stageLabel,
+} from './runtime/agent-registry-store.js'
+export type { RegistryStore } from './runtime/agent-registry-store.js'
 
 export {
   EgressPolicy,

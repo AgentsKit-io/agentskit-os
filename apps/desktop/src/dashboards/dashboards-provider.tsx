@@ -13,9 +13,8 @@ import {
   useMemo,
 } from 'react'
 import { useDashboardsStore, makeWidgetId } from './use-dashboards-store'
-import { getWidgetEntry, isCustomWidgetKind } from './widget-registry'
+import { getWidgetEntry, isPluginWidgetKind } from './widget-registry'
 import type { Dashboard, Widget, WidgetId } from './types'
-import type { DashboardTemplate } from './marketplace/marketplace-types'
 
 // ---------------------------------------------------------------------------
 // Context value
@@ -46,8 +45,6 @@ export type DashboardsContextValue = {
   exportJson: () => string
   /** Import from JSON string; returns success bool. */
   importJson: (json: string) => boolean
-  /** Create a new dashboard from a marketplace template. Returns new dashboard id. */
-  createFromTemplate: (template: DashboardTemplate) => string
 }
 
 // ---------------------------------------------------------------------------
@@ -86,12 +83,22 @@ export function DashboardsProvider({ children }: DashboardsProviderProps) {
   const addWidget = useCallback(
     (kind: string, dashboardId?: string) => {
       const targetId = dashboardId ?? store.set.activeId
-      const entry = getWidgetEntry(kind)
-      // Allow custom widget kinds even though they're not in BUILT_IN_WIDGETS
-      const isCustom = isCustomWidgetKind(kind)
-      if (!entry && !isCustom) return
 
-      const [w, h] = entry?.defaultSize ?? [4, 2]
+      // Plugin widgets use a fallback default size since they're not in the
+      // built-in registry. Format: plugin:<pluginId>:<widgetId>
+      let defaultW = 4
+      let defaultH = 2
+      if (isPluginWidgetKind(kind)) {
+        defaultW = 4
+        defaultH = 2
+      } else {
+        const entry = getWidgetEntry(kind)
+        if (!entry) return
+        defaultW = entry.defaultSize[0]
+        defaultH = entry.defaultSize[1]
+      }
+
+      const [w, h] = [defaultW, defaultH]
       // Place the new widget below all existing widgets on the target dashboard
       const target = store.set.dashboards.find((d) => d.id === targetId)
       const maxY = target
@@ -111,17 +118,6 @@ export function DashboardsProvider({ children }: DashboardsProviderProps) {
     [store],
   )
 
-  const createFromTemplate = useCallback(
-    (template: DashboardTemplate): string => {
-      // Create a new blank dashboard with the template's name, then populate
-      // its widgets from the template layout.
-      const id = store.createDashboard(template.layout.name)
-      store.updateLayout(id, template.layout.widgets)
-      return id
-    },
-    [store],
-  )
-
   const value: DashboardsContextValue = useMemo(
     () => ({
       all: store.set.dashboards,
@@ -136,9 +132,8 @@ export function DashboardsProvider({ children }: DashboardsProviderProps) {
       reset: store.reset,
       exportJson: store.exportJson,
       importJson: store.importJson,
-      createFromTemplate,
     }),
-    [store, active, addWidget, createFromTemplate],
+    [store, active, addWidget],
   )
 
   return (

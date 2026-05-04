@@ -1,42 +1,57 @@
 /**
- * WidgetPicker — modal listing built-in and custom widget kinds.
+ * WidgetPicker — modal listing widget kinds in three sections:
+ *   1. Built-in   — static built-in widget kinds
+ *   2. Custom     — user-created custom widget kinds (future)
+ *   3. Plugin widgets — widgets contributed by plugins, with source-plugin pill
  *
- * Sections:
- *   - Built-in widgets (always shown)
- *   - Custom widgets (user-defined, from localStorage)
- *     + "New / Edit" button to open the CustomWidgetEditor
+ * Plugin widget kinds follow the `plugin:<pluginId>:<widgetId>` convention.
+ *
+ * Part of M2 #248 — plugin-contributed dashboards + widgets extension point.
  *
  * Props:
- *   isOpen        — controls visibility
- *   onClose       — called when closed without adding
- *   onAdd         — called with the chosen widget kind
- *   onNewCustom   — called when the user wants to create/edit a custom widget
+ *   isOpen   — controls visibility
+ *   onClose  — called when closed without adding
+ *   onAdd    — called with the chosen widget kind
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { BUILT_IN_WIDGETS, kindForCustomWidget } from './widget-registry'
-import { loadCustomWidgets } from './custom/custom-widget-store'
+import { useCallback, useEffect, useRef } from 'react'
+import { BUILT_IN_WIDGETS } from './widget-registry'
 import { Button } from '@agentskit/os-ui'
-import type { CustomWidget } from './custom/custom-widget-types'
+import { usePluginContributions } from '../plugins/plugin-contributions-provider'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
   onAdd: (kind: string) => void
-  /** Opens the custom widget editor; undefined if not supported */
-  onNewCustom?: () => void
 }
 
-export function WidgetPicker({ isOpen, onClose, onAdd, onNewCustom }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  const [customWidgets, setCustomWidgets] = useState<CustomWidget[]>([])
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
 
-  // Reload custom widgets whenever the picker opens
-  useEffect(() => {
-    if (isOpen) {
-      setCustomWidgets(loadCustomWidgets())
-    }
-  }, [isOpen])
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="px-5 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+      {children}
+    </p>
+  )
+}
+
+function SourcePill({ pluginId }: { pluginId: string }) {
+  return (
+    <span className="ml-2 inline-flex items-center rounded-full border border-[var(--ag-accent)]/40 bg-[var(--ag-accent-dim)] px-2 py-0.5 text-[10px] font-medium text-[var(--ag-accent)]">
+      {pluginId}
+    </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const { widgets: pluginWidgets } = usePluginContributions()
 
   // Sync native dialog open/close
   useEffect(() => {
@@ -91,96 +106,73 @@ export function WidgetPicker({ isOpen, onClose, onAdd, onNewCustom }: Props) {
         </button>
       </div>
 
-      {/* Built-in widgets */}
-      <div className="px-5 pb-1 pt-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-          Built-in
-        </p>
-      </div>
-      <ul role="list" className="flex flex-col divide-y divide-[var(--ag-line)]">
-        {BUILT_IN_WIDGETS.map((entry) => (
-          <li
-            key={entry.kind}
-            className="flex items-center justify-between px-5 py-3"
-          >
-            <div>
-              <p className="text-sm font-medium text-[var(--ag-ink)]">{entry.label}</p>
-              <p className="mt-0.5 text-xs text-[var(--ag-ink-subtle)]">
-                Default size: {entry.defaultSize[0]}×{entry.defaultSize[1]}
-              </p>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              data-testid={`add-widget-${entry.kind}`}
-              onClick={() => handleAdd(entry.kind)}
-            >
-              Add
-            </Button>
-          </li>
-        ))}
-      </ul>
-
-      {/* Custom widgets */}
-      <div className="border-t border-[var(--ag-line)] px-5 pb-1 pt-4">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            Custom widgets
-          </p>
-          {onNewCustom && (
-            <Button
-              size="sm"
-              variant="ghost"
-              data-testid="open-custom-widget-editor"
-              onClick={onNewCustom}
-            >
-              + New
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {customWidgets.length === 0 ? (
-        <div className="px-5 py-4 text-sm text-[var(--ag-ink-subtle)]">
-          No custom widgets yet.{' '}
-          {onNewCustom ? (
-            <button
-              type="button"
-              className="underline hover:text-[var(--ag-ink)]"
-              onClick={onNewCustom}
-            >
-              Create one
-            </button>
-          ) : null}
-        </div>
-      ) : (
-        <ul
-          role="list"
-          data-testid="custom-widgets-list"
-          className="flex flex-col divide-y divide-[var(--ag-line)]"
-        >
-          {customWidgets.map((cw) => (
+      {/* Built-in section */}
+      <div>
+        <SectionLabel>Built-in</SectionLabel>
+        <ul role="list" className="flex flex-col divide-y divide-[var(--ag-line)]">
+          {BUILT_IN_WIDGETS.map((entry) => (
             <li
-              key={cw.id}
+              key={entry.kind}
               className="flex items-center justify-between px-5 py-3"
             >
               <div>
-                <p className="text-sm font-medium text-[var(--ag-ink)]">{cw.title}</p>
+                <p className="text-sm font-medium text-[var(--ag-ink)]">{entry.label}</p>
                 <p className="mt-0.5 text-xs text-[var(--ag-ink-subtle)]">
-                  {cw.kind} · {cw.source.method}
+                  Default size: {entry.defaultSize[0]}×{entry.defaultSize[1]}
                 </p>
               </div>
               <Button
                 size="sm"
                 variant="outline"
-                data-testid={`add-custom-widget-${cw.id}`}
-                onClick={() => handleAdd(kindForCustomWidget(cw))}
+                data-testid={`add-widget-${entry.kind}`}
+                onClick={() => handleAdd(entry.kind)}
               >
                 Add
               </Button>
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Custom section — placeholder for future user-created widgets */}
+      <div className="border-t border-[var(--ag-line)]">
+        <SectionLabel>Custom</SectionLabel>
+        <p className="px-5 pb-4 text-xs text-[var(--ag-ink-subtle)]">
+          Custom widgets coming soon.
+        </p>
+      </div>
+
+      {/* Plugin widgets section */}
+      {pluginWidgets.length > 0 && (
+        <div className="border-t border-[var(--ag-line)]">
+          <SectionLabel>Plugin widgets</SectionLabel>
+          <ul role="list" className="flex flex-col divide-y divide-[var(--ag-line)]">
+            {pluginWidgets.map((pw) => (
+              <li
+                key={pw.kind}
+                className="flex items-center justify-between px-5 py-3"
+              >
+                <div>
+                  <p className="flex items-center text-sm font-medium text-[var(--ag-ink)]">
+                    {pw.label}
+                    <SourcePill pluginId={pw.pluginId} />
+                  </p>
+                  <p className="mt-0.5 text-xs text-[var(--ag-ink-subtle)]">
+                    Default size: {pw.defaultSize[0]}×{pw.defaultSize[1]}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  data-testid={`add-plugin-widget-${pw.kind}`}
+                  onClick={() => handleAdd(pw.kind)}
+                >
+                  Add
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </dialog>
   )

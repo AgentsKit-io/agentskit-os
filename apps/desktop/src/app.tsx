@@ -55,6 +55,7 @@ import { useDashboards } from './dashboards/dashboards-provider'
 import { VoiceProvider, useVoice } from './voice/voice-provider'
 import { VoiceToggle } from './voice/voice-toggle'
 import { VoiceOverlay } from './voice/voice-overlay'
+import { PluginContributionsProvider } from './plugins/plugin-contributions-provider'
 
 type ActiveScreen = 'dashboard' | 'traces' | 'examples'
 
@@ -242,6 +243,7 @@ export function App() {
         <ShortcutProvider>
           <WorkspacesProvider>
             <DashboardsProvider>
+            <PluginContributionsProvider>
             <NotificationPreferencesProvider>
               <NotificationsProvider>
                 <OnboardingProvider>
@@ -291,6 +293,7 @@ export function App() {
                 </OnboardingProvider>
               </NotificationsProvider>
             </NotificationPreferencesProvider>
+            </PluginContributionsProvider>
             </DashboardsProvider>
           </WorkspacesProvider>
         </ShortcutProvider>
@@ -562,7 +565,7 @@ function CustomWidgetWirer(): React.JSX.Element | null {
 /** Wires "Browse dashboard templates" palette command + marketplace modal. */
 function MarketplaceWirer(): React.JSX.Element | null {
   const { registerCommand } = useCommandPalette()
-  const { createFromTemplate } = useDashboards()
+  const { create } = useDashboards()
   const [open, setOpen] = useState(false)
   useEffect(() => {
     registerCommand({
@@ -577,8 +580,9 @@ function MarketplaceWirer(): React.JSX.Element | null {
     <MarketplacePanel
       isOpen={open}
       onClose={() => setOpen(false)}
-      onApplyTemplate={(t) => {
-        createFromTemplate(t)
+      onApply={(t) => {
+        const name = 'layout' in t ? t.layout.name : t.name
+        create(name)
         setOpen(false)
       }}
     />

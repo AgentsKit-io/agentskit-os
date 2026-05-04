@@ -12,12 +12,17 @@
  *   cost-chart          — mock cost-over-time chart (TODO: wire real data)
  *   notifications-summary — count of unread notifications
  *   traces-summary      — placeholder trace summary
+ *
+ * Plugin widgets use the `plugin:<pluginId>:<widgetId>` kind prefix and are
+ * rendered via PluginWidgetRenderer (sandboxed iframe). Detection is via
+ * `isPluginWidgetKind()`.
+ *
+ * Part of M2 #248 — plugin-contributed dashboards + widgets extension point.
  */
 
 import type { ReactNode } from 'react'
 import type { DashboardStats } from '../screens/dashboard/use-dashboard-stats'
 import type { SidecarEvent } from '../lib/sidecar'
-import type { CustomWidget } from './custom/custom-widget-types'
 
 // ---------------------------------------------------------------------------
 // Render context
@@ -104,44 +109,33 @@ export function getAllWidgetKinds(): readonly string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Custom widget registry
-//
-// Custom widgets use kind "custom:<widgetId>" and are resolved at render time
-// by looking up the CustomWidget definition from the widget's props or the
-// localStorage store. The actual rendering is delegated to CustomWidgetRenderer.
+// Plugin widget detection
 // ---------------------------------------------------------------------------
 
 /**
- * Determines whether a widget kind belongs to the custom widget namespace.
- * Custom widget kinds follow the pattern "custom:<widgetId>".
+ * Returns true for kinds using the `plugin:<pluginId>:<widgetId>` convention.
+ * These kinds are not in the built-in registry and are rendered via
+ * PluginWidgetRenderer (sandboxed iframe).
  */
-export function isCustomWidgetKind(kind: string): boolean {
-  return kind.startsWith('custom:')
+export function isPluginWidgetKind(kind: string): boolean {
+  return kind.startsWith('plugin:')
 }
 
 /**
- * Extract the custom widget ID from a "custom:<id>" kind string.
+ * Parse a plugin widget kind string into its constituent parts.
+ * Returns undefined if the kind does not match the `plugin:` prefix.
  */
-export function customWidgetIdFromKind(kind: string): string {
-  return kind.slice('custom:'.length)
-}
-
-/**
- * Build a "custom:<id>" kind string for the given CustomWidget.
- */
-export function kindForCustomWidget(widget: CustomWidget): string {
-  return `custom:${widget.id}`
-}
-
-/**
- * Synthetic WidgetRegistryEntry for a custom widget so it can participate in
- * the dashboard addWidget flow (which needs a defaultSize and label).
- */
-export function makeCustomWidgetEntry(widget: CustomWidget): WidgetRegistryEntry {
-  return {
-    kind: kindForCustomWidget(widget),
-    label: widget.title,
-    defaultSize: [4, 2],
-    render: (_ctx) => null, // resolved in widget-renderers.tsx
-  }
+export function parsePluginWidgetKind(
+  kind: string,
+): { pluginId: string; widgetId: string } | undefined {
+  if (!isPluginWidgetKind(kind)) return undefined
+  // Format: plugin:<pluginId>:<widgetId>
+  // pluginId itself may not contain colons; widgetId may.
+  const withoutPrefix = kind.slice('plugin:'.length)
+  const firstColon = withoutPrefix.indexOf(':')
+  if (firstColon === -1) return undefined
+  const pluginId = withoutPrefix.slice(0, firstColon)
+  const widgetId = withoutPrefix.slice(firstColon + 1)
+  if (!pluginId || !widgetId) return undefined
+  return { pluginId, widgetId }
 }

@@ -201,6 +201,21 @@ export type { VerifyDecision } from './auth/verify.js'
 export { findVaultRefs, resolveVaultRefs } from './secrets/refs.js'
 export type { VaultResolver, ResolveResult } from './secrets/refs.js'
 
+export {
+  ProviderKind,
+  ProviderRequirement,
+  ProviderCheckResult,
+  BUILTIN_PROVIDERS,
+  filterProviders,
+  checkProviderKeys,
+  parseProviderRequirement,
+  safeParseProviderRequirement,
+} from './secrets/providers.js'
+export type {
+  ProviderFilterOptions,
+  ProviderCheckStatus,
+} from './secrets/providers.js'
+
 export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 

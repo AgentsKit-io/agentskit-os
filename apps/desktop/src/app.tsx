@@ -48,6 +48,7 @@ import { AssistantOverlay } from './assistant/assistant-overlay'
 import { ForkProvider } from './fork/fork-provider'
 import { ArtifactViewerProvider, useArtifactViewer } from './artifacts/use-artifact-viewer'
 import { ArtifactViewer } from './artifacts/artifact-viewer'
+import { MultiMonitorPanel } from './multi-monitor/multi-monitor-panel'
 
 type ActiveScreen = 'dashboard' | 'traces' | 'examples'
 
@@ -267,6 +268,7 @@ export function App() {
                           <AssistantOverlay />
                           <ArtifactViewer />
                           <ArtifactViewerWirer />
+                          <MultiMonitorWirer />
                           <StatusLineConfigWirer />
                           </ArtifactViewerProvider>
                           </ForkProvider>
@@ -497,4 +499,27 @@ function ArtifactViewerWirer(): null {
     })
   }, [registerCommand, current, close])
   return null
+}
+
+/** Wires the multi-monitor palette commands + modal. */
+function MultiMonitorWirer(): React.JSX.Element | null {
+  const { registerCommand } = useCommandPalette()
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    registerCommand({
+      id: 'multi-monitor.open-dashboard',
+      label: 'Open dashboard on monitor…',
+      keywords: ['monitor', 'multi', 'window', 'screen', 'dashboard'],
+      category: 'View',
+      run: () => setOpen(true),
+    })
+    registerCommand({
+      id: 'multi-monitor.open-traces',
+      label: 'Open traces on monitor…',
+      keywords: ['monitor', 'multi', 'window', 'screen', 'traces'],
+      category: 'View',
+      run: () => setOpen(true),
+    })
+  }, [registerCommand])
+  return <MultiMonitorPanel isOpen={open} onClose={() => setOpen(false)} />
 }

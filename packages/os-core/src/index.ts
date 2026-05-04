@@ -174,6 +174,40 @@ export {
 } from './schema/agent-registry.js'
 
 export {
+  AgentVersion,
+  AgentVersionSnapshot,
+  AgentsManifest,
+  AgentsManifestVersion,
+  hashSnapshot,
+  suggestBump,
+  applyBump,
+  diffSnapshots,
+  parseAgentVersion,
+  safeParseAgentVersion,
+  parseAgentsManifest,
+  safeParseAgentsManifest,
+} from './schema/agent-version.js'
+export type { BumpKind, Hasher, SnapshotDiff } from './schema/agent-version.js'
+
+export {
+  EvalKind,
+  EvalCriterion,
+  EvalDef,
+  EvalSuite,
+  EvalSuiteVersion,
+  DomainPack,
+  EvalResult,
+  EvalResultStatus,
+  passesThreshold,
+  parseEvalDef,
+  safeParseEvalDef,
+  parseEvalSuite,
+  safeParseEvalSuite,
+  parseDomainPack,
+  safeParseDomainPack,
+} from './schema/eval.js'
+
+export {
   ConfigRoot,
   CONFIG_ROOT_VERSION,
   parseConfigRoot,

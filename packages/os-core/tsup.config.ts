@@ -28,6 +28,8 @@ export default defineConfig({
     'src/events/bus.ts',
     'src/schema/rag.ts',
     'src/schema/agent-registry.ts',
+    'src/schema/agent-version.ts',
+    'src/schema/eval.ts',
     'src/runtime/run-mode.ts',
     'src/security/egress.ts',
     'src/tools/side-effects.ts',

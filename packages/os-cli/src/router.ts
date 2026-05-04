@@ -18,6 +18,8 @@ import { agentPromote } from './commands/agent-promote.js'
 import { agentRegister } from './commands/agent-register.js'
 import { agentList } from './commands/agent-list.js'
 import { agentBump, agentDiff, agentVersionList } from './commands/agent-version.js'
+import { agentChangelog } from './commands/agent-changelog.js'
+import { flowExport, flowImportJson } from './commands/flow-json.js'
 import { creds } from './commands/creds.js'
 import { telemetry } from './commands/telemetry.js'
 
@@ -41,6 +43,9 @@ export const COMMANDS: readonly CliCommand[] = [
   agentBump,
   agentDiff,
   agentVersionList,
+  agentChangelog,
+  flowExport,
+  flowImportJson,
   agentPromote,
   creds,
   telemetry,

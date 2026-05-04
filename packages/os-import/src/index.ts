@@ -2,16 +2,19 @@ import type { Importer, ImporterRegistry, ImportResult } from './types.js'
 import { n8nImporter } from './importers/n8n.js'
 import { langflowImporter } from './importers/langflow.js'
 import { difyImporter } from './importers/dify.js'
+import { langgraphImporter } from './importers/langgraph.js'
 
 export type { Importer, ImporterRegistry, ImportResult, ImportWarning } from './types.js'
 export { n8nImporter } from './importers/n8n.js'
 export { langflowImporter } from './importers/langflow.js'
 export { difyImporter } from './importers/dify.js'
+export { langgraphImporter } from './importers/langgraph.js'
 
 export const builtInImporters: ImporterRegistry = [
   n8nImporter,
   langflowImporter,
   difyImporter,
+  langgraphImporter,
 ]
 
 export const detectImporter = (

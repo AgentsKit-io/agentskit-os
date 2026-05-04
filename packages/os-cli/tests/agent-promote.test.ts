@@ -39,7 +39,8 @@ describe('agent promote command', () => {
       '--json',
     ])
     expect(r.code).toBe(0)
-    const event = JSON.parse(r.stdout.trim())
+    const parsed = JSON.parse(r.stdout.trim())
+    const event = parsed.event ?? parsed
     expect(event.type).toBe('agent.lifecycle.transition')
     expect(event.agentId).toBe('sales-bot')
     expect(event.from).toBe('review')

@@ -1,4 +1,9 @@
-import { PACKAGE_VERSION as OS_CORE_VERSION } from '@agentskit/os-core'
+import {
+  BUILTIN_PROVIDERS,
+  checkProviderKeys,
+  PACKAGE_VERSION as OS_CORE_VERSION,
+  type ProviderCheckResult,
+} from '@agentskit/os-core'
 import type { CliCommand, CliExit } from '../types.js'
 import { CLI_VERSION } from './version.js'
 
@@ -43,6 +48,32 @@ export type DoctorReport = {
   readonly checks: readonly Check[]
   readonly failed: number
   readonly liveChecks?: LiveChecks
+  readonly credChecks?: readonly ProviderCheckResult[]
+}
+
+export type DoctorCredOpts = {
+  readonly airGapped?: boolean
+  readonly envPrefix?: string
+  readonly providers?: readonly string[]
+}
+
+const presentEnvKeys = (envPrefix: string, env: NodeJS.ProcessEnv): Set<string> => {
+  const present = new Set<string>()
+  for (const key of Object.keys(env)) {
+    const value = env[key]
+    if (value === undefined || value === '') continue
+    present.add(key)
+    if (key.startsWith(envPrefix)) present.add(key.slice(envPrefix.length))
+  }
+  return present
+}
+
+const runCredChecks = (opts: DoctorCredOpts = {}): readonly ProviderCheckResult[] => {
+  const present = presentEnvKeys(opts.envPrefix ?? 'AGENTSKITOS_', process.env)
+  const ids = opts.providers
+  const pool = ids ? BUILTIN_PROVIDERS.filter((p) => ids.includes(p.id)) : BUILTIN_PROVIDERS
+  const checkOpts = opts.airGapped !== undefined ? { airGapped: opts.airGapped } : {}
+  return pool.map((p) => checkProviderKeys(p, present, checkOpts))
 }
 
 const MIN_NODE_MAJOR = 22
@@ -156,7 +187,11 @@ const runLiveChecks = async (opts: DoctorLiveOpts): Promise<LiveChecks> => {
   }
 }
 
-export const runDoctor = async (live: boolean, liveOpts?: DoctorLiveOpts): Promise<DoctorReport> => {
+export const runDoctor = async (
+  live: boolean,
+  liveOpts?: DoctorLiveOpts,
+  credOpts?: DoctorCredOpts | false,
+): Promise<DoctorReport> => {
   const checks: Check[] = [
     checkNodeVersion(),
     checkPlatform(),
@@ -165,12 +200,14 @@ export const runDoctor = async (live: boolean, liveOpts?: DoctorLiveOpts): Promi
   ]
   const failed = checks.filter((c) => !c.ok).length
 
+  const credChecks = credOpts === false ? undefined : runCredChecks(credOpts ?? {})
+
   if (!live) {
-    return { checks, failed }
+    return { checks, failed, ...(credChecks ? { credChecks } : {}) }
   }
 
   const liveChecks = await runLiveChecks(liveOpts ?? {})
-  return { checks, failed, liveChecks }
+  return { checks, failed, liveChecks, ...(credChecks ? { credChecks } : {}) }
 }
 
 const formatReport = (report: DoctorReport): CliExit => {
@@ -186,12 +223,23 @@ const formatReport = (report: DoctorReport): CliExit => {
     lines.push(`${sbIcon} ${'live:sandbox'.padEnd(20)} ${lc.sandboxDetail ?? lc.sandbox}`)
   }
 
+  if (report.credChecks) {
+    for (const cr of report.credChecks) {
+      const icon = cr.status === 'ok' ? '[ok]' : cr.status === 'skipped' ? '[skip]' : '[FAIL]'
+      const detail = cr.status === 'missing'
+        ? `missing: ${cr.missingKeys.join(', ')}  hint: ${cr.remediation ?? ''}`
+        : cr.status
+      lines.push(`${icon} ${`creds:${cr.providerId}`.padEnd(20)} ${detail}`)
+    }
+  }
+
   const liveFailed =
     report.liveChecks
       ? (report.liveChecks.llm === 'fail' ? 1 : 0) +
         (report.liveChecks.sandbox === 'fail' ? 1 : 0)
       : 0
-  const totalFailed = report.failed + liveFailed
+  const credFailed = report.credChecks?.filter((c) => c.status === 'missing').length ?? 0
+  const totalFailed = report.failed + liveFailed + credFailed
 
   const summary =
     totalFailed === 0
@@ -206,14 +254,19 @@ const formatReport = (report: DoctorReport): CliExit => {
   }
 }
 
-const help = `agentskit-os doctor [--live]
+const help = `agentskit-os doctor [--live] [--creds] [--air-gap] [--provider <id>] [--env-prefix <pfx>]
 
 Diagnoses CLI environment: node version, platform, linked os-core,
 AGENTSKITOS_HOME. Exits 0 when all critical checks pass, 1 otherwise.
 
 Options:
-  --live    Also run live LLM probe (10s timeout) and sandbox round-trip (5s timeout).
-            Adapters are injected by the host via createDoctor().
+  --live              Also run live LLM probe (10s timeout) and sandbox round-trip (5s timeout).
+                      Adapters are injected by the host via createDoctor().
+  --creds             Run credential presence checks against BUILTIN_PROVIDERS.
+                      Reports missing required keys without printing secret values.
+  --air-gap           When combined with --creds, skips cloud providers.
+  --provider <id>     Restrict creds check to one provider id (repeatable).
+  --env-prefix <pfx>  Vault env-var prefix (default AGENTSKITOS_).
 `
 
 /**
@@ -229,7 +282,21 @@ export const createDoctor = (liveOpts?: DoctorLiveOpts): CliCommand => ({
     }
 
     const live = argv.includes('--live')
-    const report = await runDoctor(live, live ? liveOpts : undefined)
+    const creds = argv.includes('--creds')
+    const airGap = argv.includes('--air-gap')
+
+    const providers: string[] = []
+    let envPrefix: string | undefined
+    for (let i = 0; i < argv.length; i++) {
+      if (argv[i] === '--provider' && argv[i + 1]) { providers.push(argv[i + 1]!); i++ }
+      else if (argv[i] === '--env-prefix' && argv[i + 1]) { envPrefix = argv[i + 1]!; i++ }
+    }
+
+    const credOpts: DoctorCredOpts | false = creds
+      ? { airGapped: airGap, ...(providers.length > 0 ? { providers } : {}), ...(envPrefix ? { envPrefix } : {}) }
+      : false
+
+    const report = await runDoctor(live, live ? liveOpts : undefined, credOpts)
     return formatReport(report)
   },
 })

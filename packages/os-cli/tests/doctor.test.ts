@@ -202,4 +202,47 @@ describe('doctor --live (both probes)', () => {
     expect(r.stdout).not.toContain('live:llm')
     expect(r.stdout).not.toContain('live:sandbox')
   })
+
+  describe('--creds', () => {
+    it('reports missing required keys without printing values', async () => {
+      const prev = process.env.OPENAI_API_KEY
+      delete process.env.OPENAI_API_KEY
+      try {
+        const r = await createDoctor().run(['--creds', '--provider', 'openai'])
+        expect(r.code).toBe(1)
+        const out = r.stdout + r.stderr
+        expect(out).toContain('creds:openai')
+        expect(out).toContain('OPENAI_API_KEY')
+        expect(out).toContain('[FAIL]')
+      } finally {
+        if (prev !== undefined) process.env.OPENAI_API_KEY = prev
+      }
+    })
+
+    it('passes when key present and never prints the value', async () => {
+      const prev = process.env.OPENAI_API_KEY
+      process.env.OPENAI_API_KEY = 'sk-fake-XYZ'
+      try {
+        const r = await createDoctor().run(['--creds', '--provider', 'openai'])
+        expect(r.code).toBe(0)
+        expect(r.stdout).toContain('creds:openai')
+        expect(r.stdout).not.toContain('sk-fake-XYZ')
+      } finally {
+        if (prev !== undefined) process.env.OPENAI_API_KEY = prev
+        else delete process.env.OPENAI_API_KEY
+      }
+    })
+
+    it('--air-gap skips cloud providers (no failure)', async () => {
+      const prev = process.env.OPENAI_API_KEY
+      delete process.env.OPENAI_API_KEY
+      try {
+        const r = await createDoctor().run(['--creds', '--air-gap', '--provider', 'openai'])
+        expect(r.code).toBe(0)
+        expect(r.stdout).toContain('skip')
+      } finally {
+        if (prev !== undefined) process.env.OPENAI_API_KEY = prev
+      }
+    })
+  })
 })

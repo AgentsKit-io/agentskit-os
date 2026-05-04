@@ -1,8 +1,13 @@
+import {
+  BUILTIN_PROVIDERS,
+  checkProviderKeys,
+  type ProviderCheckResult,
+} from '@agentskit/os-core'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 import { newCmd } from './new.js'
 
-const help = `agentskit-os wizard [<dir>] [--persona <dev|agency|clinical|non-tech>] [--force]
+const help = `agentskit-os wizard [<dir>] [--persona <dev|agency|clinical|non-tech>] [--force] [--air-gap] [--env-prefix <pfx>]
 
 Interactive first-run wizard that routes you to a starter template.
 
@@ -29,11 +34,47 @@ type Args = {
   dir?: string
   persona?: Persona
   force: boolean
+  airGap: boolean
+  envPrefix: string
   usage?: string
 }
 
+const personaProviders: Record<Persona, readonly string[]> = {
+  dev: ['openai', 'anthropic', 'github'],
+  agency: ['openai', 'anthropic', 'slack'],
+  clinical: ['anthropic', 'marketplace'],
+  'non-tech': ['openai'],
+}
+
+const presentEnvKeys = (envPrefix: string, env: NodeJS.ProcessEnv): Set<string> => {
+  const present = new Set<string>()
+  for (const key of Object.keys(env)) {
+    const value = env[key]
+    if (value === undefined || value === '') continue
+    present.add(key)
+    if (key.startsWith(envPrefix)) present.add(key.slice(envPrefix.length))
+  }
+  return present
+}
+
+const renderCredSummary = (results: readonly ProviderCheckResult[]): string => {
+  if (results.length === 0) return ''
+  const lines: string[] = ['Credential check:']
+  for (const r of results) {
+    const tag = r.status === 'ok' ? 'ok' : r.status === 'skipped' ? 'skipped' : 'MISSING'
+    const detail = r.status === 'missing'
+      ? `  needs: ${r.missingKeys.join(', ')}  hint: ${r.remediation ?? ''}`
+      : ''
+    lines.push(`  [${tag}] ${r.providerId}${detail}`)
+  }
+  if (results.some((r) => r.status === 'missing')) {
+    lines.push('Run `agentskit-os creds check` after setting the keys to verify.')
+  }
+  return lines.join('\n')
+}
+
 const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { force: false }
+  const out: Args = { force: false, airGap: false, envPrefix: 'AGENTSKITOS_' }
   let i = 0
   while (i < argv.length) {
     const a = argv[i]
@@ -41,6 +82,18 @@ const parseArgs = (argv: readonly string[]): Args => {
     if (a === '--force') {
       out.force = true
       i++
+      continue
+    }
+    if (a === '--air-gap') {
+      out.airGap = true
+      i++
+      continue
+    }
+    if (a === '--env-prefix') {
+      const v = argv[i + 1]
+      if (!v || v.startsWith('--')) return { ...out, usage: '--env-prefix requires a value' }
+      out.envPrefix = v
+      i += 2
       continue
     }
     if (a === '--persona') {
@@ -105,12 +158,20 @@ export const wizard: CliCommand = {
     const res = await newCmd.run(delegatedArgv, io)
     if (res.code !== 0) return res
 
+    const expected = personaProviders[persona]
+    const present = presentEnvKeys(args.envPrefix, process.env)
+    const credResults = BUILTIN_PROVIDERS
+      .filter((p) => expected.includes(p.id))
+      .map((p) => checkProviderKeys(p, present, { airGapped: args.airGap }))
+    const credSummary = renderCredSummary(credResults)
+
     const lines = [
       `Wizard persona: ${persona}`,
       `Template: ${templateId}`,
       ``,
       res.stdout.trimEnd(),
       ``,
+      ...(credSummary ? [credSummary, ``] : []),
     ]
     return { code: 0, stdout: `${lines.join('\n')}\n`, stderr: '' }
   },

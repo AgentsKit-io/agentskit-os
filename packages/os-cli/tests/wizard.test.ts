@@ -33,5 +33,33 @@ describe('wizard', () => {
     expect(r.code).toBe(0)
     expect(r.stdout).toContain('Wizard persona: dev')
   })
+
+  it('reports missing creds when persona requires cloud providers', async () => {
+    const prev = { o: process.env.OPENAI_API_KEY, a: process.env.ANTHROPIC_API_KEY, g: process.env.GITHUB_TOKEN }
+    delete process.env.OPENAI_API_KEY
+    delete process.env.ANTHROPIC_API_KEY
+    delete process.env.GITHUB_TOKEN
+    try {
+      const io = fakeIo()
+      const r = await route(['wizard', '--persona', 'dev'], io)
+      expect(r.code).toBe(0)
+      expect(r.stdout).toContain('Credential check')
+      expect(r.stdout).toContain('MISSING')
+      expect(r.stdout).toContain('openai')
+    } finally {
+      if (prev.o !== undefined) process.env.OPENAI_API_KEY = prev.o
+      if (prev.a !== undefined) process.env.ANTHROPIC_API_KEY = prev.a
+      if (prev.g !== undefined) process.env.GITHUB_TOKEN = prev.g
+    }
+  })
+
+  it('skips cloud creds under --air-gap', async () => {
+    const io = fakeIo()
+    const r = await route(['wizard', '--persona', 'dev', '--air-gap'], io)
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('Credential check')
+    expect(r.stdout).not.toContain('MISSING')
+    expect(r.stdout).toContain('skipped')
+  })
 })
 

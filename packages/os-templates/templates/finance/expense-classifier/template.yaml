@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "expense-classifier-workspace",
+    "name": "Expense Classifier Workspace",
+    "tags": [
+      "finance"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "expense-classifier-lead",
+      "name": "Expense Classifier Lead",
+      "systemPrompt": "Classifies expenses and identifies missing receipts or policy concerns. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "expense-classifier-reviewer",
+      "name": "Expense Classifier Reviewer",
+      "systemPrompt": "Classifies expenses and identifies missing receipts or policy concerns. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "expense-classifier-judge",
+      "name": "Expense Classifier Judge",
+      "systemPrompt": "Classifies expenses and identifies missing receipts or policy concerns. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "expense-classifier-flow",
+      "name": "Expense Classifier Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "invoice.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "expense-classifier-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "expense-classifier-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Expense Classifier before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "approval.request"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "finance"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "expense-classifier-trigger",
+      "name": "Expense Classifier Trigger",
+      "flow": "expense-classifier-flow",
+      "enabled": true,
+      "tags": [
+        "finance"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:expense-classifier"
+    }
+  ]
+}

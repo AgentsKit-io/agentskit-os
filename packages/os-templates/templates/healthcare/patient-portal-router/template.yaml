@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "patient-portal-router-workspace",
+    "name": "Patient Portal Router Workspace",
+    "tags": [
+      "healthcare"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": true
+  },
+  "agents": [
+    {
+      "id": "patient-portal-router-lead",
+      "name": "Patient Portal Router Lead",
+      "systemPrompt": "Routes patient portal messages to scheduling, billing, nurse, or provider queues. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "patient-portal-router-reviewer",
+      "name": "Patient Portal Router Reviewer",
+      "systemPrompt": "Routes patient portal messages to scheduling, billing, nurse, or provider queues. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "patient-portal-router-judge",
+      "name": "Patient Portal Router Judge",
+      "systemPrompt": "Routes patient portal messages to scheduling, billing, nurse, or provider queues. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "patient-portal-router-flow",
+      "name": "Patient Portal Router Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "ehr.message.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "patient-portal-router-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "patient-portal-router-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Patient Portal Router before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "clinician.route"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "healthcare"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "patient-portal-router-trigger",
+      "name": "Patient Portal Router Trigger",
+      "flow": "patient-portal-router-flow",
+      "enabled": true,
+      "tags": [
+        "healthcare"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/patient-portal-router",
+      "method": "POST"
+    }
+  ]
+}

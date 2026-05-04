@@ -1,0 +1,29 @@
+{
+  "id": "kb-grounded-answer",
+  "name": "Kb Grounded Answer",
+  "intent": "Answers customer questions using a knowledge-base lookup before drafting.",
+  "category": "customer-support",
+  "tags": [
+    "customer-support",
+    "kb",
+    "grounded",
+    "answer"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "kb-grounded-answer-lead",
+    "kb-grounded-answer-reviewer"
+  ],
+  "primaryTools": [
+    "zendesk.ticket.read",
+    "zendesk.ticket.update",
+    "kb.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

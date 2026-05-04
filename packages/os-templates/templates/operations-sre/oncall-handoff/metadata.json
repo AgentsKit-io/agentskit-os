@@ -1,0 +1,28 @@
+{
+  "id": "oncall-handoff",
+  "name": "Oncall Handoff",
+  "intent": "Builds a concise on-call handoff from alerts, incidents, and pending tasks.",
+  "category": "operations-sre",
+  "tags": [
+    "operations-sre",
+    "oncall",
+    "handoff"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "oncall-handoff-lead",
+    "oncall-handoff-reviewer"
+  ],
+  "primaryTools": [
+    "alerts.list",
+    "runbook.read",
+    "pagerduty.note"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

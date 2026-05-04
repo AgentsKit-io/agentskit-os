@@ -1,0 +1,28 @@
+{
+  "id": "email-triage",
+  "name": "Email Triage",
+  "intent": "Classifies email, drafts replies, and creates follow-up tasks.",
+  "category": "personal-productivity",
+  "tags": [
+    "personal-productivity",
+    "email",
+    "triage"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "email-triage-lead",
+    "email-triage-reviewer"
+  ],
+  "primaryTools": [
+    "gmail.search",
+    "calendar.read",
+    "tasks.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

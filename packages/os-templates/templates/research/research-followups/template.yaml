@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "research-followups-workspace",
+    "name": "Research Followups Workspace",
+    "tags": [
+      "research"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "research-followups-lead",
+      "name": "Research Followups Lead",
+      "systemPrompt": "Turns research notes into follow-up questions and next experiments. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "research-followups-reviewer",
+      "name": "Research Followups Reviewer",
+      "systemPrompt": "Turns research notes into follow-up questions and next experiments. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "research-followups-judge",
+      "name": "Research Followups Judge",
+      "systemPrompt": "Turns research notes into follow-up questions and next experiments. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "research-followups-flow",
+      "name": "Research Followups Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "fetch-url"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "research-followups-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "research-followups-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "citation.lookup"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "research"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "research-followups-trigger",
+      "name": "Research Followups Trigger",
+      "flow": "research-followups-flow",
+      "enabled": true,
+      "tags": [
+        "research"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cron",
+      "cron": "0 9 * * 1",
+      "timezone": "UTC"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "oncall-helper",
+  "name": "Oncall Helper",
+  "intent": "Summarizes an engineering incident and prepares the handoff for the next responder.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "oncall",
+    "helper"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "oncall-helper-lead",
+    "oncall-helper-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "consent-checker",
+  "name": "Consent Checker",
+  "intent": "Checks whether a workflow has consent before processing sensitive health data.",
+  "category": "healthcare",
+  "tags": [
+    "healthcare",
+    "consent",
+    "checker"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "consent-checker-lead",
+    "consent-checker-reviewer"
+  ],
+  "primaryTools": [
+    "ehr.message.read",
+    "pii.redact",
+    "clinician.route"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

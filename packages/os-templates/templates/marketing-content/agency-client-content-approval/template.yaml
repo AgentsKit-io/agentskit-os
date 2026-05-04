@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "agency-client-content-approval-workspace",
+    "name": "Agency Client Content Approval Workspace",
+    "tags": [
+      "marketing-content"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "agency-client-content-approval-lead",
+      "name": "Agency Client Content Approval Lead",
+      "systemPrompt": "Drafts content, checks brand voice, and routes the result for client approval. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "agency-client-content-approval-reviewer",
+      "name": "Agency Client Content Approval Reviewer",
+      "systemPrompt": "Drafts content, checks brand voice, and routes the result for client approval. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "agency-client-content-approval-judge",
+      "name": "Agency Client Content Approval Judge",
+      "systemPrompt": "Drafts content, checks brand voice, and routes the result for client approval. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "agency-client-content-approval-flow",
+      "name": "Agency Client Content Approval Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "brand.kit.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "agency-client-content-approval-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "agency-client-content-approval-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Agency Client Content Approval before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "slack.send"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "marketing-content"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "agency-client-content-approval-trigger",
+      "name": "Agency Client Content Approval Trigger",
+      "flow": "agency-client-content-approval-flow",
+      "enabled": true,
+      "tags": [
+        "marketing-content"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "slack",
+      "channel": "#agentskit-os",
+      "event": "message"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "schema-discoverer",
+  "name": "Schema Discoverer",
+  "intent": "Infers a dataset schema and highlights quality issues.",
+  "category": "data-pipelines",
+  "tags": [
+    "data-pipelines",
+    "schema",
+    "discoverer"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "schema-discoverer-lead",
+    "schema-discoverer-reviewer"
+  ],
+  "primaryTools": [
+    "storage.read",
+    "sql.preview",
+    "warehouse.load"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cdc",
+  "stability": "ready"
+}

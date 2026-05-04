@@ -1,17 +1,7 @@
 import type { Template, TemplateCategory } from './types.js'
-import { prReviewTemplate } from './templates/pr-review.js'
-import { marketing3WayTemplate } from './templates/marketing-3way.js'
-import { researchSummaryTemplate } from './templates/research-summary.js'
-import { supportTriageTemplate } from './templates/support-triage.js'
-import { clinicalConsensusTemplate } from './templates/clinical-consensus.js'
+import { builtInTemplates, TEMPLATES } from './gallery.js'
 
-export const builtInTemplates: readonly Template[] = [
-  prReviewTemplate,
-  marketing3WayTemplate,
-  researchSummaryTemplate,
-  supportTriageTemplate,
-  clinicalConsensusTemplate,
-]
+export { builtInTemplates, TEMPLATES }
 
 export const findTemplate = (
   id: string,

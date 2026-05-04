@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
+import { AgentsScreen } from './screens/agents'
 import { Dashboard } from './screens/dashboard'
 import { RunsScreen } from './screens/runs'
 import { TracesScreen } from './screens/traces'
@@ -113,8 +114,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'agents',
         label: 'Agents',
         icon: '◎',
-        status: 'preview',
-        description: 'Agent registry, ownership, versions, and governance need a production provider before promotion.',
+        status: 'supported',
       },
       {
         id: 'hitl',
@@ -395,8 +395,9 @@ function AppShell({
           {activeScreen === 'dashboard' && <Dashboard />}
           {activeScreen === 'runs' && <RunsScreen />}
           {activeScreen === 'traces' && <TracesScreen />}
+          {activeScreen === 'agents' && <AgentsScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

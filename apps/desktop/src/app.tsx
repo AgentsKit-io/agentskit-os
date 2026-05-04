@@ -52,6 +52,9 @@ import { MultiMonitorPanel } from './multi-monitor/multi-monitor-panel'
 import { CustomWidgetEditor } from './dashboards/custom/custom-widget-editor'
 import { MarketplacePanel } from './dashboards/marketplace/marketplace-panel'
 import { useDashboards } from './dashboards/dashboards-provider'
+import { VoiceProvider, useVoice } from './voice/voice-provider'
+import { VoiceToggle } from './voice/voice-toggle'
+import { VoiceOverlay } from './voice/voice-overlay'
 
 type ActiveScreen = 'dashboard' | 'traces' | 'examples'
 
@@ -116,6 +119,7 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
         <span aria-hidden>Navigation</span>
         <span className="flex items-center gap-1 normal-case tracking-normal">
           <NotificationBell />
+          <VoiceToggle />
           <FocusToggle />
           <Kbd>⌘K</Kbd>
         </span>
@@ -232,6 +236,7 @@ export function App() {
       <ThemeSync />
       {/* Skip-to-content must be the very first focusable element */}
       <SkipToContent targetId="main-content" />
+      <VoiceProvider>
       <PreferencesProvider>
         <StatusLineProvider>
         <ShortcutProvider>
@@ -272,6 +277,7 @@ export function App() {
                           <ArtifactViewer />
                           <ArtifactViewerWirer />
                           <MultiMonitorWirer />
+                          <VoiceWirer />
                           <CustomWidgetWirer />
                           <MarketplaceWirer />
                           <StatusLineConfigWirer />
@@ -290,6 +296,8 @@ export function App() {
         </ShortcutProvider>
         </StatusLineProvider>
       </PreferencesProvider>
+      <VoiceOverlay />
+      </VoiceProvider>
     </ThemeProvider>
   )
 }
@@ -575,4 +583,20 @@ function MarketplaceWirer(): React.JSX.Element | null {
       }}
     />
   )
+}
+
+/** Wires the voice.toggle palette command. */
+function VoiceWirer(): null {
+  const { registerCommand } = useCommandPalette()
+  const { toggle } = useVoice()
+  useEffect(() => {
+    registerCommand({
+      id: 'voice.toggle',
+      label: 'Toggle voice mode',
+      keywords: ['voice', 'mic', 'speech', 'dictate'],
+      category: 'View',
+      run: () => toggle(),
+    })
+  }, [registerCommand, toggle])
+  return null
 }

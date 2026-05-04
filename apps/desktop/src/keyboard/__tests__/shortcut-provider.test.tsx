@@ -49,7 +49,7 @@ describe('ShortcutProvider / useShortcuts', () => {
     }).toThrow('useShortcuts must be used within a ShortcutProvider')
   })
 
-  it('provides all 12 built-in shortcuts', () => {
+  it('provides all 13 built-in shortcuts', () => {
     let ctx: ShortcutContextValue | undefined
 
     const Inspector = () => {
@@ -63,7 +63,7 @@ describe('ShortcutProvider / useShortcuts', () => {
       )
     })
 
-    expect(ctx?.all).toHaveLength(12)
+    expect(ctx?.all).toHaveLength(13)
   })
 
   it('get returns the correct shortcut', () => {

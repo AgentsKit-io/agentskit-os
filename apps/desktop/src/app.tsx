@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { Dashboard } from './screens/dashboard'
+import { RunsScreen } from './screens/runs'
 import { TracesScreen } from './screens/traces'
 import { ExampleScreen } from './example-library/example-screen'
 import { CommandPaletteProvider } from './command-palette/command-palette-provider'
@@ -100,8 +101,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'runs',
         label: 'Runs',
         icon: '◷',
-        status: 'preview',
-        description: 'Run history will connect dashboard activity, trace replay, cost, and trigger metadata.',
+        status: 'supported',
       },
       { id: 'traces', label: 'Traces', icon: '◈', status: 'supported' },
     ],
@@ -393,9 +393,10 @@ function AppShell({
         )}
         <main id="main-content" aria-label="Main content" className="flex flex-1 flex-col overflow-auto">
           {activeScreen === 'dashboard' && <Dashboard />}
+          {activeScreen === 'runs' && <RunsScreen />}
           {activeScreen === 'traces' && <TracesScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'traces' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

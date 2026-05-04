@@ -190,6 +190,20 @@ describe('App ARIA landmarks', () => {
     expect(screen.getByText(/typed graph contracts/i)).toBeInTheDocument()
   })
 
+  it('opens the supported Runs screen from primary navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /runs/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /^runs$/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /run queue/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /runs is in preview/i })).not.toBeInTheDocument()
+  })
+
   it('registers the restart onboarding command in the command palette', async () => {
     localStorage.setItem(
       'agentskitos.onboarding',

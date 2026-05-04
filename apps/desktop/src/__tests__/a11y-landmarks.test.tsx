@@ -288,6 +288,20 @@ describe('App ARIA landmarks', () => {
     expect(screen.queryByRole('heading', { name: /cost & quotas is in preview/i })).not.toBeInTheDocument()
   })
 
+  it('opens the supported Security screen from primary navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /security/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /^security$/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /security controls/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /security is in preview/i })).not.toBeInTheDocument()
+  })
+
   it('registers the restart onboarding command in the command palette', async () => {
     localStorage.setItem(
       'agentskitos.onboarding',
@@ -315,7 +329,6 @@ describe('App ARIA landmarks', () => {
       fireEvent.keyDown(window, { key: 'k', metaKey: true })
     })
 
-    expect(screen.getByText(/go to security/i)).toBeInTheDocument()
     expect(screen.getByText(/go to flows/i)).toBeInTheDocument()
   })
 })

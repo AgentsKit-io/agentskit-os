@@ -15,6 +15,7 @@ import { Dashboard } from './screens/dashboard'
 import { EvalsScreen } from './screens/evals'
 import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
+import { SecurityScreen } from './screens/security'
 import { TracesScreen } from './screens/traces'
 import { TriggersScreen } from './screens/triggers'
 import { ExampleScreen } from './example-library/example-screen'
@@ -165,8 +166,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'security',
         label: 'Security',
         icon: '◇',
-        status: 'preview',
-        description: 'Security center will join policy, audit, vault, and compliance workflows once contracts settle.',
+        status: 'supported',
       },
     ],
   },
@@ -401,8 +401,9 @@ function AppShell({
           {activeScreen === 'evals' && <EvalsScreen />}
           {activeScreen === 'benchmark' && <BenchmarkScreen />}
           {activeScreen === 'cost' && <CostScreen />}
+          {activeScreen === 'security' && <SecurityScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'cost' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'cost' && activeScreen !== 'security' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

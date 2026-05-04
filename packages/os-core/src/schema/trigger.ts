@@ -35,6 +35,25 @@ export const WebhookTrigger = z.object({
     .regex(/^\/[a-zA-Z0-9/_-]*$/, { message: 'must start with / and use alphanumeric/-/_/path-separators' }),
   method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).default('POST'),
   secret: SecretOrPlain.optional(),
+  /**
+   * Optional request signing configuration for inbound webhooks (verify) and outbound webhooks (sign).
+   * This stays intentionally minimal so providers can interop while we iterate on conventions.
+   */
+  signing: z
+    .object({
+      algorithm: z.enum(['hmac-sha256']).default('hmac-sha256'),
+      /**
+       * Signature header with format: `v1=<hex>` where hex is HMAC(secret, `${timestamp}.${body}`).
+       */
+      signatureHeader: z.string().min(1).max(128).default('x-agentskit-signature'),
+      timestampHeader: z.string().min(1).max(128).default('x-agentskit-timestamp'),
+      /**
+       * If set, inbound verification can reject signatures older than this window.
+       * 0 disables the freshness check.
+       */
+      toleranceSeconds: z.number().int().min(0).max(86_400).default(300),
+    })
+    .optional(),
 })
 export type WebhookTrigger = z.infer<typeof WebhookTrigger>
 

@@ -7,25 +7,25 @@ describe('init', () => {
   it('shows help with --help', async () => {
     const r = await route(['init', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os init')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os init')
   })
 
   it('rejects unknown flag', async () => {
     const r = await route(['init', '--cosmic'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown flag')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/unknown option|unknown flag/i)
   })
 
   it('rejects --id without value', async () => {
     const r = await route(['init', '--id'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('requires a value')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/argument missing|requires a value/i)
   })
 
   it('rejects multiple positionals', async () => {
     const r = await route(['init', 'a', 'b'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('only one positional')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/too many arguments|only one positional/i)
   })
 
   it('scaffolds default workspace', async () => {

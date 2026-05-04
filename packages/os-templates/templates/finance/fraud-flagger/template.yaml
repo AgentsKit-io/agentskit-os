@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "fraud-flagger-workspace",
+    "name": "Fraud Flagger Workspace",
+    "tags": [
+      "finance"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "fraud-flagger-lead",
+      "name": "Fraud Flagger Lead",
+      "systemPrompt": "Flags suspicious transactions for review using multiple independent checks. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "fraud-flagger-reviewer",
+      "name": "Fraud Flagger Reviewer",
+      "systemPrompt": "Flags suspicious transactions for review using multiple independent checks. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "fraud-flagger-judge",
+      "name": "Fraud Flagger Judge",
+      "systemPrompt": "Flags suspicious transactions for review using multiple independent checks. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "fraud-flagger-flow",
+      "name": "Fraud Flagger Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "invoice.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "fraud-flagger-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "fraud-flagger-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Fraud Flagger before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "approval.request"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "finance"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "fraud-flagger-trigger",
+      "name": "Fraud Flagger Trigger",
+      "flow": "fraud-flagger-flow",
+      "enabled": true,
+      "tags": [
+        "finance"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:fraud-flagger"
+    }
+  ]
+}

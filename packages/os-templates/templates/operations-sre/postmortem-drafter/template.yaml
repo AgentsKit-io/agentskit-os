@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "postmortem-drafter-workspace",
+    "name": "Postmortem Drafter Workspace",
+    "tags": [
+      "operations-sre"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "postmortem-drafter-lead",
+      "name": "Postmortem Drafter Lead",
+      "systemPrompt": "Drafts a postmortem from incident notes, timeline, and action items. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "postmortem-drafter-reviewer",
+      "name": "Postmortem Drafter Reviewer",
+      "systemPrompt": "Drafts a postmortem from incident notes, timeline, and action items. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "postmortem-drafter-judge",
+      "name": "Postmortem Drafter Judge",
+      "systemPrompt": "Drafts a postmortem from incident notes, timeline, and action items. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "postmortem-drafter-flow",
+      "name": "Postmortem Drafter Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "alerts.list"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "postmortem-drafter-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "postmortem-drafter-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "pagerduty.note"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "operations-sre"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "postmortem-drafter-trigger",
+      "name": "Postmortem Drafter Trigger",
+      "flow": "postmortem-drafter-flow",
+      "enabled": true,
+      "tags": [
+        "operations-sre"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/postmortem-drafter",
+      "method": "POST"
+    }
+  ]
+}

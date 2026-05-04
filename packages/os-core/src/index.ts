@@ -264,7 +264,6 @@ export {
   parseTelemetryConfig,
   safeParseTelemetryConfig,
 } from './obs/telemetry.js'
-
 export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 
@@ -321,6 +320,20 @@ export {
   safeParseEgressPolicy,
 } from './security/egress.js'
 export type { EgressGrant, EgressDecision } from './security/egress.js'
+
+export {
+  computeWebhookSignature,
+  formatWebhookSignatureHeader,
+  parseWebhookSignatureHeader,
+  signWebhookRequest,
+  verifyWebhookRequest,
+} from './security/webhook-signing.js'
+export type {
+  WebhookHmacAlgorithm,
+  WebhookSignature,
+  WebhookSigningConfig,
+  WebhookVerifyDecision,
+} from './security/webhook-signing.js'
 
 export {
   AirGapPolicy,

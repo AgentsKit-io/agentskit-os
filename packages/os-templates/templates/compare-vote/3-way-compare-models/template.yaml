@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "3-way-compare-models-workspace",
+    "name": "Three Way Compare Models Workspace",
+    "tags": [
+      "compare-vote"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "3-way-compare-models-lead",
+      "name": "Three Way Compare Models Lead",
+      "systemPrompt": "Runs three model agents on the same task and compares the outputs. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "3-way-compare-models-reviewer",
+      "name": "Three Way Compare Models Reviewer",
+      "systemPrompt": "Runs three model agents on the same task and compares the outputs. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "3-way-compare-models-judge",
+      "name": "Three Way Compare Models Judge",
+      "systemPrompt": "Runs three model agents on the same task and compares the outputs. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "3-way-compare-models-flow",
+      "name": "Three Way Compare Models Flow",
+      "entry": "compare",
+      "nodes": [
+        {
+          "id": "compare",
+          "kind": "compare",
+          "agents": [
+            "3-way-compare-models-lead",
+            "3-way-compare-models-reviewer",
+            "3-way-compare-models-judge"
+          ],
+          "selection": {
+            "mode": "judge",
+            "judgeAgent": "3-way-compare-models-judge",
+            "criteria": "Completeness, correctness, and actionability."
+          }
+        },
+        {
+          "id": "report",
+          "kind": "tool",
+          "tool": "report.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "compare",
+          "to": "report"
+        }
+      ],
+      "tags": [
+        "compare-vote"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "3-way-compare-models-trigger",
+      "name": "Three Way Compare Models Trigger",
+      "flow": "3-way-compare-models-flow",
+      "enabled": true,
+      "tags": [
+        "compare-vote"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/3-way-compare-models",
+      "method": "POST"
+    }
+  ]
+}

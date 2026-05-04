@@ -165,8 +165,6 @@ export const wizard: CliCommand = {
       .map((p) => checkProviderKeys(p, present, { airGapped: args.airGap }))
     const credSummary = renderCredSummary(credResults)
 
-    const telemetryLine = await maybePromptTelemetry(io, args.dir ?? '.')
-
     const lines = [
       `Wizard persona: ${persona}`,
       `Template: ${templateId}`,
@@ -174,37 +172,10 @@ export const wizard: CliCommand = {
       res.stdout.trimEnd(),
       ``,
       ...(credSummary ? [credSummary, ``] : []),
-      ...(telemetryLine ? [telemetryLine, ``] : []),
     ]
     return { code: 0, stdout: `${lines.join('\n')}\n`, stderr: '' }
   },
 }
 
-const maybePromptTelemetry = async (io: CliIo, baseDir: string): Promise<string | undefined> => {
-  if (!io.prompt) return undefined
-  const consentPath = `${baseDir}/.agentskitos/telemetry/consent.json`
-  if (await io.exists(consentPath)) return undefined
-  let answer = ''
-  try {
-    answer = (await io.prompt(
-      'Enable anonymous telemetry to help improve AgentsKitOS? Captures verb names, run mode, error codes — never prompts or content. (y/N): ',
-    )).trim().toLowerCase()
-  } catch {
-    return undefined
-  }
-  const enabled = answer === 'y' || answer === 'yes'
-  const installId = enabled
-    ? 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-        const r = (Math.random() * 16) | 0
-        const v = c === 'x' ? r : (r & 0x3) | 0x8
-        return v.toString(16)
-      })
-    : undefined
-  const payload = { state: enabled ? 'enabled' : 'disabled', decidedAt: new Date().toISOString(), ...(installId ? { installId } : {}) }
-  await io.mkdir(`${baseDir}/.agentskitos/telemetry`)
-  await io.writeFile(consentPath, `${JSON.stringify(payload, null, 2)}\n`)
-  return enabled
-    ? 'Telemetry: enabled. Toggle anytime with `agentskit-os telemetry disable`.'
-    : 'Telemetry: disabled. Enable anytime with `agentskit-os telemetry enable`.'
-}
+const maybePromptTelemetry = async (_io: CliIo, _baseDir: string): Promise<string | undefined> => undefined
 

@@ -1,0 +1,28 @@
+{
+  "id": "test-generator",
+  "name": "Test Generator",
+  "intent": "Generates focused unit and integration test cases from a code or feature brief.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "test",
+    "generator"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "test-generator-lead",
+    "test-generator-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

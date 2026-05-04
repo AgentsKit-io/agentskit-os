@@ -1,0 +1,29 @@
+{
+  "id": "sql-from-natural-language",
+  "name": "SQL From Natural Language",
+  "intent": "Drafts SQL from a natural-language request and asks for approval before execution.",
+  "category": "data-pipelines",
+  "tags": [
+    "data-pipelines",
+    "sql",
+    "natural",
+    "language"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "sql-from-natural-language-lead",
+    "sql-from-natural-language-reviewer"
+  ],
+  "primaryTools": [
+    "storage.read",
+    "sql.preview",
+    "warehouse.load"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cdc",
+  "stability": "ready"
+}

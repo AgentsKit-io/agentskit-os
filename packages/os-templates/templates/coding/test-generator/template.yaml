@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "test-generator-workspace",
+    "name": "Test Generator Workspace",
+    "tags": [
+      "coding"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "test-generator-lead",
+      "name": "Test Generator Lead",
+      "systemPrompt": "Generates focused unit and integration test cases from a code or feature brief. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "test-generator-reviewer",
+      "name": "Test Generator Reviewer",
+      "systemPrompt": "Generates focused unit and integration test cases from a code or feature brief. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "test-generator-judge",
+      "name": "Test Generator Judge",
+      "systemPrompt": "Generates focused unit and integration test cases from a code or feature brief. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "test-generator-flow",
+      "name": "Test Generator Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "github.pr.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "test-generator-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "test-generator-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "repo.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "coding"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "test-generator-trigger",
+      "name": "Test Generator Trigger",
+      "flow": "test-generator-flow",
+      "enabled": true,
+      "tags": [
+        "coding"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "github",
+      "repo": "example/repo",
+      "event": "pull_request"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "brand-voice-checker",
+  "name": "Brand Voice Checker",
+  "intent": "Checks copy against tone, banned phrases, and brand requirements.",
+  "category": "marketing-content",
+  "tags": [
+    "marketing-content",
+    "brand",
+    "voice",
+    "checker"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "brand-voice-checker-lead",
+    "brand-voice-checker-reviewer"
+  ],
+  "primaryTools": [
+    "brand.kit.read",
+    "cms.draft",
+    "slack.send"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "slack",
+  "stability": "ready"
+}

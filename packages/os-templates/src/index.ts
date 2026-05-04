@@ -1,5 +1,7 @@
-export type { Template, TemplateCategory } from './types.js'
+export type { Template, TemplateCategory, TemplateMetadata } from './types.js'
+export { TemplateMetadataSchema } from './types.js'
 export {
+  TEMPLATES,
   builtInTemplates,
   findTemplate,
   listTemplates,

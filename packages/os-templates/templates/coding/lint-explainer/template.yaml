@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "lint-explainer-workspace",
+    "name": "Lint Explainer Workspace",
+    "tags": [
+      "coding"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "lint-explainer-lead",
+      "name": "Lint Explainer Lead",
+      "systemPrompt": "Explains linter output and suggests a minimal patch strategy. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "lint-explainer-reviewer",
+      "name": "Lint Explainer Reviewer",
+      "systemPrompt": "Explains linter output and suggests a minimal patch strategy. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "lint-explainer-judge",
+      "name": "Lint Explainer Judge",
+      "systemPrompt": "Explains linter output and suggests a minimal patch strategy. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "lint-explainer-flow",
+      "name": "Lint Explainer Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "github.pr.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "lint-explainer-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "lint-explainer-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "repo.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "coding"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "lint-explainer-trigger",
+      "name": "Lint Explainer Trigger",
+      "flow": "lint-explainer-flow",
+      "enabled": true,
+      "tags": [
+        "coding"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "github",
+      "repo": "example/repo",
+      "event": "pull_request"
+    }
+  ]
+}

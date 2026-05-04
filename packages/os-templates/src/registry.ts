@@ -1,16 +1,60 @@
-import type { Template, TemplateCategory } from './types.js'
-import { prReviewTemplate } from './templates/pr-review.js'
+import type { Template, TemplateCategory, TemplateMetadata } from './types.js'
+import {
+  builtInTemplates as galleryTemplates,
+  TEMPLATES as galleryMetadata,
+} from './gallery.js'
+import { clinicalConsensusTemplate } from './templates/clinical-consensus.js'
 import { marketing3WayTemplate } from './templates/marketing-3way.js'
+import { prReviewTemplate } from './templates/pr-review.js'
 import { researchSummaryTemplate } from './templates/research-summary.js'
 import { supportTriageTemplate } from './templates/support-triage.js'
-import { clinicalConsensusTemplate } from './templates/clinical-consensus.js'
 
-export const builtInTemplates: readonly Template[] = [
+const legacyTemplates = [
   prReviewTemplate,
   marketing3WayTemplate,
   researchSummaryTemplate,
   supportTriageTemplate,
   clinicalConsensusTemplate,
+] as const
+
+const metadataCategoryFor = (category: TemplateCategory): TemplateMetadata['category'] => {
+  if (category === 'clinical') return 'healthcare'
+  if (category === 'support') return 'customer-support'
+  if (category === 'marketing') return 'marketing-content'
+  if (category === 'general') return 'personal-productivity'
+  return category
+}
+
+const metadataForLegacyTemplate = (template: Template): TemplateMetadata => ({
+  id: template.id,
+  name: template.name,
+  intent: template.description,
+  category: metadataCategoryFor(template.category),
+  tags: [...template.tags],
+  estimatedCostUsd: 0.05,
+  estimatedTokens: 4_000,
+  primaryAgents: template.agents.map((agent) => agent.id),
+  primaryTools: template.flows.flatMap((flow) =>
+    flow.nodes.flatMap((node) => (node.kind === 'tool' ? [node.tool] : [])),
+  ),
+  runModesSupported: ['dry_run', 'preview'],
+  triggerKind: template.tags.includes('webhook') ? 'webhook' : 'github',
+  stability: 'ready',
+})
+
+const legacyTemplatesWithMetadata: readonly Template[] = legacyTemplates.map((template) => ({
+  ...template,
+  metadata: metadataForLegacyTemplate(template),
+}))
+
+export const builtInTemplates: readonly Template[] = [
+  ...legacyTemplatesWithMetadata,
+  ...galleryTemplates,
+]
+
+export const TEMPLATES: readonly TemplateMetadata[] = [
+  ...legacyTemplatesWithMetadata.map((template) => template.metadata as TemplateMetadata),
+  ...galleryMetadata,
 ]
 
 export const findTemplate = (

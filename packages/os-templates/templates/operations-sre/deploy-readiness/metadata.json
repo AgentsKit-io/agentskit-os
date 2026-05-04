@@ -1,0 +1,28 @@
+{
+  "id": "deploy-readiness",
+  "name": "Deploy Readiness",
+  "intent": "Checks deployment readiness against tests, incidents, flags, and rollback plan.",
+  "category": "operations-sre",
+  "tags": [
+    "operations-sre",
+    "deploy",
+    "readiness"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "deploy-readiness-lead",
+    "deploy-readiness-reviewer"
+  ],
+  "primaryTools": [
+    "alerts.list",
+    "runbook.read",
+    "pagerduty.note"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

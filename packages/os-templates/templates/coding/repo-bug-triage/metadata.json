@@ -1,0 +1,29 @@
+{
+  "id": "repo-bug-triage",
+  "name": "Repo Bug Triage",
+  "intent": "Classifies incoming bug reports and routes them to the likely owning area.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "repo",
+    "bug",
+    "triage"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "repo-bug-triage-lead",
+    "repo-bug-triage-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "sentiment-aware-reply-workspace",
+    "name": "Sentiment Aware Reply Workspace",
+    "tags": [
+      "customer-support"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "sentiment-aware-reply-lead",
+      "name": "Sentiment Aware Reply Lead",
+      "systemPrompt": "Drafts support replies that match sentiment while staying inside policy. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "sentiment-aware-reply-reviewer",
+      "name": "Sentiment Aware Reply Reviewer",
+      "systemPrompt": "Drafts support replies that match sentiment while staying inside policy. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "sentiment-aware-reply-judge",
+      "name": "Sentiment Aware Reply Judge",
+      "systemPrompt": "Drafts support replies that match sentiment while staying inside policy. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "sentiment-aware-reply-flow",
+      "name": "Sentiment Aware Reply Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "zendesk.ticket.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "sentiment-aware-reply-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "sentiment-aware-reply-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "kb.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "customer-support"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "sentiment-aware-reply-trigger",
+      "name": "Sentiment Aware Reply Trigger",
+      "flow": "sentiment-aware-reply-flow",
+      "enabled": true,
+      "tags": [
+        "customer-support"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/sentiment-aware-reply",
+      "method": "POST"
+    }
+  ]
+}

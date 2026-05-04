@@ -45,6 +45,8 @@ import { SearchOverlay } from './search/search-overlay'
 import { AssistantProvider, useAssistant } from './assistant/assistant-provider'
 import { AssistantOverlay } from './assistant/assistant-overlay'
 import { ForkProvider } from './fork/fork-provider'
+import { ArtifactViewerProvider, useArtifactViewer } from './artifacts/use-artifact-viewer'
+import { ArtifactViewer } from './artifacts/artifact-viewer'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -236,6 +238,7 @@ export function App() {
                       <FocusProvider>
                         <AssistantProvider>
                           <ForkProvider>
+                          <ArtifactViewerProvider>
                           <NotificationCommandBridge onAnnounce={setAnnouncement} />
                           <ShortcutWirer />
                           <PreferencesWirer />
@@ -255,7 +258,10 @@ export function App() {
                           <NotificationPanel />
                           <SearchOverlay />
                           <AssistantOverlay />
+                          <ArtifactViewer />
+                          <ArtifactViewerWirer />
                           <StatusLineConfigWirer />
+                          </ArtifactViewerProvider>
                           </ForkProvider>
                         </AssistantProvider>
                       </FocusProvider>
@@ -450,5 +456,23 @@ function AssistantWirer(): null {
       },
     })
   }, [registerCommand, isOpen, close])
+  return null
+}
+
+/** Wires the "artifact-viewer.toggle" palette command. */
+function ArtifactViewerWirer(): null {
+  const { registerCommand } = useCommandPalette()
+  const { close, current } = useArtifactViewer()
+  useEffect(() => {
+    registerCommand({
+      id: 'artifact-viewer.toggle',
+      label: 'Toggle artifact viewer',
+      keywords: ['artifact', 'viewer', 'fullscreen'],
+      category: 'View',
+      run: () => {
+        if (current) close()
+      },
+    })
+  }, [registerCommand, current, close])
   return null
 }

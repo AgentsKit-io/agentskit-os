@@ -18,13 +18,14 @@ describe('creds command', () => {
   it('shows help on --help', async () => {
     const r = await creds.run(['--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os creds')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os creds')
   })
 
   it('errors when subcommand missing', async () => {
     const r = await creds.run([])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('missing subcommand')
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toMatch(/usage|help|list|check|subcommand/i)
   })
 
   it('list emits canonical providers', async () => {

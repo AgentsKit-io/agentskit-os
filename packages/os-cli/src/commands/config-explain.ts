@@ -1,61 +1,58 @@
+import { Command } from 'commander'
 import { buildProvenance, mergeLayers, CONFIG_LAYERS } from '@agentskit/os-core/config/merge'
 import type { ConfigLayer } from '@agentskit/os-core'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 import { loadConfigFile } from '../loader.js'
 
-const help = `agentskit-os config explain [--<layer> <path>]...
+const LAYER_OPTS: readonly { layer: ConfigLayer; desc: string }[] = [
+  { layer: 'defaults', desc: 'defaults layer config path' },
+  { layer: 'global', desc: 'global layer config path' },
+  { layer: 'workspace', desc: 'workspace layer config path' },
+  { layer: 'env', desc: 'env layer config path' },
+  { layer: 'runtime', desc: 'runtime layer config path' },
+]
 
-Loads zero or more config files keyed by layer (defaults, global, workspace, env, runtime),
-merges them per ADR-0003 precedence, and prints which layer set each leaf value.
+const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('config explain')
+    .description(
+      'agentskit-os config explain — Show which config layer set each leaf value (ADR-0003 merge provenance).',
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
 
-Example:
-  agentskit-os config explain \\
-    --defaults defaults.yaml \\
-    --workspace agentskit-os.config.yaml \\
-    --env env.yaml
-
-Exit codes: 0 ok, 1 parse error, 2 usage error, 3 read error.
-`
-
-const parseArgs = (
-  argv: readonly string[],
-): { layers: Partial<Record<ConfigLayer, string>>; usage?: string } => {
-  const layers: Partial<Record<ConfigLayer, string>> = {}
-  let i = 0
-  while (i < argv.length) {
-    const flag = argv[i]
-    if (flag === '--help' || flag === '-h') return { layers, usage: 'help' }
-    if (!flag?.startsWith('--')) return { layers, usage: `unexpected token "${flag}"` }
-    const layer = flag.slice(2) as ConfigLayer
-    if (!CONFIG_LAYERS.includes(layer)) {
-      return { layers, usage: `unknown layer "${layer}" (valid: ${CONFIG_LAYERS.join(', ')})` }
-    }
-    const value = argv[i + 1]
-    if (!value || value.startsWith('--')) {
-      return { layers, usage: `--${layer} requires a path argument` }
-    }
-    layers[layer] = value
-    i += 2
+  for (const { layer, desc } of LAYER_OPTS) {
+    program.option(`--${layer} <path>`, desc)
   }
-  return { layers }
-}
 
-export const configExplain: CliCommand = {
-  name: 'config explain',
-  summary: 'Show which config layer set each leaf value (uses buildProvenance)',
-  run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const { layers, usage } = parseArgs(argv)
-    if (usage === 'help') return { code: 2, stdout: '', stderr: help }
-    if (usage) return { code: 2, stdout: '', stderr: `error: ${usage}\n\n${help}` }
-    if (Object.keys(layers).length === 0) return { code: 2, stdout: '', stderr: help }
+  program.action(async (opts: Record<string, unknown>) => {
+    const layers: Partial<Record<ConfigLayer, string>> = {}
+    for (const layer of CONFIG_LAYERS) {
+      const v = opts[layer]
+      if (typeof v === 'string' && v.length > 0) {
+        layers[layer] = v
+      }
+    }
+    if (Object.keys(layers).length === 0) {
+      program.error(
+        'error: specify at least one layer path (e.g. --workspace agentskit-os.config.yaml). Use --help for full usage.',
+        { exitCode: 2 },
+      )
+    }
 
     const inputs: Partial<Record<ConfigLayer, unknown>> = {}
     for (const layer of CONFIG_LAYERS) {
       const path = layers[layer]
       if (!path) continue
       const loaded = await loadConfigFile(io, path)
-      if (!loaded.ok) return { code: loaded.code, stdout: '', stderr: loaded.message }
+      if (!loaded.ok) {
+        result.current = { code: loaded.code, stdout: '', stderr: loaded.message }
+        return
+      }
       inputs[layer] = loaded.value
     }
 
@@ -65,10 +62,25 @@ export const configExplain: CliCommand = {
     const sortedKeys = [...prov.keys()].sort()
     const lines = sortedKeys.map((k) => `  ${k.padEnd(48)} ← ${prov.get(k)?.layer}`)
 
-    return {
+    result.current = {
       code: 0,
       stdout: `merged config (${sortedKeys.length} leaf${sortedKeys.length === 1 ? '' : 's'}):\n${lines.join('\n')}\n\n--- merged value ---\n${JSON.stringify(merged, null, 2)}\n`,
       stderr: '',
     }
+  })
+
+  return { program, result }
+}
+
+export const configExplain: CliCommand = {
+  name: 'config explain',
+  summary: 'Show which config layer set each leaf value (uses buildProvenance)',
+  run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
+    const { program, result } = buildProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
+    }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

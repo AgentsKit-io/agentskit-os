@@ -73,7 +73,7 @@ const parseArgs = (argv: readonly string[]): Args => {
 const select = (args: Args): readonly ProviderRequirement[] => {
   let pool = filterProviders(BUILTIN_PROVIDERS, {
     airGapped: args.airGap,
-    kinds: args.kinds.length > 0 ? (args.kinds as ProviderRequirement['kind'][]) : undefined,
+    ...(args.kinds.length > 0 ? { kinds: args.kinds as ProviderRequirement['kind'][] } : {}),
   })
   if (args.providers.length > 0) {
     const keep = new Set(args.providers)

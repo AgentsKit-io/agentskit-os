@@ -72,7 +72,8 @@ const runCredChecks = (opts: DoctorCredOpts = {}): readonly ProviderCheckResult[
   const present = presentEnvKeys(opts.envPrefix ?? 'AGENTSKITOS_', process.env)
   const ids = opts.providers
   const pool = ids ? BUILTIN_PROVIDERS.filter((p) => ids.includes(p.id)) : BUILTIN_PROVIDERS
-  return pool.map((p) => checkProviderKeys(p, present, { airGapped: opts.airGapped }))
+  const checkOpts = opts.airGapped !== undefined ? { airGapped: opts.airGapped } : {}
+  return pool.map((p) => checkProviderKeys(p, present, checkOpts))
 }
 
 const MIN_NODE_MAJOR = 22

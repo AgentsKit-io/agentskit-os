@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-flow",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "AgentsKitOS flow DAG executor — durable, cycle-safe, run-mode-aware.",
   "keywords": [
     "agentskit",

@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { AgentsScreen } from './screens/agents'
+import { BenchmarkScreen } from './screens/benchmark'
 import { Dashboard } from './screens/dashboard'
 import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
@@ -146,8 +147,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'benchmark',
         label: 'Benchmark',
         icon: '✦',
-        status: 'preview',
-        description: 'Benchmark arena will compare models/agents on completeness, cost, duration, and regressions.',
+        status: 'supported',
       },
     ],
   },
@@ -398,8 +398,9 @@ function AppShell({
           {activeScreen === 'agents' && <AgentsScreen />}
           {activeScreen === 'hitl' && <HitlScreen />}
           {activeScreen === 'triggers' && <TriggersScreen />}
+          {activeScreen === 'benchmark' && <BenchmarkScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'benchmark' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

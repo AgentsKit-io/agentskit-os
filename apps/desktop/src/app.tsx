@@ -39,6 +39,8 @@ import { ThemeEditorPanel } from './theme-editor/theme-editor-panel'
 import { SnapshotPanel } from './snapshot/snapshot-panel'
 import { NotificationPreferencesProvider } from './notifications/preferences/notification-preferences-provider'
 import { NotificationPreferencesPanel } from './notifications/preferences/preferences-panel'
+import { SearchProvider, useSearch } from './search/search-provider'
+import { SearchOverlay } from './search/search-overlay'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -225,24 +227,28 @@ export function App() {
                     onNavigate={handleNavigate}
                     onClearEventFeed={handleClearEventFeed}
                   >
-                    <FocusProvider>
-                      <NotificationCommandBridge onAnnounce={setAnnouncement} />
-                      <ShortcutWirer />
-                      <PreferencesWirer />
-                      <ThemeEditorWirer />
-                      <SnapshotWirer />
-                      <NotificationPrefsWirer />
-                      <AppShell
-                        activeScreen={activeScreen}
-                        setActiveScreen={setActiveScreen}
-                        serviceBanner={serviceBanner}
-                        setServiceBanner={setServiceBanner}
-                        announcement={announcement}
-                      />
-                      <CommandPalette />
-                      <NotificationPanel />
-                      <StatusLineConfigWirer />
-                    </FocusProvider>
+                    <SearchProvider>
+                      <FocusProvider>
+                        <NotificationCommandBridge onAnnounce={setAnnouncement} />
+                        <ShortcutWirer />
+                        <PreferencesWirer />
+                        <ThemeEditorWirer />
+                        <SnapshotWirer />
+                        <NotificationPrefsWirer />
+                        <SearchWirer />
+                        <AppShell
+                          activeScreen={activeScreen}
+                          setActiveScreen={setActiveScreen}
+                          serviceBanner={serviceBanner}
+                          setServiceBanner={setServiceBanner}
+                          announcement={announcement}
+                        />
+                        <CommandPalette />
+                        <NotificationPanel />
+                        <SearchOverlay />
+                        <StatusLineConfigWirer />
+                      </FocusProvider>
+                    </SearchProvider>
                   </CommandPaletteProvider>
                   <OnboardingTour />
                 </OnboardingProvider>
@@ -397,4 +403,20 @@ function SnapshotWirer(): React.JSX.Element | null {
     })
   }, [registerCommand])
   return <SnapshotPanel isOpen={open} onClose={() => setOpen(false)} />
+}
+
+/** Registers the "search.open" palette command for the global fuzzy search. */
+function SearchWirer(): null {
+  const { registerCommand } = useCommandPalette()
+  const { open } = useSearch()
+  useEffect(() => {
+    registerCommand({
+      id: 'search.open',
+      label: 'Search everything',
+      keywords: ['search', 'find', 'everything', 'fuzzy'],
+      category: 'Navigation',
+      run: () => open(),
+    })
+  }, [registerCommand, open])
+  return null
 }

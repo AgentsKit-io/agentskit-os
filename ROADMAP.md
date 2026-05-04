@@ -102,3 +102,7 @@ Carbon-aware scheduler. Evolutionary/genetic agent loop. Mobile companion (RN). 
 
 This repo started with a 12-epic / 123-issue snapshot (see [`docs/EPICS.md`](./docs/EPICS.md)).
 The live roadmap is now tracked in the GitHub Project board (250+ items) at `https://github.com/orgs/AgentsKit-io/projects/2/views/1`.
+
+## Release Readiness
+
+Alpha / Beta / GA gates: [`docs/RELEASE-GATES.md`](./docs/RELEASE-GATES.md).

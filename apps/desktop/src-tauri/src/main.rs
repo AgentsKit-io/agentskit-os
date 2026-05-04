@@ -3,6 +3,7 @@
 
 mod sidecar;
 mod tray;
+mod windows;
 
 use tauri::{Emitter, Manager, WindowEvent};
 
@@ -39,7 +40,12 @@ fn main() {
                 // close behaviour proceed (app exits normally).
             }
         })
-        .invoke_handler(tauri::generate_handler![])
+        .invoke_handler(tauri::generate_handler![
+            windows::list_monitors,
+            windows::open_window,
+            windows::close_window,
+            windows::save_window_layout,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

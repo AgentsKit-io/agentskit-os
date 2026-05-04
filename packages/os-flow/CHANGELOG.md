@@ -1,5 +1,13 @@
 # @agentskit/os-flow
 
+## 1.0.0-alpha.2
+
+### Patch Changes
+
+- d8d295c: Add live debugger primitives for flow runs: breakpoints pause before node
+  execution, mock outcomes can replace handlers, and step mode supports
+  node-by-node execution with seeded outcomes.
+
 ## 1.0.0-alpha.1
 
 ### Patch Changes

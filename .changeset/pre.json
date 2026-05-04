@@ -50,6 +50,7 @@
     "desktop-tray-service",
     "desktop-voice-mode",
     "desktop-workspace-switcher",
+    "live-debugger-primitives",
     "m1-adr-0014-distribution",
     "m1-cli-deploy",
     "m1-cli-import",

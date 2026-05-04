@@ -15,7 +15,10 @@ import { deploy } from './commands/deploy.js'
 import { version } from './commands/version.js'
 import { sync } from './commands/sync.js'
 import { agentPromote } from './commands/agent-promote.js'
+import { agentRegister } from './commands/agent-register.js'
+import { agentList } from './commands/agent-list.js'
 import { creds } from './commands/creds.js'
+import { telemetry } from './commands/telemetry.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
@@ -32,8 +35,11 @@ export const COMMANDS: readonly CliCommand[] = [
   configDiff,
   configMigrate,
   doctor,
+  agentRegister,
+  agentList,
   agentPromote,
   creds,
+  telemetry,
   version,
 ]
 

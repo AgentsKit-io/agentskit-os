@@ -43,6 +43,8 @@ export default defineConfig({
     'src/runtime/adapter-fallback.ts',
     'src/runtime/workspace-paths.ts',
     'src/runtime/agent-lifecycle.ts',
+    'src/runtime/agent-registry-store.ts',
+    'src/obs/telemetry.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

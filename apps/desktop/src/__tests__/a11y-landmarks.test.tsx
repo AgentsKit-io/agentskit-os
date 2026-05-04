@@ -218,6 +218,34 @@ describe('App ARIA landmarks', () => {
     expect(screen.queryByRole('heading', { name: /agents is in preview/i })).not.toBeInTheDocument()
   })
 
+  it('opens the supported Triggers screen from primary navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /triggers/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /^triggers$/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /trigger rules/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /triggers is in preview/i })).not.toBeInTheDocument()
+  })
+
+  it('opens the supported HITL Inbox screen from primary navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /hitl inbox/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /hitl inbox/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /human approval inbox/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /hitl inbox is in preview/i })).not.toBeInTheDocument()
+  })
+
   it('registers the restart onboarding command in the command palette', async () => {
     localStorage.setItem(
       'agentskitos.onboarding',
@@ -246,7 +274,7 @@ describe('App ARIA landmarks', () => {
     })
 
     expect(screen.getByText(/go to benchmark/i)).toBeInTheDocument()
-    expect(screen.getByText(/go to triggers/i)).toBeInTheDocument()
+    expect(screen.getByText(/go to evals/i)).toBeInTheDocument()
     expect(screen.getByText(/go to cost & quotas/i)).toBeInTheDocument()
   })
 })

@@ -1,9 +1,11 @@
+import { Command } from 'commander'
 import {
   BUILTIN_PROVIDERS,
   checkProviderKeys,
   PACKAGE_VERSION as OS_CORE_VERSION,
   type ProviderCheckResult,
 } from '@agentskit/os-core'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit } from '../types.js'
 import { CLI_VERSION } from './version.js'
 
@@ -254,20 +256,49 @@ const formatReport = (report: DoctorReport): CliExit => {
   }
 }
 
-const help = `agentskit-os doctor [--live] [--creds] [--air-gap] [--provider <id>] [--env-prefix <pfx>]
+const collectProvider = (value: string, previous: string[]): string[] => [...previous, value]
 
-Diagnoses CLI environment: node version, platform, linked os-core,
-AGENTSKITOS_HOME. Exits 0 when all critical checks pass, 1 otherwise.
+type DoctorCliOpts = {
+  live?: boolean
+  creds?: boolean
+  airGap?: boolean
+  provider: string[]
+  envPrefix?: string
+}
 
-Options:
-  --live              Also run live LLM probe (10s timeout) and sandbox round-trip (5s timeout).
-                      Adapters are injected by the host via createDoctor().
-  --creds             Run credential presence checks against BUILTIN_PROVIDERS.
-                      Reports missing required keys without printing secret values.
-  --air-gap           When combined with --creds, skips cloud providers.
-  --provider <id>     Restrict creds check to one provider id (repeatable).
-  --env-prefix <pfx>  Vault env-var prefix (default AGENTSKITOS_).
-`
+const buildDoctorProgram = (
+  liveOpts?: DoctorLiveOpts,
+): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('doctor')
+    .description(
+      'agentskit-os doctor — Diagnose CLI environment: node version, platform, linked os-core, AGENTSKITOS_HOME. Exits 0 when all critical checks pass, 1 otherwise.',
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .option('--live', 'Also run live LLM probe (10s timeout) and sandbox round-trip (5s timeout). Adapters are injected by the host via createDoctor().')
+    .option('--creds', 'Run credential presence checks against BUILTIN_PROVIDERS (no secret values printed).')
+    .option('--air-gap', 'When combined with --creds, skips cloud providers.')
+    .option('--provider <id>', 'Restrict creds check to one provider id (repeatable).', collectProvider, [])
+    .option('--env-prefix <pfx>', 'Vault env-var prefix (default AGENTSKITOS_).')
+    .action(async (opts: DoctorCliOpts) => {
+      const live = opts.live === true
+      const providers = opts.provider ?? []
+      const credOpts: DoctorCredOpts | false = opts.creds
+        ? {
+            ...(opts.airGap === true ? { airGapped: true } : {}),
+            ...(providers.length > 0 ? { providers } : {}),
+            ...(opts.envPrefix ? { envPrefix: opts.envPrefix } : {}),
+          }
+        : false
+      const report = await runDoctor(live, live ? liveOpts : undefined, credOpts)
+      result.current = formatReport(report)
+    })
+
+  return { program, result }
+}
 
 /**
  * Factory for the doctor command, allowing dependency injection of live
@@ -277,27 +308,12 @@ export const createDoctor = (liveOpts?: DoctorLiveOpts): CliCommand => ({
   name: 'doctor',
   summary: 'Diagnose CLI environment + linked package versions',
   run: async (argv): Promise<CliExit> => {
-    if (argv[0] === '--help' || argv[0] === '-h') {
-      return { code: 2, stdout: '', stderr: help }
+    const { program, result } = buildDoctorProgram(liveOpts)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    const live = argv.includes('--live')
-    const creds = argv.includes('--creds')
-    const airGap = argv.includes('--air-gap')
-
-    const providers: string[] = []
-    let envPrefix: string | undefined
-    for (let i = 0; i < argv.length; i++) {
-      if (argv[i] === '--provider' && argv[i + 1]) { providers.push(argv[i + 1]!); i++ }
-      else if (argv[i] === '--env-prefix' && argv[i + 1]) { envPrefix = argv[i + 1]!; i++ }
-    }
-
-    const credOpts: DoctorCredOpts | false = creds
-      ? { airGapped: airGap, ...(providers.length > 0 ? { providers } : {}), ...(envPrefix ? { envPrefix } : {}) }
-      : false
-
-    const report = await runDoctor(live, live ? liveOpts : undefined, credOpts)
-    return formatReport(report)
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 })
 

@@ -50,7 +50,7 @@ describe('doctor (no --live)', () => {
     const cmd = createDoctor()
     const r = await cmd.run(['--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os doctor')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os doctor')
   })
 
   it('does not include liveChecks in report when --live is absent', async () => {

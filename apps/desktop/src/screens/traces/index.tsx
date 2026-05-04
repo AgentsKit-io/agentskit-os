@@ -17,6 +17,7 @@ import { TraceList } from './trace-list'
 import { SpanTree } from './span-tree'
 import { ReplayButton } from './replay-button'
 import { useTraceSpans } from './use-traces'
+import { ForkButton } from '../../fork/fork-button'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -94,6 +95,9 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
 
           {/* Replay stub */}
           <ReplayButton traceId={traceId} />
+
+          {/* Fork as flow */}
+          <ForkButton traceId={traceId} />
         </div>
       </div>
 

@@ -44,6 +44,7 @@ import { SearchProvider, useSearch } from './search/search-provider'
 import { SearchOverlay } from './search/search-overlay'
 import { AssistantProvider, useAssistant } from './assistant/assistant-provider'
 import { AssistantOverlay } from './assistant/assistant-overlay'
+import { ForkProvider } from './fork/fork-provider'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -234,6 +235,7 @@ export function App() {
                     <SearchProvider>
                       <FocusProvider>
                         <AssistantProvider>
+                          <ForkProvider>
                           <NotificationCommandBridge onAnnounce={setAnnouncement} />
                           <ShortcutWirer />
                           <PreferencesWirer />
@@ -254,6 +256,7 @@ export function App() {
                           <SearchOverlay />
                           <AssistantOverlay />
                           <StatusLineConfigWirer />
+                          </ForkProvider>
                         </AssistantProvider>
                       </FocusProvider>
                     </SearchProvider>

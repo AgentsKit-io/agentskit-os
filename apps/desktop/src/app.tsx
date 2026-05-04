@@ -41,6 +41,8 @@ import { NotificationPreferencesProvider } from './notifications/preferences/not
 import { NotificationPreferencesPanel } from './notifications/preferences/preferences-panel'
 import { SearchProvider, useSearch } from './search/search-provider'
 import { SearchOverlay } from './search/search-overlay'
+import { AssistantProvider, useAssistant } from './assistant/assistant-provider'
+import { AssistantOverlay } from './assistant/assistant-overlay'
 
 type ActiveScreen = 'dashboard' | 'traces'
 
@@ -229,24 +231,28 @@ export function App() {
                   >
                     <SearchProvider>
                       <FocusProvider>
-                        <NotificationCommandBridge onAnnounce={setAnnouncement} />
-                        <ShortcutWirer />
-                        <PreferencesWirer />
-                        <ThemeEditorWirer />
-                        <SnapshotWirer />
-                        <NotificationPrefsWirer />
-                        <SearchWirer />
-                        <AppShell
-                          activeScreen={activeScreen}
-                          setActiveScreen={setActiveScreen}
-                          serviceBanner={serviceBanner}
-                          setServiceBanner={setServiceBanner}
-                          announcement={announcement}
-                        />
-                        <CommandPalette />
-                        <NotificationPanel />
-                        <SearchOverlay />
-                        <StatusLineConfigWirer />
+                        <AssistantProvider>
+                          <NotificationCommandBridge onAnnounce={setAnnouncement} />
+                          <ShortcutWirer />
+                          <PreferencesWirer />
+                          <ThemeEditorWirer />
+                          <SnapshotWirer />
+                          <NotificationPrefsWirer />
+                          <SearchWirer />
+                          <AssistantWirer />
+                          <AppShell
+                            activeScreen={activeScreen}
+                            setActiveScreen={setActiveScreen}
+                            serviceBanner={serviceBanner}
+                            setServiceBanner={setServiceBanner}
+                            announcement={announcement}
+                          />
+                          <CommandPalette />
+                          <NotificationPanel />
+                          <SearchOverlay />
+                          <AssistantOverlay />
+                          <StatusLineConfigWirer />
+                        </AssistantProvider>
                       </FocusProvider>
                     </SearchProvider>
                   </CommandPaletteProvider>
@@ -418,5 +424,25 @@ function SearchWirer(): null {
       run: () => open(),
     })
   }, [registerCommand, open])
+  return null
+}
+
+/** Registers the "assistant.toggle" palette command for the inline LLM assistant. */
+function AssistantWirer(): null {
+  const { registerCommand } = useCommandPalette()
+  const { close, isOpen } = useAssistant()
+  useEffect(() => {
+    registerCommand({
+      id: 'assistant.toggle',
+      label: 'Toggle inline assistant',
+      keywords: ['assistant', 'llm', 'ai', 'inline', 'prompt', 'suggest'],
+      category: 'View',
+      run: () => {
+        if (isOpen) close()
+        // Opening requires a target element — users open via Cmd+I on a
+        // data-assist-target element; the palette command only closes.
+      },
+    })
+  }, [registerCommand, isOpen, close])
   return null
 }

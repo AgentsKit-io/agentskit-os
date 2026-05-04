@@ -275,6 +275,7 @@ describe('App ARIA landmarks', () => {
 
     expect(screen.getByText(/go to benchmark/i)).toBeInTheDocument()
     expect(screen.getByText(/go to evals/i)).toBeInTheDocument()
+    expect(screen.getByText(/go to hitl inbox/i)).toBeInTheDocument()
     expect(screen.getByText(/go to cost & quotas/i)).toBeInTheDocument()
   })
 })

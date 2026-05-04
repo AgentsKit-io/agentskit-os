@@ -25,6 +25,7 @@ export const defaultIo: CliIo = {
   },
   readdir: async (path) => readdir(path),
   prompt: async (message) => {
+    if (!stdin.isTTY) throw new Error('prompt unavailable')
     const rl = createInterface({ input: stdin, output: stdout })
     try {
       const answer = await rl.question(message)

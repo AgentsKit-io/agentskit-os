@@ -260,6 +260,20 @@ describe('App ARIA landmarks', () => {
     expect(screen.queryByRole('heading', { name: /benchmark is in preview/i })).not.toBeInTheDocument()
   })
 
+  it('opens the supported Evals screen from primary navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /evals/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /^evals$/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /evaluation suites/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /evals is in preview/i })).not.toBeInTheDocument()
+  })
+
   it('registers the restart onboarding command in the command palette', async () => {
     localStorage.setItem(
       'agentskitos.onboarding',
@@ -287,8 +301,8 @@ describe('App ARIA landmarks', () => {
       fireEvent.keyDown(window, { key: 'k', metaKey: true })
     })
 
-    expect(screen.getByText(/go to evals/i)).toBeInTheDocument()
     expect(screen.getByText(/go to cost & quotas/i)).toBeInTheDocument()
     expect(screen.getByText(/go to security/i)).toBeInTheDocument()
+    expect(screen.getByText(/go to flows/i)).toBeInTheDocument()
   })
 })

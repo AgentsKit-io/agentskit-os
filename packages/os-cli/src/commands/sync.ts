@@ -1,6 +1,8 @@
 import { resolve, join } from 'node:path'
+import { Command } from 'commander'
 import { parse as parseYaml } from 'yaml'
 import { parseLockfile, type Lockfile, type PluginLock } from '@agentskit/os-core/lockfile/lock'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 
@@ -93,31 +95,6 @@ export const pnpmSynchronizer: Synchronizer = {
   },
 }
 
-// ---------------------------------------------------------------------------
-// Help text
-// ---------------------------------------------------------------------------
-
-const help = `agentskit-os sync [--check] [--apply] [--plugins-only | --core-only] [--lock <path>]
-
-Keep core/plugins in sync with the workspace lockfile (agentskit-os.lock).
-
-Flags:
-  --check          Report drift only, exit non-zero if out of sync (default)
-  --apply          Install/upgrade packages to match the lockfile, then re-verify
-  --plugins-only   Only check/sync plugin entries
-  --core-only      Only check/sync core package entries
-  --lock <path>    Override lockfile path (default: <cwd>/agentskit-os.lock)
-
-Exit codes:
-  0  in sync
-  1  drift detected / sync error
-  2  usage error
-`
-
-// ---------------------------------------------------------------------------
-// Args
-// ---------------------------------------------------------------------------
-
 type SyncScope = 'all' | 'plugins-only' | 'core-only'
 
 type Args = {
@@ -125,59 +102,13 @@ type Args = {
   check: boolean
   scope: SyncScope
   lockPath?: string
-  usage?: string
 }
-
-const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { apply: false, check: false, scope: 'all' }
-  let i = 0
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--apply') { out.apply = true; i++; continue }
-    if (a === '--check') { out.check = true; i++; continue }
-    if (a === '--plugins-only') {
-      if (out.scope === 'core-only') return { ...out, usage: '--plugins-only and --core-only are mutually exclusive' }
-      out.scope = 'plugins-only'
-      i++
-      continue
-    }
-    if (a === '--core-only') {
-      if (out.scope === 'plugins-only') return { ...out, usage: '--plugins-only and --core-only are mutually exclusive' }
-      out.scope = 'core-only'
-      i++
-      continue
-    }
-    if (a === '--lock') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: '--lock requires a path' }
-      out.lockPath = v
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    return { ...out, usage: `unexpected argument "${a}"` }
-  }
-  return out
-}
-
-// ---------------------------------------------------------------------------
-// runSync — exported for direct use and tests.
-// ---------------------------------------------------------------------------
 
 export type SyncOpts = {
   synchronizer?: Synchronizer
 }
 
-export const runSync = async (
-  argv: readonly string[],
-  io: CliIo,
-  opts: SyncOpts = {},
-): Promise<CliExit> => {
-  const args = parseArgs(argv)
-  if (args.usage === 'help') return { code: 2, stdout: '', stderr: help }
-  if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${help}` }
-
+const executeSync = async (args: Args, io: CliIo, opts: SyncOpts): Promise<CliExit> => {
   const lockPath = args.lockPath
     ? resolve(io.cwd(), args.lockPath)
     : join(io.cwd(), 'agentskit-os.lock')
@@ -310,9 +241,57 @@ export const runSync = async (
   }
 }
 
-// ---------------------------------------------------------------------------
-// CliCommand export
-// ---------------------------------------------------------------------------
+const buildSyncProgram = (io: CliIo, syncOpts: SyncOpts): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('sync')
+    .description(
+      'agentskit-os sync — Check or apply version drift between agentskit-os.lock and installed packages.',
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .option('--apply', 'install/upgrade packages to match the lockfile, then re-verify', false)
+    .option('--check', 'drift-only check (same default behavior when not applying)', false)
+    .option('--plugins-only', 'only plugin entries', false)
+    .option('--core-only', 'only core entries', false)
+    .option('--lock <path>', 'override lockfile path (default ./agentskit-os.lock)')
+    .action(async function (this: Command, commanderOpts: {
+      apply?: boolean
+      check?: boolean
+      pluginsOnly?: boolean
+      coreOnly?: boolean
+      lock?: string
+    }) {
+      if (commanderOpts.pluginsOnly && commanderOpts.coreOnly) {
+        this.error('error: --plugins-only and --core-only are mutually exclusive', { exitCode: 2 })
+      }
+      let scope: SyncScope = 'all'
+      if (commanderOpts.pluginsOnly) scope = 'plugins-only'
+      else if (commanderOpts.coreOnly) scope = 'core-only'
+      const args: Args = {
+        apply: commanderOpts.apply === true,
+        check: commanderOpts.check === true,
+        scope,
+        ...(commanderOpts.lock !== undefined ? { lockPath: commanderOpts.lock } : {}),
+      }
+      result.current = await executeSync(args, io, syncOpts)
+    })
+  return { program, result }
+}
+
+export const runSync = async (
+  argv: readonly string[],
+  io: CliIo,
+  opts: SyncOpts = {},
+): Promise<CliExit> => {
+  const { program, result } = buildSyncProgram(io, opts)
+  const parsed = await runCommander(program, argv)
+  if (parsed.code !== 0) {
+    return parsed
+  }
+  return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
+}
 
 export const sync: CliCommand = {
   name: 'sync',

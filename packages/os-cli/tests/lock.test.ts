@@ -40,7 +40,7 @@ describe('lock', () => {
   it('shows help with --help', async () => {
     const r = await route(['lock', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os lock')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os lock')
   })
 
   it('shows help when no path', async () => {
@@ -51,7 +51,7 @@ describe('lock', () => {
   it('rejects unknown flag', async () => {
     const r = await route(['lock', 'cfg.yaml', '--cosmic'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown flag')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/unknown option|unknown flag/i)
   })
 
   it('generates lockfile next to config', async () => {

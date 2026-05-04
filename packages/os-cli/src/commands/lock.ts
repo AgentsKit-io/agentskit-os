@@ -1,4 +1,5 @@
 import { resolve, dirname, join } from 'node:path'
+import { Command } from 'commander'
 import { stringify as yamlStringify } from 'yaml'
 import { safeParseConfigRoot } from '@agentskit/os-core/schema/config-root'
 import {
@@ -9,59 +10,11 @@ import {
   sha256OfCanonical,
   type Lockfile,
 } from '@agentskit/os-core/lockfile/lock'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 import { loadConfigFile } from '../loader.js'
 import { CLI_VERSION } from './version.js'
-
-const help = `agentskit-os lock <config-path> [--check] [--out <path>]
-
-Generate or refresh agentskit-os.lock for a workspace.
-
-Flags:
-  --check       compare existing lockfile against current config; non-zero exit on drift
-  --out <path>  write to a custom path (default: <config-dir>/agentskit-os.lock)
-
-Exit codes:
-  0  written | check passed | no drift
-  1  invalid config | parse error
-  2  usage error
-  3  read error
-  5  drift detected (--check mode)
-`
-
-type Args = {
-  configPath?: string
-  check: boolean
-  out?: string
-  usage?: string
-}
-
-const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { check: false }
-  let i = 0
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--check') {
-      out.check = true
-      i++
-      continue
-    }
-    if (a === '--out') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: '--out requires a path' }
-      out.out = v
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    if (out.configPath !== undefined) return { ...out, usage: 'only one positional <config-path> allowed' }
-    if (a !== undefined) out.configPath = a
-    i++
-  }
-  return out
-}
 
 const buildLockfile = async (
   configPath: string,
@@ -149,79 +102,107 @@ const sha256SecondHalf = async (s: string): Promise<string> => {
   return (hex + hex).slice(0, 128)
 }
 
+const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('lock')
+    .description(
+      'agentskit-os lock — Generate or verify agentskit-os.lock from a workspace config (RFC-0002).',
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('<configPath>', 'workspace config file path')
+    .option('--check', 'compare existing lockfile against current config; exit non-zero on drift', false)
+    .option('--out <path>', 'write lockfile to this path (default: <config-dir>/agentskit-os.lock)')
+    .action(async (configPath: string, opts: { check?: boolean; out?: string }) => {
+      const loaded = await loadConfigFile(io, configPath)
+      if (!loaded.ok) {
+        result.current = { code: loaded.code, stdout: '', stderr: loaded.message }
+        return
+      }
+
+      const parsed = safeParseConfigRoot(loaded.value)
+      if (!parsed.success) {
+        const lines = parsed.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`)
+        result.current = {
+          code: 1,
+          stdout: '',
+          stderr: `error: invalid config:\n${lines.join('\n')}\n`,
+        }
+        return
+      }
+
+      const next = await buildLockfile(loaded.absolutePath, parsed)
+
+      const outPath = resolve(io.cwd(), opts.out ?? join(dirname(loaded.absolutePath), 'agentskit-os.lock'))
+
+      if (opts.check) {
+        const exists = await io.exists(outPath)
+        if (!exists) {
+          result.current = {
+            code: 5,
+            stdout: '',
+            stderr: `error: lockfile missing at ${outPath} (run \`agentskit-os lock\` to generate)\n`,
+          }
+          return
+        }
+        const raw = await io.readFile(outPath)
+        let prev: Lockfile
+        try {
+          const parsedYaml = (await import('yaml')).parse(raw)
+          prev = parseLockfile(parsedYaml)
+        } catch (err) {
+          result.current = {
+            code: 1,
+            stdout: '',
+            stderr: `error: cannot parse existing lockfile: ${(err as Error).message}\n`,
+          }
+          return
+        }
+
+        const installed = parsed.data.plugins.map((p) => ({ id: p.id, version: p.version }))
+        const drift = detectLockDrift({
+          lock: prev,
+          currentConfigHash: next.workspace.configHash,
+          installedPlugins: installed,
+        })
+        if (drift.length === 0) {
+          result.current = { code: 0, stdout: `ok: ${outPath} matches current config\n`, stderr: '' }
+          return
+        }
+        const lines = drift.map((d) => `  - ${d.code}${'id' in d ? `: ${d.id}` : ''}`)
+        result.current = {
+          code: 5,
+          stdout: '',
+          stderr: `error: lockfile drift (${drift.length} issue${drift.length === 1 ? '' : 's'}):\n${lines.join('\n')}\n`,
+        }
+        return
+      }
+
+      const yaml = `# AgentsKitOS lockfile (RFC-0002)\n# Generated by agentskit-os/${CLI_VERSION} — do not edit by hand.\n\n${yamlStringify(JSON.parse(canonicalJson(next)))}`
+      await io.mkdir(dirname(outPath))
+      await io.writeFile(outPath, yaml)
+
+      result.current = {
+        code: 0,
+        stdout: `wrote ${outPath} (workspace=${next.workspace.id}, plugins=${next.plugins.length}, agents=${next.agents.length}, flows=${next.flows.length})\n`,
+        stderr: '',
+      }
+    })
+
+  return { program, result }
+}
+
 export const lock: CliCommand = {
   name: 'lock',
   summary: 'Generate or verify agentskit-os.lock from config',
   run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const args = parseArgs(argv)
-    if (args.usage === 'help') return { code: 2, stdout: '', stderr: help }
-    if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${help}` }
-    if (!args.configPath) return { code: 2, stdout: '', stderr: help }
-
-    const loaded = await loadConfigFile(io, args.configPath)
-    if (!loaded.ok) return { code: loaded.code, stdout: '', stderr: loaded.message }
-
-    const parsed = safeParseConfigRoot(loaded.value)
-    if (!parsed.success) {
-      const lines = parsed.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`)
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: invalid config:\n${lines.join('\n')}\n`,
-      }
+    const { program, result } = buildProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    const next = await buildLockfile(loaded.absolutePath, parsed)
-
-    const outPath = resolve(io.cwd(), args.out ?? join(dirname(loaded.absolutePath), 'agentskit-os.lock'))
-
-    if (args.check) {
-      const exists = await io.exists(outPath)
-      if (!exists) {
-        return {
-          code: 5,
-          stdout: '',
-          stderr: `error: lockfile missing at ${outPath} (run \`agentskit-os lock\` to generate)\n`,
-        }
-      }
-      const raw = await io.readFile(outPath)
-      let prev: Lockfile
-      try {
-        const parsedYaml = (await import('yaml')).parse(raw)
-        prev = parseLockfile(parsedYaml)
-      } catch (err) {
-        return {
-          code: 1,
-          stdout: '',
-          stderr: `error: cannot parse existing lockfile: ${(err as Error).message}\n`,
-        }
-      }
-
-      const installed = parsed.data.plugins.map((p) => ({ id: p.id, version: p.version }))
-      const drift = detectLockDrift({
-        lock: prev,
-        currentConfigHash: next.workspace.configHash,
-        installedPlugins: installed,
-      })
-      if (drift.length === 0) {
-        return { code: 0, stdout: `ok: ${outPath} matches current config\n`, stderr: '' }
-      }
-      const lines = drift.map((d) => `  - ${d.code}${'id' in d ? `: ${d.id}` : ''}`)
-      return {
-        code: 5,
-        stdout: '',
-        stderr: `error: lockfile drift (${drift.length} issue${drift.length === 1 ? '' : 's'}):\n${lines.join('\n')}\n`,
-      }
-    }
-
-    const yaml = `# AgentsKitOS lockfile (RFC-0002)\n# Generated by agentskit-os/${CLI_VERSION} — do not edit by hand.\n\n${yamlStringify(JSON.parse(canonicalJson(next)))}`
-    await io.mkdir(dirname(outPath))
-    await io.writeFile(outPath, yaml)
-
-    return {
-      code: 0,
-      stdout: `wrote ${outPath} (workspace=${next.workspace.id}, plugins=${next.plugins.length}, agents=${next.agents.length}, flows=${next.flows.length})\n`,
-      stderr: '',
-    }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

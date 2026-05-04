@@ -347,7 +347,7 @@ describe('runSync — exit codes', () => {
     const sync = fakeSynchronizer([])
     const r = await runSync(['--help'], io, { synchronizer: sync })
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os sync')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os sync')
   })
 })
 
@@ -356,7 +356,7 @@ describe('router integration', () => {
     const io = fakeIo({})
     const r = await route(['sync', '--help'], io)
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os sync')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os sync')
   })
 
   it('sync appears in help', async () => {

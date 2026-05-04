@@ -7,13 +7,13 @@ describe('agent promote command', () => {
   it('exits 2 with help on --help', async () => {
     const r = await run(['--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agent promote')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/agent promote|agentskit-os agent promote/i)
   })
 
   it('rejects missing --from/--to', async () => {
     const r = await run([])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('--from and --to are required')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/--from|required option/i)
   })
 
   it('reports not_allowed for forbidden edges', async () => {

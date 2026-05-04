@@ -5,6 +5,7 @@ import { configDiff } from './commands/config-diff.js'
 import { configMigrate } from './commands/config-migrate.js'
 import { doctor } from './commands/doctor.js'
 import { init } from './commands/init.js'
+import { wizard } from './commands/wizard.js'
 import { run } from './commands/run.js'
 import { lock } from './commands/lock.js'
 import { importCmd } from './commands/import.js'
@@ -16,6 +17,7 @@ import { sync } from './commands/sync.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
+  wizard,
   newCmd,
   importCmd,
   run,

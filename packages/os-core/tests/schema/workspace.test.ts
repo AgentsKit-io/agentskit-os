@@ -17,6 +17,7 @@ describe('WorkspaceConfig schema', () => {
       }
       const result = parseWorkspaceConfig(input)
       expect(result.id).toBe('team-alpha')
+      expect(result.kind).toBe('personal')
       expect(result.isolation).toBe('strict')
       expect(result.tags).toEqual([])
     })
@@ -26,6 +27,7 @@ describe('WorkspaceConfig schema', () => {
         schemaVersion: 1,
         id: 'agency-1',
         name: 'Agency One',
+        kind: 'team',
         isolation: 'shared',
         dataDir: '/var/lib/agentskitos/agency-1',
         description: 'Marketing agency workspace',
@@ -34,6 +36,18 @@ describe('WorkspaceConfig schema', () => {
       const result = parseWorkspaceConfig(input)
       expect(result.isolation).toBe('shared')
       expect(result.tags).toEqual(['marketing', 'prod'])
+    })
+
+    it('parses client workspace with client ref', () => {
+      const result = parseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'acme',
+        name: 'ACME',
+        kind: 'client',
+        client: { id: 'acme', name: 'ACME' },
+      })
+      expect(result.kind).toBe('client')
+      expect(result.client?.id).toBe('acme')
     })
 
     it('exports schema version constant', () => {
@@ -78,6 +92,27 @@ describe('WorkspaceConfig schema', () => {
         id: 'ok',
         name: 'Ok',
         isolation: 'public',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects client kind without client ref', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        kind: 'client',
+      })
+      expect(result.success).toBe(false)
+    })
+
+    it('rejects client ref when kind is not client', () => {
+      const result = safeParseWorkspaceConfig({
+        schemaVersion: 1,
+        id: 'ok',
+        name: 'Ok',
+        kind: 'team',
+        client: { id: 'c', name: 'C' },
       })
       expect(result.success).toBe(false)
     })

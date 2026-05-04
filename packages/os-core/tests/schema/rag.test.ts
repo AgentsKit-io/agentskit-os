@@ -128,6 +128,24 @@ describe('RagPipeline', () => {
       expect(p.hybridSearch?.enabled).toBe(true)
     })
 
+    it('parses governance policy', () => {
+      const p = parseRagPipeline({
+        ...minimal,
+        governance: {
+          owner: 'team-kb',
+          sensitivity: 'confidential',
+          trust: 'high',
+          freshnessWindowDays: 30,
+          citation: { required: true, allowlist: ['https://kb.example.com/'] },
+          allowedAgents: ['researcher'],
+          onStale: 'warn',
+          minTrustToUse: 'medium',
+        },
+      })
+      expect(p.governance?.owner).toBe('team-kb')
+      expect(p.governance?.citation.required).toBe(true)
+    })
+
     it('parses cron refresh schedule', () => {
       const p = parseRagPipeline({
         ...minimal,

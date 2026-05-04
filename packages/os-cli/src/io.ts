@@ -1,4 +1,6 @@
 import { mkdir, readFile, writeFile, access, readdir } from 'node:fs/promises'
+import { createInterface } from 'node:readline/promises'
+import { stdin, stdout } from 'node:process'
 import type { CliIo } from './types.js'
 
 export const defaultIo: CliIo = {
@@ -22,5 +24,14 @@ export const defaultIo: CliIo = {
     }
   },
   readdir: async (path) => readdir(path),
+  prompt: async (message) => {
+    const rl = createInterface({ input: stdin, output: stdout })
+    try {
+      const answer = await rl.question(message)
+      return answer
+    } finally {
+      rl.close()
+    }
+  },
   cwd: () => process.cwd(),
 }

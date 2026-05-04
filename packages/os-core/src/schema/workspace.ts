@@ -6,6 +6,15 @@ export const SCHEMA_VERSION = 1 as const
 export const WorkspaceIsolation = z.enum(['strict', 'shared'])
 export type WorkspaceIsolation = z.infer<typeof WorkspaceIsolation>
 
+export const WorkspaceKind = z.enum(['personal', 'team', 'client'])
+export type WorkspaceKind = z.infer<typeof WorkspaceKind>
+
+export const ClientRef = z.object({
+  id: Slug,
+  name: z.string().min(1).max(128),
+})
+export type ClientRef = z.infer<typeof ClientRef>
+
 export const WorkspaceLimits = z.object({
   tokensPerRun: z.number().int().positive().max(100_000_000).optional(),
   usdPerRun: z.number().nonnegative().max(1_000_000).optional(),
@@ -36,12 +45,29 @@ export const WorkspaceConfig = z.object({
   schemaVersion: z.literal(SCHEMA_VERSION),
   id: Slug,
   name: z.string().min(1).max(128),
+  kind: WorkspaceKind.default('personal'),
+  client: ClientRef.optional(),
   isolation: WorkspaceIsolation.default('strict'),
   dataDir: z.string().min(1).optional(),
   description: z.string().max(512).optional(),
   tags: TagList.default([]),
   limits: WorkspaceLimits.optional(),
   dataResidency: DataResidencyConfig.optional(),
+}).superRefine((ws, ctx) => {
+  if (ws.kind === 'client' && !ws.client) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['client'],
+      message: 'workspace.kind is "client" but workspace.client is missing',
+    })
+  }
+  if (ws.kind !== 'client' && ws.client) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['client'],
+      message: 'workspace.client is only allowed when workspace.kind is "client"',
+    })
+  }
 })
 
 export type WorkspaceConfig = z.infer<typeof WorkspaceConfig>

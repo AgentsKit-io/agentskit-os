@@ -1,0 +1,32 @@
+---
+title: Release readiness
+description: Explicit Alpha, Beta, and GA gates for AgentsKitOS.
+---
+
+This is a living checklist for shipping AgentsKitOS across **Alpha → Beta → GA**. If you’re looking for the full backlog, use the GitHub Project board at `https://github.com/orgs/AgentsKit-io/projects/2/views/1`.
+
+> Tracking issue: AgentsKit-io/agentskit-os#371.
+
+## Alpha gates (CLI + headless baseline)
+
+- [ ] **Core contracts**: `@agentskit/os-core` schemas cover workspace, agents, flows, triggers, plugins, vault, security, observability, config root.
+- [ ] **Headless runner**: can execute a workspace config without desktop UI; produces traces and deterministic audit events where required.
+- [ ] **CLI**: `init/new/wizard`, `doctor`, `run`, `sync`, `lock`, `config validate/explain/diff/migrate` are documented and tested.
+- [ ] **Safety baseline**: sandbox levels + egress policy + air-gap enforcement wired end-to-end.
+- [ ] **Docs + demos**: at least one “happy path” demo template is runnable from a fresh machine.
+
+## Beta gates (desktop + orchestration ergonomics)
+
+- [ ] **Desktop MVP**: stable shell, dashboard, command palette; can view traces and manage workspaces.
+- [ ] **Orchestrator UX**: flow editor round-trip between YAML/TS/GUI without losing semantics.
+- [ ] **Observability**: traces + cost attribution + error surfacing are usable without reading logs.
+- [ ] **Upgrade story**: config migrations are safe and documented.
+
+## GA gates (self-host, security, marketplace trust)
+
+- [ ] **Self-host**: reliable local + server/headless deployment paths.
+- [ ] **Security/compliance**: signed audit log, encrypted vault, export tools for regulated environments.
+- [ ] **Marketplace trust**: signing/verification, permission prompts, and supply-chain policy are enforced.
+- [ ] **Accessibility + perf**: a11y pass and performance budgets met for shipped surfaces.
+- [ ] **Supportability**: diagnostics, rollback path, and operator docs exist.
+

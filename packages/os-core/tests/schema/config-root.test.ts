@@ -15,6 +15,7 @@ describe('ConfigRoot', () => {
       const c = parseConfigRoot(minimal)
       expect(c.workspace.id).toBe('team-a')
       expect(c.agents).toEqual([])
+      expect(c.agentRegistry).toEqual([])
       expect(c.flows).toEqual([])
       expect(c.triggers).toEqual([])
     })
@@ -243,6 +244,52 @@ describe('ConfigRoot', () => {
         },
       })
       expect(c.rag?.pipelines).toHaveLength(1)
+    })
+
+    it('rejects agentRegistry referencing unknown agent', () => {
+      const r = safeParseConfigRoot({
+        ...minimal,
+        agentRegistry: [{ agentId: 'ghost', owner: 'team', purpose: 'x' }],
+      })
+      expect(r.success).toBe(false)
+    })
+
+    it('rejects duplicate agentRegistry entries for same agentId', () => {
+      const r = safeParseConfigRoot({
+        ...minimal,
+        agents: [{ id: 'a', name: 'A', model: { provider: 'openai', model: 'gpt-4o' } }],
+        agentRegistry: [
+          { agentId: 'a', owner: 'team', purpose: 'x' },
+          { agentId: 'a', owner: 'team', purpose: 'y' },
+        ],
+      })
+      expect(r.success).toBe(false)
+    })
+
+    it('rejects rag pipeline allowedAgents when agent not allowlisted', () => {
+      const r = safeParseConfigRoot({
+        ...minimal,
+        agents: [
+          {
+            id: 'a',
+            name: 'A',
+            model: { provider: 'openai', model: 'gpt-4o' },
+            ragRefs: ['docs'],
+          },
+        ],
+        rag: {
+          pipelines: [
+            {
+              id: 'docs',
+              loader: { kind: 'fs', path: '/data' },
+              embedder: { provider: 'openai', model: 'text-embedding-3-small' },
+              vectorStore: { kind: 'sqlite', path: '/tmp/r.db' },
+              governance: { owner: 'team', allowedAgents: ['other'], citation: { required: false } },
+            },
+          ],
+        },
+      })
+      expect(r.success).toBe(false)
     })
 
     it('rejects duplicate rag pipeline ids', () => {

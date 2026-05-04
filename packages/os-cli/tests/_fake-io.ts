@@ -9,6 +9,7 @@ export type FakeIoFs = {
 export const fakeIo = (
   initial: Record<string, string> = {},
   initialBinary: Record<string, Uint8Array> = {},
+  promptAnswers: readonly string[] = [],
 ): CliIo & { fs: FakeIoFs } => {
   const files = new Map<string, string>(Object.entries(initial))
   const binary = new Map<string, Uint8Array>(Object.entries(initialBinary))
@@ -21,6 +22,7 @@ export const fakeIo = (
     }
   }
   const fs: FakeIoFs = { files, binary, dirs }
+  const prompts = [...promptAnswers]
   return {
     fs,
     cwd: () => '/work',
@@ -50,6 +52,10 @@ export const fakeIo = (
         }
       }
       return [...out]
+    },
+    prompt: async () => {
+      if (prompts.length === 0) throw new Error('No fake prompt answers left')
+      return prompts.shift() ?? ''
     },
   }
 }

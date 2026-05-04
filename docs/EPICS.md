@@ -1,6 +1,7 @@
-# AgentsKitOS — Epics & Issues
+# AgentsKitOS — Epics & Issues (legacy snapshot)
 
-12 epics, 97 issues. Map directly to GitHub Project board. Each issue ships with: types, tests, docs, changeset.
+This file captures the original 12-epic / 123-issue snapshot used to bootstrap the project board.
+The live, expanded roadmap is tracked in the GitHub Project board at `https://github.com/orgs/AgentsKit-io/projects/2/views/1`.
 
 Issue size legend: **S** ≤1d · **M** 2–4d · **L** 1–2w · **XL** 2w+.
 
@@ -213,7 +214,7 @@ Issue size legend: **S** ≤1d · **M** 2–4d · **L** 1–2w · **XL** 2w+.
 
 ---
 
-## Total: 13 + 9 + 13 + 12 + 11 + 10 + 10 + 13 + 9 + 9 + 10 + 4 = **123 issues** (97 product + 26 governance/wild-card supports)
+## Total (snapshot): 13 + 9 + 13 + 12 + 11 + 10 + 10 + 13 + 9 + 9 + 10 + 4 = **123 issues**
 
 ## Labels
 

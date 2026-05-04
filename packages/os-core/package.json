@@ -1,6 +1,6 @@
 {
   "name": "@agentskit/os-core",
-  "version": "0.4.0-alpha.1",
+  "version": "0.4.0-alpha.2",
   "description": "Pure foundation for AgentsKitOS — contracts, event bus, workspace model, config schema. Zero runtime deps.",
   "keywords": [
     "agentskit",

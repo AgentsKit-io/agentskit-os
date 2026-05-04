@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { AgentsScreen } from './screens/agents'
 import { BenchmarkScreen } from './screens/benchmark'
+import { CostScreen } from './screens/cost'
 import { Dashboard } from './screens/dashboard'
 import { EvalsScreen } from './screens/evals'
 import { HitlScreen } from './screens/hitl'
@@ -158,8 +159,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'cost',
         label: 'Cost & Quotas',
         icon: '$',
-        status: 'preview',
-        description: 'Cost controls need quota, budget, token, and chargeback data sources.',
+        status: 'supported',
       },
       {
         id: 'security',
@@ -400,8 +400,9 @@ function AppShell({
           {activeScreen === 'triggers' && <TriggersScreen />}
           {activeScreen === 'evals' && <EvalsScreen />}
           {activeScreen === 'benchmark' && <BenchmarkScreen />}
+          {activeScreen === 'cost' && <CostScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'cost' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

@@ -274,6 +274,20 @@ describe('App ARIA landmarks', () => {
     expect(screen.queryByRole('heading', { name: /evals is in preview/i })).not.toBeInTheDocument()
   })
 
+  it('opens the supported Cost & Quotas screen from primary navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /cost & quotas/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /cost & quotas/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /cost budgets/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /cost & quotas is in preview/i })).not.toBeInTheDocument()
+  })
+
   it('registers the restart onboarding command in the command palette', async () => {
     localStorage.setItem(
       'agentskitos.onboarding',
@@ -301,7 +315,6 @@ describe('App ARIA landmarks', () => {
       fireEvent.keyDown(window, { key: 'k', metaKey: true })
     })
 
-    expect(screen.getByText(/go to cost & quotas/i)).toBeInTheDocument()
     expect(screen.getByText(/go to security/i)).toBeInTheDocument()
     expect(screen.getByText(/go to flows/i)).toBeInTheDocument()
   })

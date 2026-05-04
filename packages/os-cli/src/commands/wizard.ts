@@ -177,3 +177,5 @@ export const wizard: CliCommand = {
   },
 }
 
+const maybePromptTelemetry = async (_io: CliIo, _baseDir: string): Promise<string | undefined> => undefined
+

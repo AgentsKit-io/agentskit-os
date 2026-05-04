@@ -1,11 +1,15 @@
+import { resolve } from 'node:path'
 import {
+  applyLifecycleEvent,
   evaluateTransition,
   requirementsFor,
   type AgentLifecycleState,
   type AgentRiskTier,
   type TransitionCheck,
 } from '@agentskit/os-core'
-import type { CliCommand, CliExit } from '../types.js'
+import { FileRegistryStore } from '@agentskit/os-storage'
+import type { CliCommand, CliExit, CliIo } from '../types.js'
+import { defaultIo } from '../io.js'
 
 const help = `agentskit-os agent promote --from <state> --to <state> [options]
 
@@ -47,16 +51,26 @@ type Args = {
   checks: TransitionCheck[]
   reason?: string
   json: boolean
+  commit: boolean
+  workspaceRoot: string
   usage?: string
 }
 
 const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { agentId: 'unknown', actor: 'unknown', risk: 'low', checks: [], json: false }
+  const out: Args = {
+    agentId: 'unknown',
+    actor: 'unknown',
+    risk: 'low',
+    checks: [],
+    json: false,
+    commit: false,
+    workspaceRoot: '.agentskitos/workspaces/default',
+  }
   let i = 0
   while (i < argv.length) {
     const a = argv[i]
     if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    const needsValue = ['--from', '--to', '--agent-id', '--actor', '--risk', '--check', '--reason']
+    const needsValue = ['--from', '--to', '--agent-id', '--actor', '--risk', '--check', '--reason', '--workspace-root']
     if (a && needsValue.includes(a)) {
       const v = argv[i + 1]
       if (v === undefined || v.startsWith('--')) return { ...out, usage: `${a} requires a value` }
@@ -70,10 +84,12 @@ const parseArgs = (argv: readonly string[]): Args => {
       }
       else if (a === '--check') out.checks.push(v as TransitionCheck)
       else if (a === '--reason') out.reason = v
+      else if (a === '--workspace-root') out.workspaceRoot = v
       i += 2
       continue
     }
     if (a === '--json') { out.json = true; i++; continue }
+    if (a === '--commit') { out.commit = true; i++; continue }
     return { ...out, usage: `unknown argument "${a}"` }
   }
   if (!out.from || !out.to) return { ...out, usage: '--from and --to are required' }
@@ -85,7 +101,7 @@ const parseArgs = (argv: readonly string[]): Args => {
 export const agentPromote: CliCommand = {
   name: 'agent promote',
   summary: 'Validate an agent lifecycle transition + emit audit event',
-  run: async (argv): Promise<CliExit> => {
+  run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
     const args = parseArgs(argv)
     if (args.usage === 'help') return { code: 2, stdout: '', stderr: help }
     if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${help}` }
@@ -126,13 +142,38 @@ export const agentPromote: CliCommand = {
       at: new Date().toISOString(),
     }
 
+    let committed = false
+    if (args.commit) {
+      const dir = resolve(io.cwd(), args.workspaceRoot, 'registry')
+      const store = await FileRegistryStore.create({ dir })
+      const existing = await store.get(args.agentId)
+      if (!existing) {
+        return {
+          code: 8,
+          stdout: '',
+          stderr: `error: agent "${args.agentId}" not found in registry. Run \`agentskit-os agent register\` first.\n`,
+        }
+      }
+      if (existing.lifecycleState !== from) {
+        return {
+          code: 9,
+          stdout: '',
+          stderr: `error: registry state mismatch — stored=${existing.lifecycleState}, --from=${from}\n`,
+        }
+      }
+      await store.appendEvent(event)
+      const updated = applyLifecycleEvent(existing, event)
+      await store.upsert(updated)
+      committed = true
+    }
+
     if (args.json) {
-      return { code: 0, stdout: `${JSON.stringify(event)}\n`, stderr: '' }
+      return { code: 0, stdout: `${JSON.stringify({ event, committed })}\n`, stderr: '' }
     }
     return {
       code: 0,
       stdout:
-        `ok: ${args.agentId} ${from} → ${to} (risk=${args.risk}) by ${args.actor}\n` +
+        `ok: ${args.agentId} ${from} → ${to} (risk=${args.risk}) by ${args.actor}${committed ? ' [committed]' : ' [dry-run]'}\n` +
         `audit: ${JSON.stringify(event)}\n`,
       stderr: '',
     }

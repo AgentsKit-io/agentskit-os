@@ -40,6 +40,7 @@ export default defineConfig({
     'src/cost/cost-meter.ts',
     'src/security/airgap.ts',
     'src/runtime/adapter-fallback.ts',
+    'src/runtime/workspace-paths.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

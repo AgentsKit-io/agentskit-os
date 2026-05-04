@@ -9,6 +9,18 @@
     "AgentConfig": {
       "kind": "reexport"
     },
+    "AgentDependency": {
+      "kind": "reexport"
+    },
+    "AgentEnvironment": {
+      "kind": "reexport"
+    },
+    "AgentLifecycleEvent": {
+      "kind": "reexport"
+    },
+    "AgentLifecycleState": {
+      "kind": "reexport"
+    },
     "AgentLock": {
       "kind": "reexport"
     },
@@ -19,6 +31,33 @@
       "kind": "reexport"
     },
     "AgentNode": {
+      "kind": "reexport"
+    },
+    "AgentRegistryEntry": {
+      "kind": "reexport"
+    },
+    "AgentRiskTier": {
+      "kind": "reexport"
+    },
+    "AgentVersion": {
+      "kind": "reexport"
+    },
+    "AgentVersionSnapshot": {
+      "kind": "reexport"
+    },
+    "AgentsManifest": {
+      "kind": "reexport"
+    },
+    "AgentsManifestVersion": {
+      "kind": "reexport"
+    },
+    "AirGapDecision": {
+      "kind": "reexport"
+    },
+    "AirGapPolicy": {
+      "kind": "reexport"
+    },
+    "AirGapRequest": {
       "kind": "reexport"
     },
     "AnchorRecord": {
@@ -42,6 +81,9 @@
     "AuditLogConfig": {
       "kind": "reexport"
     },
+    "AuditMetadata": {
+      "kind": "reexport"
+    },
     "AuditSignature": {
       "kind": "reexport"
     },
@@ -49,6 +91,9 @@
       "kind": "reexport"
     },
     "BREAK_GLASS_BYPASSES": {
+      "kind": "reexport"
+    },
+    "BUILTIN_PROVIDERS": {
       "kind": "reexport"
     },
     "BannedPhrase": {
@@ -90,6 +135,9 @@
     "BudgetDecision": {
       "kind": "reexport"
     },
+    "BumpKind": {
+      "kind": "reexport"
+    },
     "CONFIG_LAYERS": {
       "kind": "reexport"
     },
@@ -111,16 +159,49 @@
     "ChainBreak": {
       "kind": "reexport"
     },
+    "ChangelogEntry": {
+      "kind": "reexport"
+    },
+    "ChangelogSummary": {
+      "kind": "reexport"
+    },
     "ChunkerConfig": {
       "kind": "reexport"
     },
     "ChunkerStrategy": {
       "kind": "reexport"
     },
+    "CitationRequirement": {
+      "kind": "reexport"
+    },
+    "ClientRef": {
+      "kind": "reexport"
+    },
     "CloudPlan": {
       "kind": "reexport"
     },
     "CloudSyncConfig": {
+      "kind": "reexport"
+    },
+    "CodingAgentCapability": {
+      "kind": "reexport"
+    },
+    "CodingAgentInvocationModel": {
+      "kind": "reexport"
+    },
+    "CodingAgentProvider": {
+      "kind": "reexport"
+    },
+    "CodingAgentProviderInfo": {
+      "kind": "reexport"
+    },
+    "CodingTaskKind": {
+      "kind": "reexport"
+    },
+    "CodingTaskRequest": {
+      "kind": "reexport"
+    },
+    "CodingTaskResult": {
       "kind": "reexport"
     },
     "CompareNode": {
@@ -141,6 +222,15 @@
     "ConfigRoot": {
       "kind": "reexport"
     },
+    "ConformanceCheck": {
+      "kind": "reexport"
+    },
+    "ConformanceCheckResult": {
+      "kind": "reexport"
+    },
+    "ConformanceReport": {
+      "kind": "reexport"
+    },
     "ConsentDecision": {
       "kind": "reexport"
     },
@@ -153,10 +243,16 @@
     "CostBreakdown": {
       "kind": "reexport"
     },
+    "CostBudget": {
+      "kind": "reexport"
+    },
     "CostBudgetCheck": {
       "kind": "reexport"
     },
     "CostKey": {
+      "kind": "reexport"
+    },
+    "CostMeasurement": {
       "kind": "reexport"
     },
     "CostMeter": {
@@ -168,10 +264,16 @@
     "CostQuota": {
       "kind": "reexport"
     },
+    "CostThrottleConfig": {
+      "kind": "reexport"
+    },
     "CronTrigger": {
       "kind": "reexport"
     },
     "Currency": {
+      "kind": "reexport"
+    },
+    "DataResidencyConfig": {
       "kind": "reexport"
     },
     "DataSchemaUri": {
@@ -187,6 +289,9 @@
       "kind": "reexport"
     },
     "DeterminismIssue": {
+      "kind": "reexport"
+    },
+    "DomainPack": {
       "kind": "reexport"
     },
     "DriftCheckInput": {
@@ -234,6 +339,27 @@
     "EscalationRule": {
       "kind": "reexport"
     },
+    "EvalCriterion": {
+      "kind": "reexport"
+    },
+    "EvalDef": {
+      "kind": "reexport"
+    },
+    "EvalKind": {
+      "kind": "reexport"
+    },
+    "EvalResult": {
+      "kind": "reexport"
+    },
+    "EvalResultStatus": {
+      "kind": "reexport"
+    },
+    "EvalSuite": {
+      "kind": "reexport"
+    },
+    "EvalSuiteVersion": {
+      "kind": "reexport"
+    },
     "EventBus": {
       "kind": "reexport"
     },
@@ -258,6 +384,15 @@
     "ExternalVault": {
       "kind": "reexport"
     },
+    "FLOW_ENVELOPE_FORMAT": {
+      "kind": "reexport"
+    },
+    "FallbackEntry": {
+      "kind": "reexport"
+    },
+    "FileEdit": {
+      "kind": "reexport"
+    },
     "FileMemoryStore": {
       "kind": "reexport"
     },
@@ -271,6 +406,12 @@
       "kind": "reexport"
     },
     "FlowEdge": {
+      "kind": "reexport"
+    },
+    "FlowEnvelope": {
+      "kind": "reexport"
+    },
+    "FlowEnvelopeSignature": {
       "kind": "reexport"
     },
     "FlowLock": {
@@ -315,10 +456,16 @@
     "GenAiSpanAttributes": {
       "kind": "reexport"
     },
+    "GitCommitResolver": {
+      "kind": "reexport"
+    },
     "GitHubTrigger": {
       "kind": "reexport"
     },
     "GlossaryEntry": {
+      "kind": "reexport"
+    },
+    "Hasher": {
       "kind": "reexport"
     },
     "HumanNode": {
@@ -334,6 +481,18 @@
       "kind": "reexport"
     },
     "InMemoryStore": {
+      "kind": "reexport"
+    },
+    "KnowledgeFallbackBehavior": {
+      "kind": "reexport"
+    },
+    "KnowledgeGovernance": {
+      "kind": "reexport"
+    },
+    "KnowledgeSensitivity": {
+      "kind": "reexport"
+    },
+    "KnowledgeTrustLevel": {
       "kind": "reexport"
     },
     "LOCKFILE_VERSION": {
@@ -381,6 +540,9 @@
     "ModelPricing": {
       "kind": "reexport"
     },
+    "NoAdapterAvailableError": {
+      "kind": "reexport"
+    },
     "ObservabilityConfig": {
       "kind": "reexport"
     },
@@ -400,6 +562,12 @@
       "kind": "const"
     },
     "ParallelNode": {
+      "kind": "reexport"
+    },
+    "PickAdapterOptions": {
+      "kind": "reexport"
+    },
+    "PickAdapterSuccess": {
       "kind": "reexport"
     },
     "PiiCategory": {
@@ -450,10 +618,25 @@
     "ProvenanceMap": {
       "kind": "reexport"
     },
+    "ProviderCheckResult": {
+      "kind": "reexport"
+    },
+    "ProviderCheckStatus": {
+      "kind": "reexport"
+    },
+    "ProviderFilterOptions": {
+      "kind": "reexport"
+    },
+    "ProviderKind": {
+      "kind": "reexport"
+    },
     "ProviderLock": {
       "kind": "reexport"
     },
     "ProviderRef": {
+      "kind": "reexport"
+    },
+    "ProviderRequirement": {
       "kind": "reexport"
     },
     "RESERVED_DOMAINS": {
@@ -489,6 +672,15 @@
     "RegistryConflict": {
       "kind": "reexport"
     },
+    "RegistryStore": {
+      "kind": "reexport"
+    },
+    "RegistryWriteResult": {
+      "kind": "reexport"
+    },
+    "RepoRef": {
+      "kind": "const"
+    },
     "RequiredDisclaimer": {
       "kind": "reexport"
     },
@@ -499,6 +691,9 @@
       "kind": "reexport"
     },
     "ResolveResult": {
+      "kind": "reexport"
+    },
+    "ResolveWorkspacePathsOptions": {
       "kind": "reexport"
     },
     "ResourceRef": {
@@ -555,6 +750,9 @@
     "Severity": {
       "kind": "reexport"
     },
+    "ShellInvocation": {
+      "kind": "reexport"
+    },
     "SideEffect": {
       "kind": "reexport"
     },
@@ -570,11 +768,20 @@
     "SkillRef": {
       "kind": "reexport"
     },
+    "SlaRef": {
+      "kind": "reexport"
+    },
     "SlackTrigger": {
+      "kind": "reexport"
+    },
+    "SloRef": {
       "kind": "reexport"
     },
     "Slug": {
       "kind": "const"
+    },
+    "SnapshotDiff": {
+      "kind": "reexport"
     },
     "SqliteMemoryStore": {
       "kind": "reexport"
@@ -588,7 +795,13 @@
     "Subscription": {
       "kind": "reexport"
     },
+    "SupportContact": {
+      "kind": "reexport"
+    },
     "SyncStrategy": {
+      "kind": "reexport"
+    },
+    "TRIGGER_PRESETS": {
       "kind": "reexport"
     },
     "Tag": {
@@ -600,7 +813,34 @@
     "TeamSeat": {
       "kind": "reexport"
     },
+    "TelemetryConfig": {
+      "kind": "reexport"
+    },
+    "TelemetryConsent": {
+      "kind": "reexport"
+    },
+    "TelemetryConsentState": {
+      "kind": "reexport"
+    },
+    "TelemetryEvent": {
+      "kind": "reexport"
+    },
+    "TelemetryEventKind": {
+      "kind": "reexport"
+    },
+    "TelemetrySink": {
+      "kind": "reexport"
+    },
     "TemplateLock": {
+      "kind": "reexport"
+    },
+    "ThrottleAction": {
+      "kind": "reexport"
+    },
+    "ThrottleDecision": {
+      "kind": "reexport"
+    },
+    "ThrottleScope": {
       "kind": "reexport"
     },
     "ToolLock": {
@@ -615,10 +855,25 @@
     "ToolRef": {
       "kind": "reexport"
     },
+    "ToolUse": {
+      "kind": "reexport"
+    },
     "TraceExporter": {
       "kind": "reexport"
     },
+    "TransitionCheck": {
+      "kind": "reexport"
+    },
+    "TransitionDecision": {
+      "kind": "reexport"
+    },
+    "TransitionRequirements": {
+      "kind": "reexport"
+    },
     "TriggerConfig": {
+      "kind": "reexport"
+    },
+    "TriggerPreset": {
       "kind": "reexport"
     },
     "Ulid": {
@@ -663,8 +918,20 @@
     "VoteNode": {
       "kind": "reexport"
     },
+    "WebhookHmacAlgorithm": {
+      "kind": "type"
+    },
+    "WebhookSignature": {
+      "kind": "type"
+    },
+    "WebhookSigningConfig": {
+      "kind": "type"
+    },
     "WebhookTrigger": {
       "kind": "reexport"
+    },
+    "WebhookVerifyDecision": {
+      "kind": "type"
     },
     "WorkspaceConfig": {
       "kind": "reexport"
@@ -672,7 +939,28 @@
     "WorkspaceIsolation": {
       "kind": "reexport"
     },
+    "WorkspaceKind": {
+      "kind": "reexport"
+    },
     "WorkspaceLimits": {
+      "kind": "reexport"
+    },
+    "WorkspacePaths": {
+      "kind": "reexport"
+    },
+    "airGapEnforce": {
+      "kind": "reexport"
+    },
+    "applyBump": {
+      "kind": "reexport"
+    },
+    "applyLifecycleEvent": {
+      "kind": "reexport"
+    },
+    "bucketDuration": {
+      "kind": "reexport"
+    },
+    "buildChangelogEntries": {
       "kind": "reexport"
     },
     "buildProvenance": {
@@ -682,6 +970,9 @@
       "kind": "reexport"
     },
     "buildResponseAttributes": {
+      "kind": "reexport"
+    },
+    "canonicalFlowBody": {
       "kind": "reexport"
     },
     "canonicalJson": {
@@ -699,6 +990,9 @@
     "checkEgress": {
       "kind": "reexport"
     },
+    "checkProviderKeys": {
+      "kind": "reexport"
+    },
     "compareSensitivity": {
       "kind": "reexport"
     },
@@ -711,7 +1005,16 @@
     "computeMerkleRoot": {
       "kind": "reexport"
     },
+    "computeWebhookSignature": {
+      "kind": "const"
+    },
+    "decideEmit": {
+      "kind": "reexport"
+    },
     "decideSandbox": {
+      "kind": "reexport"
+    },
+    "decideThrottle": {
       "kind": "reexport"
     },
     "decideToolAction": {
@@ -723,22 +1026,49 @@
     "diffConfigs": {
       "kind": "reexport"
     },
+    "diffSnapshots": {
+      "kind": "reexport"
+    },
+    "effectiveLimitsFor": {
+      "kind": "reexport"
+    },
     "escalationRule": {
       "kind": "reexport"
     },
     "evaluateBreakGlass": {
       "kind": "reexport"
     },
+    "evaluateTransition": {
+      "kind": "reexport"
+    },
+    "filterProviders": {
+      "kind": "reexport"
+    },
     "findVaultRefs": {
       "kind": "reexport"
     },
+    "formatWebhookSignatureHeader": {
+      "kind": "const"
+    },
+    "getTriggerPreset": {
+      "kind": "reexport"
+    },
     "hasBlockingViolation": {
+      "kind": "reexport"
+    },
+    "hashSnapshot": {
       "kind": "reexport"
     },
     "isApiCompatible": {
       "kind": "reexport"
     },
     "isHotReloadable": {
+      "kind": "reexport"
+    },
+    "isTransitionAllowed": {
+      "kind": "reexport"
+    },
+    "listTriggerPresets": {
       "kind": "reexport"
     },
     "maxSeverity": {
@@ -751,6 +1081,21 @@
       "kind": "reexport"
     },
     "parseAgentConfig": {
+      "kind": "reexport"
+    },
+    "parseAgentLifecycleEvent": {
+      "kind": "reexport"
+    },
+    "parseAgentRegistryEntry": {
+      "kind": "reexport"
+    },
+    "parseAgentVersion": {
+      "kind": "reexport"
+    },
+    "parseAgentsManifest": {
+      "kind": "reexport"
+    },
+    "parseAirGapPolicy": {
       "kind": "reexport"
     },
     "parseAuditBatch": {
@@ -771,19 +1116,46 @@
     "parseCloudSyncConfig": {
       "kind": "reexport"
     },
+    "parseCodingTaskRequest": {
+      "kind": "reexport"
+    },
+    "parseCodingTaskResult": {
+      "kind": "reexport"
+    },
     "parseConfigRoot": {
+      "kind": "reexport"
+    },
+    "parseConformanceReport": {
       "kind": "reexport"
     },
     "parseConsentRef": {
       "kind": "reexport"
     },
+    "parseCostMeasurement": {
+      "kind": "reexport"
+    },
+    "parseDomainPack": {
+      "kind": "reexport"
+    },
     "parseEgressPolicy": {
+      "kind": "reexport"
+    },
+    "parseEvalDef": {
+      "kind": "reexport"
+    },
+    "parseEvalSuite": {
       "kind": "reexport"
     },
     "parseEvent": {
       "kind": "reexport"
     },
+    "parseFallbackEntry": {
+      "kind": "reexport"
+    },
     "parseFlowConfig": {
+      "kind": "reexport"
+    },
+    "parseFlowEnvelope": {
       "kind": "reexport"
     },
     "parseGenAiAttributes": {
@@ -813,16 +1185,31 @@
     "parsePrincipal": {
       "kind": "reexport"
     },
+    "parseProviderRequirement": {
+      "kind": "reexport"
+    },
     "parseRagConfig": {
       "kind": "reexport"
     },
     "parseRagPipeline": {
       "kind": "reexport"
     },
+    "parseRepoRef": {
+      "kind": "const"
+    },
     "parseRunContext": {
       "kind": "reexport"
     },
     "parseSecurityConfig": {
+      "kind": "reexport"
+    },
+    "parseTelemetryConfig": {
+      "kind": "reexport"
+    },
+    "parseTelemetryEvent": {
+      "kind": "reexport"
+    },
+    "parseThrottleConfig": {
       "kind": "reexport"
     },
     "parseToolManifest": {
@@ -834,10 +1221,31 @@
     "parseVaultConfig": {
       "kind": "reexport"
     },
+    "parseWebhookSignatureHeader": {
+      "kind": "const"
+    },
     "parseWorkspaceConfig": {
       "kind": "reexport"
     },
     "parseWorkspaceLimits": {
+      "kind": "reexport"
+    },
+    "passesThreshold": {
+      "kind": "reexport"
+    },
+    "pickAdapter": {
+      "kind": "reexport"
+    },
+    "renderAgentChangelog": {
+      "kind": "reexport"
+    },
+    "renderManifestChangelogs": {
+      "kind": "reexport"
+    },
+    "replayEvents": {
+      "kind": "reexport"
+    },
+    "requirementsFor": {
       "kind": "reexport"
     },
     "requiresConsent": {
@@ -846,7 +1254,28 @@
     "resolveVaultRefs": {
       "kind": "reexport"
     },
+    "resolveWorkspacePaths": {
+      "kind": "reexport"
+    },
+    "runConformance": {
+      "kind": "reexport"
+    },
     "safeParseAgentConfig": {
+      "kind": "reexport"
+    },
+    "safeParseAgentLifecycleEvent": {
+      "kind": "reexport"
+    },
+    "safeParseAgentRegistryEntry": {
+      "kind": "reexport"
+    },
+    "safeParseAgentVersion": {
+      "kind": "reexport"
+    },
+    "safeParseAgentsManifest": {
+      "kind": "reexport"
+    },
+    "safeParseAirGapPolicy": {
       "kind": "reexport"
     },
     "safeParseAuditBatch": {
@@ -867,19 +1296,46 @@
     "safeParseCloudSyncConfig": {
       "kind": "reexport"
     },
+    "safeParseCodingTaskRequest": {
+      "kind": "reexport"
+    },
+    "safeParseCodingTaskResult": {
+      "kind": "reexport"
+    },
     "safeParseConfigRoot": {
+      "kind": "reexport"
+    },
+    "safeParseConformanceReport": {
       "kind": "reexport"
     },
     "safeParseConsentRef": {
       "kind": "reexport"
     },
+    "safeParseCostMeasurement": {
+      "kind": "reexport"
+    },
+    "safeParseDomainPack": {
+      "kind": "reexport"
+    },
     "safeParseEgressPolicy": {
+      "kind": "reexport"
+    },
+    "safeParseEvalDef": {
+      "kind": "reexport"
+    },
+    "safeParseEvalSuite": {
       "kind": "reexport"
     },
     "safeParseEvent": {
       "kind": "reexport"
     },
+    "safeParseFallbackEntry": {
+      "kind": "reexport"
+    },
     "safeParseFlowConfig": {
+      "kind": "reexport"
+    },
+    "safeParseFlowEnvelope": {
       "kind": "reexport"
     },
     "safeParseGenAiAttributes": {
@@ -909,16 +1365,31 @@
     "safeParsePrincipal": {
       "kind": "reexport"
     },
+    "safeParseProviderRequirement": {
+      "kind": "reexport"
+    },
     "safeParseRagConfig": {
       "kind": "reexport"
     },
     "safeParseRagPipeline": {
       "kind": "reexport"
     },
+    "safeParseRepoRef": {
+      "kind": "const"
+    },
     "safeParseRunContext": {
       "kind": "reexport"
     },
     "safeParseSecurityConfig": {
+      "kind": "reexport"
+    },
+    "safeParseTelemetryConfig": {
+      "kind": "reexport"
+    },
+    "safeParseTelemetryEvent": {
+      "kind": "reexport"
+    },
+    "safeParseThrottleConfig": {
       "kind": "reexport"
     },
     "safeParseToolManifest": {
@@ -939,10 +1410,31 @@
     "sha256OfCanonical": {
       "kind": "reexport"
     },
+    "signWebhookRequest": {
+      "kind": "const"
+    },
     "spanName": {
       "kind": "reexport"
     },
     "stabilityOf": {
+      "kind": "reexport"
+    },
+    "stageLabel": {
+      "kind": "reexport"
+    },
+    "suggestBump": {
+      "kind": "reexport"
+    },
+    "type WebhookHmacAlgorithm": {
+      "kind": "reexport"
+    },
+    "type WebhookSignature": {
+      "kind": "reexport"
+    },
+    "type WebhookSigningConfig": {
+      "kind": "reexport"
+    },
+    "type WebhookVerifyDecision": {
       "kind": "reexport"
     },
     "validateAgainstBrandKit": {
@@ -953,6 +1445,9 @@
     },
     "verifyChain": {
       "kind": "reexport"
+    },
+    "verifyWebhookRequest": {
+      "kind": "const"
     }
   }
 }

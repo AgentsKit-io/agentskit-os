@@ -152,3 +152,31 @@ describe('doctor', () => {
     expect(r.stderr).toContain('agentskit-os doctor')
   })
 })
+
+describe('mcp discover', () => {
+  it('prints help', async () => {
+    const r = await route(['mcp', 'discover', '--help'])
+    expect(r.code).toBe(2)
+    expect(r.stderr).toContain('agentskit-os mcp discover')
+  })
+
+  it('discovers empty set without crashing when defaults are disabled', async () => {
+    const r = await route(['mcp', 'discover', '--no-defaults'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('no MCP servers discovered')
+  })
+})
+
+describe('trigger preset', () => {
+  it('lists presets', async () => {
+    const r = await route(['trigger', 'preset', 'list'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('webhook/inbound-generic')
+  })
+
+  it('shows a preset', async () => {
+    const r = await route(['trigger', 'preset', 'show', 'cron/nightly-health'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('cron')
+  })
+})

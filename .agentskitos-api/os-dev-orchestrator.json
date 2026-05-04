@@ -1,0 +1,34 @@
+{
+  "exports": {
+    "DevOrchestratorWorktreeManager": {
+      "kind": "type"
+    },
+    "GitRunResult": {
+      "kind": "type"
+    },
+    "GitRunner": {
+      "kind": "type"
+    },
+    "WorktreeAddInput": {
+      "kind": "type"
+    },
+    "createDevOrchestratorWorktreeManager": {
+      "kind": "const"
+    },
+    "defaultGitRunner": {
+      "kind": "const"
+    },
+    "type DevOrchestratorWorktreeManager": {
+      "kind": "reexport"
+    },
+    "type GitRunResult": {
+      "kind": "reexport"
+    },
+    "type GitRunner": {
+      "kind": "reexport"
+    },
+    "type WorktreeAddInput": {
+      "kind": "reexport"
+    }
+  }
+}

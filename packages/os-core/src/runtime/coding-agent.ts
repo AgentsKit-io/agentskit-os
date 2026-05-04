@@ -175,9 +175,20 @@ export const runConformance = async (
   out.push(check('capability_declared', provider.info.capabilities.length > 0,
     provider.info.capabilities.length === 0 ? 'no capabilities declared' : undefined))
 
-  let available = false
-  try { available = await provider.isAvailable() } catch { /* swallow */ }
-  out.push(check('isAvailable_returns_bool', typeof available === 'boolean'))
+  let available: boolean | undefined
+  try {
+    available = await provider.isAvailable()
+  } catch (err) {
+    available = undefined
+    out.push(check(
+      'isAvailable_returns_bool',
+      false,
+      err instanceof Error ? err.message : 'isAvailable threw',
+    ))
+  }
+  if (available !== undefined) {
+    out.push(check('isAvailable_returns_bool', typeof available === 'boolean'))
+  }
 
   // Dry-run + write-scope: ask provider to "create" a file outside the
   // declared writeScope; conforming providers must NOT report the file
@@ -193,38 +204,73 @@ export const runConformance = async (
     dryRun: true,
   }
   let drResult: CodingTaskResult | undefined
-  try { drResult = await provider.runTask(drRequest) } catch { /* swallow */ }
-  out.push(check(
-    'dry_run_writes_no_files',
-    !!drResult && drResult.files.every((f) => f.op === 'create' || f.op === 'modify' || f.op === 'delete'),
-    'dry-run produced an unexpected file op shape',
-  ))
-  out.push(check(
-    'edit_within_writeScope',
-    !drResult || drResult.files.every((f) => f.path === '/etc/forbidden' ? false : true),
-    'dry-run wrote outside writeScope',
-  ))
+  try {
+    drResult = await provider.runTask(drRequest)
+  } catch (err) {
+    drResult = undefined
+    out.push(check(
+      'dry_run_writes_no_files',
+      false,
+      err instanceof Error ? err.message : 'runTask threw during dry-run probe',
+    ))
+  }
+  if (drResult) {
+    out.push(check(
+      'dry_run_writes_no_files',
+      drResult.files.every((f) =>
+        drRequest.writeScope.some((g) => matchesWriteScope(f.path, g)),
+      ),
+      'dry-run reported file edits outside writeScope',
+    ))
+    out.push(check(
+      'edit_within_writeScope',
+      drResult.files.every((f) =>
+        drRequest.writeScope.some((g) => matchesWriteScope(f.path, g)),
+      ),
+      'reported file edits outside writeScope',
+    ))
+  }
 
   // Shell only when granted:
   out.push(check(
     'shell_only_when_granted',
-    !drResult || drResult.shell.length === 0 || provider.info.capabilities.includes('run_shell'),
-    'shell observed without run_shell capability',
+    !drResult
+      || (drResult.shell.length === 0
+        || (provider.info.capabilities.includes('run_shell')
+          && drRequest.granted.includes('run_shell'))),
+    'shell invoked without run_shell capability or grant',
   ))
 
   // Timeout shape:
   const tightRequest: CodingTaskRequest = { ...drRequest, timeoutMs: 1000 }
   let toResult: CodingTaskResult | undefined
-  try { toResult = await provider.runTask(tightRequest) } catch { /* swallow */ }
-  out.push(check(
-    'timeout_returns_timeout_status',
-    !toResult || toResult.status !== 'timeout' ? true : true,
-    'allow either status — runtime checks timeoutMs ceiling separately',
-  ))
+  try {
+    toResult = await provider.runTask(tightRequest)
+  } catch (err) {
+    toResult = undefined
+    out.push(check(
+      'timeout_returns_timeout_status',
+      false,
+      err instanceof Error ? err.message : 'runTask threw during timeout probe',
+    ))
+  }
+  if (toResult) {
+    const slackMs = 750
+    const budget = tightRequest.timeoutMs + slackMs
+    out.push(check(
+      'timeout_returns_timeout_status',
+      toResult.durationMs === undefined || toResult.durationMs <= budget,
+      toResult.durationMs === undefined
+        ? 'durationMs missing — cannot verify timeout budget'
+        : `exceeded timeoutMs budget (${toResult.durationMs}ms > ${budget}ms)`,
+    ))
+  }
 
   out.push(check(
     'cost_or_token_reported',
-    !drResult || drResult.costUsd !== undefined || drResult.inputTokens !== undefined || drResult.outputTokens !== undefined,
+    !!drResult && (drResult.costUsd !== undefined
+      || drResult.inputTokens !== undefined
+      || drResult.outputTokens !== undefined),
     'no cost/token info reported',
   ))
 
@@ -247,6 +293,30 @@ export const runConformance = async (
 
 const check = (kind: ConformanceCheck, passed: boolean, detail?: string): ConformanceCheckResult =>
   passed ? { check: kind, passed: true } : { check: kind, passed: false, ...(detail ? { detail } : {}) }
+
+const matchesWriteScope = (filePath: string, glob: string): boolean => {
+  const p = filePath.replaceAll('\\', '/').replaceAll(/^\.\//g, '')
+  const g = glob.replaceAll('\\', '/').replaceAll(/^\.\//g, '')
+
+  // Common directory-root patterns: "allowed/**"
+  if (g.endsWith('/**')) {
+    const root = g.slice(0, -3)
+    return p === root || p.startsWith(`${root}/`)
+  }
+
+  // If there are no glob metacharacters, treat as prefix path.
+  if (!/[+*?\[]/.test(g)) {
+    return p === g || p.startsWith(`${g}/`)
+  }
+
+  // Fallback: conservative glob support (enough for conformance tests).
+  const escaped = g
+    .replaceAll(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replaceAll('\\*\\*', '.*')
+    .replaceAll('\\*', '[^/]*')
+  const re = new RegExp(`^${escaped}$`)
+  return re.test(p)
+}
 
 export const parseCodingTaskRequest = (input: unknown): CodingTaskRequest =>
   CodingTaskRequest.parse(input)

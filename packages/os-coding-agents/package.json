@@ -1,19 +1,18 @@
 {
-  "name": "@agentskit/os-cli",
-  "version": "3.0.0-alpha.1",
-  "description": "AgentsKitOS CLI — init, doctor, run, sync, config commands.",
+  "name": "@agentskit/os-coding-agents",
+  "version": "0.1.0-alpha.1",
+  "description": "Reference coding-agent provider adapters (Codex, Claude Code, …) built on the @agentskit/os-core contract.",
   "keywords": [
     "agentskit",
     "agentskit-os",
-    "cli"
+    "codex",
+    "claude",
+    "coding-agent"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "agentskit-os": "./bin/agentskit-os.js"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -22,40 +21,22 @@
     }
   },
   "files": [
-    "dist",
-    "bin",
-    "man",
-    "scripts"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",
-    "dev": "tsup --watch",
-    "manpages": "node scripts/gen-manpages.mjs"
+    "dev": "tsup --watch"
   },
-  "dependencies": {
-    "yaml": "^2.6.1"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "@agentskit/os-core": "workspace:^",
-    "@agentskit/os-flow": "workspace:^",
-    "@agentskit/os-import": "workspace:^",
-    "@agentskit/os-marketplace-sdk": "workspace:^",
-    "@agentskit/os-mcp-bridge": "workspace:^",
-    "@agentskit/os-storage": "workspace:^",
-    "@agentskit/os-templates": "workspace:^",
     "zod": "^4.0.0"
   },
   "devDependencies": {
     "@agentskit/os-core": "workspace:*",
-    "@agentskit/os-flow": "workspace:*",
-    "@agentskit/os-import": "workspace:*",
-    "@agentskit/os-marketplace-sdk": "workspace:*",
-    "@agentskit/os-mcp-bridge": "workspace:*",
-    "@agentskit/os-storage": "workspace:*",
-    "@agentskit/os-templates": "workspace:*",
     "@types/node": "^25.6.0",
     "tsup": "^8.5.0",
     "typescript": "^6.0.3",
@@ -68,14 +49,14 @@
   "agentskitos": {
     "distribution": "public",
     "stability": "alpha",
-    "stabilityNote": "Pre-1.0. M1 alpha — config commands first."
+    "stabilityNote": "M3 — subprocess adapters for external coding agent CLIs."
   },
   "license": "MIT",
-  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-cli",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-coding-agents",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
-    "directory": "packages/os-cli"
+    "directory": "packages/os-coding-agents"
   },
   "bugs": {
     "url": "https://github.com/AgentsKit-io/agentskit-os/issues"

@@ -1,19 +1,17 @@
 {
-  "name": "@agentskit/os-cli",
-  "version": "3.0.0-alpha.1",
-  "description": "AgentsKitOS CLI — init, doctor, run, sync, config commands.",
+  "name": "@agentskit/os-mcp-bridge",
+  "version": "0.1.0-alpha.1",
+  "description": "MCP bridge utilities — discover local MCP server definitions from common agent configs.",
   "keywords": [
     "agentskit",
     "agentskit-os",
-    "cli"
+    "mcp",
+    "model context protocol"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "bin": {
-    "agentskit-os": "./bin/agentskit-os.js"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -22,40 +20,21 @@
     }
   },
   "files": [
-    "dist",
-    "bin",
-    "man",
-    "scripts"
+    "dist"
   ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",
-    "dev": "tsup --watch",
-    "manpages": "node scripts/gen-manpages.mjs"
-  },
-  "dependencies": {
-    "yaml": "^2.6.1"
+    "dev": "tsup --watch"
   },
   "peerDependencies": {
     "@agentskit/os-core": "workspace:^",
-    "@agentskit/os-flow": "workspace:^",
-    "@agentskit/os-import": "workspace:^",
-    "@agentskit/os-marketplace-sdk": "workspace:^",
-    "@agentskit/os-mcp-bridge": "workspace:^",
-    "@agentskit/os-storage": "workspace:^",
-    "@agentskit/os-templates": "workspace:^",
     "zod": "^4.0.0"
   },
   "devDependencies": {
     "@agentskit/os-core": "workspace:*",
-    "@agentskit/os-flow": "workspace:*",
-    "@agentskit/os-import": "workspace:*",
-    "@agentskit/os-marketplace-sdk": "workspace:*",
-    "@agentskit/os-mcp-bridge": "workspace:*",
-    "@agentskit/os-storage": "workspace:*",
-    "@agentskit/os-templates": "workspace:*",
     "@types/node": "^25.6.0",
     "tsup": "^8.5.0",
     "typescript": "^6.0.3",
@@ -68,14 +47,14 @@
   "agentskitos": {
     "distribution": "public",
     "stability": "alpha",
-    "stabilityNote": "Pre-1.0. M1 alpha — config commands first."
+    "stabilityNote": "M4 — MCP discovery helpers (read-only)."
   },
   "license": "MIT",
-  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-cli",
+  "homepage": "https://github.com/AgentsKit-io/agentskit-os/tree/main/packages/os-mcp-bridge",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AgentsKit-io/agentskit-os.git",
-    "directory": "packages/os-cli"
+    "directory": "packages/os-mcp-bridge"
   },
   "bugs": {
     "url": "https://github.com/AgentsKit-io/agentskit-os/issues"

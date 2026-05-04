@@ -22,6 +22,8 @@ import { agentChangelog } from './commands/agent-changelog.js'
 import { flowExport, flowImportJson } from './commands/flow-json.js'
 import { creds } from './commands/creds.js'
 import { telemetry } from './commands/telemetry.js'
+import { mcpDiscover } from './commands/mcp-discover.js'
+import { triggerPreset } from './commands/trigger-preset.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
@@ -49,6 +51,8 @@ export const COMMANDS: readonly CliCommand[] = [
   agentPromote,
   creds,
   telemetry,
+  mcpDiscover,
+  triggerPreset,
   version,
 ]
 

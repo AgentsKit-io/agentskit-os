@@ -1,0 +1,58 @@
+{
+  "exports": {
+    "ClaudeCodeProviderOptions": {
+      "kind": "reexport"
+    },
+    "CliCodingAgentProviderOptions": {
+      "kind": "type"
+    },
+    "CliCodingAgentProviderOptions$1": {
+      "kind": "type"
+    },
+    "CodexProviderOptions": {
+      "kind": "reexport"
+    },
+    "ExecResult": {
+      "kind": "type"
+    },
+    "RunFn": {
+      "kind": "type"
+    },
+    "SubprocessRunner": {
+      "kind": "type"
+    },
+    "WhichFn": {
+      "kind": "type"
+    },
+    "createClaudeCodeProvider": {
+      "kind": "const"
+    },
+    "createCodexProvider": {
+      "kind": "const"
+    },
+    "createSubprocessRunner": {
+      "kind": "const"
+    },
+    "defaultRun": {
+      "kind": "const"
+    },
+    "defaultWhich": {
+      "kind": "const"
+    },
+    "parseAgentJsonResult": {
+      "kind": "const"
+    },
+    "type ExecResult": {
+      "kind": "reexport"
+    },
+    "type RunFn": {
+      "kind": "reexport"
+    },
+    "type SubprocessRunner": {
+      "kind": "reexport"
+    },
+    "type WhichFn": {
+      "kind": "reexport"
+    }
+  }
+}

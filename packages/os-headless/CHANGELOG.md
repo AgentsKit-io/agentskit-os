@@ -1,5 +1,17 @@
 # @agentskit/os-headless
 
+## 0.1.0-alpha.1
+
+### Patch Changes
+
+- 5c76c47: Initial scaffold of apps/desktop — Tauri 2 shell + React 19 + Tailwind + shadcn front-end + @agentskit/os-headless sidecar over JSON-RPC stdio. Per ADR-0018.
+
+  Closes #35
+  Refs #36 #37 #43 #38 #44
+
+- Updated dependencies [56a30a2]
+  - @agentskit/os-core@0.4.0-alpha.2
+
 ## 0.1.0-alpha.0
 
 ### Minor Changes

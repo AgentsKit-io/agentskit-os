@@ -1,5 +1,13 @@
 # @agentskit/os-core
 
+## 0.4.0-alpha.2
+
+### Patch Changes
+
+- 56a30a2: ADR-0018 — Desktop shell architecture (Tauri 2 + React + os-headless sidecar). Documents the IPC schema, bundling rules, and security boundaries.
+
+  Part of Epic #3 (Desktop Harness). Refs #35 #36 #37 #43
+
 ## 0.4.0-alpha.1
 
 ### Minor Changes

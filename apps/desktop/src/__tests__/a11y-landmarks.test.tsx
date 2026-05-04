@@ -204,6 +204,20 @@ describe('App ARIA landmarks', () => {
     expect(screen.queryByRole('heading', { name: /runs is in preview/i })).not.toBeInTheDocument()
   })
 
+  it('opens the supported Agents screen from primary navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /agents/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /^agents$/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /agent registry/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /agents is in preview/i })).not.toBeInTheDocument()
+  })
+
   it('registers the restart onboarding command in the command palette', async () => {
     localStorage.setItem(
       'agentskitos.onboarding',

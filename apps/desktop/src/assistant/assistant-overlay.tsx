@@ -1,0 +1,227 @@
+/**
+ * AssistantOverlay — small popover anchored near the `data-assist-target`
+ * element currently active in AssistantContext.
+ *
+ * Behaviour:
+ *   - Input field + Send button: submit a prompt
+ *   - Response area: shows live streaming output
+ *   - Accept button: user signals acceptance (non-blocking, logs to console for now)
+ *   - Dismiss / Esc: close overlay without applying
+ *
+ * Positioning uses `getBoundingClientRect` on the target DOM element (looked up
+ * by `data-assist-target="<id>"`).  Falls back to a centered position when the
+ * element is not found (e.g. in tests or when the node has scrolled away).
+ */
+
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { GlassPanel, Kbd } from '@agentskit/os-ui'
+import { useAssistant } from './assistant-provider'
+import { useAssistStream } from './use-assist-stream'
+
+// ---------------------------------------------------------------------------
+// Position helpers
+// ---------------------------------------------------------------------------
+
+type Coords = { top: number; left: number }
+
+function getTargetCoords(targetId: string): Coords {
+  const el = document.querySelector(`[data-assist-target="${CSS.escape(targetId)}"]`)
+  if (!el) {
+    // Fallback: centre of viewport
+    return {
+      top: window.innerHeight * 0.3,
+      left: window.innerWidth * 0.5 - 200,
+    }
+  }
+  const rect = el.getBoundingClientRect()
+  return {
+    top: rect.bottom + 8,
+    left: Math.min(rect.left, window.innerWidth - 420),
+  }
+}
+
+// ---------------------------------------------------------------------------
+// AssistantOverlay
+// ---------------------------------------------------------------------------
+
+export function AssistantOverlay(): React.JSX.Element | null {
+  const { isOpen, currentTarget, currentSuggestion, close } = useAssistant()
+  const { stream, cancel } = useAssistStream()
+
+  const [prompt, setPrompt] = useState('')
+  const [coords, setCoords] = useState<Coords>({ top: 0, left: 0 })
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Re-calculate position whenever the overlay opens
+  useEffect(() => {
+    if (isOpen && currentTarget) {
+      setCoords(getTargetCoords(currentTarget.id))
+      setPrompt('')
+      requestAnimationFrame(() => {
+        inputRef.current?.focus()
+      })
+    }
+  }, [isOpen, currentTarget])
+
+  const handleSend = useCallback(() => {
+    const trimmed = prompt.trim()
+    if (!trimmed || !currentTarget) return
+    stream({ target: currentTarget, prompt: trimmed })
+  }, [prompt, currentTarget, stream])
+
+  const handleAccept = useCallback(() => {
+    // TODO: wire to actual apply logic when a flow editor surface exists
+    // For now, emit a console statement so the accept action is observable.
+    // eslint-disable-next-line no-console
+    console.info('[assistant] suggestion accepted', currentSuggestion)
+    close()
+  }, [currentSuggestion, close])
+
+  const handleDismiss = useCallback(() => {
+    cancel()
+    close()
+  }, [cancel, close])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        handleDismiss()
+      }
+    },
+    [handleDismiss],
+  )
+
+  const handleFormKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        handleSend()
+      }
+    },
+    [handleSend],
+  )
+
+  if (!isOpen || !currentTarget) return null
+
+  const isStreaming = currentSuggestion?.status === 'streaming'
+  const hasResponse = currentSuggestion !== null && currentSuggestion.response.length > 0
+  const isComplete = currentSuggestion?.status === 'complete'
+  const isError = currentSuggestion?.status === 'error'
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="false"
+      aria-label="Inline LLM assistant"
+      data-testid="assistant-overlay"
+      className="fixed z-50"
+      style={{ top: coords.top, left: coords.left }}
+      onKeyDown={handleKeyDown}
+    >
+      <GlassPanel
+        blur="lg"
+        className="w-[400px] flex flex-col gap-0 overflow-hidden shadow-2xl"
+        onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--ag-line)] shrink-0">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+              Assistant
+            </span>
+            <span className="text-[10px] text-[var(--ag-ink-subtle)] font-mono truncate">
+              {currentTarget.kind}:{currentTarget.id}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <Kbd>Esc</Kbd>
+            <button
+              type="button"
+              aria-label="Close assistant"
+              onClick={handleDismiss}
+              className="ml-1 text-[var(--ag-ink-muted)] hover:text-[var(--ag-ink)] transition-colors text-sm leading-none"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        {/* Prompt input */}
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--ag-line)] shrink-0">
+          <input
+            ref={inputRef}
+            type="text"
+            aria-label="Assistant prompt"
+            placeholder="Describe what you need…"
+            value={prompt}
+            disabled={isStreaming}
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={handleFormKeyDown}
+            className="flex-1 bg-transparent text-sm text-[var(--ag-ink)] placeholder:text-[var(--ag-ink-muted)] outline-none disabled:opacity-50"
+          />
+          <button
+            type="button"
+            aria-label="Send prompt"
+            disabled={!prompt.trim() || isStreaming}
+            onClick={handleSend}
+            className="shrink-0 rounded px-2 py-1 text-xs font-medium bg-[var(--ag-accent)]/20 text-[var(--ag-accent)] hover:bg-[var(--ag-accent)]/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {isStreaming ? 'Streaming…' : 'Send'}
+          </button>
+        </div>
+
+        {/* Response area */}
+        {hasResponse && (
+          <div
+            aria-live="polite"
+            aria-label="Assistant response"
+            className="px-3 py-2 text-sm text-[var(--ag-ink)] max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed"
+          >
+            {currentSuggestion!.response}
+            {isStreaming && (
+              <span
+                aria-hidden
+                className="inline-block w-[6px] h-[13px] ml-0.5 align-middle bg-[var(--ag-accent)] animate-pulse rounded-sm"
+              />
+            )}
+          </div>
+        )}
+
+        {/* Error */}
+        {isError && (
+          <p role="alert" className="px-3 py-2 text-xs text-red-400">
+            {currentSuggestion!.response}
+          </p>
+        )}
+
+        {/* Accept / dismiss footer — only when a complete suggestion exists */}
+        {isComplete && (
+          <div className="flex items-center justify-end gap-2 px-3 py-2 border-t border-[var(--ag-line)] shrink-0">
+            <button
+              type="button"
+              aria-label="Dismiss suggestion"
+              onClick={handleDismiss}
+              className="text-xs text-[var(--ag-ink-muted)] hover:text-[var(--ag-ink)] transition-colors"
+            >
+              Dismiss
+            </button>
+            <button
+              type="button"
+              aria-label="Accept suggestion"
+              onClick={handleAccept}
+              className="rounded px-2 py-1 text-xs font-medium bg-[var(--ag-accent)]/20 text-[var(--ag-accent)] hover:bg-[var(--ag-accent)]/30 transition-colors"
+            >
+              Accept
+            </button>
+          </div>
+        )}
+      </GlassPanel>
+    </div>
+  )
+}

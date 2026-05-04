@@ -1,4 +1,5 @@
 import { resolve } from 'node:path'
+import { Command } from 'commander'
 import {
   FLOW_ENVELOPE_FORMAT,
   parseFlowEnvelope,
@@ -12,31 +13,9 @@ import {
   type ConfigRoot,
 } from '@agentskit/os-core/schema/config-root'
 import { stringify as yamlStringify, parse as yamlParse } from 'yaml'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
-
-const exportHelp = `agentskit-os flow export <config-path> --flow <id> [--out <path>]
-
-Exports a flow from an AgentsKitOS config file as a portable JSON envelope
-(format "${FLOW_ENVELOPE_FORMAT}"). Pipe through ed25519/minisign and
-attach the signature back via \`flow import-json --signature <path>\`.
-
-Options:
-  --flow <id>      flow id to extract (required)
-  --out <path>     write JSON to <path> (default: stdout)
-`
-
-const importHelp = `agentskit-os flow import-json <envelope-path> --target <config-path> [options]
-
-Imports a FlowEnvelope JSON into an existing AgentsKitOS config.
-
-Options:
-  --target <path>  config to mutate (required, must already exist)
-  --mode <m>       merge | replace (default: merge — appends if id is new,
-                   errors if id collides without --replace)
-  --replace        shorthand for --mode replace
-  --out <path>     write merged config to <path> (default: --target in-place)
-`
 
 const readYaml = async (io: CliIo, path: string): Promise<ConfigRoot> => {
   const raw = await io.readFile(path)
@@ -45,106 +24,6 @@ const readYaml = async (io: CliIo, path: string): Promise<ConfigRoot> => {
 
 const writeYaml = async (io: CliIo, path: string, cfg: ConfigRoot): Promise<void> => {
   await io.writeFile(path, yamlStringify(cfg))
-}
-
-// ---- export ------------------------------------------------------------
-
-type ExportArgs = {
-  config?: string
-  flowId?: string
-  out?: string
-  usage?: string
-}
-
-const parseExport = (argv: readonly string[]): ExportArgs => {
-  const out: ExportArgs = {}
-  let i = 0
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--flow' || a === '--out') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: `${a} requires a value` }
-      if (a === '--flow') out.flowId = v
-      else out.out = v
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    if (out.config !== undefined) return { ...out, usage: 'only one positional <config-path>' }
-    if (a !== undefined) out.config = a
-    i++
-  }
-  if (!out.config) return { ...out, usage: '<config-path> is required' }
-  if (!out.flowId) return { ...out, usage: '--flow <id> is required' }
-  return out
-}
-
-export const flowExport: CliCommand = {
-  name: 'flow export',
-  summary: 'Export a flow as a portable FlowEnvelope JSON',
-  run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const args = parseExport(argv)
-    if (args.usage === 'help') return { code: 2, stdout: '', stderr: exportHelp }
-    if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${exportHelp}` }
-
-    const cfgPath = resolve(io.cwd(), args.config!)
-    const cfg = await readYaml(io, cfgPath)
-    const flow = (cfg.flows ?? []).find((f) => f.id === args.flowId)
-    if (!flow) {
-      return { code: 8, stdout: '', stderr: `error: flow "${args.flowId}" not found in ${cfgPath}\n` }
-    }
-    const envelope: FlowEnvelope = {
-      format: FLOW_ENVELOPE_FORMAT,
-      flow,
-      meta: { exportedAt: new Date().toISOString(), workspace: cfg.workspace.id },
-    }
-    const json = JSON.stringify(envelope, null, 2)
-    if (args.out) {
-      await io.writeFile(resolve(io.cwd(), args.out), json)
-      return { code: 0, stdout: `exported ${args.flowId} → ${args.out}\n`, stderr: '' }
-    }
-    return { code: 0, stdout: `${json}\n`, stderr: '' }
-  },
-}
-
-// ---- import-json -------------------------------------------------------
-
-type ImportArgs = {
-  envelope?: string
-  target?: string
-  mode: 'merge' | 'replace'
-  out?: string
-  usage?: string
-}
-
-const parseImport = (argv: readonly string[]): ImportArgs => {
-  const out: ImportArgs = { mode: 'merge' }
-  let i = 0
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--replace') { out.mode = 'replace'; i++; continue }
-    if (a === '--target' || a === '--out' || a === '--mode') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: `${a} requires a value` }
-      if (a === '--target') out.target = v
-      else if (a === '--out') out.out = v
-      else if (a === '--mode') {
-        if (v !== 'merge' && v !== 'replace') return { ...out, usage: `--mode must be merge|replace` }
-        out.mode = v
-      }
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    if (out.envelope !== undefined) return { ...out, usage: 'only one positional <envelope-path>' }
-    if (a !== undefined) out.envelope = a
-    i++
-  }
-  if (!out.envelope) return { ...out, usage: '<envelope-path> is required' }
-  if (!out.target) return { ...out, usage: '--target <config-path> is required' }
-  return out
 }
 
 const upsertFlow = (cfg: ConfigRoot, incoming: FlowConfig, mode: 'merge' | 'replace'): ConfigRoot => {
@@ -160,33 +39,114 @@ const upsertFlow = (cfg: ConfigRoot, incoming: FlowConfig, mode: 'merge' | 'repl
   return parseConfigRoot({ ...cfg, schemaVersion: CONFIG_ROOT_VERSION, flows })
 }
 
+const buildExportProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('flow export')
+    .description(
+      `agentskit-os flow export — Export a flow as portable JSON (${FLOW_ENVELOPE_FORMAT}).`,
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('<configPath>', 'AgentsKitOS workspace config path')
+    .requiredOption('--flow <id>', 'flow id to extract')
+    .option('--out <path>', 'write JSON to path (default: stdout)')
+    .action(async (configPath: string, opts: { flow: string; out?: string }) => {
+      const cfgPath = resolve(io.cwd(), configPath)
+      const cfg = await readYaml(io, cfgPath)
+      const flow = (cfg.flows ?? []).find((f) => f.id === opts.flow)
+      if (!flow) {
+        result.current = { code: 8, stdout: '', stderr: `error: flow "${opts.flow}" not found in ${cfgPath}\n` }
+        return
+      }
+      const envelope: FlowEnvelope = {
+        format: FLOW_ENVELOPE_FORMAT,
+        flow,
+        meta: { exportedAt: new Date().toISOString(), workspace: cfg.workspace.id },
+      }
+      const json = JSON.stringify(envelope, null, 2)
+      if (opts.out) {
+        await io.writeFile(resolve(io.cwd(), opts.out), json)
+        result.current = { code: 0, stdout: `exported ${opts.flow} → ${opts.out}\n`, stderr: '' }
+        return
+      }
+      result.current = { code: 0, stdout: `${json}\n`, stderr: '' }
+    })
+  return { program, result }
+}
+
+export const flowExport: CliCommand = {
+  name: 'flow export',
+  summary: 'Export a flow as a portable FlowEnvelope JSON',
+  run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
+    const { program, result } = buildExportProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
+    }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
+  },
+}
+
+const buildImportProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('flow import-json')
+    .description('agentskit-os flow import-json — Import a FlowEnvelope JSON into an existing config.')
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('<envelopePath>', 'path to FlowEnvelope JSON')
+    .requiredOption('--target <path>', 'config file to mutate (must exist)')
+    .option('--mode <m>', 'merge or replace', 'merge')
+    .option('--replace', 'shorthand for replace mode', false)
+    .option('--out <path>', 'write merged config here (default: --target in-place)')
+    .action(async function (this: Command, envelopePath: string, opts: {
+      target: string
+      mode?: string
+      replace?: boolean
+      out?: string
+    }) {
+      if (opts.mode !== undefined && opts.mode !== 'merge' && opts.mode !== 'replace') {
+        this.error('error: --mode must be merge|replace', { exitCode: 2 })
+      }
+      const mode: 'merge' | 'replace' = opts.replace ? 'replace' : opts.mode === 'replace' ? 'replace' : 'merge'
+
+      const envPath = resolve(io.cwd(), envelopePath)
+      const targetPath = resolve(io.cwd(), opts.target)
+      const envelope = parseFlowEnvelope(JSON.parse(await io.readFile(envPath)))
+      const flow = parseFlowConfig(envelope.flow)
+
+      const cfg = await readYaml(io, targetPath)
+      let merged: ConfigRoot
+      try {
+        merged = upsertFlow(cfg, flow, mode)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        result.current = { code: 9, stdout: '', stderr: `error: ${msg}\n` }
+        return
+      }
+      const outPath = resolve(io.cwd(), opts.out ?? opts.target)
+      await writeYaml(io, outPath, merged)
+      result.current = {
+        code: 0,
+        stdout: `imported ${flow.id} (mode=${mode}) → ${outPath}\n`,
+        stderr: '',
+      }
+    })
+  return { program, result }
+}
+
 export const flowImportJson: CliCommand = {
   name: 'flow import-json',
   summary: 'Import a FlowEnvelope JSON into an existing config',
   run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const args = parseImport(argv)
-    if (args.usage === 'help') return { code: 2, stdout: '', stderr: importHelp }
-    if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${importHelp}` }
-
-    const envPath = resolve(io.cwd(), args.envelope!)
-    const targetPath = resolve(io.cwd(), args.target!)
-    const envelope = parseFlowEnvelope(JSON.parse(await io.readFile(envPath)))
-    const flow = parseFlowConfig(envelope.flow)
-
-    const cfg = await readYaml(io, targetPath)
-    let merged: ConfigRoot
-    try {
-      merged = upsertFlow(cfg, flow, args.mode)
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      return { code: 9, stdout: '', stderr: `error: ${msg}\n` }
+    const { program, result } = buildImportProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-    const outPath = resolve(io.cwd(), args.out ?? args.target!)
-    await writeYaml(io, outPath, merged)
-    return {
-      code: 0,
-      stdout: `imported ${flow.id} (mode=${args.mode}) → ${outPath}\n`,
-      stderr: '',
-    }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

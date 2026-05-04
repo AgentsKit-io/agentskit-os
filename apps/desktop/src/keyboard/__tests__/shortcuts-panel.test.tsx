@@ -55,10 +55,10 @@ describe('ShortcutsPanel', () => {
     expect(dialog?.getAttribute('aria-label')).toBe('Keyboard shortcuts')
   })
 
-  it('renders all 12 shortcut rows', () => {
+  it('renders all 13 shortcut rows', () => {
     act(() => { root.render(renderPanel()) })
     const rows = container.querySelectorAll('[data-testid^="shortcut-row-"]')
-    expect(rows.length).toBe(12)
+    expect(rows.length).toBe(13)
   })
 
   it('renders category headings', () => {

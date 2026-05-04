@@ -6,8 +6,8 @@ import { describe, it, expect } from 'vitest'
 import { BUILT_IN_SHORTCUTS, getBuiltIn, getCategories } from '../shortcut-registry'
 
 describe('BUILT_IN_SHORTCUTS', () => {
-  it('has exactly 12 shortcuts', () => {
-    expect(BUILT_IN_SHORTCUTS).toHaveLength(12)
+  it('has exactly 13 shortcuts', () => {
+    expect(BUILT_IN_SHORTCUTS).toHaveLength(13)
   })
 
   it('all shortcuts have required fields', () => {

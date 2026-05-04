@@ -172,11 +172,34 @@ describe('trigger preset', () => {
     const r = await route(['trigger', 'preset', 'list'])
     expect(r.code).toBe(0)
     expect(r.stdout).toContain('webhook/inbound-generic')
+    expect(r.stdout).toContain('webhook/discord-inbound')
   })
 
   it('shows a preset', async () => {
     const r = await route(['trigger', 'preset', 'show', 'cron/nightly-health'])
     expect(r.code).toBe(0)
     expect(r.stdout).toContain('cron')
+  })
+})
+
+describe('dev worktree', () => {
+  it('prints help', async () => {
+    const r = await route(['dev', 'worktree', '--help'])
+    expect(r.code).toBe(2)
+    expect(r.stderr).toContain('agentskit-os dev worktree')
+  })
+})
+
+describe('coding-agent conformance', () => {
+  it('prints help', async () => {
+    const r = await route(['coding-agent', 'conformance', '--help'])
+    expect(r.code).toBe(2)
+    expect(r.stderr).toContain('--provider')
+  })
+
+  it('rejects unknown provider', async () => {
+    const r = await route(['coding-agent', 'conformance', '--provider', 'nope'])
+    expect(r.code).toBe(2)
+    expect(r.stderr).toContain('unknown provider')
   })
 })

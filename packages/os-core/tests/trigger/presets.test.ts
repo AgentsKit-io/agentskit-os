@@ -11,4 +11,8 @@ describe('trigger presets', () => {
     const p = getTriggerPreset('webhook/inbound-generic')
     expect(p?.trigger.kind).toBe('webhook')
   })
+
+  it('includes discord webhook preset', () => {
+    expect(getTriggerPreset('webhook/discord-inbound')?.trigger.kind).toBe('webhook')
+  })
 })

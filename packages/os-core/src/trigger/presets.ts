@@ -81,6 +81,40 @@ export const TRIGGER_PRESETS: readonly TriggerPreset[] = [
     },
   }),
   preset({
+    id: 'webhook/discord-inbound',
+    title: 'Discord inbound (webhook)',
+    description:
+      'HTTP webhook for Discord-compatible integrations; validate signatures in your flow and map `flow`.',
+    tags: ['discord', 'webhook', 'chat'],
+    trigger: {
+      id: 'webhook-discord-inbound',
+      name: 'Discord Inbound',
+      enabled: true,
+      flow: 'chat-discord-handler',
+      tags: ['preset', 'discord', 'webhook'],
+      kind: 'webhook',
+      path: '/hooks/discord',
+      method: 'POST',
+    },
+  }),
+  preset({
+    id: 'webhook/teams-inbound',
+    title: 'Microsoft Teams inbound (webhook)',
+    description:
+      'HTTP webhook for Teams connectors / incoming webhooks; map `flow` to your parser node.',
+    tags: ['teams', 'webhook', 'chat'],
+    trigger: {
+      id: 'webhook-teams-inbound',
+      name: 'Teams Inbound',
+      enabled: true,
+      flow: 'chat-teams-handler',
+      tags: ['preset', 'teams', 'webhook'],
+      kind: 'webhook',
+      path: '/hooks/teams',
+      method: 'POST',
+    },
+  }),
+  preset({
     id: 'file/watch-src',
     title: 'File watch (src/)',
     description: 'Watch `src/**` for changes to kick off a local dev loop.',

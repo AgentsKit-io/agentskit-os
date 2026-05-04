@@ -40,6 +40,8 @@
   },
   "peerDependencies": {
     "@agentskit/os-core": "workspace:^",
+    "@agentskit/os-coding-agents": "workspace:^",
+    "@agentskit/os-dev-orchestrator": "workspace:^",
     "@agentskit/os-flow": "workspace:^",
     "@agentskit/os-import": "workspace:^",
     "@agentskit/os-marketplace-sdk": "workspace:^",
@@ -50,6 +52,8 @@
   },
   "devDependencies": {
     "@agentskit/os-core": "workspace:*",
+    "@agentskit/os-coding-agents": "workspace:*",
+    "@agentskit/os-dev-orchestrator": "workspace:*",
     "@agentskit/os-flow": "workspace:*",
     "@agentskit/os-import": "workspace:*",
     "@agentskit/os-marketplace-sdk": "workspace:*",

@@ -6,6 +6,39 @@
     "AdjacencyEntry": {
       "kind": "reexport"
     },
+    "AgentMap": {
+      "kind": "reexport"
+    },
+    "AgentRegistryEntry": {
+      "kind": "reexport"
+    },
+    "AgentRunResult": {
+      "kind": "type"
+    },
+    "ApproverGate": {
+      "kind": "type"
+    },
+    "ApproverGateDecision": {
+      "kind": "type"
+    },
+    "AuctionHandlerOptions": {
+      "kind": "type"
+    },
+    "AuctionScorerFn": {
+      "kind": "type"
+    },
+    "BlackboardHandlerOptions": {
+      "kind": "type"
+    },
+    "BranchFromSnapshotOptions": {
+      "kind": "type"
+    },
+    "BranchOverride": {
+      "kind": "type"
+    },
+    "BranchResult": {
+      "kind": "type"
+    },
     "BridgeEvent": {
       "kind": "reexport"
     },
@@ -21,13 +54,55 @@
     "CheckpointStore": {
       "kind": "reexport"
     },
+    "CompareEvalFn": {
+      "kind": "type"
+    },
+    "CompareHandlerOptions": {
+      "kind": "type"
+    },
+    "CompareJudgeFn": {
+      "kind": "type"
+    },
+    "DebateHandlerOptions": {
+      "kind": "type"
+    },
+    "DebuggerAfterNodeInput": {
+      "kind": "reexport"
+    },
+    "DebuggerBeforeNodeDecision": {
+      "kind": "reexport"
+    },
+    "DebuggerBeforeNodeInput": {
+      "kind": "reexport"
+    },
+    "DebuggerMode": {
+      "kind": "reexport"
+    },
+    "DebuggerState": {
+      "kind": "reexport"
+    },
+    "DeterminismValidationInput": {
+      "kind": "reexport"
+    },
     "DurableRunResult": {
       "kind": "reexport"
     },
     "EdgeOn": {
       "kind": "reexport"
     },
+    "EstimateOptions": {
+      "kind": "reexport"
+    },
     "FLOW_EVENT_TYPES": {
+      "kind": "reexport"
+    },
+    "FlowBranchError": {
+      "kind": "class"
+    },
+    "FlowCostEstimate": {
+      "kind": "reexport"
+    },
+    "FlowDebugger": {
       "kind": "reexport"
     },
     "FlowEventType": {
@@ -36,13 +111,28 @@
     "GraphIssue": {
       "kind": "reexport"
     },
+    "HumanHandlerOptions": {
+      "kind": "type"
+    },
     "InMemoryCheckpointStore": {
+      "kind": "reexport"
+    },
+    "InMemoryScratchpadStore": {
+      "kind": "class"
+    },
+    "InMemoryToolManifestRegistry": {
+      "kind": "class"
+    },
+    "NodeCostEstimate": {
       "kind": "reexport"
     },
     "NodeHandler": {
       "kind": "reexport"
     },
     "NodeHandlerMap": {
+      "kind": "reexport"
+    },
+    "NodeId": {
       "kind": "reexport"
     },
     "NodeOutcome": {
@@ -54,8 +144,17 @@
     "PACKAGE_VERSION": {
       "kind": "const"
     },
+    "PolicyToolHandlerOptions": {
+      "kind": "interface"
+    },
+    "PriceMap": {
+      "kind": "reexport"
+    },
     "ResumeOptions": {
       "kind": "reexport"
+    },
+    "RunAgentFn": {
+      "kind": "type"
     },
     "RunOptions": {
       "kind": "reexport"
@@ -63,25 +162,103 @@
     "RunResult": {
       "kind": "reexport"
     },
+    "RunSnapshot": {
+      "kind": "reexport"
+    },
+    "RunSnapshotType": {
+      "kind": "reexport"
+    },
+    "ScratchpadStore": {
+      "kind": "type"
+    },
+    "SnapshotInput": {
+      "kind": "reexport"
+    },
+    "SnapshotOptions": {
+      "kind": "reexport"
+    },
+    "ToolManifestRegistry": {
+      "kind": "interface"
+    },
+    "ToolPolicyDecisionEvent": {
+      "kind": "type"
+    },
+    "ToolRegistryEntry": {
+      "kind": "reexport"
+    },
+    "VoteHandlerOptions": {
+      "kind": "type"
+    },
+    "VoteJudgeFn": {
+      "kind": "type"
+    },
+    "applyModeStubs": {
+      "kind": "reexport"
+    },
     "auditGraph": {
       "kind": "reexport"
     },
+    "branchFromSnapshot": {
+      "kind": "const"
+    },
     "buildAdjacency": {
+      "kind": "reexport"
+    },
+    "buildSnapshotEmitter": {
+      "kind": "reexport"
+    },
+    "captureSnapshot": {
       "kind": "reexport"
     },
     "composeHandlers": {
       "kind": "reexport"
     },
+    "createAuctionHandler": {
+      "kind": "const"
+    },
+    "createBlackboardHandler": {
+      "kind": "const"
+    },
     "createBusOnEvent": {
       "kind": "reexport"
     },
+    "createCompareHandler": {
+      "kind": "const"
+    },
+    "createDebateHandler": {
+      "kind": "const"
+    },
+    "createHumanHandler": {
+      "kind": "const"
+    },
+    "createInMemoryDebugger": {
+      "kind": "reexport"
+    },
+    "createPolicyToolHandler": {
+      "kind": "const"
+    },
+    "createVoteHandler": {
+      "kind": "const"
+    },
     "defaultStubHandlers": {
+      "kind": "reexport"
+    },
+    "estimateFlowCost": {
       "kind": "reexport"
     },
     "findUnreachable": {
       "kind": "reexport"
     },
     "nodeKindOf": {
+      "kind": "reexport"
+    },
+    "outcomesFromSnapshot": {
+      "kind": "reexport"
+    },
+    "policyForMode": {
+      "kind": "reexport"
+    },
+    "priceKey": {
       "kind": "reexport"
     },
     "reachableFrom": {
@@ -94,6 +271,72 @@
       "kind": "reexport"
     },
     "topoSort": {
+      "kind": "reexport"
+    },
+    "type AgentRunResult": {
+      "kind": "reexport"
+    },
+    "type ApproverGate": {
+      "kind": "reexport"
+    },
+    "type ApproverGateDecision": {
+      "kind": "reexport"
+    },
+    "type AuctionHandlerOptions": {
+      "kind": "reexport"
+    },
+    "type AuctionScorerFn": {
+      "kind": "reexport"
+    },
+    "type BlackboardHandlerOptions": {
+      "kind": "reexport"
+    },
+    "type BranchFromSnapshotOptions": {
+      "kind": "reexport"
+    },
+    "type BranchOverride": {
+      "kind": "reexport"
+    },
+    "type BranchResult": {
+      "kind": "reexport"
+    },
+    "type CompareEvalFn": {
+      "kind": "reexport"
+    },
+    "type CompareHandlerOptions": {
+      "kind": "reexport"
+    },
+    "type CompareJudgeFn": {
+      "kind": "reexport"
+    },
+    "type DebateHandlerOptions": {
+      "kind": "reexport"
+    },
+    "type HumanHandlerOptions": {
+      "kind": "reexport"
+    },
+    "type PolicyToolHandlerOptions": {
+      "kind": "reexport"
+    },
+    "type RunAgentFn": {
+      "kind": "reexport"
+    },
+    "type ScratchpadStore": {
+      "kind": "reexport"
+    },
+    "type ToolManifestRegistry": {
+      "kind": "reexport"
+    },
+    "type ToolPolicyDecisionEvent": {
+      "kind": "reexport"
+    },
+    "type VoteHandlerOptions": {
+      "kind": "reexport"
+    },
+    "type VoteJudgeFn": {
+      "kind": "reexport"
+    },
+    "validateDeterministicFlow": {
       "kind": "reexport"
     }
   }

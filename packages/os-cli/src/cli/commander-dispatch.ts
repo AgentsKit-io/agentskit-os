@@ -3,12 +3,20 @@ import { Command, CommanderError } from 'commander'
 const isHelpCode = (code: string | undefined): boolean =>
   code === 'commander.helpDisplayed' || code === 'commander.help' || code === 'commander.version'
 
+/** Ensures every nested `Command` throws `CommanderError` instead of calling `process.exit` (Vitest-safe). */
+const applyExitOverrideRecursive = (cmd: Command): void => {
+  cmd.exitOverride()
+  for (const sub of cmd.commands) {
+    applyExitOverrideRecursive(sub)
+  }
+}
+
 /**
  * Runs a Commander program with argv sliced for this subcommand, captures stdout/stderr,
  * and maps Commander exit codes to AgentsKit CLI conventions (help → 2).
  *
- * Call `program.error(...)` on this same `program` instance from `.action()` handlers so
- * `exitOverride` applies. Subcommands' `.error()` may still invoke `process.exit` under Vitest.
+ * Handlers may call `.error()` on the **active** command (`this` in a non-arrow `.action`, or the
+ * subcommand you attached `.action` to). `exitOverride` is applied on the root and all descendants.
  */
 export const runCommander = async (
   program: Command,
@@ -24,7 +32,7 @@ export const runCommander = async (
       stderr += s
     },
   })
-  program.exitOverride()
+  applyExitOverrideRecursive(program)
   program.showHelpAfterError(true)
 
   try {

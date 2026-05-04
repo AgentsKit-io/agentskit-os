@@ -306,7 +306,7 @@ export const run: CliCommand = {
       ? () => undefined
       : (e: CliRunEvent) => {
           if (e.kind === 'node:start') events.push(`→ ${e.nodeId}`)
-          else if (e.kind === 'node:break') events.push(`⏸ ${e.nodeId} (breakpoint)`)
+          else if (e.kind === 'node:paused') events.push(`⏸ ${e.nodeId} (${e.reason})`)
           else if (e.kind === 'node:mock-applied') events.push(`↪ ${e.nodeId} (mocked)`)
           else if (e.kind === 'node:resumed') events.push(`✓ ${e.nodeId} (resumed)`)
           else events.push(`  ${e.nodeId}: ${e.outcome.kind}`)

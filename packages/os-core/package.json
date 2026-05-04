@@ -137,6 +137,11 @@
       "import": "./dist/schema/rag.js",
       "require": "./dist/schema/rag.cjs"
     },
+    "./schema/agent-registry": {
+      "types": "./dist/schema/agent-registry.d.ts",
+      "import": "./dist/schema/agent-registry.js",
+      "require": "./dist/schema/agent-registry.cjs"
+    },
     "./runtime/run-mode": {
       "types": "./dist/runtime/run-mode.d.ts",
       "import": "./dist/runtime/run-mode.js",

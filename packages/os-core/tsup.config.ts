@@ -26,6 +26,7 @@ export default defineConfig({
     'src/secrets/refs.ts',
     'src/events/bus.ts',
     'src/schema/rag.ts',
+    'src/schema/agent-registry.ts',
     'src/runtime/run-mode.ts',
     'src/security/egress.ts',
     'src/tools/side-effects.ts',
@@ -45,7 +46,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   treeshake: true,
-  splitting: false,
+  splitting: true,
   target: 'es2022',
   external: ['zod'],
 })

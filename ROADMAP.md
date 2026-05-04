@@ -100,4 +100,5 @@ Carbon-aware scheduler. Evolutionary/genetic agent loop. Mobile companion (RN). 
 
 ## Epics → Issues
 
-12 epics, 97 sub-issues mapped from brainstorm. See [`docs/EPICS.md`](./docs/EPICS.md).
+This repo started with a 12-epic / 123-issue snapshot (see [`docs/EPICS.md`](./docs/EPICS.md)).
+The live roadmap is now tracked in the GitHub Project board (250+ items) at `https://github.com/orgs/AgentsKit-io/projects/2/views/1`.

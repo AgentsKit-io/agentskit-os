@@ -1,0 +1,28 @@
+{
+  "id": "invoice-extractor",
+  "name": "Invoice Extractor",
+  "intent": "Extracts invoice fields and routes exceptions to accounts payable.",
+  "category": "finance",
+  "tags": [
+    "finance",
+    "invoice",
+    "extractor"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "invoice-extractor-lead",
+    "invoice-extractor-reviewer"
+  ],
+  "primaryTools": [
+    "invoice.read",
+    "erp.lookup",
+    "approval.request"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

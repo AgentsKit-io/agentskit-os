@@ -1,0 +1,29 @@
+{
+  "id": "multi-language-support",
+  "name": "Multi Language Support",
+  "intent": "Translates, classifies, and drafts support replies for multilingual queues.",
+  "category": "customer-support",
+  "tags": [
+    "customer-support",
+    "multi",
+    "language",
+    "support"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "multi-language-support-lead",
+    "multi-language-support-reviewer"
+  ],
+  "primaryTools": [
+    "zendesk.ticket.read",
+    "zendesk.ticket.update",
+    "kb.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

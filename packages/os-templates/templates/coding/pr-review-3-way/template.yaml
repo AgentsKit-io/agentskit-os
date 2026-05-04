@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "pr-review-3-way-workspace",
+    "name": "Pr Review 3 Way Workspace",
+    "tags": [
+      "coding"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "pr-review-3-way-lead",
+      "name": "Pr Review 3 Way Lead",
+      "systemPrompt": "Runs three reviewers over a pull request and compares their findings before posting a final summary. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "pr-review-3-way-reviewer",
+      "name": "Pr Review 3 Way Reviewer",
+      "systemPrompt": "Runs three reviewers over a pull request and compares their findings before posting a final summary. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "pr-review-3-way-judge",
+      "name": "Pr Review 3 Way Judge",
+      "systemPrompt": "Runs three reviewers over a pull request and compares their findings before posting a final summary. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "pr-review-3-way-flow",
+      "name": "Pr Review 3 Way Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "github.pr.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "pr-review-3-way-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "pr-review-3-way-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "repo.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "coding"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "pr-review-3-way-trigger",
+      "name": "Pr Review 3 Way Trigger",
+      "flow": "pr-review-3-way-flow",
+      "enabled": true,
+      "tags": [
+        "coding"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "github",
+      "repo": "example/repo",
+      "event": "pull_request"
+    }
+  ]
+}

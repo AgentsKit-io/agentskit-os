@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "ticket-triage-workspace",
+    "name": "Ticket Triage Workspace",
+    "tags": [
+      "customer-support"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "ticket-triage-lead",
+      "name": "Ticket Triage Lead",
+      "systemPrompt": "Classifies support tickets by intent, urgency, account tier, and recommended queue. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "ticket-triage-reviewer",
+      "name": "Ticket Triage Reviewer",
+      "systemPrompt": "Classifies support tickets by intent, urgency, account tier, and recommended queue. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "ticket-triage-judge",
+      "name": "Ticket Triage Judge",
+      "systemPrompt": "Classifies support tickets by intent, urgency, account tier, and recommended queue. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "zendesk.ticket.read",
+        "zendesk.ticket.update",
+        "kb.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "ticket-triage-flow",
+      "name": "Ticket Triage Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "zendesk.ticket.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "ticket-triage-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "ticket-triage-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "kb.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "customer-support"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "ticket-triage-trigger",
+      "name": "Ticket Triage Trigger",
+      "flow": "ticket-triage-flow",
+      "enabled": true,
+      "tags": [
+        "customer-support"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/ticket-triage",
+      "method": "POST"
+    }
+  ]
+}

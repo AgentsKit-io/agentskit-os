@@ -1,0 +1,28 @@
+{
+  "id": "meeting-notes",
+  "name": "Meeting Notes",
+  "intent": "Turns transcript notes into decisions, action items, and follow-ups.",
+  "category": "personal-productivity",
+  "tags": [
+    "personal-productivity",
+    "meeting",
+    "notes"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "meeting-notes-lead",
+    "meeting-notes-reviewer"
+  ],
+  "primaryTools": [
+    "gmail.search",
+    "calendar.read",
+    "tasks.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

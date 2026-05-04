@@ -1,0 +1,28 @@
+{
+  "id": "blog-from-outline",
+  "name": "Blog From Outline",
+  "intent": "Expands an outline into a blog draft with review checkpoints.",
+  "category": "marketing-content",
+  "tags": [
+    "marketing-content",
+    "blog",
+    "outline"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "blog-from-outline-lead",
+    "blog-from-outline-reviewer"
+  ],
+  "primaryTools": [
+    "brand.kit.read",
+    "cms.draft",
+    "slack.send"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "slack",
+  "stability": "ready"
+}

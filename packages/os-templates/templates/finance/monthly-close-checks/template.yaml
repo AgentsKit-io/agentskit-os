@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "monthly-close-checks-workspace",
+    "name": "Monthly Close Checks Workspace",
+    "tags": [
+      "finance"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "monthly-close-checks-lead",
+      "name": "Monthly Close Checks Lead",
+      "systemPrompt": "Coordinates monthly close checks across finance owners. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "monthly-close-checks-reviewer",
+      "name": "Monthly Close Checks Reviewer",
+      "systemPrompt": "Coordinates monthly close checks across finance owners. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "monthly-close-checks-judge",
+      "name": "Monthly Close Checks Judge",
+      "systemPrompt": "Coordinates monthly close checks across finance owners. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "invoice.read",
+        "erp.lookup",
+        "approval.request"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "monthly-close-checks-flow",
+      "name": "Monthly Close Checks Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "invoice.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "monthly-close-checks-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "monthly-close-checks-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Monthly Close Checks before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "approval.request"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "finance"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "monthly-close-checks-trigger",
+      "name": "Monthly Close Checks Trigger",
+      "flow": "monthly-close-checks-flow",
+      "enabled": true,
+      "tags": [
+        "finance"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:monthly-close-checks"
+    }
+  ]
+}

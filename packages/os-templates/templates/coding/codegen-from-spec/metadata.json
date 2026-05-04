@@ -1,0 +1,28 @@
+{
+  "id": "codegen-from-spec",
+  "name": "Codegen From Spec",
+  "intent": "Turns a short feature specification into an implementation plan and code-generation checklist.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "codegen",
+    "spec"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "codegen-from-spec-lead",
+    "codegen-from-spec-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

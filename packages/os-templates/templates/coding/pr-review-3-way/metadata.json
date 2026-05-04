@@ -1,0 +1,30 @@
+{
+  "id": "pr-review-3-way",
+  "name": "Pr Review 3 Way",
+  "intent": "Runs three reviewers over a pull request and compares their findings before posting a final summary.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "pr",
+    "review",
+    "3",
+    "way"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "pr-review-3-way-lead",
+    "pr-review-3-way-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

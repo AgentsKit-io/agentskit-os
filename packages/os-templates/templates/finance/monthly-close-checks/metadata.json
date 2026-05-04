@@ -1,0 +1,29 @@
+{
+  "id": "monthly-close-checks",
+  "name": "Monthly Close Checks",
+  "intent": "Coordinates monthly close checks across finance owners.",
+  "category": "finance",
+  "tags": [
+    "finance",
+    "monthly",
+    "close",
+    "checks"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "monthly-close-checks-lead",
+    "monthly-close-checks-reviewer"
+  ],
+  "primaryTools": [
+    "invoice.read",
+    "erp.lookup",
+    "approval.request"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

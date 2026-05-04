@@ -207,4 +207,18 @@ describe('App ARIA landmarks', () => {
     expect(screen.getByRole('dialog', { name: /command palette/i })).toBeInTheDocument()
     expect(screen.getByText(/restart onboarding tour/i)).toBeInTheDocument()
   })
+
+  it('registers preview surface navigation commands in the command palette', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'k', metaKey: true })
+    })
+
+    expect(screen.getByText(/go to benchmark/i)).toBeInTheDocument()
+    expect(screen.getByText(/go to triggers/i)).toBeInTheDocument()
+    expect(screen.getByText(/go to cost & quotas/i)).toBeInTheDocument()
+  })
 })

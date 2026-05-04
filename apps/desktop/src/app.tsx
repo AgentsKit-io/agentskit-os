@@ -178,6 +178,10 @@ const SECONDARY_NAV_ITEMS: readonly NavItem[] = [
 
 const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), ...SECONDARY_NAV_ITEMS] as const
 
+const PREVIEW_NAV_COMMAND_ITEMS = NAV_GROUPS
+  .flatMap((group) => group.items)
+  .filter((item) => item.status === 'preview')
+
 function isActiveScreen(screen: string): screen is ActiveScreen {
   return NAV_ITEMS.some((item) => item.id === screen)
 }
@@ -472,6 +476,7 @@ export function App() {
                           <ArtifactViewerProvider>
                           <NotificationCommandBridge onAnnounce={setAnnouncement} />
                           <OnboardingCommandWirer onAnnounce={setAnnouncement} />
+                          <PreviewNavigationCommandWirer onNavigate={handleNavigate} />
                           <ExamplesWirer onNavigate={handleNavigate} />
                           <ShortcutWirer />
                           <PreferencesWirer />
@@ -558,6 +563,32 @@ function OnboardingCommandWirer({
       },
     })
   }, [registerCommand, closePalette, restart, onAnnounce])
+
+  return null
+}
+
+/** Registers keyboard-first navigation commands for preview roadmap surfaces. */
+function PreviewNavigationCommandWirer({
+  onNavigate,
+}: {
+  onNavigate: (screen: string) => void
+}): null {
+  const { registerCommand, closePalette } = useCommandPalette()
+
+  useEffect(() => {
+    for (const item of PREVIEW_NAV_COMMAND_ITEMS) {
+      registerCommand({
+        id: `nav.${item.id}`,
+        label: `Go to ${item.label}`,
+        keywords: [item.id, item.label.toLowerCase(), 'preview', 'roadmap'],
+        category: 'Navigation',
+        run: () => {
+          onNavigate(item.id)
+          closePalette()
+        },
+      })
+    }
+  }, [registerCommand, closePalette, onNavigate])
 
   return null
 }

@@ -79,6 +79,16 @@ export type { RunSnapshot as RunSnapshotType, SnapshotInput, SnapshotOptions } f
 export { branchFromSnapshot, FlowBranchError } from './branch.js'
 export type { BranchFromSnapshotOptions, BranchResult, BranchOverride } from './branch.js'
 
+// #64 — live debugger primitives
+export { createInMemoryDebugger, DebuggerMode, DebuggerState } from './debugger.js'
+export type {
+  DebuggerAfterNodeInput,
+  DebuggerBeforeNodeDecision,
+  DebuggerBeforeNodeInput,
+  FlowDebugger,
+  NodeId,
+} from './debugger.js'
+
 // #188 — two-person HITL approval
 export { createHumanHandler } from './human-handler.js'
 export type { ApproverGate, ApproverGateDecision, HumanHandlerOptions } from './human-handler.js'

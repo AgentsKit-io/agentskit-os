@@ -16,7 +16,7 @@ const NodeOutcomeZ: z.ZodType<NodeOutcome> = z.union([
   }),
   z.object({
     kind: z.literal('paused'),
-    reason: z.enum(['hitl', 'budget', 'consent', 'cancelled']),
+    reason: z.enum(['hitl', 'budget', 'consent', 'cancelled', 'breakpoint']),
   }),
   z.object({
     kind: z.literal('skipped'),

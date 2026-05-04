@@ -24,6 +24,7 @@ export default defineConfig({
     'src/config/diff.ts',
     'src/auth/verify.ts',
     'src/secrets/refs.ts',
+    'src/secrets/providers.ts',
     'src/events/bus.ts',
     'src/schema/rag.ts',
     'src/schema/agent-registry.ts',

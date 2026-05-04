@@ -36,7 +36,7 @@ export type RunOptions = {
     event:
       | { kind: 'node:start'; nodeId: string }
       | { kind: 'node:end'; nodeId: string; outcome: NodeOutcome }
-      | { kind: 'node:break'; nodeId: string }
+      | { kind: 'node:paused'; nodeId: string; reason: 'breakpoint' | 'manual' | 'step' }
       | { kind: 'node:mock-applied'; nodeId: string; outcome: NodeOutcome },
   ) => void
   /**
@@ -181,7 +181,7 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
 
     const debugDecision = await opts.debugger?.beforeNode({ node, ctx: opts.ctx })
     if (debugDecision?.kind === 'pause') {
-      opts.onEvent?.({ kind: 'node:break', nodeId: id })
+      opts.onEvent?.({ kind: 'node:paused', nodeId: id, reason: debugDecision.reason })
       return {
         status: 'paused',
         outcomes,

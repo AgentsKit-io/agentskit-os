@@ -17,6 +17,7 @@ import { sync } from './commands/sync.js'
 import { agentPromote } from './commands/agent-promote.js'
 import { agentRegister } from './commands/agent-register.js'
 import { agentList } from './commands/agent-list.js'
+import { agentBump, agentDiff, agentVersionList } from './commands/agent-version.js'
 import { creds } from './commands/creds.js'
 import { telemetry } from './commands/telemetry.js'
 
@@ -37,6 +38,9 @@ export const COMMANDS: readonly CliCommand[] = [
   doctor,
   agentRegister,
   agentList,
+  agentBump,
+  agentDiff,
+  agentVersionList,
   agentPromote,
   creds,
   telemetry,

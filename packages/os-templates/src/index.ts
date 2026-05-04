@@ -13,5 +13,14 @@ export { researchSummaryTemplate } from './templates/research-summary.js'
 export { supportTriageTemplate } from './templates/support-triage.js'
 export { clinicalConsensusTemplate } from './templates/clinical-consensus.js'
 
+export {
+  BUILTIN_EVAL_PACKS,
+  findPack,
+  devPack,
+  agencyPack,
+  clinicalPack,
+  nonTechPack,
+} from './eval-packs/index.js'
+
 export const PACKAGE_NAME = '@agentskit/os-templates' as const
 export const PACKAGE_VERSION = '0.0.0' as const

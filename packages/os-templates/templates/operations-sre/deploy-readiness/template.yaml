@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "deploy-readiness-workspace",
+    "name": "Deploy Readiness Workspace",
+    "tags": [
+      "operations-sre"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "deploy-readiness-lead",
+      "name": "Deploy Readiness Lead",
+      "systemPrompt": "Checks deployment readiness against tests, incidents, flags, and rollback plan. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "deploy-readiness-reviewer",
+      "name": "Deploy Readiness Reviewer",
+      "systemPrompt": "Checks deployment readiness against tests, incidents, flags, and rollback plan. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "deploy-readiness-judge",
+      "name": "Deploy Readiness Judge",
+      "systemPrompt": "Checks deployment readiness against tests, incidents, flags, and rollback plan. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "deploy-readiness-flow",
+      "name": "Deploy Readiness Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "alerts.list"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "deploy-readiness-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "deploy-readiness-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Deploy Readiness before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "pagerduty.note"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "operations-sre"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "deploy-readiness-trigger",
+      "name": "Deploy Readiness Trigger",
+      "flow": "deploy-readiness-flow",
+      "enabled": true,
+      "tags": [
+        "operations-sre"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/deploy-readiness",
+      "method": "POST"
+    }
+  ]
+}

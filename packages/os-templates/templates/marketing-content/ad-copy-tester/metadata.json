@@ -1,0 +1,29 @@
+{
+  "id": "ad-copy-tester",
+  "name": "Ad Copy Tester",
+  "intent": "Generates and compares multiple ad copy variants against a campaign goal.",
+  "category": "marketing-content",
+  "tags": [
+    "marketing-content",
+    "ad",
+    "copy",
+    "tester"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "ad-copy-tester-lead",
+    "ad-copy-tester-reviewer"
+  ],
+  "primaryTools": [
+    "brand.kit.read",
+    "cms.draft",
+    "slack.send"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "slack",
+  "stability": "ready"
+}

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "schema-discoverer-workspace",
+    "name": "Schema Discoverer Workspace",
+    "tags": [
+      "data-pipelines"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "schema-discoverer-lead",
+      "name": "Schema Discoverer Lead",
+      "systemPrompt": "Infers a dataset schema and highlights quality issues. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "schema-discoverer-reviewer",
+      "name": "Schema Discoverer Reviewer",
+      "systemPrompt": "Infers a dataset schema and highlights quality issues. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "schema-discoverer-judge",
+      "name": "Schema Discoverer Judge",
+      "systemPrompt": "Infers a dataset schema and highlights quality issues. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "schema-discoverer-flow",
+      "name": "Schema Discoverer Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "storage.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "schema-discoverer-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "schema-discoverer-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "warehouse.load"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "data-pipelines"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "schema-discoverer-trigger",
+      "name": "Schema Discoverer Trigger",
+      "flow": "schema-discoverer-flow",
+      "enabled": true,
+      "tags": [
+        "data-pipelines"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cdc",
+      "source": "postgres",
+      "connection": "${vault:postgres_url}",
+      "table": "schema_discoverer",
+      "operations": [
+        "insert",
+        "update"
+      ]
+    }
+  ]
+}

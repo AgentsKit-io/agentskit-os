@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "calendar-conflict-resolver-workspace",
+    "name": "Calendar Conflict Resolver Workspace",
+    "tags": [
+      "personal-productivity"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "calendar-conflict-resolver-lead",
+      "name": "Calendar Conflict Resolver Lead",
+      "systemPrompt": "Finds meeting conflicts and proposes rescheduling options. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "calendar-conflict-resolver-reviewer",
+      "name": "Calendar Conflict Resolver Reviewer",
+      "systemPrompt": "Finds meeting conflicts and proposes rescheduling options. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "calendar-conflict-resolver-judge",
+      "name": "Calendar Conflict Resolver Judge",
+      "systemPrompt": "Finds meeting conflicts and proposes rescheduling options. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "calendar-conflict-resolver-flow",
+      "name": "Calendar Conflict Resolver Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "gmail.search"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "calendar-conflict-resolver-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "calendar-conflict-resolver-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "tasks.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "personal-productivity"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "calendar-conflict-resolver-trigger",
+      "name": "Calendar Conflict Resolver Trigger",
+      "flow": "calendar-conflict-resolver-flow",
+      "enabled": true,
+      "tags": [
+        "personal-productivity"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:calendar-conflict-resolver"
+    }
+  ]
+}

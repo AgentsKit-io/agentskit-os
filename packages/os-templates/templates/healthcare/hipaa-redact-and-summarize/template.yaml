@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "hipaa-redact-and-summarize-workspace",
+    "name": "HIPAA Redact And Summarize Workspace",
+    "tags": [
+      "healthcare"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": true
+  },
+  "agents": [
+    {
+      "id": "hipaa-redact-and-summarize-lead",
+      "name": "HIPAA Redact And Summarize Lead",
+      "systemPrompt": "Redacts HIPAA identifiers before summarizing clinical notes. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "hipaa-redact-and-summarize-reviewer",
+      "name": "HIPAA Redact And Summarize Reviewer",
+      "systemPrompt": "Redacts HIPAA identifiers before summarizing clinical notes. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "hipaa-redact-and-summarize-judge",
+      "name": "HIPAA Redact And Summarize Judge",
+      "systemPrompt": "Redacts HIPAA identifiers before summarizing clinical notes. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "hipaa-redact-and-summarize-flow",
+      "name": "HIPAA Redact And Summarize Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "ehr.message.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "hipaa-redact-and-summarize-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "hipaa-redact-and-summarize-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve HIPAA Redact And Summarize before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "clinician.route"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "healthcare"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "hipaa-redact-and-summarize-trigger",
+      "name": "HIPAA Redact And Summarize Trigger",
+      "flow": "hipaa-redact-and-summarize-flow",
+      "enabled": true,
+      "tags": [
+        "healthcare"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/hipaa-redact-and-summarize",
+      "method": "POST"
+    }
+  ]
+}

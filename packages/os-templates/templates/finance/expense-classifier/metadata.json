@@ -1,0 +1,28 @@
+{
+  "id": "expense-classifier",
+  "name": "Expense Classifier",
+  "intent": "Classifies expenses and identifies missing receipts or policy concerns.",
+  "category": "finance",
+  "tags": [
+    "finance",
+    "expense",
+    "classifier"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "expense-classifier-lead",
+    "expense-classifier-reviewer"
+  ],
+  "primaryTools": [
+    "invoice.read",
+    "erp.lookup",
+    "approval.request"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

@@ -1,0 +1,30 @@
+{
+  "id": "social-post-multi-channel",
+  "name": "Social Post Multi Channel",
+  "intent": "Adapts one campaign brief into channel-specific posts.",
+  "category": "marketing-content",
+  "tags": [
+    "marketing-content",
+    "social",
+    "post",
+    "multi",
+    "channel"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "social-post-multi-channel-lead",
+    "social-post-multi-channel-reviewer"
+  ],
+  "primaryTools": [
+    "brand.kit.read",
+    "cms.draft",
+    "slack.send"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "slack",
+  "stability": "ready"
+}

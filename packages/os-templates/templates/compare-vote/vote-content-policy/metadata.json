@@ -1,0 +1,29 @@
+{
+  "id": "vote-content-policy",
+  "name": "Vote Content Policy",
+  "intent": "Uses odd-numbered voting agents to classify content policy decisions.",
+  "category": "compare-vote",
+  "tags": [
+    "compare-vote",
+    "vote",
+    "content",
+    "policy"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "vote-content-policy-lead",
+    "vote-content-policy-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "scratchpad.write",
+    "report.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

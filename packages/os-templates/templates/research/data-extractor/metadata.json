@@ -1,0 +1,28 @@
+{
+  "id": "data-extractor",
+  "name": "Data Extractor",
+  "intent": "Extracts structured facts from documents for downstream review.",
+  "category": "research",
+  "tags": [
+    "research",
+    "data",
+    "extractor"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "data-extractor-lead",
+    "data-extractor-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "paper.search",
+    "citation.lookup"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cron",
+  "stability": "ready"
+}

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "oncall-handoff-workspace",
+    "name": "Oncall Handoff Workspace",
+    "tags": [
+      "operations-sre"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "oncall-handoff-lead",
+      "name": "Oncall Handoff Lead",
+      "systemPrompt": "Builds a concise on-call handoff from alerts, incidents, and pending tasks. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "oncall-handoff-reviewer",
+      "name": "Oncall Handoff Reviewer",
+      "systemPrompt": "Builds a concise on-call handoff from alerts, incidents, and pending tasks. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "oncall-handoff-judge",
+      "name": "Oncall Handoff Judge",
+      "systemPrompt": "Builds a concise on-call handoff from alerts, incidents, and pending tasks. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "oncall-handoff-flow",
+      "name": "Oncall Handoff Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "alerts.list"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "oncall-handoff-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "oncall-handoff-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "pagerduty.note"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "operations-sre"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "oncall-handoff-trigger",
+      "name": "Oncall Handoff Trigger",
+      "flow": "oncall-handoff-flow",
+      "enabled": true,
+      "tags": [
+        "operations-sre"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/oncall-handoff",
+      "method": "POST"
+    }
+  ]
+}

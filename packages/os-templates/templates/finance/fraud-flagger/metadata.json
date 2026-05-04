@@ -1,0 +1,28 @@
+{
+  "id": "fraud-flagger",
+  "name": "Fraud Flagger",
+  "intent": "Flags suspicious transactions for review using multiple independent checks.",
+  "category": "finance",
+  "tags": [
+    "finance",
+    "fraud",
+    "flagger"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "fraud-flagger-lead",
+    "fraud-flagger-reviewer"
+  ],
+  "primaryTools": [
+    "invoice.read",
+    "erp.lookup",
+    "approval.request"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "email",
+  "stability": "ready"
+}

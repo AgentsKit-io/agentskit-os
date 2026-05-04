@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "daily-summary-workspace",
+    "name": "Daily Summary Workspace",
+    "tags": [
+      "personal-productivity"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "daily-summary-lead",
+      "name": "Daily Summary Lead",
+      "systemPrompt": "Summarizes the day across messages, meetings, and tasks. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "daily-summary-reviewer",
+      "name": "Daily Summary Reviewer",
+      "systemPrompt": "Summarizes the day across messages, meetings, and tasks. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "daily-summary-judge",
+      "name": "Daily Summary Judge",
+      "systemPrompt": "Summarizes the day across messages, meetings, and tasks. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "daily-summary-flow",
+      "name": "Daily Summary Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "gmail.search"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "daily-summary-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "daily-summary-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "tasks.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "personal-productivity"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "daily-summary-trigger",
+      "name": "Daily Summary Trigger",
+      "flow": "daily-summary-flow",
+      "enabled": true,
+      "tags": [
+        "personal-productivity"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:daily-summary"
+    }
+  ]
+}

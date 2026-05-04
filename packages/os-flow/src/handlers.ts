@@ -6,7 +6,7 @@ import type { FlowNode, RunContext } from '@agentskit/os-core'
 export type NodeOutcome =
   | { kind: 'ok'; value: unknown }
   | { kind: 'failed'; error: { code: string; message: string } }
-  | { kind: 'paused'; reason: 'hitl' | 'budget' | 'consent' | 'cancelled' }
+  | { kind: 'paused'; reason: 'hitl' | 'budget' | 'consent' | 'cancelled' | 'breakpoint' }
   | { kind: 'skipped'; reason: 'preview' | 'replay' | 'dry_run' | 'simulate' }
 
 export type NodeHandler<K extends FlowNode['kind'] = FlowNode['kind']> = (

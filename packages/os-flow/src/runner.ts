@@ -2,6 +2,7 @@
 // Pure async — durable storage hooked via checkpoint callback if provided.
 
 import type { FlowConfig, FlowEdge, FlowNode, RunContext } from '@agentskit/os-core'
+import type { FlowDebugger } from './debugger.js'
 import type { NodeHandler, NodeHandlerMap, NodeOutcome } from './handlers.js'
 import {
   applyModeStubs,
@@ -34,7 +35,9 @@ export type RunOptions = {
   readonly onEvent?: (
     event:
       | { kind: 'node:start'; nodeId: string }
-      | { kind: 'node:end'; nodeId: string; outcome: NodeOutcome },
+      | { kind: 'node:end'; nodeId: string; outcome: NodeOutcome }
+      | { kind: 'node:break'; nodeId: string }
+      | { kind: 'node:mock-applied'; nodeId: string; outcome: NodeOutcome },
   ) => void
   /**
    * Optional registries used by `deterministic` mode to enforce ADR-0009's
@@ -59,6 +62,10 @@ export type RunOptions = {
    * If aborted the run returns `{ status: 'cancelled', reason: 'os.flow.cancelled' }`.
    */
   readonly signal?: AbortSignal
+  /**
+   * #64 / P-5 — optional live-debugger hooks for breakpoints and mock injection.
+   */
+  readonly debugger?: FlowDebugger
 }
 
 const edgeMatches = (edge: FlowEdge, outcome: NodeOutcome): boolean => {
@@ -172,11 +179,26 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
       }
     }
 
+    const debugDecision = await opts.debugger?.beforeNode({ node, ctx: opts.ctx })
+    if (debugDecision?.kind === 'pause') {
+      opts.onEvent?.({ kind: 'node:break', nodeId: id })
+      return {
+        status: 'paused',
+        outcomes,
+        executedOrder: executed,
+        stoppedAt: id,
+        reason: debugDecision.reason,
+      }
+    }
+
     opts.onEvent?.({ kind: 'node:start', nodeId: id })
 
     const handler = handlers[node.kind] as NodeHandler | undefined
     let outcome: NodeOutcome
-    if (!handler) {
+    if (debugDecision?.kind === 'mock') {
+      outcome = debugDecision.outcome
+      opts.onEvent?.({ kind: 'node:mock-applied', nodeId: id, outcome })
+    } else if (!handler) {
       outcome = {
         kind: 'failed',
         error: { code: 'flow.handler_missing', message: `no handler registered for kind "${node.kind}"` },
@@ -195,6 +217,7 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
       }
     }
 
+    opts.debugger?.afterNode({ node, ctx: opts.ctx, outcome })
     outcomes.set(id, outcome)
     executed.push(id)
 

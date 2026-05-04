@@ -16,6 +16,7 @@ import {
   type CheckpointStore,
   type FlowCostEstimate,
   type PriceMap,
+  type RunOptions,
 } from '@agentskit/os-flow'
 import { FileCheckpointStore } from '@agentskit/os-storage'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
@@ -46,6 +47,10 @@ Exit codes:
 `
 
 const RUN_MODE_SET = new Set(RUN_MODES as readonly string[])
+
+type CliRunEvent =
+  | Parameters<NonNullable<RunOptions['onEvent']>>[0]
+  | { kind: 'node:resumed'; nodeId: string; outcome: { kind: string } }
 
 type Args = {
   configPath?: string
@@ -299,11 +304,10 @@ export const run: CliCommand = {
     const events: string[] = []
     const onEvent = args.quiet
       ? () => undefined
-      : (e:
-          | { kind: 'node:start'; nodeId: string }
-          | { kind: 'node:end'; nodeId: string; outcome: { kind: string } }
-          | { kind: 'node:resumed'; nodeId: string; outcome: { kind: string } }) => {
+      : (e: CliRunEvent) => {
           if (e.kind === 'node:start') events.push(`→ ${e.nodeId}`)
+          else if (e.kind === 'node:break') events.push(`⏸ ${e.nodeId} (breakpoint)`)
+          else if (e.kind === 'node:mock-applied') events.push(`↪ ${e.nodeId} (mocked)`)
           else if (e.kind === 'node:resumed') events.push(`✓ ${e.nodeId} (resumed)`)
           else events.push(`  ${e.nodeId}: ${e.outcome.kind}`)
         }

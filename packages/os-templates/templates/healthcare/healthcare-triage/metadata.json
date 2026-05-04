@@ -1,0 +1,28 @@
+{
+  "id": "healthcare-triage",
+  "name": "Healthcare Triage",
+  "intent": "Classifies patient portal messages for urgency and routing without diagnosis.",
+  "category": "healthcare",
+  "tags": [
+    "healthcare",
+    "healthcare",
+    "triage"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "healthcare-triage-lead",
+    "healthcare-triage-reviewer"
+  ],
+  "primaryTools": [
+    "ehr.message.read",
+    "pii.redact",
+    "clinician.route"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

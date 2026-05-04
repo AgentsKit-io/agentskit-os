@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "dependency-upgrade-workspace",
+    "name": "Dependency Upgrade Workspace",
+    "tags": [
+      "coding"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "dependency-upgrade-lead",
+      "name": "Dependency Upgrade Lead",
+      "systemPrompt": "Plans and reviews a dependency upgrade with tests, risk notes, and rollback guidance. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "dependency-upgrade-reviewer",
+      "name": "Dependency Upgrade Reviewer",
+      "systemPrompt": "Plans and reviews a dependency upgrade with tests, risk notes, and rollback guidance. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "dependency-upgrade-judge",
+      "name": "Dependency Upgrade Judge",
+      "systemPrompt": "Plans and reviews a dependency upgrade with tests, risk notes, and rollback guidance. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "github.pr.read",
+        "github.pr.comment",
+        "repo.search"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "dependency-upgrade-flow",
+      "name": "Dependency Upgrade Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "github.pr.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "dependency-upgrade-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "dependency-upgrade-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "repo.search"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "coding"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "dependency-upgrade-trigger",
+      "name": "Dependency Upgrade Trigger",
+      "flow": "dependency-upgrade-flow",
+      "enabled": true,
+      "tags": [
+        "coding"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "github",
+      "repo": "example/repo",
+      "event": "pull_request"
+    }
+  ]
+}

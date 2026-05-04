@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "drug-interaction-lookup-workspace",
+    "name": "Drug Interaction Lookup Workspace",
+    "tags": [
+      "healthcare"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": true
+  },
+  "agents": [
+    {
+      "id": "drug-interaction-lookup-lead",
+      "name": "Drug Interaction Lookup Lead",
+      "systemPrompt": "Looks up potential interaction warnings and routes findings to a clinician. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "drug-interaction-lookup-reviewer",
+      "name": "Drug Interaction Lookup Reviewer",
+      "systemPrompt": "Looks up potential interaction warnings and routes findings to a clinician. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "drug-interaction-lookup-judge",
+      "name": "Drug Interaction Lookup Judge",
+      "systemPrompt": "Looks up potential interaction warnings and routes findings to a clinician. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "drug-interaction-lookup-flow",
+      "name": "Drug Interaction Lookup Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "ehr.message.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "drug-interaction-lookup-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "drug-interaction-lookup-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Drug Interaction Lookup before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "clinician.route"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "healthcare"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "drug-interaction-lookup-trigger",
+      "name": "Drug Interaction Lookup Trigger",
+      "flow": "drug-interaction-lookup-flow",
+      "enabled": true,
+      "tags": [
+        "healthcare"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/drug-interaction-lookup",
+      "method": "POST"
+    }
+  ]
+}

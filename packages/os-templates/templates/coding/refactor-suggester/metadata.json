@@ -1,0 +1,28 @@
+{
+  "id": "refactor-suggester",
+  "name": "Refactor Suggester",
+  "intent": "Finds refactoring opportunities and proposes safe incremental changes.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "refactor",
+    "suggester"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "refactor-suggester-lead",
+    "refactor-suggester-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

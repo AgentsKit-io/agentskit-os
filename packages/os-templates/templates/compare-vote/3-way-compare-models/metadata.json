@@ -1,0 +1,30 @@
+{
+  "id": "3-way-compare-models",
+  "name": "Three Way Compare Models",
+  "intent": "Runs three model agents on the same task and compares the outputs.",
+  "category": "compare-vote",
+  "tags": [
+    "compare-vote",
+    "3",
+    "way",
+    "compare",
+    "models"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "3-way-compare-models-lead",
+    "3-way-compare-models-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "scratchpad.write",
+    "report.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

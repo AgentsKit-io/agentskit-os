@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "consent-checker-workspace",
+    "name": "Consent Checker Workspace",
+    "tags": [
+      "healthcare"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": true
+  },
+  "agents": [
+    {
+      "id": "consent-checker-lead",
+      "name": "Consent Checker Lead",
+      "systemPrompt": "Checks whether a workflow has consent before processing sensitive health data. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "consent-checker-reviewer",
+      "name": "Consent Checker Reviewer",
+      "systemPrompt": "Checks whether a workflow has consent before processing sensitive health data. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "consent-checker-judge",
+      "name": "Consent Checker Judge",
+      "systemPrompt": "Checks whether a workflow has consent before processing sensitive health data. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "ehr.message.read",
+        "pii.redact",
+        "clinician.route"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "consent-checker-flow",
+      "name": "Consent Checker Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "ehr.message.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "consent-checker-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "consent-checker-reviewer"
+        },
+        {
+          "id": "approval",
+          "kind": "human",
+          "prompt": "Approve Consent Checker before external action?",
+          "approvers": [
+            "owner"
+          ],
+          "quorum": 1
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "clinician.route"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "approval"
+        },
+        {
+          "from": "approval",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "healthcare"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "consent-checker-trigger",
+      "name": "Consent Checker Trigger",
+      "flow": "consent-checker-flow",
+      "enabled": true,
+      "tags": [
+        "healthcare"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/consent-checker",
+      "method": "POST"
+    }
+  ]
+}

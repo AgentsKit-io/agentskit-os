@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "email-triage-workspace",
+    "name": "Email Triage Workspace",
+    "tags": [
+      "personal-productivity"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "email-triage-lead",
+      "name": "Email Triage Lead",
+      "systemPrompt": "Classifies email, drafts replies, and creates follow-up tasks. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "email-triage-reviewer",
+      "name": "Email Triage Reviewer",
+      "systemPrompt": "Classifies email, drafts replies, and creates follow-up tasks. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "email-triage-judge",
+      "name": "Email Triage Judge",
+      "systemPrompt": "Classifies email, drafts replies, and creates follow-up tasks. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "email-triage-flow",
+      "name": "Email Triage Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "gmail.search"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "email-triage-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "email-triage-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "tasks.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "personal-productivity"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "email-triage-trigger",
+      "name": "Email Triage Trigger",
+      "flow": "email-triage-flow",
+      "enabled": true,
+      "tags": [
+        "personal-productivity"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:email-triage"
+    }
+  ]
+}

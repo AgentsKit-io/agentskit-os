@@ -1,0 +1,30 @@
+{
+  "id": "agency-client-content-approval",
+  "name": "Agency Client Content Approval",
+  "intent": "Drafts content, checks brand voice, and routes the result for client approval.",
+  "category": "marketing-content",
+  "tags": [
+    "marketing-content",
+    "agency",
+    "client",
+    "content",
+    "approval"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "agency-client-content-approval-lead",
+    "agency-client-content-approval-reviewer"
+  ],
+  "primaryTools": [
+    "brand.kit.read",
+    "cms.draft",
+    "slack.send"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "slack",
+  "stability": "ready"
+}

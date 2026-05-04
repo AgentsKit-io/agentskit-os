@@ -1,0 +1,28 @@
+{
+  "id": "lint-explainer",
+  "name": "Lint Explainer",
+  "intent": "Explains linter output and suggests a minimal patch strategy.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "lint",
+    "explainer"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "lint-explainer-lead",
+    "lint-explainer-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

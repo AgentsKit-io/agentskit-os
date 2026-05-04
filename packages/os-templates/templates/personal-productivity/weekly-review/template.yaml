@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "weekly-review-workspace",
+    "name": "Weekly Review Workspace",
+    "tags": [
+      "personal-productivity"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "weekly-review-lead",
+      "name": "Weekly Review Lead",
+      "systemPrompt": "Builds a weekly review with wins, risks, and next priorities. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "weekly-review-reviewer",
+      "name": "Weekly Review Reviewer",
+      "systemPrompt": "Builds a weekly review with wins, risks, and next priorities. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "weekly-review-judge",
+      "name": "Weekly Review Judge",
+      "systemPrompt": "Builds a weekly review with wins, risks, and next priorities. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "gmail.search",
+        "calendar.read",
+        "tasks.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "weekly-review-flow",
+      "name": "Weekly Review Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "gmail.search"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "weekly-review-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "weekly-review-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "tasks.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "personal-productivity"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "weekly-review-trigger",
+      "name": "Weekly Review Trigger",
+      "flow": "weekly-review-flow",
+      "enabled": true,
+      "tags": [
+        "personal-productivity"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "email",
+      "mailbox": "inbox@example.com",
+      "filter": "subject:weekly-review"
+    }
+  ]
+}

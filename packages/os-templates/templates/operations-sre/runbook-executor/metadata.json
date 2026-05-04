@@ -1,0 +1,28 @@
+{
+  "id": "runbook-executor",
+  "name": "Runbook Executor",
+  "intent": "Runs a runbook step plan with human approval gates for risky actions.",
+  "category": "operations-sre",
+  "tags": [
+    "operations-sre",
+    "runbook",
+    "executor"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "runbook-executor-lead",
+    "runbook-executor-reviewer"
+  ],
+  "primaryTools": [
+    "alerts.list",
+    "runbook.read",
+    "pagerduty.note"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

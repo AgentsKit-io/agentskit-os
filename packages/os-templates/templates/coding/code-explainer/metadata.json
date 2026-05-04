@@ -1,0 +1,28 @@
+{
+  "id": "code-explainer",
+  "name": "Code Explainer",
+  "intent": "Explains unfamiliar code paths with a concise narrative and file-level risk notes.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "code",
+    "explainer"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "code-explainer-lead",
+    "code-explainer-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

@@ -224,6 +224,23 @@ export {
 } from './runtime/adapter-fallback.js'
 export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-fallback.js'
 
+export { resolveWorkspacePaths } from './runtime/workspace-paths.js'
+export type {
+  WorkspacePaths,
+  ResolveWorkspacePathsOptions,
+} from './runtime/workspace-paths.js'
+
+export {
+  TransitionCheck,
+  AgentLifecycleEvent,
+  evaluateTransition,
+  isTransitionAllowed,
+  requirementsFor,
+  parseAgentLifecycleEvent,
+  safeParseAgentLifecycleEvent,
+} from './runtime/agent-lifecycle.js'
+export type { TransitionRequirements, TransitionDecision } from './runtime/agent-lifecycle.js'
+
 export {
   EgressPolicy,
   EgressProxy,

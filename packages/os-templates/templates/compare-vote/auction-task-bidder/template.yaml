@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "auction-task-bidder-workspace",
+    "name": "Auction Task Bidder Workspace",
+    "tags": [
+      "compare-vote"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "auction-task-bidder-lead",
+      "name": "Auction Task Bidder Lead",
+      "systemPrompt": "Lets agents bid on a task by confidence, cost, and speed. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "auction-task-bidder-reviewer",
+      "name": "Auction Task Bidder Reviewer",
+      "systemPrompt": "Lets agents bid on a task by confidence, cost, and speed. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "auction-task-bidder-judge",
+      "name": "Auction Task Bidder Judge",
+      "systemPrompt": "Lets agents bid on a task by confidence, cost, and speed. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "auction-task-bidder-flow",
+      "name": "Auction Task Bidder Flow",
+      "entry": "auction",
+      "nodes": [
+        {
+          "id": "auction",
+          "kind": "auction",
+          "bidders": [
+            "auction-task-bidder-lead",
+            "auction-task-bidder-reviewer"
+          ],
+          "task": "Auction Task Bidder",
+          "bidCriteria": "highest-confidence"
+        },
+        {
+          "id": "report",
+          "kind": "tool",
+          "tool": "report.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "auction",
+          "to": "report"
+        }
+      ],
+      "tags": [
+        "compare-vote"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "auction-task-bidder-trigger",
+      "name": "Auction Task Bidder Trigger",
+      "flow": "auction-task-bidder-flow",
+      "enabled": true,
+      "tags": [
+        "compare-vote"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/auction-task-bidder",
+      "method": "POST"
+    }
+  ]
+}

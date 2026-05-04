@@ -1,0 +1,28 @@
+{
+  "id": "security-audit",
+  "name": "Security Audit",
+  "intent": "Reviews a repository for common security issues and produces a prioritized fix list.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "security",
+    "audit"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "security-audit-lead",
+    "security-audit-reviewer"
+  ],
+  "primaryTools": [
+    "github.pr.read",
+    "github.pr.comment",
+    "repo.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "github",
+  "stability": "ready"
+}

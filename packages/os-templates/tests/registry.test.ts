@@ -1,5 +1,10 @@
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { parseConfigRoot } from '@agentskit/os-core'
 import {
+  TEMPLATES,
+  TemplateMetadataSchema,
   allCategories,
   allTags,
   builtInTemplates,
@@ -7,9 +12,21 @@ import {
   listTemplates,
 } from '../src/index.js'
 
+const templatesRoot = join(process.cwd(), 'templates')
+
+const templateDirs = (): string[] =>
+  readdirSync(templatesRoot, { withFileTypes: true }).flatMap((category) => {
+    if (!category.isDirectory()) return []
+    const categoryDir = join(templatesRoot, category.name)
+    return readdirSync(categoryDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => join(categoryDir, entry.name))
+  })
+
 describe('builtInTemplates', () => {
-  it('ships at least 5 templates', () => {
-    expect(builtInTemplates.length).toBeGreaterThanOrEqual(5)
+  it('ships 50+ templates', () => {
+    expect(builtInTemplates.length).toBeGreaterThanOrEqual(50)
+    expect(TEMPLATES.length).toBeGreaterThanOrEqual(50)
   })
 
   it('every template has unique id', () => {
@@ -17,8 +34,10 @@ describe('builtInTemplates', () => {
     expect(ids.size).toBe(builtInTemplates.length)
   })
 
-  it('every template has at least one flow', () => {
+  it('every template has metadata, agents, and at least one flow', () => {
     for (const t of builtInTemplates) {
+      expect(TemplateMetadataSchema.parse(t.metadata).id).toBe(t.id)
+      expect(t.agents.length).toBeGreaterThanOrEqual(1)
       expect(t.flows.length).toBeGreaterThanOrEqual(1)
     }
   })
@@ -52,9 +71,29 @@ describe('builtInTemplates', () => {
   })
 })
 
+describe('template asset directories', () => {
+  it('ships metadata, readme, and YAML assets for every template', () => {
+    const dirs = templateDirs()
+    expect(dirs.length).toBeGreaterThanOrEqual(50)
+
+    const ids = new Set(TEMPLATES.map((t) => t.id))
+    for (const dir of dirs) {
+      expect(existsSync(join(dir, 'README.md'))).toBe(true)
+      const metadata = TemplateMetadataSchema.parse(
+        JSON.parse(readFileSync(join(dir, 'metadata.json'), 'utf8')),
+      )
+      expect(ids.has(metadata.id)).toBe(true)
+      const config = JSON.parse(readFileSync(join(dir, 'template.yaml'), 'utf8'))
+      const parsed = parseConfigRoot(config)
+      expect(parsed.flows.length).toBeGreaterThanOrEqual(1)
+      expect(parsed.agents.length).toBeGreaterThanOrEqual(1)
+    }
+  })
+})
+
 describe('findTemplate', () => {
   it('finds by id', () => {
-    expect(findTemplate('pr-review')?.name).toBe('GitHub PR Review')
+    expect(findTemplate('pr-review-3-way')?.name).toBe('Pr Review 3 Way')
   })
 
   it('returns undefined for unknown id', () => {
@@ -66,16 +105,16 @@ describe('listTemplates', () => {
   it('filters by category', () => {
     const coding = listTemplates({ category: 'coding' })
     expect(coding.every((t) => t.category === 'coding')).toBe(true)
-    expect(coding.length).toBeGreaterThanOrEqual(1)
+    expect(coding.length).toBeGreaterThanOrEqual(10)
   })
 
   it('filters by tag', () => {
-    const ragTemplates = listTemplates({ tag: 'rag' })
-    expect(ragTemplates.every((t) => t.tags.includes('rag'))).toBe(true)
+    const githubTemplates = listTemplates({ tag: 'coding' })
+    expect(githubTemplates.every((t) => t.tags.includes('coding'))).toBe(true)
   })
 
   it('combines filters', () => {
-    const r = listTemplates({ category: 'clinical', tag: 'vote' })
+    const r = listTemplates({ category: 'healthcare', tag: 'healthcare' })
     expect(r.length).toBeGreaterThanOrEqual(1)
   })
 
@@ -95,7 +134,8 @@ describe('allTags / allCategories', () => {
   it('returns categories used by templates', () => {
     const cats = allCategories()
     expect(cats).toContain('coding')
-    expect(cats).toContain('marketing')
-    expect(cats).toContain('clinical')
+    expect(cats).toContain('marketing-content')
+    expect(cats).toContain('healthcare')
+    expect(cats).toContain('compare-vote')
   })
 })

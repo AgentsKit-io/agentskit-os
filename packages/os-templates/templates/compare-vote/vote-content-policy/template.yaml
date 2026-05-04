@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "vote-content-policy-workspace",
+    "name": "Vote Content Policy Workspace",
+    "tags": [
+      "compare-vote"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "vote-content-policy-lead",
+      "name": "Vote Content Policy Lead",
+      "systemPrompt": "Uses odd-numbered voting agents to classify content policy decisions. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "vote-content-policy-reviewer",
+      "name": "Vote Content Policy Reviewer",
+      "systemPrompt": "Uses odd-numbered voting agents to classify content policy decisions. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "vote-content-policy-judge",
+      "name": "Vote Content Policy Judge",
+      "systemPrompt": "Uses odd-numbered voting agents to classify content policy decisions. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "scratchpad.write",
+        "report.create"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "vote-content-policy-flow",
+      "name": "Vote Content Policy Flow",
+      "entry": "vote",
+      "nodes": [
+        {
+          "id": "vote",
+          "kind": "vote",
+          "agents": [
+            "vote-content-policy-lead",
+            "vote-content-policy-reviewer",
+            "vote-content-policy-judge"
+          ],
+          "ballot": {
+            "mode": "majority"
+          },
+          "outputType": "classification"
+        },
+        {
+          "id": "report",
+          "kind": "tool",
+          "tool": "report.create"
+        }
+      ],
+      "edges": [
+        {
+          "from": "vote",
+          "to": "report"
+        }
+      ],
+      "tags": [
+        "compare-vote"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "vote-content-policy-trigger",
+      "name": "Vote Content Policy Trigger",
+      "flow": "vote-content-policy-flow",
+      "enabled": true,
+      "tags": [
+        "compare-vote"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/vote-content-policy",
+      "method": "POST"
+    }
+  ]
+}

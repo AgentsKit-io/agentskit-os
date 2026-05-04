@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "dashboard-explainer-workspace",
+    "name": "Dashboard Explainer Workspace",
+    "tags": [
+      "data-pipelines"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "dashboard-explainer-lead",
+      "name": "Dashboard Explainer Lead",
+      "systemPrompt": "Explains dashboard changes and identifies likely drivers. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "dashboard-explainer-reviewer",
+      "name": "Dashboard Explainer Reviewer",
+      "systemPrompt": "Explains dashboard changes and identifies likely drivers. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "dashboard-explainer-judge",
+      "name": "Dashboard Explainer Judge",
+      "systemPrompt": "Explains dashboard changes and identifies likely drivers. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "storage.read",
+        "sql.preview",
+        "warehouse.load"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "dashboard-explainer-flow",
+      "name": "Dashboard Explainer Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "storage.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "dashboard-explainer-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "dashboard-explainer-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "warehouse.load"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "data-pipelines"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "dashboard-explainer-trigger",
+      "name": "Dashboard Explainer Trigger",
+      "flow": "dashboard-explainer-flow",
+      "enabled": true,
+      "tags": [
+        "data-pipelines"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cdc",
+      "source": "postgres",
+      "connection": "${vault:postgres_url}",
+      "table": "dashboard_explainer",
+      "operations": [
+        "insert",
+        "update"
+      ]
+    }
+  ]
+}

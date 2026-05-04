@@ -1,0 +1,28 @@
+{
+  "id": "postmortem-drafter",
+  "name": "Postmortem Drafter",
+  "intent": "Drafts a postmortem from incident notes, timeline, and action items.",
+  "category": "operations-sre",
+  "tags": [
+    "operations-sre",
+    "postmortem",
+    "drafter"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "postmortem-drafter-lead",
+    "postmortem-drafter-reviewer"
+  ],
+  "primaryTools": [
+    "alerts.list",
+    "runbook.read",
+    "pagerduty.note"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

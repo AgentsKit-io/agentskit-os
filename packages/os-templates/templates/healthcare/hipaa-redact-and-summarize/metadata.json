@@ -1,0 +1,29 @@
+{
+  "id": "hipaa-redact-and-summarize",
+  "name": "HIPAA Redact And Summarize",
+  "intent": "Redacts HIPAA identifiers before summarizing clinical notes.",
+  "category": "healthcare",
+  "tags": [
+    "healthcare",
+    "hipaa",
+    "redact",
+    "summarize"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "hipaa-redact-and-summarize-lead",
+    "hipaa-redact-and-summarize-reviewer"
+  ],
+  "primaryTools": [
+    "ehr.message.read",
+    "pii.redact",
+    "clinician.route"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

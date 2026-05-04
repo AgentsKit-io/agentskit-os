@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, act } from '@testing-library/react'
+import { render, screen, act, fireEvent } from '@testing-library/react'
 import React from 'react'
 
 // ---------------------------------------------------------------------------
@@ -145,5 +145,66 @@ describe('App ARIA landmarks', () => {
     })
     const main = screen.getByRole('main')
     expect(main.id).toBe('main-content')
+  })
+
+  it('uses native buttons for primary shell navigation', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    expect(screen.getByRole('button', { name: /dashboard/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /flows/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /benchmark/i })).toBeInTheDocument()
+  })
+
+  it('marks the active primary nav item with aria-current', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    expect(screen.getByRole('button', { name: /dashboard/i })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /traces/i }))
+    })
+
+    expect(screen.getByRole('button', { name: /traces/i })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+  })
+
+  it('opens an intentional preview state for primary nav surfaces without contracts', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /flows/i }))
+    })
+
+    expect(screen.getByRole('heading', { name: /flows is in preview/i })).toBeInTheDocument()
+    expect(screen.getByText(/typed graph contracts/i)).toBeInTheDocument()
+  })
+
+  it('registers the restart onboarding command in the command palette', async () => {
+    localStorage.setItem(
+      'agentskitos.onboarding',
+      JSON.stringify({ completed: true, completedAt: '2026-05-04T00:00:00.000Z' }),
+    )
+
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'k', metaKey: true })
+    })
+
+    expect(screen.getByRole('dialog', { name: /command palette/i })).toBeInTheDocument()
+    expect(screen.getByText(/restart onboarding tour/i)).toBeInTheDocument()
   })
 })

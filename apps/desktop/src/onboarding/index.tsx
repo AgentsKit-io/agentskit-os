@@ -1,48 +1,93 @@
 /**
- * OnboardingTour — full-screen overlay that renders the active step card.
- *
- * The overlay uses a soft scrim (GlassPanel) as backdrop. Clicking the scrim
- * does NOT advance the tour; only the explicit navigation buttons or keyboard
- * shortcuts do.
+ * OnboardingTour — driver.js guided tour anchored to real shell surfaces.
  */
 
-import { createPortal } from 'react-dom'
-import { GlassPanel } from '@agentskit/os-ui'
+import { useEffect } from 'react'
+import { driver } from 'driver.js'
+import type { Config, DriveStep } from 'driver.js'
+import 'driver.js/dist/driver.css'
 import { useOnboarding } from './onboarding-provider'
-import { OnboardingCard } from './onboarding-card'
 import { ONBOARDING_STEPS } from './steps'
 
+const prefersReducedMotion = (): boolean =>
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
+
+const buildDriverSteps = (): DriveStep[] =>
+  ONBOARDING_STEPS.map((step) => ({
+    element: step.target,
+    popover: {
+      title: step.title,
+      description: step.description,
+      side: step.side ?? 'right',
+      align: step.align ?? 'center',
+    },
+    disableActiveInteraction: true,
+  }))
+
 export function OnboardingTour() {
-  const { active, step } = useOnboarding()
+  const { active, step, next, prev, finish, skip } = useOnboarding()
 
-  if (!active) return null
+  useEffect(() => {
+    if (!active) return undefined
 
-  const stepData = ONBOARDING_STEPS[step]
-  if (!stepData) return null
+    const driverConfig: Config = {
+      steps: buildDriverSteps(),
+      animate: !prefersReducedMotion(),
+      allowClose: true,
+      allowKeyboardControl: true,
+      disableActiveInteraction: true,
+      doneBtnText: 'Finish',
+      nextBtnText: 'Next',
+      overlayClickBehavior: 'close',
+      overlayOpacity: 0.62,
+      popoverClass: 'agentskitos-driver',
+      prevBtnText: 'Back',
+      progressText: '{{current}} / {{total}}',
+      showButtons: ['previous', 'next', 'close'],
+      showProgress: true,
+      smoothScroll: true,
+      stagePadding: 8,
+      stageRadius: 8,
+    }
 
-  return createPortal(
-    <>
-      {/* Scrim — captures pointer events so the UI below is inert */}
-      <div
-        aria-hidden="true"
-        className="fixed inset-0 z-40 bg-black/50"
-        // Intentionally does NOT advance the tour on click
-      />
+    const driverObj = driver({
+      ...driverConfig,
+      onNextClick: (_element, _activeStep, { driver: activeDriver }) => {
+        if (activeDriver.isLastStep()) {
+          finish()
+          activeDriver.destroy()
+          return
+        }
+        next()
+        activeDriver.moveNext()
+      },
+      onPrevClick: (_element, _activeStep, { driver: activeDriver }) => {
+        prev()
+        activeDriver.movePrevious()
+      },
+      onCloseClick: (_element, _activeStep, { driver: activeDriver }) => {
+        skip()
+        activeDriver.destroy()
+      },
+    })
 
-      {/* Glass backdrop + centered card */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <GlassPanel
-          blur="sm"
-          className="pointer-events-auto"
-        >
-          <OnboardingCard
-            stepData={stepData}
-            stepIndex={step}
-            totalSteps={ONBOARDING_STEPS.length}
-          />
-        </GlassPanel>
-      </div>
-    </>,
-    document.body,
-  )
+    const handleEscape = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape') return
+      skip()
+      driverObj.destroy()
+    }
+
+    window.addEventListener('keydown', handleEscape)
+    driverObj.drive(step)
+
+    return () => {
+      window.removeEventListener('keydown', handleEscape)
+      driverObj.destroy()
+    }
+  }, [active, finish, next, prev, skip])
+
+  return null
 }
+
+export { ONBOARDING_STEPS }

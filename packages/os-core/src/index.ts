@@ -52,6 +52,13 @@ export {
 } from './schema/trigger.js'
 
 export {
+  TRIGGER_PRESETS,
+  getTriggerPreset,
+  listTriggerPresets,
+} from './trigger/presets.js'
+export type { TriggerPreset } from './trigger/presets.js'
+
+export {
   FlowConfig,
   FlowNode,
   FlowEdge,

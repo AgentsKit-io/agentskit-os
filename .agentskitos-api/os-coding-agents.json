@@ -1,0 +1,91 @@
+{
+  "exports": {
+    "BUILTIN_CODING_AGENT_IDS": {
+      "kind": "const"
+    },
+    "BuiltinCodingAgentId": {
+      "kind": "type"
+    },
+    "ClaudeCodeProviderOptions": {
+      "kind": "reexport"
+    },
+    "CliCodingAgentProviderOptions": {
+      "kind": "type"
+    },
+    "CliCodingAgentProviderOptions$1": {
+      "kind": "type"
+    },
+    "CodexProviderOptions": {
+      "kind": "reexport"
+    },
+    "CursorProviderOptions": {
+      "kind": "type"
+    },
+    "ExecResult": {
+      "kind": "type"
+    },
+    "GeminiProviderOptions": {
+      "kind": "type"
+    },
+    "RunFn": {
+      "kind": "type"
+    },
+    "SubprocessRunner": {
+      "kind": "type"
+    },
+    "WhichFn": {
+      "kind": "type"
+    },
+    "createBuiltinCodingAgentProvider": {
+      "kind": "const"
+    },
+    "createClaudeCodeProvider": {
+      "kind": "const"
+    },
+    "createCodexProvider": {
+      "kind": "const"
+    },
+    "createCursorProvider": {
+      "kind": "const"
+    },
+    "createGeminiProvider": {
+      "kind": "const"
+    },
+    "createSubprocessRunner": {
+      "kind": "const"
+    },
+    "defaultRun": {
+      "kind": "const"
+    },
+    "defaultWhich": {
+      "kind": "const"
+    },
+    "isBuiltinCodingAgentId": {
+      "kind": "const"
+    },
+    "parseAgentJsonResult": {
+      "kind": "const"
+    },
+    "type BuiltinCodingAgentId": {
+      "kind": "reexport"
+    },
+    "type CursorProviderOptions": {
+      "kind": "reexport"
+    },
+    "type ExecResult": {
+      "kind": "reexport"
+    },
+    "type GeminiProviderOptions": {
+      "kind": "reexport"
+    },
+    "type RunFn": {
+      "kind": "reexport"
+    },
+    "type SubprocessRunner": {
+      "kind": "reexport"
+    },
+    "type WhichFn": {
+      "kind": "reexport"
+    }
+  }
+}

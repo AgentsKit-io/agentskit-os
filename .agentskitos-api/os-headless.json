@@ -1,0 +1,31 @@
+{
+  "exports": {
+    "HeadlessRunner": {
+      "kind": "reexport"
+    },
+    "HeadlessRunnerOptions": {
+      "kind": "reexport"
+    },
+    "PACKAGE_NAME": {
+      "kind": "const"
+    },
+    "PACKAGE_VERSION": {
+      "kind": "const"
+    },
+    "WorkspaceRunRequest": {
+      "kind": "reexport"
+    },
+    "WorkspaceRunResult": {
+      "kind": "reexport"
+    },
+    "createHeadlessRunner": {
+      "kind": "reexport"
+    },
+    "runFlowHeadless": {
+      "kind": "reexport"
+    },
+    "runWorkspace": {
+      "kind": "reexport"
+    }
+  }
+}

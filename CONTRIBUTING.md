@@ -31,6 +31,18 @@ Conventional Commits. Examples:
 - `docs(adr): 0004 trigger contract`
 - `chore(ci): bump action versions`
 
+### AI-assisted commits
+
+- Do **not** add `Co-authored-by: Cursor` (or similar tool footers) unless the PR author **explicitly** requests it.
+- If a hook adds that line, strip it before merge (`git commit --amend` or history rewrite on the feature branch).
+
+## CLI (`packages/os-cli`)
+
+- **New** commands or substantial argv changes: use **Commander** and the shared **`runCommander`** helper (`src/cli/commander-dispatch.ts`); avoid new hand-rolled `parseArgs` loops.
+- Commander’s **`--no-*`** flags are negated booleans (parsed property drops the `no-` prefix, e.g. `--no-defaults` → `defaults === false`).
+- Tests: help output may land on **stdout** when output is configured — assert on combined streams if needed.
+- Prefer **deterministic** CLI tests (mocks/spies) when behavior depends on the developer machine (MCP configs, global paths).
+
 ## Code Style
 
 - Headless components — no hardcoded styles, use `data-akos-*` attributes.

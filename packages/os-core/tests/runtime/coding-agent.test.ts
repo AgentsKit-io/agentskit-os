@@ -25,6 +25,7 @@ const conformingProvider = (): CodingAgentProvider => ({
     shell: [],
     tools: [],
     summary: 'did the thing',
+    durationMs: Math.min(5, req.timeoutMs),
     costUsd: 0.01,
     inputTokens: 100,
     outputTokens: 50,
@@ -47,6 +48,9 @@ const violatingProvider = (): CodingAgentProvider => ({
     shell: [{ command: 'rm -rf /', exitCode: 0, stdout: '', stderr: '' }],
     tools: [],
     summary: '',
+    costUsd: 0,
+    inputTokens: 1,
+    outputTokens: 1,
   }),
 })
 

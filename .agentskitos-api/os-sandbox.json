@@ -3,11 +3,23 @@
     "ChildHandle": {
       "kind": "reexport"
     },
+    "CreateFetchGuardOptions": {
+      "kind": "interface"
+    },
+    "EgressDecisionEvent": {
+      "kind": "type"
+    },
+    "EgressEnforcer": {
+      "kind": "interface"
+    },
     "PACKAGE_NAME": {
       "kind": "const"
     },
     "PACKAGE_VERSION": {
       "kind": "const"
+    },
+    "PolicyEgressEnforcer": {
+      "kind": "class"
     },
     "ProcessRuntimeOptions": {
       "kind": "reexport"
@@ -17,6 +29,9 @@
     },
     "Spawner": {
       "kind": "reexport"
+    },
+    "createFetchGuard": {
+      "kind": "const"
     },
     "exposeAllowedEnvKeys": {
       "kind": "reexport"
@@ -28,6 +43,15 @@
       "kind": "reexport"
     },
     "processSandbox": {
+      "kind": "reexport"
+    },
+    "type CreateFetchGuardOptions": {
+      "kind": "reexport"
+    },
+    "type EgressDecisionEvent": {
+      "kind": "reexport"
+    },
+    "type EgressEnforcer": {
       "kind": "reexport"
     }
   }

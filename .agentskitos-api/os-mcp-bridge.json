@@ -1,0 +1,31 @@
+{
+  "exports": {
+    "McpDiscoveryOptions": {
+      "kind": "type"
+    },
+    "McpServerDefinition": {
+      "kind": "type"
+    },
+    "McpTransport": {
+      "kind": "type"
+    },
+    "defaultMcpDiscoveryPaths": {
+      "kind": "const"
+    },
+    "discoverMcpServers": {
+      "kind": "const"
+    },
+    "extractMcpServersFromJson": {
+      "kind": "const"
+    },
+    "type McpDiscoveryOptions": {
+      "kind": "reexport"
+    },
+    "type McpServerDefinition": {
+      "kind": "reexport"
+    },
+    "type McpTransport": {
+      "kind": "reexport"
+    }
+  }
+}

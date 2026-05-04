@@ -1,0 +1,26 @@
+---
+description: AgentsKit os-cli — Commander, runCommander, tests
+globs: packages/os-cli/src/**/*.ts
+alwaysApply: false
+---
+
+# `@agentskit/os-cli` conventions
+
+## New or heavily touched commands
+
+- Parse argv with **Commander** (`Command`, `Option`, subcommands). Do **not** add new hand-rolled `parseArgs` loops or `argv.includes` flag parsing for user-facing verbs.
+- Run the program through **`runCommander`** from `src/cli/commander-dispatch.ts` so stdout/stderr are captured and `CliExit` stays testable.
+- **`runCommander` already calls `exitOverride` on the root and every descendant** — in `.action` handlers, use a **non-arrow** function when you need `this.error(...)`, or call `.error` on the specific `Command` instance that already has `exitOverride` applied.
+
+## Commander negated flags
+
+- Long options starting with `--no-` are **negated booleans**: the parsed field is the name **without** the `no-` prefix (e.g. `--no-defaults` → `defaults === false` when set). Document in code when it affects behavior.
+
+## Terminal UI
+
+- Prefer **Ink** only where it improves output; use **`renderToString`** when the result must be returned as `CliExit.stdout` (no TTY required). Avoid interactive Ink unless the command explicitly targets a TTY and has a non-interactive fallback.
+
+## Tests
+
+- Do not assert help text only on `stderr` — Commander often writes help to **stdout** when `configureOutput` is used. Prefer `expect(\`${stdout}${stderr}\`).toContain(...)`.
+- Avoid machine-dependent assertions (e.g. “no MCP servers” without mocking `discoverMcpServers`) when the environment may have local MCP configs.

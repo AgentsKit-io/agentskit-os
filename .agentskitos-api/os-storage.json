@@ -6,6 +6,12 @@
     "FileCheckpointStoreOptions": {
       "kind": "reexport"
     },
+    "FileRegistryStore": {
+      "kind": "class"
+    },
+    "FileRegistryStoreOptions": {
+      "kind": "type"
+    },
     "FileSystem": {
       "kind": "reexport"
     },
@@ -37,6 +43,9 @@
       "kind": "reexport"
     },
     "safeRunId": {
+      "kind": "reexport"
+    },
+    "type FileRegistryStoreOptions": {
       "kind": "reexport"
     }
   }

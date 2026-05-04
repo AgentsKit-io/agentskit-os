@@ -50,6 +50,7 @@ export default defineConfig({
     'src/runtime/agent-changelog.ts',
     'src/runtime/cost-throttle.ts',
     'src/runtime/coding-agent.ts',
+    'src/trigger/presets.ts',
     'src/obs/telemetry.ts',
   ],
   format: ['esm', 'cjs'],

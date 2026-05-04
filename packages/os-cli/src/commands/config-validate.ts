@@ -1,39 +1,56 @@
+import { Command } from 'commander'
 import { safeParseConfigRoot } from '@agentskit/os-core/schema/config-root'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 import { loadConfigFile } from '../loader.js'
 
-const help = `agentskit-os config validate <path>
+const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('config validate')
+    .description(
+      'agentskit-os config validate — Validate an AgentsKitOS config file (YAML or JSON) against the ConfigRoot schema.',
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('<path>', 'config file path')
+    .action(async (path: string) => {
+      const loaded = await loadConfigFile(io, path)
+      if (!loaded.ok) {
+        result.current = { code: loaded.code, stdout: '', stderr: loaded.message }
+        return
+      }
+      const parseResult = safeParseConfigRoot(loaded.value)
+      if (!parseResult.success) {
+        const lines = parseResult.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`)
+        result.current = {
+          code: 1,
+          stdout: '',
+          stderr: `error: invalid config (${parseResult.error.issues.length} issue${parseResult.error.issues.length === 1 ? '' : 's'}):\n${lines.join('\n')}\n`,
+        }
+        return
+      }
+      result.current = {
+        code: 0,
+        stdout: `ok: ${loaded.absolutePath} is a valid AgentsKitOS config (workspace="${parseResult.data.workspace.id}")\n`,
+        stderr: '',
+      }
+    })
 
-Validates an AgentsKitOS config file (YAML or JSON) against the ConfigRoot schema.
-Exits 0 on success, 1 on schema/parse error, 2 on usage error, 3 on read error.
-`
+  return { program, result }
+}
 
 export const configValidate: CliCommand = {
   name: 'config validate',
   summary: 'Validate an AgentsKitOS config file against the ConfigRoot schema',
   run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') {
-      return { code: 2, stdout: '', stderr: help }
+    const { program, result } = buildProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    const loaded = await loadConfigFile(io, argv[0]!)
-    if (!loaded.ok) return { code: loaded.code, stdout: '', stderr: loaded.message }
-
-    const result = safeParseConfigRoot(loaded.value)
-    if (!result.success) {
-      const lines = result.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`)
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: invalid config (${result.error.issues.length} issue${result.error.issues.length === 1 ? '' : 's'}):\n${lines.join('\n')}\n`,
-      }
-    }
-
-    return {
-      code: 0,
-      stdout: `ok: ${loaded.absolutePath} is a valid AgentsKitOS config (workspace="${result.data.workspace.id}")\n`,
-      stderr: '',
-    }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

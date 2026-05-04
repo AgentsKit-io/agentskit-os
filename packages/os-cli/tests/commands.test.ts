@@ -57,7 +57,7 @@ describe('config diff', () => {
   it('shows help when args missing', async () => {
     const r = await route(['config', 'diff'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os config diff')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os config diff')
   })
 
   it('reports no changes when identical', async () => {
@@ -97,7 +97,7 @@ describe('config migrate', () => {
   it('shows help when no path', async () => {
     const r = await route(['config', 'migrate'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os config migrate')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os config migrate')
   })
 
   it('rejects --to with non-integer', async () => {
@@ -133,7 +133,7 @@ describe('config migrate', () => {
       fakeIo({ '/work/cfg.yaml': 'schemaVersion: 1\n' }),
     )
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unexpected argument')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/too many arguments|unexpected argument/i)
   })
 })
 
@@ -150,7 +150,7 @@ describe('doctor', () => {
   it('shows help on --help', async () => {
     const r = await route(['doctor', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os doctor')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os doctor')
   })
 })
 

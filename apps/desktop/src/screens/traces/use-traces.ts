@@ -212,6 +212,14 @@ type SpansState = {
   readonly error: string | null
 }
 
+const normalizeTraceRows = (value: unknown): readonly TraceRow[] => {
+  return Array.isArray(value) ? (value as readonly TraceRow[]) : MOCK_TRACES
+}
+
+const normalizeSpans = (traceId: string, value: unknown): readonly Span[] => {
+  return Array.isArray(value) ? (value as readonly Span[]) : (MOCK_SPANS[traceId] ?? [])
+}
+
 export const useTraces = (): TracesState => {
   const [state, setState] = useState<TracesState>({
     traces: [],
@@ -226,9 +234,9 @@ export const useTraces = (): TracesState => {
       try {
         // TODO: sidecar `traces.list` method not yet implemented.
         // Attempt real call; on MethodNotFound fall back to mock data.
-        const result = await sidecarRequest<readonly TraceRow[]>('traces.list')
+        const result = await sidecarRequest<unknown>('traces.list')
         if (!cancelled) {
-          setState({ traces: result, loading: false, error: null })
+          setState({ traces: normalizeTraceRows(result), loading: false, error: null })
         }
       } catch {
         // Sidecar method not implemented yet — use mock data.
@@ -260,10 +268,10 @@ export const useTraceSpans = (traceId: string | null): SpansState => {
       setState((prev) => ({ ...prev, loading: true, error: null }))
       try {
         // TODO: sidecar `traces.get` method not yet implemented.
-        const result = await sidecarRequest<readonly Span[]>('traces.get', {
+        const result = await sidecarRequest<unknown>('traces.get', {
           traceId: id,
         })
-        setState({ spans: result, loading: false, error: null })
+        setState({ spans: normalizeSpans(id, result), loading: false, error: null })
       } catch {
         // Fallback to mock data.
         const mockSpans = MOCK_SPANS[id] ?? []

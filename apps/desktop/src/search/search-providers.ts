@@ -16,8 +16,12 @@ import type { TraceRow } from '../screens/traces/use-traces'
 // Individual providers
 // ---------------------------------------------------------------------------
 
-export function workspaceEntities(workspaces: readonly Workspace[]): SearchEntity[] {
-  return workspaces.map((ws) => ({
+const arrayOrEmpty = <T>(value: unknown): readonly T[] => {
+  return Array.isArray(value) ? (value as readonly T[]) : []
+}
+
+export function workspaceEntities(workspaces: readonly Workspace[] | unknown): SearchEntity[] {
+  return arrayOrEmpty<Workspace>(workspaces).map((ws) => ({
     id: `workspace:${ws.id}`,
     kind: 'workspace' as const,
     label: ws.name,
@@ -32,8 +36,8 @@ export type AgentStub = {
   readonly description?: string
 }
 
-export function agentEntities(agents: readonly AgentStub[]): SearchEntity[] {
-  return agents.map((a) => ({
+export function agentEntities(agents: readonly AgentStub[] | unknown): SearchEntity[] {
+  return arrayOrEmpty<AgentStub>(agents).map((a) => ({
     id: `agent:${a.id}`,
     kind: 'agent' as const,
     label: a.name,
@@ -48,8 +52,8 @@ export type FlowStub = {
   readonly description?: string
 }
 
-export function flowEntities(flows: readonly FlowStub[]): SearchEntity[] {
-  return flows.map((f) => ({
+export function flowEntities(flows: readonly FlowStub[] | unknown): SearchEntity[] {
+  return arrayOrEmpty<FlowStub>(flows).map((f) => ({
     id: `flow:${f.id}`,
     kind: 'flow' as const,
     label: f.name,
@@ -64,8 +68,8 @@ export type RunStub = {
   readonly subtitle?: string
 }
 
-export function runEntities(runs: readonly RunStub[]): SearchEntity[] {
-  return runs.map((r) => ({
+export function runEntities(runs: readonly RunStub[] | unknown): SearchEntity[] {
+  return arrayOrEmpty<RunStub>(runs).map((r) => ({
     id: `run:${r.id}`,
     kind: 'run' as const,
     label: r.label,
@@ -74,8 +78,8 @@ export function runEntities(runs: readonly RunStub[]): SearchEntity[] {
   }))
 }
 
-export function traceEntities(traces: readonly TraceRow[]): SearchEntity[] {
-  return traces.map((t) => ({
+export function traceEntities(traces: readonly TraceRow[] | unknown): SearchEntity[] {
+  return arrayOrEmpty<TraceRow>(traces).map((t) => ({
     id: `trace:${t.traceId}`,
     kind: 'trace' as const,
     label: t.traceId,
@@ -84,8 +88,8 @@ export function traceEntities(traces: readonly TraceRow[]): SearchEntity[] {
   }))
 }
 
-export function commandEntities(commands: readonly Command[], onRun?: () => void): SearchEntity[] {
-  return commands.map((cmd) => ({
+export function commandEntities(commands: readonly Command[] | unknown, onRun?: () => void): SearchEntity[] {
+  return arrayOrEmpty<Command>(commands).map((cmd) => ({
     id: `command:${cmd.id}`,
     kind: 'command' as const,
     label: cmd.label,
@@ -137,8 +141,8 @@ export const BUILT_IN_DOC_LINKS: readonly DocLink[] = [
   },
 ]
 
-export function docEntities(docs: readonly DocLink[]): SearchEntity[] {
-  return docs.map((d) => ({
+export function docEntities(docs: readonly DocLink[] | unknown): SearchEntity[] {
+  return arrayOrEmpty<DocLink>(docs).map((d) => ({
     id: `doc:${d.id}`,
     kind: 'doc' as const,
     label: d.title,

@@ -19,6 +19,19 @@ const ZERO_STATS: DashboardStats = {
   errorRatePct: 0,
 }
 
+function numberOrZero(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0
+}
+
+export function normalizeDashboardStats(input: Partial<DashboardStats> | null | undefined): DashboardStats {
+  return {
+    totalRuns24h: numberOrZero(input?.totalRuns24h),
+    liveCostUsd: numberOrZero(input?.liveCostUsd),
+    avgLatencyMs: numberOrZero(input?.avgLatencyMs),
+    errorRatePct: numberOrZero(input?.errorRatePct),
+  }
+}
+
 /**
  * Fetches dashboard stats from the sidecar on mount.
  * Returns zeros while the sidecar exposes no stats endpoint yet.
@@ -36,10 +49,10 @@ export function useDashboardStats(): {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<DashboardStats>('dashboard.stats')
+    sidecarRequest<Partial<DashboardStats>>('dashboard.stats')
       .then((result) => {
         if (!cancelled) {
-          setStats(result)
+          setStats(normalizeDashboardStats(result))
         }
       })
       .catch(() => {

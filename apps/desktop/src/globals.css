@@ -18,3 +18,54 @@ body,
     system-ui,
     sans-serif;
 }
+
+.driver-popover.agentskitos-driver {
+  max-width: min(360px, calc(100vw - 2rem));
+  border: 1px solid var(--ag-line);
+  border-radius: 8px;
+  background: var(--ag-panel);
+  color: var(--ag-ink);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 0.28);
+}
+
+.driver-popover.agentskitos-driver .driver-popover-title {
+  color: var(--ag-ink);
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.driver-popover.agentskitos-driver .driver-popover-description {
+  color: var(--ag-ink-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.driver-popover.agentskitos-driver .driver-popover-progress-text {
+  color: var(--ag-ink-subtle);
+  font-size: 0.75rem;
+}
+
+.driver-popover.agentskitos-driver button {
+  border-radius: 6px;
+  border: 1px solid var(--ag-line);
+  background: var(--ag-panel-alt);
+  color: var(--ag-ink);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-shadow: none;
+}
+
+.driver-popover.agentskitos-driver .driver-popover-next-btn {
+  border-color: color-mix(in srgb, var(--ag-accent) 45%, var(--ag-line));
+  background: color-mix(in srgb, var(--ag-accent) 16%, var(--ag-panel));
+  color: var(--ag-accent);
+}
+
+.driver-popover.agentskitos-driver button:hover {
+  border-color: var(--ag-accent);
+  color: var(--ag-accent);
+}
+
+.driver-popover.agentskitos-driver .driver-popover-close-btn {
+  color: var(--ag-ink-subtle);
+}

@@ -74,6 +74,15 @@ export {
 } from './schema/flow.js'
 
 export {
+  FLOW_ENVELOPE_FORMAT,
+  FlowEnvelope,
+  FlowEnvelopeSignature,
+  canonicalFlowBody,
+  parseFlowEnvelope,
+  safeParseFlowEnvelope,
+} from './schema/flow-envelope.js'
+
+export {
   PluginConfig,
   PluginContribution,
   PluginPermission,
@@ -311,6 +320,54 @@ export {
   stageLabel,
 } from './runtime/agent-registry-store.js'
 export type { RegistryStore } from './runtime/agent-registry-store.js'
+
+export {
+  buildChangelogEntries,
+  renderAgentChangelog,
+  renderManifestChangelogs,
+} from './runtime/agent-changelog.js'
+
+export {
+  ThrottleScope,
+  ThrottleAction,
+  CostBudget,
+  CostThrottleConfig,
+  CostMeasurement,
+  ThrottleDecision,
+  decideThrottle,
+  parseThrottleConfig,
+  safeParseThrottleConfig,
+  parseCostMeasurement,
+  safeParseCostMeasurement,
+} from './runtime/cost-throttle.js'
+
+export {
+  CodingAgentCapability,
+  CodingAgentInvocationModel,
+  CodingAgentProviderInfo,
+  CodingTaskKind,
+  CodingTaskRequest,
+  CodingTaskResult,
+  FileEdit,
+  ShellInvocation,
+  ToolUse,
+  ConformanceCheck,
+  ConformanceCheckResult,
+  ConformanceReport,
+  runConformance,
+  parseCodingTaskRequest,
+  safeParseCodingTaskRequest,
+  parseCodingTaskResult,
+  safeParseCodingTaskResult,
+  parseConformanceReport,
+  safeParseConformanceReport,
+} from './runtime/coding-agent.js'
+export type { CodingAgentProvider } from './runtime/coding-agent.js'
+export type {
+  ChangelogEntry,
+  ChangelogSummary,
+  GitCommitResolver,
+} from './runtime/agent-changelog.js'
 
 export {
   EgressPolicy,

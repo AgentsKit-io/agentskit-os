@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import * as mcpBridge from '@agentskit/os-mcp-bridge'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { route } from '../src/router.js'
 import { fakeIo } from './_fake-io.js'
 
@@ -154,16 +155,25 @@ describe('doctor', () => {
 })
 
 describe('mcp discover', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('prints help', async () => {
     const r = await route(['mcp', 'discover', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os mcp discover')
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('mcp discover')
   })
 
   it('discovers empty set without crashing when defaults are disabled', async () => {
+    const spy = vi.spyOn(mcpBridge, 'discoverMcpServers').mockResolvedValueOnce([])
     const r = await route(['mcp', 'discover', '--no-defaults'])
     expect(r.code).toBe(0)
     expect(r.stdout).toContain('no MCP servers discovered')
+    expect(spy).toHaveBeenCalledWith(
+      expect.objectContaining({ includeDefaultPaths: false, extraConfigPaths: [] }),
+    )
   })
 })
 
@@ -180,13 +190,21 @@ describe('trigger preset', () => {
     expect(r.code).toBe(0)
     expect(r.stdout).toContain('cron')
   })
+
+  it('returns 1 for unknown preset id', async () => {
+    const r = await route(['trigger', 'preset', 'show', 'nope/not-a-real-preset'])
+    expect(r.code).toBe(1)
+    expect(`${r.stdout}${r.stderr}`).toContain('unknown preset')
+  })
 })
 
 describe('dev worktree', () => {
   it('prints help', async () => {
     const r = await route(['dev', 'worktree', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os dev worktree')
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('dev worktree')
+    expect(out).toMatch(/add|remove/)
   })
 })
 
@@ -194,12 +212,64 @@ describe('coding-agent conformance', () => {
   it('prints help', async () => {
     const r = await route(['coding-agent', 'conformance', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('--provider')
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('--provider')
   })
 
   it('rejects unknown provider', async () => {
     const r = await route(['coding-agent', 'conformance', '--provider', 'nope'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown provider')
+    expect(`${r.stdout}${r.stderr}`).toContain('unknown provider')
+  })
+})
+
+describe('flow new', () => {
+  const validRoot = `schemaVersion: 1
+workspace:
+  schemaVersion: 1
+  id: team-a
+  name: Team A
+vault:
+  backend: os-keychain
+security: {}
+observability: {}
+`
+
+  it('prints help', async () => {
+    const r = await route(['flow', 'new', '--help'])
+    expect(r.code).toBe(2)
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('flow new')
+    expect(out).toContain('--list')
+  })
+
+  it('lists templates including topology and dev packs', async () => {
+    const r = await route(['flow', 'new', '--list'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('dev-pr-review')
+    expect(r.stdout).toContain('compare-models')
+  })
+
+  it('rejects missing template id when not listing', async () => {
+    const r = await route(['flow', 'new'], fakeIo({ '/work/agentskit-os.config.yaml': validRoot }))
+    expect(r.code).toBe(2)
+    expect(`${r.stdout}${r.stderr}`).toMatch(/template-id|browse|--list/i)
+  })
+
+  it('merges pr-review flow into config', async () => {
+    const io = fakeIo({ '/work/agentskit-os.config.yaml': validRoot })
+    const r = await route(['flow', 'new', 'pr-review'], io)
+    expect(r.code).toBe(0)
+    const written = await io.readFile('/work/agentskit-os.config.yaml')
+    expect(written).toContain('pr-review-flow')
+    expect(written).toContain('pr-reviewer')
+  })
+
+  it('returns 4 on flow id collision without --replace', async () => {
+    const io = fakeIo({ '/work/agentskit-os.config.yaml': validRoot })
+    const first = await route(['flow', 'new', 'pr-review'], io)
+    expect(first.code).toBe(0)
+    const second = await route(['flow', 'new', 'pr-review'], io)
+    expect(second.code).toBe(4)
   })
 })

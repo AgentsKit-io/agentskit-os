@@ -3,11 +3,13 @@ import {
   builtInTemplates as galleryTemplates,
   TEMPLATES as galleryMetadata,
 } from './gallery.js'
+import { DEV_ORCHESTRATOR_TEMPLATES } from './templates/dev-orchestrator-packs.js'
 import { clinicalConsensusTemplate } from './templates/clinical-consensus.js'
 import { marketing3WayTemplate } from './templates/marketing-3way.js'
 import { prReviewTemplate } from './templates/pr-review.js'
 import { researchSummaryTemplate } from './templates/research-summary.js'
 import { supportTriageTemplate } from './templates/support-triage.js'
+import { TOPOLOGY_TEMPLATES } from './templates/topology-packs.js'
 
 const legacyTemplates = [
   prReviewTemplate,
@@ -47,14 +49,23 @@ const legacyTemplatesWithMetadata: readonly Template[] = legacyTemplates.map((te
   metadata: metadataForLegacyTemplate(template),
 }))
 
+const packTemplatesWithMetadata: readonly Template[] = [...TOPOLOGY_TEMPLATES, ...DEV_ORCHESTRATOR_TEMPLATES].map(
+  (template) => ({
+    ...template,
+    metadata: metadataForLegacyTemplate(template),
+  }),
+)
+
 export const builtInTemplates: readonly Template[] = [
   ...legacyTemplatesWithMetadata,
   ...galleryTemplates,
+  ...packTemplatesWithMetadata,
 ]
 
 export const TEMPLATES: readonly TemplateMetadata[] = [
   ...legacyTemplatesWithMetadata.map((template) => template.metadata as TemplateMetadata),
   ...galleryMetadata,
+  ...packTemplatesWithMetadata.map((template) => template.metadata as TemplateMetadata),
 ]
 
 export const findTemplate = (

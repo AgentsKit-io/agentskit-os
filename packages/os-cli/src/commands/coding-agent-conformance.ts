@@ -1,67 +1,66 @@
+import { Command } from 'commander'
 import { runConformance } from '@agentskit/os-core'
 import {
   BUILTIN_CODING_AGENT_IDS,
   createBuiltinCodingAgentProvider,
   isBuiltinCodingAgentId,
 } from '@agentskit/os-coding-agents'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit } from '../types.js'
 
-const help = `agentskit-os coding-agent conformance --provider <id> [--json]
+type ConformanceOpts = { provider: string; json?: boolean }
 
-Runs the os-core conformance probe against a built-in coding-agent provider
-(codex, claude-code, cursor, gemini). Requires the provider CLI installed locally.
+const buildProgram = (): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('coding-agent conformance')
+    .description('Run os-core conformance probe against a built-in coding-agent CLI.')
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .requiredOption(
+      '--provider <id>',
+      `built-in provider (${BUILTIN_CODING_AGENT_IDS.join(', ')})`,
+    )
+    .option('--json', 'print ConformanceReport as JSON', false)
+    .action(async (opts: ConformanceOpts) => {
+      const pid = opts.provider
+      if (!isBuiltinCodingAgentId(pid)) {
+        program.error(`unknown provider "${pid}"`, { exitCode: 2 })
+      } else {
+        const p = createBuiltinCodingAgentProvider(pid)
+        const report = await runConformance(p)
+        if (opts.json) {
+          const out = `${JSON.stringify(report, null, 2)}\n`
+          result.current = report.certified
+            ? { code: 0, stdout: out, stderr: '' }
+            : { code: 1, stdout: '', stderr: out }
+          return
+        }
+        const lines = report.results.map(
+          (r) => `${r.passed ? '[ok]' : '[FAIL]'} ${r.check}${r.detail ? ` — ${r.detail}` : ''}`,
+        )
+        const summary =
+          `provider: ${report.providerId}\npassed: ${report.passed}  failed: ${report.failed}  certified: ${report.certified}\n`
+        const text = `${lines.join('\n')}\n\n${summary}`
+        result.current = report.certified
+          ? { code: 0, stdout: text, stderr: '' }
+          : { code: 1, stdout: '', stderr: text }
+      }
+    })
 
-Options:
-  --provider <id>   Required. One of: ${BUILTIN_CODING_AGENT_IDS.join(', ')}
-  --json            Print ConformanceReport as JSON
-`
+  return { program, result }
+}
 
 export const codingAgentConformance: CliCommand = {
   name: 'coding-agent conformance',
   summary: 'Run conformance checks against a built-in coding-agent CLI',
   run: async (argv): Promise<CliExit> => {
-    if (argv[0] === '--help' || argv[0] === '-h') {
-      return { code: 2, stdout: '', stderr: help }
+    const { program, result } = buildProgram()
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    const asJson = argv.includes('--json')
-    const args = argv.filter((x) => x !== '--json')
-
-    let providerId: string | undefined
-    for (let i = 0; i < args.length; i++) {
-      if (args[i] === '--provider' && args[i + 1]) {
-        providerId = args[i + 1]!
-        i++
-      }
-    }
-
-    if (!providerId) {
-      return { code: 2, stdout: '', stderr: `${help}\nerror: --provider is required\n` }
-    }
-    if (!isBuiltinCodingAgentId(providerId)) {
-      return {
-        code: 2,
-        stdout: '',
-        stderr: `${help}\nerror: unknown provider "${providerId}"\n`,
-      }
-    }
-
-    const p = createBuiltinCodingAgentProvider(providerId)
-    const report = await runConformance(p)
-
-    if (asJson) {
-      const out = `${JSON.stringify(report, null, 2)}\n`
-      return report.certified ? { code: 0, stdout: out, stderr: '' } : { code: 1, stdout: '', stderr: out }
-    }
-
-    const lines = report.results.map(
-      (r) => `${r.passed ? '[ok]' : '[FAIL]'} ${r.check}${r.detail ? ` — ${r.detail}` : ''}`,
-    )
-    const summary =
-      `provider: ${report.providerId}\npassed: ${report.passed}  failed: ${report.failed}  certified: ${report.certified}\n`
-    const text = `${lines.join('\n')}\n\n${summary}`
-    return report.certified
-      ? { code: 0, stdout: text, stderr: '' }
-      : { code: 1, stdout: '', stderr: text }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

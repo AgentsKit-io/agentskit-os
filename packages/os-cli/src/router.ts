@@ -20,6 +20,7 @@ import { agentList } from './commands/agent-list.js'
 import { agentBump, agentDiff, agentVersionList } from './commands/agent-version.js'
 import { agentChangelog } from './commands/agent-changelog.js'
 import { flowExport, flowImportJson } from './commands/flow-json.js'
+import { flowNew } from './commands/flow-new.js'
 import { creds } from './commands/creds.js'
 import { telemetry } from './commands/telemetry.js'
 import { mcpDiscover } from './commands/mcp-discover.js'
@@ -50,6 +51,7 @@ export const COMMANDS: readonly CliCommand[] = [
   agentChangelog,
   flowExport,
   flowImportJson,
+  flowNew,
   agentPromote,
   creds,
   telemetry,

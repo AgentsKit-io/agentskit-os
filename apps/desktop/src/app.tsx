@@ -10,6 +10,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { AgentsScreen } from './screens/agents'
 import { Dashboard } from './screens/dashboard'
+import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
 import { TracesScreen } from './screens/traces'
 import { TriggersScreen } from './screens/triggers'
@@ -121,8 +122,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'hitl',
         label: 'HITL Inbox',
         icon: '◉',
-        status: 'preview',
-        description: 'Human approval queues require action contracts, audit events, and permission states.',
+        status: 'supported',
       },
       {
         id: 'triggers',
@@ -396,9 +396,10 @@ function AppShell({
           {activeScreen === 'runs' && <RunsScreen />}
           {activeScreen === 'traces' && <TracesScreen />}
           {activeScreen === 'agents' && <AgentsScreen />}
+          {activeScreen === 'hitl' && <HitlScreen />}
           {activeScreen === 'triggers' && <TriggersScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'triggers' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "social-post-multi-channel-workspace",
+    "name": "Social Post Multi Channel Workspace",
+    "tags": [
+      "marketing-content"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "social-post-multi-channel-lead",
+      "name": "Social Post Multi Channel Lead",
+      "systemPrompt": "Adapts one campaign brief into channel-specific posts. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "social-post-multi-channel-reviewer",
+      "name": "Social Post Multi Channel Reviewer",
+      "systemPrompt": "Adapts one campaign brief into channel-specific posts. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "social-post-multi-channel-judge",
+      "name": "Social Post Multi Channel Judge",
+      "systemPrompt": "Adapts one campaign brief into channel-specific posts. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "brand.kit.read",
+        "cms.draft",
+        "slack.send"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "social-post-multi-channel-flow",
+      "name": "Social Post Multi Channel Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "brand.kit.read"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "social-post-multi-channel-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "social-post-multi-channel-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "slack.send"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "marketing-content"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "social-post-multi-channel-trigger",
+      "name": "Social Post Multi Channel Trigger",
+      "flow": "social-post-multi-channel-flow",
+      "enabled": true,
+      "tags": [
+        "marketing-content"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "slack",
+      "channel": "#agentskit-os",
+      "event": "message"
+    }
+  ]
+}

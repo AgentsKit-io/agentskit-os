@@ -1,0 +1,29 @@
+{
+  "id": "sentiment-aware-reply",
+  "name": "Sentiment Aware Reply",
+  "intent": "Drafts support replies that match sentiment while staying inside policy.",
+  "category": "customer-support",
+  "tags": [
+    "customer-support",
+    "sentiment",
+    "aware",
+    "reply"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "sentiment-aware-reply-lead",
+    "sentiment-aware-reply-reviewer"
+  ],
+  "primaryTools": [
+    "zendesk.ticket.read",
+    "zendesk.ticket.update",
+    "kb.search"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

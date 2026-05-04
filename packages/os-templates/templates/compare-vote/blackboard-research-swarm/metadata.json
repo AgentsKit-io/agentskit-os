@@ -1,0 +1,29 @@
+{
+  "id": "blackboard-research-swarm",
+  "name": "Blackboard Research Swarm",
+  "intent": "Coordinates a research swarm through a shared blackboard scratchpad.",
+  "category": "compare-vote",
+  "tags": [
+    "compare-vote",
+    "blackboard",
+    "research",
+    "swarm"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "blackboard-research-swarm-lead",
+    "blackboard-research-swarm-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "scratchpad.write",
+    "report.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

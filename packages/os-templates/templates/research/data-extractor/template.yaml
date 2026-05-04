@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "data-extractor-workspace",
+    "name": "Data Extractor Workspace",
+    "tags": [
+      "research"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "data-extractor-lead",
+      "name": "Data Extractor Lead",
+      "systemPrompt": "Extracts structured facts from documents for downstream review. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "data-extractor-reviewer",
+      "name": "Data Extractor Reviewer",
+      "systemPrompt": "Extracts structured facts from documents for downstream review. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "data-extractor-judge",
+      "name": "Data Extractor Judge",
+      "systemPrompt": "Extracts structured facts from documents for downstream review. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "data-extractor-flow",
+      "name": "Data Extractor Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "fetch-url"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "data-extractor-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "data-extractor-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "citation.lookup"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "research"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "data-extractor-trigger",
+      "name": "Data Extractor Trigger",
+      "flow": "data-extractor-flow",
+      "enabled": true,
+      "tags": [
+        "research"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cron",
+      "cron": "0 9 * * 1",
+      "timezone": "UTC"
+    }
+  ]
+}

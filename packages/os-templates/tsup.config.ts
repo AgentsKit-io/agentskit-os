@@ -5,6 +5,7 @@ export default defineConfig({
     'src/index.ts',
     'src/types.ts',
     'src/registry.ts',
+    'src/gallery.ts',
     'src/templates/pr-review.ts',
     'src/templates/marketing-3way.ts',
     'src/templates/research-summary.ts',

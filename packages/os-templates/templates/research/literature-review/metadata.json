@@ -1,0 +1,28 @@
+{
+  "id": "literature-review",
+  "name": "Literature Review",
+  "intent": "Collects sources and synthesizes a literature review with open questions.",
+  "category": "research",
+  "tags": [
+    "research",
+    "literature",
+    "review"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "literature-review-lead",
+    "literature-review-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "paper.search",
+    "citation.lookup"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "cron",
+  "stability": "ready"
+}

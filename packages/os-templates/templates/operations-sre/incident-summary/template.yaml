@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "incident-summary-workspace",
+    "name": "Incident Summary Workspace",
+    "tags": [
+      "operations-sre"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "incident-summary-lead",
+      "name": "Incident Summary Lead",
+      "systemPrompt": "Summarizes incident signals, likely impact, and current mitigation status. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "incident-summary-reviewer",
+      "name": "Incident Summary Reviewer",
+      "systemPrompt": "Summarizes incident signals, likely impact, and current mitigation status. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "incident-summary-judge",
+      "name": "Incident Summary Judge",
+      "systemPrompt": "Summarizes incident signals, likely impact, and current mitigation status. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "alerts.list",
+        "runbook.read",
+        "pagerduty.note"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "incident-summary-flow",
+      "name": "Incident Summary Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "alerts.list"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "incident-summary-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "incident-summary-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "pagerduty.note"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "operations-sre"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "incident-summary-trigger",
+      "name": "Incident Summary Trigger",
+      "flow": "incident-summary-flow",
+      "enabled": true,
+      "tags": [
+        "operations-sre"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "webhook",
+      "path": "/templates/incident-summary",
+      "method": "POST"
+    }
+  ]
+}

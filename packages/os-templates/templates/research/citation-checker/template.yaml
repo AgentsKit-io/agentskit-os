@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "citation-checker-workspace",
+    "name": "Citation Checker Workspace",
+    "tags": [
+      "research"
+    ],
+    "limits": {
+      "usdPerRun": 2,
+      "tokensPerRun": 100000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "citation-checker-lead",
+      "name": "Citation Checker Lead",
+      "systemPrompt": "Checks whether cited claims are supported by the provided source snippets. Lead the workflow and produce the first structured output.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "lead"
+      ]
+    },
+    {
+      "id": "citation-checker-reviewer",
+      "name": "Citation Checker Reviewer",
+      "systemPrompt": "Checks whether cited claims are supported by the provided source snippets. Review the lead output for quality and policy fit.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "reviewer"
+      ]
+    },
+    {
+      "id": "citation-checker-judge",
+      "name": "Citation Checker Judge",
+      "systemPrompt": "Checks whether cited claims are supported by the provided source snippets. Resolve disagreements and produce the final recommendation.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.2
+      },
+      "tools": [
+        "fetch-url",
+        "paper.search",
+        "citation.lookup"
+      ],
+      "tags": [
+        "judge"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "citation-checker-flow",
+      "name": "Citation Checker Flow",
+      "entry": "ingest",
+      "nodes": [
+        {
+          "id": "ingest",
+          "kind": "tool",
+          "tool": "fetch-url"
+        },
+        {
+          "id": "draft",
+          "kind": "agent",
+          "agent": "citation-checker-lead"
+        },
+        {
+          "id": "review",
+          "kind": "agent",
+          "agent": "citation-checker-reviewer"
+        },
+        {
+          "id": "publish",
+          "kind": "tool",
+          "tool": "citation.lookup"
+        }
+      ],
+      "edges": [
+        {
+          "from": "ingest",
+          "to": "draft"
+        },
+        {
+          "from": "draft",
+          "to": "review"
+        },
+        {
+          "from": "review",
+          "to": "publish"
+        }
+      ],
+      "tags": [
+        "research"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "citation-checker-trigger",
+      "name": "Citation Checker Trigger",
+      "flow": "citation-checker-flow",
+      "enabled": true,
+      "tags": [
+        "research"
+      ],
+      "limits": {
+        "usdPerRun": 2,
+        "tokensPerRun": 100000
+      },
+      "kind": "cron",
+      "cron": "0 9 * * 1",
+      "timezone": "UTC"
+    }
+  ]
+}

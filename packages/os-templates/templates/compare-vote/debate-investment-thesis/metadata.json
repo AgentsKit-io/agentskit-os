@@ -1,0 +1,29 @@
+{
+  "id": "debate-investment-thesis",
+  "name": "Debate Investment Thesis",
+  "intent": "Runs a pro/con debate with a judge for an investment thesis.",
+  "category": "compare-vote",
+  "tags": [
+    "compare-vote",
+    "debate",
+    "investment",
+    "thesis"
+  ],
+  "estimatedCostUsd": 0.25,
+  "estimatedTokens": 18000,
+  "primaryAgents": [
+    "debate-investment-thesis-lead",
+    "debate-investment-thesis-reviewer"
+  ],
+  "primaryTools": [
+    "fetch-url",
+    "scratchpad.write",
+    "report.create"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview"
+  ],
+  "triggerKind": "webhook",
+  "stability": "ready"
+}

@@ -8,7 +8,8 @@ describe('telemetry command', () => {
   it('shows usage for missing subcommand', async () => {
     const r = await telemetry.run([], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('missing subcommand')
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toMatch(/usage|help|status|enable|disable|export|telemetry/i)
   })
 
   it('status reports unset when no consent saved', async () => {

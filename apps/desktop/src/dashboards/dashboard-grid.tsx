@@ -299,7 +299,7 @@ export function DashboardGrid({ dashboard, ctx, onLayoutChange, onRemoveWidget }
           onResizeHandlePointerDown={handleResizeHandlePointerDown}
           onRemove={onRemoveWidget ? handleRemoveWidget : undefined}
         >
-          {renderWidget(widget.kind, ctx, widget)}
+          {renderWidget(widget.kind, ctx)}
         </GridTile>
       ))}
 

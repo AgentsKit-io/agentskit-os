@@ -12,6 +12,7 @@ import { AgentsScreen } from './screens/agents'
 import { Dashboard } from './screens/dashboard'
 import { RunsScreen } from './screens/runs'
 import { TracesScreen } from './screens/traces'
+import { TriggersScreen } from './screens/triggers'
 import { ExampleScreen } from './example-library/example-screen'
 import { CommandPaletteProvider } from './command-palette/command-palette-provider'
 import { CommandPalette } from './command-palette'
@@ -127,8 +128,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'triggers',
         label: 'Triggers',
         icon: '▶',
-        status: 'preview',
-        description: 'Slack, Discord, Teams, cron, PR, and webhook triggers need typed trigger contracts.',
+        status: 'supported',
       },
     ],
   },
@@ -396,8 +396,9 @@ function AppShell({
           {activeScreen === 'runs' && <RunsScreen />}
           {activeScreen === 'traces' && <TracesScreen />}
           {activeScreen === 'agents' && <AgentsScreen />}
+          {activeScreen === 'triggers' && <TriggersScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'triggers' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

@@ -54,7 +54,7 @@ describe('flow debugger', () => {
     expect(result.reason).toBe('breakpoint')
     expect(result.executedOrder).toEqual(['a'])
     expect(calls).toEqual(['a'])
-    expect(events).toContain('node:break:b')
+    expect(events).toContain('node:paused:b')
   })
 
   it('applies a mock without invoking the node handler', async () => {

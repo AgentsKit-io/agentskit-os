@@ -14,7 +14,7 @@ export type KnowledgeFallbackBehavior = z.infer<typeof KnowledgeFallbackBehavior
 
 export const CitationRequirement = z.object({
   required: z.boolean().default(false),
-  /** When provided, citations MUST match at least one of these patterns (e.g., URL prefixes) */
+  /** If provided, consumers should enforce that citations match at least one of these patterns (e.g., URL prefixes). */
   allowlist: z.array(z.string().min(1).max(256)).max(64).optional(),
 })
 export type CitationRequirement = z.infer<typeof CitationRequirement>

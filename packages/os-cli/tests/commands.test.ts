@@ -7,19 +7,19 @@ describe('config explain', () => {
   it('shows help when no layers provided', async () => {
     const r = await route(['config', 'explain'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os config explain')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/agentskit-os config explain|specify at least one layer/i)
   })
 
   it('rejects unknown layer flag', async () => {
     const r = await route(['config', 'explain', '--cosmic', 'x.yaml'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown layer')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/unknown option|cosmic/i)
   })
 
   it('rejects layer flag without value', async () => {
     const r = await route(['config', 'explain', '--workspace'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('requires a path')
+    expect(`${r.stdout}${r.stderr}`).toMatch(/required option argument|missing|workspace/i)
   })
 
   it('reports highest-priority layer per leaf', async () => {

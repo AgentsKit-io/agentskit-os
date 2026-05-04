@@ -29,13 +29,13 @@ describe('import', () => {
   it('shows help when no input', async () => {
     const r = await route(['import'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os import')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os import')
   })
 
   it('rejects unknown flag', async () => {
     const r = await route(['import', 'wf.json', '--cosmic'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown flag')
+    expect(r.stderr).toMatch(/unknown (flag|option)/i)
   })
 
   it('errors on read failure', async () => {

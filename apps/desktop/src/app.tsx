@@ -30,6 +30,7 @@ import { ShortcutsPanel } from './keyboard/shortcuts-panel'
 import { useShortcutHandler } from './keyboard/shortcut-handlers'
 import { WorkspacesProvider } from './workspaces/workspaces-provider'
 import { WorkspaceSwitcher } from './workspaces/workspace-switcher'
+import { DashboardsProvider } from './dashboards/dashboards-provider'
 import { PreferencesProvider } from './preferences/preferences-provider'
 import { PreferencesPanel } from './preferences/preferences-panel'
 import { StatusLineProvider } from './status-line/status-line-provider'
@@ -220,6 +221,7 @@ export function App() {
         <StatusLineProvider>
         <ShortcutProvider>
           <WorkspacesProvider>
+            <DashboardsProvider>
             <NotificationPreferencesProvider>
               <NotificationsProvider>
                 <OnboardingProvider>
@@ -254,6 +256,7 @@ export function App() {
                 </OnboardingProvider>
               </NotificationsProvider>
             </NotificationPreferencesProvider>
+            </DashboardsProvider>
           </WorkspacesProvider>
         </ShortcutProvider>
         </StatusLineProvider>

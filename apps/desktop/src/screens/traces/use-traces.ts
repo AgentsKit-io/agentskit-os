@@ -26,6 +26,8 @@ export type TraceRow = {
 // Fixture data (used when sidecar method not implemented)
 // ---------------------------------------------------------------------------
 
+const makeSpan = (span: Span): Span => span
+
 export const TRACES_FIXTURE: readonly TraceRow[] = [
   {
     traceId: 'trace-001',

@@ -2,7 +2,6 @@ import { Badge, Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-u
 import { formatClockTime, formatShortDuration, formatUsd } from '../../lib/format'
 import type { RunMode } from '../../lib/sidecar'
 import { formatHms } from '../../lib/time'
-import { formatShortDuration } from '../../lib/format'
 
 export type RunRecord = {
   readonly id: string

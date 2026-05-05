@@ -84,16 +84,13 @@ export function WorkspacesProvider({
       return
     }
 
-    sidecarRequest<SidecarWorkspace[]>('workspaces.list')
+    listWorkspaces()
       .then((result) => {
-        // If result is empty (sidecar unavailable stub returns {}), use mock
-        const workspaces =
-          Array.isArray(result) && result.length > 0 ? result : WORKSPACES_FIXTURE
+        const workspaces = result.length > 0 ? result : WORKSPACES_FIXTURE
         setAll(workspaces)
         setLoadStatus('ready')
       })
       .catch(() => {
-        // Sidecar unavailable — use mock data
         setAll(WORKSPACES_FIXTURE)
         setLoadStatus('ready')
       })

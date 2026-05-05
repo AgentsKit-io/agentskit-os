@@ -60,5 +60,9 @@
   "bugs": {
     "url": "https://github.com/AgentsKit-io/agentskit-os/issues"
   },
-  "author": "AgentsKit Contributors"
+  "author": "AgentsKit Contributors",
+  "dependencies": {
+    "diff": "^9.0.0",
+    "isomorphic-git": "^1.37.6"
+  }
 }

@@ -13,6 +13,9 @@ export type {
   WorktreeCleanupOutcome,
   WorktreeTaskMeta,
 } from './git-worktree-manager.js'
+
+export { computeGitDiff } from './git-diff.js'
+export type { GitDiffFile, GitDiffHunk, GitDiffResult } from './git-diff.js'
 export { computeCompletenessScore, runCodingAgentBenchmark } from './coding-benchmark.js'
 export type { CodingBenchmarkReport, CodingBenchmarkRow } from './coding-benchmark.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'

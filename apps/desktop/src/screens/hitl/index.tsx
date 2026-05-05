@@ -19,26 +19,6 @@ export function HitlScreen() {
     requests,
   })
 
-  return { selectedId, setSelectedId, selectedRequest }
-}
-
-export function HitlScreen() {
-  const { requests, loading, error } = useHitlRequests()
-  const [filter, setFilter] = useState<HitlStatus | 'all'>('all')
-  const [kindFilter, setKindFilter] = useState<'all' | HitlKind>('all')
-  const [query, setQuery] = useState('')
-  const [sortDue, setSortDue] = useState<'soonest' | 'newest'>('soonest')
-  const [localStatus, setLocalStatus] = useState<Partial<Record<string, HitlStatus>>>({})
-  const [escalationNotes, setEscalationNotes] = useState<Partial<Record<string, string>>>({})
-
-  const statusOf = (r: HitlRequest): HitlStatus => localStatus[r.id] ?? r.status
-
-  const filteredRequests = useMemo(() => {
-    return filterAndSortRequests({ requests, filter, kindFilter, query, sortDue, localStatus })
-  }, [filter, kindFilter, query, requests, localStatus, sortDue])
-
-  const { selectedId, setSelectedId, selectedRequest } = useHitlSelection({ requests, filteredRequests })
-
   if (loading) {
     return (
       <section

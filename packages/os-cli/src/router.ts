@@ -5,6 +5,7 @@ import { configDiff } from './commands/config-diff.js'
 import { configMigrate } from './commands/config-migrate.js'
 import { doctor } from './commands/doctor.js'
 import { init } from './commands/init.js'
+import { initCi } from './commands/init-ci.js'
 import { wizard } from './commands/wizard.js'
 import { run } from './commands/run.js'
 import { lock } from './commands/lock.js'
@@ -35,6 +36,7 @@ import { snapshotRetention } from './commands/snapshot-retention.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
+  initCi,
   wizard,
   newCmd,
   importCmd,

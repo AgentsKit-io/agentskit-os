@@ -116,7 +116,9 @@ const renderListText = (providers: readonly ProviderRequirement[]): string => {
 const renderCheckText = (results: readonly ProviderCheckResult[]): string => {
   const lines: string[] = []
   for (const r of results) {
-    const tag = r.status === 'ok' ? 'ok' : r.status === 'skipped' ? 'skipped' : 'MISSING'
+    let tag = 'MISSING'
+    if (r.status === 'ok') tag = 'ok'
+    else if (r.status === 'skipped') tag = 'skipped'
     const detail =
       r.status === 'missing' ? `  missing: ${r.missingKeys.join(', ')}  hint: ${r.remediation ?? ''}` : ''
     lines.push(`[${tag}] ${r.providerId}${detail}`)

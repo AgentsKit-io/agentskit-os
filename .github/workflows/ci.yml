@@ -60,6 +60,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm check:quality-gates
       - run: pnpm --filter "./packages/*" build
       - run: pnpm --filter "./packages/*" lint
       - run: pnpm test

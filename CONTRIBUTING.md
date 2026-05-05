@@ -11,6 +11,9 @@
 5. Never duplicate AgentsKit primitives — import them. See ADR-0002.
 6. Every package independently installable, sensibly defaulted, configurable via YAML/GUI/code.
 7. SemVer strict. Breaking changes require RFC + major bump.
+8. No new architecture debt: `pnpm check:quality-gates` must pass locally and in CI.
+9. New desktop surfaces must be vertical slices: typed contract, headless behavior, typed IPC, UI, tests.
+10. Production source must not add hidden `MOCK_*`, `Preview data`, `sidecarRequest<unknown>`, nested ternaries, or `any`.
 
 ## Workflow
 
@@ -18,10 +21,11 @@
 2. Branch: `<type>/<short-slug>` (e.g. `feat/flow-checkpoint`).
 3. Implement in small, atomic commits.
 4. `pnpm changeset` describing user-visible impact.
-5. Open PR, reference issue, fill PR template.
-6. CI must pass: lint, type-check, test, size-budget.
-7. Codeowner review required.
-8. Squash-merge.
+5. Run `pnpm check:quality-gates`.
+6. Open PR, reference issue, fill PR template.
+7. CI must pass: quality gates, lint, type-check, test, size-budget.
+8. Codeowner review required.
+9. Squash-merge.
 
 ## Commit Style
 
@@ -49,6 +53,9 @@ Conventional Commits. Examples:
 - Prefer composition over options bags.
 - No comments restating code. Comments only for non-obvious **why**.
 - Errors: typed errors with discriminant `kind`, never raw strings.
+- No nested ternaries; use named helpers or explicit branches.
+- Keep orchestration logic outside desktop UI. UI calls typed clients/hooks only.
+- `sidecarRequest<unknown>` is forbidden for new work; define a named DTO/schema first.
 
 ## Tests
 

@@ -17,7 +17,52 @@ export type {
 export { computeGitDiff } from './git-diff.js'
 export type { GitDiffFile, GitDiffHunk, GitDiffResult } from './git-diff.js'
 export { computeCompletenessScore, runCodingAgentBenchmark } from './coding-benchmark.js'
-export type { CodingBenchmarkReport, CodingBenchmarkRow } from './coding-benchmark.js'
+export type {
+  CodingBenchmarkArtifactsOpts,
+  CodingBenchmarkReport,
+  CodingBenchmarkRow,
+} from './coding-benchmark.js'
+export {
+  artifactFilenameForBenchmarkStep,
+  buildCodingRunArtifactPayload,
+  redactCodingTaskRequest,
+  redactCodingTaskResult,
+  resolveHeadOidSafe,
+  summarizeGitDiffForArtifact,
+  tryGitRefDiffSummary,
+  writeCodingRunArtifactFile,
+} from './coding-run-artifacts.js'
+export type {
+  CodingAgentArtifactIds,
+  CodingRunArtifactPayload,
+  CodingRunArtifactPhase,
+  CodingRunGitRefDiffSummary,
+} from './coding-run-artifacts.js'
+export {
+  CODING_FAILURE_CATALOG,
+  classifyCodingFailure,
+} from './coding-failure-taxonomy.js'
+export type {
+  CodingFailureClassification,
+  CodingFailureCode,
+  CodingRecoveryAction,
+  FailureSeverity,
+  RetryPolicy,
+} from './coding-failure-taxonomy.js'
+export {
+  buildCodingTaskReportFromBenchmark,
+  buildCodingTaskReportFromDelegation,
+  renderCodingTaskReportMarkdown,
+  serializeCodingTaskReportJson,
+  toCodingTaskDashboardPayload,
+} from './coding-task-report.js'
+export type {
+  BuildCodingTaskReportOptions,
+  CodingTaskDashboardPayload,
+  CodingTaskReport,
+  CodingTaskReportLinks,
+  CodingTaskReportRow,
+} from './coding-task-report.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'
 export { simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
 export type { IssueToPrDryRunReport, IssueToPrPipelineEvent } from './issue-pr-pipeline.js'

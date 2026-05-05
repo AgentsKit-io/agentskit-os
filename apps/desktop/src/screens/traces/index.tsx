@@ -17,15 +17,23 @@ import { TraceList } from './trace-list'
 import { SpanTree } from './span-tree'
 import { ReplayButton } from './replay-button'
 import { useTraceSpans } from './use-traces'
+import { useTraceLiveSession } from './use-trace-live'
 import { TraceStatusBadge } from './trace-badges'
 import { ForkButton } from '../../fork/fork-button'
-import { formatShortDuration } from '../../lib/format'
+import { formatCompactNumber, formatShortDuration, formatUsd } from '../../lib/format'
 import { useSelection } from '../../lib/selection-store'
 
 const TRACES_HEADER_CLASS = [
   'sticky top-0 z-20 flex shrink-0 flex-wrap items-center justify-between gap-4',
   'border-b border-[var(--ag-line)] bg-[var(--ag-glass-strong-bg)] px-4 py-3',
   '[backdrop-filter:var(--ag-glass-blur)] sm:px-6',
+].join(' ')
+
+const TRACE_CANCEL_RUN_BUTTON_CLASS = [
+  'rounded-md border border-[var(--ag-danger)]/40',
+  'bg-[color-mix(in_srgb,var(--ag-danger)_10%,transparent)]',
+  'px-2 py-0.5 text-[0.68rem] font-medium text-[var(--ag-danger)]',
+  'hover:bg-[color-mix(in_srgb,var(--ag-danger)_18%,transparent)]',
 ].join(' ')
 
 // ---------------------------------------------------------------------------
@@ -38,6 +46,7 @@ type TraceDetailProps = {
 
 const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
   const { spans, loading, error } = useTraceSpans(traceId)
+  const { totalUsd, inputTokens, outputTokens, runActive, cancelRun } = useTraceLiveSession(traceId)
 
   const totalDuration = spans.reduce((acc, s) => {
     // Use root span (no parent) duration as total; fallback to max.
@@ -65,8 +74,29 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           <TraceStatusBadge status={status} />
+
+          {(runActive || totalUsd > 0 || inputTokens > 0 || outputTokens > 0) && (
+            <span
+              className="font-mono text-[0.68rem] tabular-nums text-[var(--ag-ink-muted)]"
+              title="Live cumulative LLM cost and tokens for this trace"
+            >
+              {formatCompactNumber(inputTokens + outputTokens)} tok · {formatUsd(totalUsd, 4)}
+            </span>
+          )}
+
+          {runActive && (
+            <button
+              type="button"
+              className={TRACE_CANCEL_RUN_BUTTON_CLASS}
+              onClick={() => {
+                void cancelRun()
+              }}
+            >
+              Cancel run
+            </button>
+          )}
 
           {/* Duration */}
           {totalDuration > 0 && (

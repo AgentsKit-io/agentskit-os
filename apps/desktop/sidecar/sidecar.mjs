@@ -9,6 +9,7 @@
  * Methods exposed:
  *   health.ping          — liveness check
  *   runner.runFlow       — delegate to HeadlessRunner.runFlow
+ *   runner.cancelRun     — AbortSignal cancel for an active trace (#199)
  *   runner.runAgent      — delegate to HeadlessRunner.runAgent
  *   runner.dispose       — flush audit + teardown
  *
@@ -40,6 +41,8 @@ let baseRunnerOpts = null
 const traceRows = []
 /** @type {Map<string, Array<unknown>>} */
 const traceSpans = new Map()
+/** @type {Map<string, AbortController>} */
+const activeRunControllers = new Map()
 let traceCounter = 0
 
 /** @type {Map<string, unknown>} */
@@ -232,6 +235,17 @@ const DISPATCH_HANDLERS = {
   'runner.runFlow': async ({ id, params }) => {
     await handleRunnerRunFlow({ id, params })
   },
+  'runner.cancelRun': ({ id, params }) => {
+    const p = /** @type {Record<string, unknown>} */ (params ?? {})
+    const traceId = /** @type {string} */ (p['traceId'])
+    const c = activeRunControllers.get(traceId)
+    if (c) {
+      c.abort()
+      respond(id, { ok: true, traceId })
+    } else {
+      respond(id, { ok: false, traceId, message: 'no active run for this trace' })
+    }
+  },
   'runner.runAgent': async ({ id, params }) => {
     await handleRunnerRunAgent({ id, params })
   },
@@ -299,18 +313,22 @@ const handleRunnerRunFlow = async ({ id, params }) => {
     respondError(id, -32001, 'runner not initialized')
     return
   }
+  const p = /** @type {Record<string, unknown>} */ (params ?? {})
+  const { traceId, startedAt, rootSpanId, flowId, flow, nodeKinds, nodeStartIso } = setupTraceRun(p)
+  const controller = new AbortController()
+  activeRunControllers.set(traceId, controller)
   try {
-    const p = /** @type {Record<string, unknown>} */ (params ?? {})
-    const { traceId, startedAt, rootSpanId, flowId, flow, nodeKinds, nodeStartIso } = setupTraceRun(p)
     const runRunner = createHeadlessRunnerFn({
       ...baseRunnerOpts,
       observability: (event) => handleObservabilityEvent({ traceId, rootSpanId, nodeKinds, nodeStartIso, event }),
     })
-    const result = await runFlowAndDispose({ runRunner, flow, p })
+    const result = await runFlowAndDispose({ runRunner, flow, p, signal: controller.signal })
     finalizeTrace({ traceId, startedAt, result })
     respond(id, result)
   } catch (err) {
     respondError(id, -32000, err instanceof Error ? err.message : String(err))
+  } finally {
+    activeRunControllers.delete(traceId)
   }
 }
 
@@ -351,8 +369,33 @@ const setupTraceRun = (p) => {
   return { traceId, startedAt, rootSpanId, flowId, flow, nodeKinds, nodeStartIso }
 }
 
+const observabilityWireType = (event) => {
+  if (event.kind === 'cost.tick') return 'cost.tick'
+  if (event.kind === 'run:cancelled') return 'flow.run.cancelled'
+  return `flow.${event.kind}`
+}
+
 const handleObservabilityEvent = ({ traceId, rootSpanId, nodeKinds, nodeStartIso, event }) => {
-  notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
+  const wireType = observabilityWireType(event)
+  notify('event', { timestamp: nowIso(), type: wireType, data: { traceId, ...event } })
+
+  if (event.kind === 'run:cancelled') {
+    const row = traceRows.find((t) => t.traceId === traceId)
+    if (row) row.status = 'cancelled'
+    const spans = traceSpans.get(traceId) ?? []
+    const root = spans[0]
+    const ended = nowIso()
+    if (root) {
+      root.endedAt = ended
+      root.durationMs = Math.max(0, Date.parse(ended) - Date.parse(root.startedAt))
+      root.status = 'cancelled'
+    }
+    traceSpans.set(traceId, spans)
+    return
+  }
+
+  if (event.kind === 'cost.tick') return
+
   const spans = traceSpans.get(traceId) ?? []
   if (event.kind === 'node:start') return recordNodeStart({ traceId, rootSpanId, nodeKinds, nodeStartIso, spans, event })
   if (event.kind === 'node:end') return recordNodeEnd({ traceId, nodeStartIso, spans, event })
@@ -398,10 +441,11 @@ const recordNodeEnd = ({ traceId, nodeStartIso, spans, event }) => {
   traceSpans.set(traceId, spans)
 }
 
-const runFlowAndDispose = async ({ runRunner, flow, p }) => {
+const runFlowAndDispose = async ({ runRunner, flow, p, signal }) => {
   const result = await runRunner.runFlow(flow, {
     input: p['input'],
     mode: /** @type {import('@agentskit/os-core').RunMode | undefined} */ (p['mode']),
+    signal,
   })
   await runRunner.dispose()
   return result
@@ -412,6 +456,16 @@ const outcomeStatus = (outcome) => {
   if (outcome?.kind === 'paused') return 'paused'
   if (outcome?.kind === 'skipped') return 'skipped'
   return 'ok'
+}
+
+/** @param {string} statusStr */
+const spanRootStatusFromRun = (statusStr) => {
+  if (statusStr === 'completed') return 'ok'
+  if (statusStr === 'cancelled') return 'cancelled'
+  if (statusStr === 'skipped') return 'skipped'
+  if (statusStr === 'paused') return 'paused'
+  if (statusStr === 'failed') return 'error'
+  return 'error'
 }
 
 /** @param {{ traceId: string, startedAt: string, result: unknown }} args */
@@ -429,7 +483,7 @@ const finalizeTrace = ({ traceId, startedAt, result }) => {
   if (root) {
     root.endedAt = endedAt
     root.durationMs = Math.max(0, Date.parse(endedAt) - Date.parse(startedAt))
-    root.status = statusStr === 'succeeded' ? 'ok' : 'error'
+    root.status = spanRootStatusFromRun(statusStr)
   }
   const row = traceRows.find((t) => t.traceId === traceId)
   if (row) {

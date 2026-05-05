@@ -27,9 +27,8 @@ beforeAll(() => {
 })
 
 // Import after mocking
-const { sidecarRequest, pauseRuns, resumeRuns, disposeSidecar } = await import(
-  "../src/lib/sidecar"
-);
+const { sidecarRequest, pauseRuns, resumeRuns, disposeSidecar, cancelRunForTrace } =
+  await import("../src/lib/sidecar");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tests
@@ -95,6 +94,23 @@ describe("resumeRuns", () => {
     expect(mockInvoke).toHaveBeenCalledWith("sidecar_request", {
       method: "runner.resume",
       params: {},
+    });
+  });
+});
+
+describe("cancelRunForTrace", () => {
+  beforeEach(() => {
+    mockInvoke.mockReset();
+  });
+
+  it("sends runner.cancelRun with traceId", async () => {
+    mockInvoke.mockResolvedValueOnce({ ok: true });
+
+    await cancelRunForTrace("trace-abc");
+
+    expect(mockInvoke).toHaveBeenCalledWith("sidecar_request", {
+      method: "runner.cancelRun",
+      params: { traceId: "trace-abc" },
     });
   });
 });

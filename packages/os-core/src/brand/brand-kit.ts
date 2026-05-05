@@ -5,7 +5,7 @@ import { Slug, TagList } from '../schema/_primitives.js'
 
 const SemverPlain = z
   .string()
-  .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/)
+  .regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+){0,1}(\+[0-9A-Za-z.-]+){0,1}$/)
 
 export const VoiceTone = z.enum(['formal', 'casual', 'playful', 'technical', 'empathetic'])
 export type VoiceTone = z.infer<typeof VoiceTone>
@@ -136,6 +136,10 @@ const findAll = (haystack: string, needle: string): readonly number[] => {
   return out
 }
 
+const coalesce = <T>(a: T | undefined, b: T | undefined): T | undefined => (a !== undefined ? a : b)
+
+type ChannelLengthLimits = { readonly min: number | undefined; readonly max: number | undefined }
+
 export const validateAgainstBrandKit = (
   text: string,
   kit: BrandKit,
@@ -179,9 +183,13 @@ export const validateAgainstBrandKit = (
   const channel = options.channel
   const limits = kit.formatting.lengthLimits
   if (limits) {
-    const perChannel = channel ? limits.perChannel?.[channel] : undefined
-    const min = perChannel?.min ?? limits.min
-    const max = perChannel?.max ?? limits.max
+    let perChannel: ChannelLengthLimits | undefined
+    if (channel) {
+      const raw = limits.perChannel?.[channel]
+      if (raw) perChannel = { min: raw.min, max: raw.max }
+    }
+    const min = coalesce(perChannel?.min, limits.min)
+    const max = coalesce(perChannel?.max, limits.max)
     const len = text.length
     if (min !== undefined && len < min) {
       const v: BrandViolation = { code: 'length_below_min', min, actual: len }

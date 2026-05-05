@@ -68,9 +68,9 @@ type ParsedGrant = {
 }
 
 const parseGrant = (g: string): ParsedGrant | null => {
-  const m = /^net:(fetch|connect|dns):([^/:]+)(?::([^/]+))?(?:\/(.*))?$/.exec(g)
+  const m = /^net:(fetch|connect|dns):([^/:]+)(:([^/]+)){0,1}(\/(.*)){0,1}$/.exec(g)
   if (!m) return null
-  return { op: m[1] as 'fetch' | 'connect' | 'dns', host: m[2]!, port: m[3], path: m[4] }
+  return { op: m[1] as 'fetch' | 'connect' | 'dns', host: m[2]!, port: m[4], path: m[6] }
 }
 
 const matchHost = (pattern: string, host: string): boolean => {
@@ -97,7 +97,8 @@ const matchPath = (pattern: string | undefined, path: string | undefined): boole
   if (pattern === undefined) return true
   if (pattern.endsWith('*')) {
     const prefix = pattern.slice(0, -1)
-    return (path ?? '').startsWith(prefix)
+    const actual = path !== undefined ? path : ''
+    return actual.startsWith(prefix)
   }
   return pattern === path
 }
@@ -132,7 +133,11 @@ export const checkEgress = (
     return { kind: 'allow', grant: requested as EgressGrant }
   }
 
-  const overrides = pluginId ? (policy.pluginOverrides[pluginId] ?? []) : []
+  let overrides: readonly EgressGrant[] = []
+  if (pluginId) {
+    const raw = policy.pluginOverrides[pluginId]
+    if (raw !== undefined) overrides = raw
+  }
   for (const allowed of [...policy.allowlist, ...overrides]) {
     if (matchGrant(allowed, requested)) {
       return { kind: 'allow', grant: allowed }

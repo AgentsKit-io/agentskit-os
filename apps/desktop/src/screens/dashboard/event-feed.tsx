@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Button, GlassPanel } from '@agentskit/os-ui'
 import type { SidecarEvent } from '../../lib/sidecar'
 import type { EventFeedState } from './use-event-feed'
+import { formatHms } from '../../lib/time'
 
 type EventFeedProps = Pick<EventFeedState, 'events' | 'isPaused' | 'toggle'>
 
@@ -15,12 +16,7 @@ function dataSummary(data: Record<string, unknown>): string {
 }
 
 function EventRow({ event }: { event: SidecarEvent }) {
-  const time = new Date(event.timestamp).toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  })
+  const time = formatHms(event.timestamp)
   return (
     <div className="flex gap-3 py-0.5 text-xs text-[var(--ag-ink-muted)]">
       <time

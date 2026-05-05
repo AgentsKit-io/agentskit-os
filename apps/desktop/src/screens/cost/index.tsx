@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
-  MOCK_COST_BUDGETS,
+  COST_BUDGETS_FIXTURE,
   type BudgetStatus,
   type CostBudget,
   type CostProvider,
   useCostBudgets,
 } from './use-cost'
+import { FilterPills } from '../../components/filter-pills'
+import { formatMd } from '../../lib/time'
 
 const PROVIDER_LABEL: Record<CostProvider, string> = {
   openai: 'OpenAI',
@@ -22,9 +24,9 @@ const STATUS_LABEL: Record<BudgetStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<BudgetStatus, string> = {
-  healthy: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  watch: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  exceeded: 'border-red-500/25 bg-red-500/10 text-red-300',
+  healthy: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  watch: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  exceeded: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const FILTERS: Array<CostProvider | 'all'> = ['all', 'openai', 'anthropic', 'google', 'cursor']
@@ -49,14 +51,6 @@ function formatCurrency(value: number): string {
 
 function formatTokens(tokens: number): string {
   return new Intl.NumberFormat(undefined, { notation: 'compact' }).format(tokens)
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function percentUsed(budget: CostBudget): number {
@@ -165,7 +159,7 @@ function BudgetTable({
               </td>
               <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{budget.runs}</td>
               <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatDate(budget.resetAt)}
+                {formatMd(budget.resetAt)}
               </td>
             </tr>
           ))}
@@ -261,14 +255,16 @@ function BudgetDetail({ budget }: { readonly budget: CostBudget | null }) {
 export function CostScreen() {
   const { budgets, loading, error } = useCostBudgets()
   const [filter, setFilter] = useState<CostProvider | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_COST_BUDGETS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(COST_BUDGETS_FIXTURE[0]?.id ?? null)
 
   const filteredBudgets = useMemo(() => {
     return filter === 'all' ? budgets : budgets.filter((budget) => budget.provider === filter)
   }, [budgets, filter])
 
   const selectedBudget = useMemo(() => {
-    return budgets.find((budget) => budget.id === selectedId) ?? filteredBudgets[0] ?? null
+    const match = budgets.find((budget) => budget.id === selectedId)
+    if (match) return match
+    return filteredBudgets[0] ?? null
   }, [budgets, filteredBudgets, selectedId])
 
   if (loading) {
@@ -291,7 +287,7 @@ export function CostScreen() {
             Track provider spend, quota pressure, tokens, and cost guard policies.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
@@ -306,24 +302,13 @@ export function CostScreen() {
 
         <CostSummary budgets={budgets} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter budgets by provider">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : PROVIDER_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter budgets by provider"
+          labelFor={(item) => (item === 'all' ? 'All' : PROVIDER_LABEL[item])}
+        />
 
         {filteredBudgets.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

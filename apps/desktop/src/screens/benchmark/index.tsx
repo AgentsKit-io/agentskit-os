@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
-  MOCK_BENCHMARK_RESULTS,
+  BENCHMARK_RESULTS_FIXTURE,
   type BenchmarkProvider,
   type BenchmarkResult,
   type BenchmarkStatus,
   useBenchmarks,
 } from './use-benchmarks'
+import { FilterPills } from '../../components/filter-pills'
 
 const PROVIDER_LABEL: Record<BenchmarkProvider, string> = {
   codex: 'Codex',
@@ -22,9 +23,9 @@ const STATUS_LABEL: Record<BenchmarkStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<BenchmarkStatus, string> = {
-  complete: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  running: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  failed: 'border-red-500/25 bg-red-500/10 text-red-300',
+  complete: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  failed: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const FILTERS: Array<BenchmarkProvider | 'all'> = ['all', 'codex', 'claude', 'cursor', 'gemini']
@@ -242,14 +243,16 @@ function ListBlock({ label, items }: { readonly label: string; readonly items: r
 export function BenchmarkScreen() {
   const { results, loading, error } = useBenchmarks()
   const [filter, setFilter] = useState<BenchmarkProvider | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_BENCHMARK_RESULTS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(BENCHMARK_RESULTS_FIXTURE[0]?.id ?? null)
 
   const filteredResults = useMemo(() => {
     return filter === 'all' ? results : results.filter((result) => result.provider === filter)
   }, [filter, results])
 
   const selectedResult = useMemo(() => {
-    return results.find((result) => result.id === selectedId) ?? filteredResults[0] ?? null
+    const match = results.find((result) => result.id === selectedId)
+    if (match) return match
+    return filteredResults[0] ?? null
   }, [filteredResults, results, selectedId])
 
   if (loading) {
@@ -269,36 +272,25 @@ export function BenchmarkScreen() {
             Launch the same task across providers and compare completeness, tests, cost, and time.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar benchmark provider unavailable. Showing local sample data.
           </div>
         )}
 
         <BenchmarkSummary results={results} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter benchmarks by provider">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : PROVIDER_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter benchmarks by provider"
+          labelFor={(item) => (item === 'all' ? 'All' : PROVIDER_LABEL[item])}
+        />
 
         {filteredResults.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

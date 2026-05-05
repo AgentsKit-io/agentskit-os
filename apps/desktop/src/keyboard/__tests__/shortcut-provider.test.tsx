@@ -13,7 +13,15 @@ import type { ShortcutContextValue } from '../shortcut-provider'
 vi.mock('@agentskit/os-ui', () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
   useTheme: () => ({ theme: 'dark', setTheme: vi.fn() }),
-  GlassPanel: ({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) =>
+  GlassPanel: ({
+    children,
+    className,
+    onClick,
+  }: {
+    children: React.ReactNode
+    className: string | undefined
+    onClick: (() => void) | undefined
+  }) =>
     createElement('div', { className, onClick, 'data-testid': 'glass-panel' }, children),
   Kbd: ({ children }: { children: React.ReactNode }) => createElement('kbd', {}, children),
 }))

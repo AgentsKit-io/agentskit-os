@@ -12,10 +12,10 @@ import { MonitorInfoSchema, type MonitorInfo } from './types'
 import { z } from 'zod'
 
 // ---------------------------------------------------------------------------
-// Mock data used outside Tauri runtime
+// Fixture data used outside Tauri runtime
 // ---------------------------------------------------------------------------
 
-const MOCK_MONITOR: MonitorInfo = {
+const MONITOR_FIXTURE: MonitorInfo = {
   id: '0',
   name: 'Display 1 (mock)',
   x: 0,
@@ -54,14 +54,14 @@ export function useMonitors(): UseMonitorsResult {
           setMonitors(parsed.data)
         } else {
           // Malformed response — fall back to mock.
-          setMonitors([MOCK_MONITOR])
+          setMonitors([MONITOR_FIXTURE])
           setError('Unexpected response from list_monitors')
         }
       })
       .catch(() => {
         if (cancelled) return
         // Not running in Tauri — use mock so the UI is still usable.
-        setMonitors([MOCK_MONITOR])
+        setMonitors([MONITOR_FIXTURE])
         setError(null) // Suppress error in non-Tauri environments.
       })
       .finally(() => {

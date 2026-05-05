@@ -41,20 +41,26 @@ const slugify = (input: string): string => {
 }
 
 type Args = {
-  templateId?: string
-  dir?: string
+  templateId: string | undefined
+  dir: string | undefined
   list: boolean
-  id?: string
-  name?: string
+  id: string | undefined
+  name: string | undefined
   force: boolean
 }
 
 const formatTemplateRow = (t: Template): string =>
   `  ${t.id.padEnd(28)} [${t.category.padEnd(11)}] ${t.difficulty.padEnd(13)} ${t.description}`
 
-const buildConfig = (template: Template, idOverride?: string, nameOverride?: string): ConfigRoot => {
-  const id = idOverride ?? template.id
-  const name = nameOverride ?? template.name
+const buildConfig = (
+  template: Template,
+  idOverride: string | undefined,
+  nameOverride: string | undefined,
+): ConfigRoot => {
+  let id = template.id
+  if (idOverride !== undefined) id = idOverride
+  let name = template.name
+  if (nameOverride !== undefined) name = nameOverride
   return parseConfigRoot({
     schemaVersion: CONFIG_ROOT_VERSION,
     workspace: {
@@ -73,7 +79,7 @@ const buildConfig = (template: Template, idOverride?: string, nameOverride?: str
 
 const executeNew = async (args: Args, io: CliIo): Promise<CliExit> => {
   if (args.list || (!args.templateId && !args.dir)) {
-    const lines = listTemplates({}).map(formatTemplateRow)
+    const lines = listTemplates(undefined).map(formatTemplateRow)
     return {
       code: args.list ? 0 : 2,
       stdout: args.list
@@ -97,7 +103,8 @@ const executeNew = async (args: Args, io: CliIo): Promise<CliExit> => {
 
   const baseDir = resolve(io.cwd(), args.dir ?? '.')
   const baseName = basename(baseDir)
-  const idOverride = args.id ?? (args.dir ? slugify(baseName) : undefined)
+  let idOverride = args.id
+  if (idOverride === undefined && args.dir) idOverride = slugify(baseName)
   const config = buildConfig(template, idOverride, args.name)
 
   const configPath = join(baseDir, 'agentskit-os.config.yaml')
@@ -146,10 +153,10 @@ const executeNew = async (args: Args, io: CliIo): Promise<CliExit> => {
 }
 
 type NewCliOpts = {
-  list?: boolean
-  id?: string
-  name?: string
-  force?: boolean
+  list: boolean | undefined
+  id: string | undefined
+  name: string | undefined
+  force: boolean | undefined
 }
 
 const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
@@ -170,10 +177,10 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
       const args: Args = {
         list: opts.list === true,
         force: opts.force === true,
-        ...(templateId !== undefined ? { templateId } : {}),
-        ...(dir !== undefined ? { dir } : {}),
-        ...(opts.id !== undefined ? { id: opts.id } : {}),
-        ...(opts.name !== undefined ? { name: opts.name } : {}),
+        templateId,
+        dir,
+        id: opts.id,
+        name: opts.name,
       }
       result.current = await executeNew(args, io)
     })

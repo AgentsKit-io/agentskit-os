@@ -51,10 +51,10 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
   const status = rootSpan?.status ?? 'ok'
 
   const STATUS_COLORS: Record<string, string> = {
-    ok: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-    error: 'bg-red-500/15 text-red-400 border-red-500/25',
-    skipped: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/25',
-    paused: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+    ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',
+    error: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)] border-[var(--ag-danger)]/25',
+    skipped: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/25',
+    paused: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)] border-[var(--ag-warn)]/25',
   }
   const statusClass = STATUS_COLORS[status] ?? STATUS_COLORS['ok']
 
@@ -108,7 +108,7 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
           <p className="text-sm text-ink-subtle p-4">Loading spans…</p>
         )}
         {error !== null && (
-          <p className="text-sm text-red-400 p-4">Error: {error}</p>
+          <p className="text-sm text-[var(--ag-danger)] p-4">Error: {error}</p>
         )}
         {!loading && error === null && (
           <SpanTree spans={spans} />
@@ -171,7 +171,7 @@ export const TracesScreen = (): React.JSX.Element => {
         </div>
 
         {/* Right: span tree / detail */}
-        <div role="region" aria-label="Trace detail" className="flex-1 min-w-0 bg-surface/50">
+        <div role="region" aria-label="Trace detail" className="flex-1 min-w-0 bg-[var(--ag-surface)]/50">
           {selectedTraceId !== null ? (
             <TraceDetail traceId={selectedTraceId} />
           ) : (

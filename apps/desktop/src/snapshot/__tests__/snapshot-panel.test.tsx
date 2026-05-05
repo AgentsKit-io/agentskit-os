@@ -67,15 +67,19 @@ Object.defineProperty(window, 'location', {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function renderPanel(props: { isOpen?: boolean; onClose?: () => void } = {}) {
-  const onClose = props.onClose ?? vi.fn()
+function renderPanel(
+  props: { isOpen: boolean | undefined; onClose: (() => void) | undefined } | undefined = undefined,
+) {
+  const safeProps = props !== undefined ? props : { isOpen: undefined, onClose: undefined }
+  const onClose = safeProps.onClose !== undefined ? safeProps.onClose : vi.fn()
   const container = document.createElement('div')
   document.body.appendChild(container)
   const root = createRoot(container)
   act(() => {
+    const isOpen = safeProps.isOpen !== undefined ? safeProps.isOpen : true
     root.render(
       createElement(SnapshotPanel, {
-        isOpen: props.isOpen ?? true,
+        isOpen,
         onClose,
       }),
     )

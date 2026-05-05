@@ -40,7 +40,10 @@ const metadataForLegacyTemplate = (template: Template): TemplateMetadata => ({
     flow.nodes.flatMap((node) => (node.kind === 'tool' ? [node.tool] : [])),
   ),
   runModesSupported: ['dry_run', 'preview'],
-  triggerKind: template.tags.includes('webhook') ? 'webhook' : 'github',
+  triggerKind: (() => {
+    if (template.tags.includes('webhook')) return 'webhook'
+    return 'github'
+  })(),
   stability: 'ready',
 })
 
@@ -74,12 +77,17 @@ export const findTemplate = (
 ): Template | undefined => registry.find((t) => t.id === id)
 
 export const listTemplates = (
-  filter: { category?: TemplateCategory; tag?: string } = {},
+  filter:
+    | {
+        category: TemplateCategory | undefined
+        tag: string | undefined
+      }
+    | undefined = undefined,
   registry: readonly Template[] = builtInTemplates,
 ): readonly Template[] =>
   registry.filter((t) => {
-    if (filter.category !== undefined && t.category !== filter.category) return false
-    if (filter.tag !== undefined && !t.tags.includes(filter.tag)) return false
+    if (filter && filter.category !== undefined && t.category !== filter.category) return false
+    if (filter && filter.tag !== undefined && !t.tags.includes(filter.tag)) return false
     return true
   })
 

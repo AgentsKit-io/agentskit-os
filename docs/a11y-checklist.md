@@ -106,7 +106,7 @@ Global `:focus-visible` rule in `packages/os-ui/styles.css`:
 
 `packages/os-ui/styles.css` includes a block that:
 - Raises `--ag-line` to a more visible shade.
-- Bumps `--ag-accent` to a higher-contrast cyan.
+- Bumps `--ag-accent` to a higher-contrast action color.
 - Sets `border-width: 2px` on panels and badges.
 
 ---

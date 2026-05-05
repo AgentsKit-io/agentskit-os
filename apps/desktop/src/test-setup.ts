@@ -2,8 +2,7 @@ import '@testing-library/jest-dom'
 import { afterEach, vi } from 'vitest'
 
 // React 19 + @testing-library/react requires this flag at startup.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true
+;(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
 // Mock Tauri API (not available in test environment)
 vi.mock('@tauri-apps/api/core', () => ({

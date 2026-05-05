@@ -14,25 +14,26 @@ export interface OtelHistogram {
 }
 
 export interface OtelMeterShape {
-  createCounter(name: string, opts?: { unit?: string }): OtelCounter
-  createHistogram(name: string, opts?: { unit?: string }): OtelHistogram
-  createUpDownCounter(name: string, opts?: { unit?: string }): OtelCounter
+  createCounter(name: string, opts: { unit: string | undefined } | undefined): OtelCounter
+  createHistogram(name: string, opts: { unit: string | undefined } | undefined): OtelHistogram
+  createUpDownCounter(name: string, opts: { unit: string | undefined } | undefined): OtelCounter
 }
 
 export type OtelMetricSinkOptions = {
   readonly meter: OtelMeterShape
-  readonly onError?: (err: unknown, point: MetricPoint) => void
+  readonly onError: ((err: unknown, point: MetricPoint) => void) | undefined
 }
 
 export const createOtelMetricSink = (opts: OtelMetricSinkOptions): MetricSink => {
   const counters = new Map<string, OtelCounter>()
   const histograms = new Map<string, OtelHistogram>()
-  const onError = opts.onError ?? (() => undefined)
+  const onError = opts.onError !== undefined ? opts.onError : () => undefined
 
   const counterFor = (name: string, unit?: string): OtelCounter => {
     let c = counters.get(name)
     if (!c) {
-      c = opts.meter.createCounter(name, unit ? { unit } : {})
+      if (unit) c = opts.meter.createCounter(name, { unit })
+      else c = opts.meter.createCounter(name, undefined)
       counters.set(name, c)
     }
     return c
@@ -41,7 +42,8 @@ export const createOtelMetricSink = (opts: OtelMetricSinkOptions): MetricSink =>
   const histogramFor = (name: string, unit?: string): OtelHistogram => {
     let h = histograms.get(name)
     if (!h) {
-      h = opts.meter.createHistogram(name, unit ? { unit } : {})
+      if (unit) h = opts.meter.createHistogram(name, { unit })
+      else h = opts.meter.createHistogram(name, undefined)
       histograms.set(name, h)
     }
     return h

@@ -26,7 +26,7 @@ type FlowsState = {
   readonly error: string | null
 }
 
-export const MOCK_FLOWS: readonly FlowDefinition[] = [
+export const FLOWS_FIXTURE: readonly FlowDefinition[] = [
   {
     id: 'flow-dev-orchestrator',
     name: 'Development orchestrator',
@@ -90,7 +90,7 @@ export const MOCK_FLOWS: readonly FlowDefinition[] = [
 ]
 
 function normalizeFlows(value: unknown): readonly FlowDefinition[] {
-  return Array.isArray(value) ? (value as readonly FlowDefinition[]) : MOCK_FLOWS
+  return Array.isArray(value) ? (value as readonly FlowDefinition[]) : FLOWS_FIXTURE
 }
 
 export function useFlows(): FlowsState {
@@ -103,7 +103,7 @@ export function useFlows(): FlowsState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('flows.list')
+    sidecarRequest<readonly FlowDefinition[]>('flows.list')
       .then((result) => {
         if (!cancelled) {
           setState({ flows: normalizeFlows(result), loading: false, error: null })
@@ -112,7 +112,7 @@ export function useFlows(): FlowsState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            flows: MOCK_FLOWS,
+            flows: FLOWS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

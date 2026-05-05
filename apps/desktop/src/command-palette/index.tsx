@@ -6,12 +6,13 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import { GlassPanel, Kbd } from '@agentskit/os-ui'
+import { GlassPanel } from '@agentskit/os-ui'
 import { useCommandPalette } from './command-palette-provider'
 import { PaletteInput } from './palette-input'
 import { PaletteList } from './palette-list'
 import { useCommandSearch } from './use-command-search'
 import type { Command, CommandCategory } from './commands'
+import { ShortcutHints } from '../components/shortcut-hints'
 
 export function CommandPalette() {
   const { open, closePalette, commands } = useCommandPalette()
@@ -78,19 +79,7 @@ export function CommandPalette() {
           <span className="text-[11px] font-medium text-[var(--ag-ink-subtle)]">
             Command Palette
           </span>
-          <div className="flex items-center gap-1 text-[11px] text-[var(--ag-ink-subtle)]">
-            <Kbd>{shortcutHint}</Kbd>
-            <span>to toggle</span>
-            <span className="mx-1">·</span>
-            <Kbd>↑↓</Kbd>
-            <span>navigate</span>
-            <span className="mx-1">·</span>
-            <Kbd>↵</Kbd>
-            <span>run</span>
-            <span className="mx-1">·</span>
-            <Kbd>Esc</Kbd>
-            <span>close</span>
-          </div>
+          <ShortcutHints shortcutHint={shortcutHint} enterVerb="run" />
         </div>
 
         <PaletteInput

@@ -204,7 +204,7 @@ export function ShortcutsPanel({ onClose }: ShortcutsPanelProps) {
         {importError !== null && (
           <div
             role="alert"
-            className="border-b border-[var(--ag-line)] bg-red-500/10 px-6 py-2 text-xs text-red-500"
+            className="border-b border-[var(--ag-line)] bg-[var(--ag-danger)]/10 px-6 py-2 text-xs text-[var(--ag-danger)]"
           >
             Import failed: {importError}
           </div>
@@ -214,7 +214,7 @@ export function ShortcutsPanel({ onClose }: ShortcutsPanelProps) {
         {conflicts.length > 0 && (
           <div
             role="alert"
-            className="border-b border-[var(--ag-line)] bg-amber-500/10 px-6 py-2 text-xs text-amber-600 dark:text-amber-400"
+            className="border-b border-[var(--ag-line)] bg-[var(--ag-warn)]/10 px-6 py-2 text-xs text-[var(--ag-warn)]"
           >
             {conflicts.map(([a, b]) => {
               const sa = all.find((x) => x.id === a)
@@ -266,7 +266,7 @@ export function ShortcutsPanel({ onClose }: ShortcutsPanelProps) {
                                 role="img"
                                 aria-label="conflict"
                                 title="Binding conflict"
-                                className="text-amber-500"
+                                className="text-[var(--ag-warn)]"
                               >
                                 ⚠
                               </span>
@@ -290,7 +290,7 @@ export function ShortcutsPanel({ onClose }: ShortcutsPanelProps) {
                               <button
                                 type="button"
                                 onClick={saveRecording}
-                                className="rounded px-2 py-0.5 text-xs font-medium text-emerald-500 hover:bg-emerald-500/10"
+                                className="rounded px-2 py-0.5 text-xs font-medium text-[var(--ag-success)] hover:bg-[var(--ag-success)]/10"
                               >
                                 Save
                               </button>
@@ -311,7 +311,7 @@ export function ShortcutsPanel({ onClose }: ShortcutsPanelProps) {
                                 className={[
                                   'min-w-[6rem] rounded border px-2 py-0.5 text-center text-sm font-mono transition-colors',
                                   hasConflict
-                                    ? 'border-amber-500/50 bg-amber-500/5 text-amber-600 dark:text-amber-400'
+                                    ? 'border-[var(--ag-warn)]/50 bg-[var(--ag-warn)]/5 text-[var(--ag-warn)]'
                                     : 'border-[var(--ag-line)] bg-[var(--ag-surface)] text-[var(--ag-ink)] hover:border-[var(--ag-accent)]/50',
                                 ].join(' ')}
                               >

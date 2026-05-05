@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { MOCK_FLOWS, type FlowDefinition, type FlowStatus, type FlowTrigger, useFlows } from './use-flows'
-import { sidecarRequest } from '../../lib/sidecar'
+import { FLOWS_FIXTURE, type FlowDefinition, type FlowStatus, type FlowTrigger, useFlows } from './use-flows'
 import { getRunMode } from '../../lib/run-mode-store'
+import { formatDate, formatDuration } from '../../lib/format'
+import { FilterPills } from '../../components/filter-pills'
+import { useRunFlow } from './use-run-flow'
 
 const STATUS_LABEL: Record<FlowStatus, string> = {
   active: 'Active',
@@ -12,10 +14,10 @@ const STATUS_LABEL: Record<FlowStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<FlowStatus, string> = {
-  active: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  draft: 'border-sky-500/25 bg-sky-500/10 text-sky-300',
-  paused: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  failing: 'border-red-500/25 bg-red-500/10 text-red-300',
+  active: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  draft: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  paused: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  failing: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const TRIGGER_LABEL: Record<FlowTrigger, string> = {
@@ -36,28 +38,6 @@ function StatusPill({ status }: { readonly status: FlowStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      month: 'short',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
-
-function formatDuration(ms: number): string {
-  if (ms <= 0) return 'n/a'
-  const minutes = Math.round(ms / 60_000)
-  if (minutes < 60) return `${minutes}m`
-  const hours = Math.floor(minutes / 60)
-  const remainder = minutes % 60
-  return remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`
 }
 
 function FlowSummary({ flows }: { readonly flows: readonly FlowDefinition[] }) {
@@ -262,15 +242,17 @@ function FlowDetail({ flow }: { readonly flow: FlowDefinition | null }) {
 export function FlowsScreen() {
   const { flows, loading, error } = useFlows()
   const [filter, setFilter] = useState<FlowStatus | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_FLOWS[0]?.id ?? null)
-  const [running, setRunning] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | null>(FLOWS_FIXTURE[0]?.id ?? null)
+  const { runFlow, running } = useRunFlow()
 
   const filteredFlows = useMemo(() => {
     return filter === 'all' ? flows : flows.filter((flow) => flow.status === filter)
   }, [flows, filter])
 
   const selectedFlow = useMemo(() => {
-    return flows.find((flow) => flow.id === selectedId) ?? filteredFlows[0] ?? null
+    const match = flows.find((flow) => flow.id === selectedId)
+    if (match) return match
+    return filteredFlows[0] ?? null
   }, [flows, filteredFlows, selectedId])
 
   if (loading) {
@@ -301,10 +283,7 @@ export function FlowsScreen() {
             className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)] disabled:opacity-50"
             onClick={() => {
               if (!selectedFlow) return
-              setRunning(true)
-              const mode = getRunMode()
-              void sidecarRequest('runner.runFlow', { flowId: selectedFlow.id, mode })
-                .finally(() => setRunning(false))
+              void runFlow({ flowId: selectedFlow.id, mode: getRunMode() })
             }}
           >
             {running ? 'Running…' : 'Run flow'}
@@ -316,7 +295,7 @@ export function FlowsScreen() {
         {error !== null && (
           <div
             role="status"
-            className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300"
+            className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]"
           >
             Sidecar flow provider unavailable. Showing local sample data.
           </div>
@@ -324,24 +303,13 @@ export function FlowsScreen() {
 
         <FlowSummary flows={flows} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter flows by status">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : STATUS_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter flows by status"
+          labelFor={(item) => (item === 'all' ? 'All' : STATUS_LABEL[item])}
+        />
 
         {filteredFlows.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

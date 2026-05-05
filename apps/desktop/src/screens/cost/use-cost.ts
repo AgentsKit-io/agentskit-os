@@ -25,7 +25,7 @@ type CostState = {
   readonly error: string | null
 }
 
-export const MOCK_COST_BUDGETS: readonly CostBudget[] = [
+export const COST_BUDGETS_FIXTURE: readonly CostBudget[] = [
   {
     id: 'budget-openai-dev',
     name: 'OpenAI development tasks',
@@ -85,7 +85,7 @@ export const MOCK_COST_BUDGETS: readonly CostBudget[] = [
 ]
 
 function normalizeCostBudgets(value: unknown): readonly CostBudget[] {
-  return Array.isArray(value) ? (value as readonly CostBudget[]) : MOCK_COST_BUDGETS
+  return Array.isArray(value) ? (value as readonly CostBudget[]) : COST_BUDGETS_FIXTURE
 }
 
 export function useCostBudgets(): CostState {
@@ -98,7 +98,7 @@ export function useCostBudgets(): CostState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('cost.budgets')
+    sidecarRequest<readonly CostBudget[]>('cost.budgets')
       .then((result) => {
         if (!cancelled) {
           setState({ budgets: normalizeCostBudgets(result), loading: false, error: null })
@@ -107,7 +107,7 @@ export function useCostBudgets(): CostState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            budgets: MOCK_COST_BUDGETS,
+            budgets: COST_BUDGETS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

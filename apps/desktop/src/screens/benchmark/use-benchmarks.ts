@@ -27,7 +27,7 @@ type BenchmarksState = {
   readonly error: string | null
 }
 
-export const MOCK_BENCHMARK_RESULTS: readonly BenchmarkResult[] = [
+export const BENCHMARK_RESULTS_FIXTURE: readonly BenchmarkResult[] = [
   {
     id: 'bench-onboarding-codex',
     task: 'Implement desktop onboarding tour',
@@ -95,7 +95,7 @@ export const MOCK_BENCHMARK_RESULTS: readonly BenchmarkResult[] = [
 ]
 
 const normalizeBenchmarkResults = (value: unknown): readonly BenchmarkResult[] => {
-  return Array.isArray(value) ? (value as readonly BenchmarkResult[]) : MOCK_BENCHMARK_RESULTS
+  return Array.isArray(value) ? (value as readonly BenchmarkResult[]) : BENCHMARK_RESULTS_FIXTURE
 }
 
 export function useBenchmarks(): BenchmarksState {
@@ -108,7 +108,7 @@ export function useBenchmarks(): BenchmarksState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('benchmarks.list')
+    sidecarRequest<readonly BenchmarkResult[]>('benchmarks.list')
       .then((result) => {
         if (!cancelled) {
           setState({ results: normalizeBenchmarkResults(result), loading: false, error: null })
@@ -117,7 +117,7 @@ export function useBenchmarks(): BenchmarksState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            results: MOCK_BENCHMARK_RESULTS,
+            results: BENCHMARK_RESULTS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

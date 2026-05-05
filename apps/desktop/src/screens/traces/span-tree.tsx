@@ -99,25 +99,25 @@ const totalDurationMs = (spans: readonly Span[]): number => {
 // ---------------------------------------------------------------------------
 
 const STATUS_COLORS: Record<SpanStatus, string> = {
-  ok: 'text-emerald-400',
-  error: 'text-red-400',
-  skipped: 'text-zinc-400',
-  paused: 'text-amber-400',
+  ok: 'text-[var(--ag-success)]',
+  error: 'text-[var(--ag-danger)]',
+  skipped: 'text-[var(--ag-ink-muted)]',
+  paused: 'text-[var(--ag-warn)]',
 }
 
 const STATUS_BADGE_COLORS: Record<SpanStatus, string> = {
-  ok: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  error: 'bg-red-500/15 text-red-400 border-red-500/25',
-  skipped: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/25',
-  paused: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+  ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',
+  error: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)] border-[var(--ag-danger)]/25',
+  skipped: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/25',
+  paused: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)] border-[var(--ag-warn)]/25',
 }
 
 const KIND_BADGE_COLORS: Record<string, string> = {
-  flow: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  agent: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-  tool: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  human: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  unknown: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
+  flow: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
+  agent: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
+  tool: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
+  human: 'bg-[var(--ag-warn)]/10 text-[var(--ag-warn)] border-[var(--ag-warn)]/20',
+  unknown: 'bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/20',
 }
 
 // ---------------------------------------------------------------------------
@@ -260,7 +260,7 @@ const SpanRow = ({
 
         {/* Error message */}
         {span.errorMessage !== undefined && (
-          <p className="text-[0.65rem] text-red-400 font-mono mt-0.5 truncate" title={span.errorMessage}>
+          <p className="text-[0.65rem] text-[var(--ag-danger)] font-mono mt-0.5 truncate" title={span.errorMessage}>
             {span.errorCode !== undefined ? `[${span.errorCode}] ` : ''}{span.errorMessage}
           </p>
         )}

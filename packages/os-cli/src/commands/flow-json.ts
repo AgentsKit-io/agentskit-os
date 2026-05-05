@@ -111,7 +111,9 @@ const buildImportProgram = (io: CliIo): { program: Command; result: { current?: 
       if (opts.mode !== undefined && opts.mode !== 'merge' && opts.mode !== 'replace') {
         this.error('error: --mode must be merge|replace', { exitCode: 2 })
       }
-      const mode: 'merge' | 'replace' = opts.replace ? 'replace' : opts.mode === 'replace' ? 'replace' : 'merge'
+      let mode: 'merge' | 'replace' = 'merge'
+      if (opts.replace) mode = 'replace'
+      else if (opts.mode === 'replace') mode = 'replace'
 
       const envPath = resolve(io.cwd(), envelopePath)
       const targetPath = resolve(io.cwd(), opts.target)

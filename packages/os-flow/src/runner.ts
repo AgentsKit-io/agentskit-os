@@ -16,6 +16,7 @@ import {
 } from './mode-policy.js'
 import { buildSnapshotEmitter, type SnapshotOptions } from './snapshot.js'
 import { auditGraph, buildAdjacency, topoSort } from './topo.js'
+import { edgeMatches } from './edge-matches.js'
 
 export type RunResult = {
   readonly status: 'completed' | 'failed' | 'paused' | 'skipped' | 'cancelled'
@@ -80,21 +81,6 @@ export type RunOptions = {
     readonly activeDomainPresets?: readonly string[]
     /** Optional tool tags (e.g. `destructive`) keyed by tool id for irreversible gates. */
     readonly toolTagsById?: ReadonlyMap<string, readonly string[]>
-  }
-}
-
-const edgeMatches = (edge: FlowEdge, outcome: NodeOutcome): boolean => {
-  switch (edge.on) {
-    case 'always':
-      return true
-    case 'success':
-      return outcome.kind === 'ok' || outcome.kind === 'skipped'
-    case 'failure':
-      return outcome.kind === 'failed'
-    case 'true':
-      return outcome.kind === 'ok' && outcome.value === true
-    case 'false':
-      return outcome.kind === 'ok' && outcome.value === false
   }
 }
 
@@ -182,7 +168,7 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
     // Re-derive the enabled set from the seeded outcomes
     for (const [id, outcome] of outcomes) {
       for (const next of adj.get(id) ?? []) {
-        if (edgeMatches({ from: id, to: next.to, on: next.on }, outcome)) {
+        if (edgeMatches(next.on, outcome)) {
           enabled.add(next.to)
         }
       }
@@ -322,7 +308,7 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
     }
 
     for (const next of adj.get(id) ?? []) {
-      if (edgeMatches({ from: id, to: next.to, on: next.on }, outcome)) {
+      if (edgeMatches(next.on, outcome)) {
         enabled.add(next.to)
       }
     }

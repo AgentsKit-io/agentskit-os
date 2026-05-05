@@ -40,7 +40,10 @@ const metadataForLegacyTemplate = (template: Template): TemplateMetadata => ({
     flow.nodes.flatMap((node) => (node.kind === 'tool' ? [node.tool] : [])),
   ),
   runModesSupported: ['dry_run', 'preview'],
-  triggerKind: template.tags.includes('webhook') ? 'webhook' : 'github',
+  triggerKind: (() => {
+    if (template.tags.includes('webhook')) return 'webhook'
+    return 'github'
+  })(),
   stability: 'ready',
 })
 

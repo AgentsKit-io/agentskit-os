@@ -89,18 +89,20 @@ const spanKey = (traceId: string, spanId: string): string => `${traceId}\x00${sp
 
 const dataAttrs = (event: AnyEvent): Record<string, unknown> => {
   const data = event.data as Record<string, unknown> | undefined
-  return data ?? {}
+  if (data) return data
+  return {}
 }
 
-const errorPair = (event: AnyEvent): { code?: string; message?: string } => {
+const errorPair = (event: AnyEvent): { code: string | undefined; message: string | undefined } => {
   const data = event.data as Record<string, unknown> | undefined
-  if (!data) return {}
-  const code = typeof data['errorCode'] === 'string' ? (data['errorCode'] as string) : undefined
-  const message = typeof data['errorMessage'] === 'string' ? (data['errorMessage'] as string) : undefined
-  return {
-    ...(code !== undefined ? { code } : {}),
-    ...(message !== undefined ? { message } : {}),
-  }
+  if (!data) return { code: undefined, message: undefined }
+  const codeRaw = data['errorCode']
+  const messageRaw = data['errorMessage']
+  let code: string | undefined
+  let message: string | undefined
+  if (typeof codeRaw === 'string') code = codeRaw
+  if (typeof messageRaw === 'string') message = messageRaw
+  return { code, message }
 }
 
 const lifecycleStatus: Record<Exclude<SpanLifecycle, 'start'>, SpanStatus> = {
@@ -112,35 +114,34 @@ const lifecycleStatus: Record<Exclude<SpanLifecycle, 'start'>, SpanStatus> = {
 
 export const createTraceCollector = (opts: TraceCollectorOptions): EventHandler => {
   const open = new Map<string, OpenSpan>()
-  const classify = opts.classify ?? defaultClassifyLifecycle
-  const kindOf = opts.kindOf ?? defaultKindOf
-  const nameOf = opts.nameOf ?? defaultNameOf
-  const onError = opts.onError ?? (() => undefined)
+  const classify = opts.classify !== undefined ? opts.classify : defaultClassifyLifecycle
+  const kindOf = opts.kindOf !== undefined ? opts.kindOf : defaultKindOf
+  const nameOf = opts.nameOf !== undefined ? opts.nameOf : defaultNameOf
+  const onError = opts.onError !== undefined ? opts.onError : () => undefined
 
-  return async (event) => {
-    const lifecycle = classify(event)
-    if (!lifecycle) return
-    const traceId = event.traceId ?? ''
-    const spanId = event.spanId ?? ''
-    if (!traceId || !spanId) return
-    const key = spanKey(traceId, spanId)
+  const handleStart = (event: AnyEvent, key: string): void => {
+    const data = event.data as Record<string, unknown> | undefined
+    let parentSpanId: string | undefined
+    if (data && typeof data['parentSpanId'] === 'string') parentSpanId = data['parentSpanId'] as string
 
-    if (lifecycle === 'start') {
-      const data = event.data as Record<string, unknown> | undefined
-      const parent = data && typeof data['parentSpanId'] === 'string' ? (data['parentSpanId'] as string) : undefined
-      open.set(key, {
-        traceId,
-        spanId,
-        ...(parent !== undefined ? { parentSpanId: parent } : {}),
-        kind: kindOf(event),
-        name: nameOf(event),
-        workspaceId: event.workspaceId,
-        startedAt: event.time,
-        attributes: dataAttrs(event),
-      })
-      return
+    const span: OpenSpan = {
+      traceId: event.traceId as string,
+      spanId: event.spanId as string,
+      kind: kindOf(event),
+      name: nameOf(event),
+      workspaceId: event.workspaceId,
+      startedAt: event.time,
+      attributes: dataAttrs(event),
     }
+    if (parentSpanId !== undefined) span.parentSpanId = parentSpanId
+    open.set(key, span)
+  }
 
+  const handleEnd = async (
+    event: AnyEvent,
+    key: string,
+    lifecycle: Exclude<SpanLifecycle, 'start'>,
+  ): Promise<void> => {
     const existing = open.get(key)
     if (!existing) return
     open.delete(key)
@@ -148,13 +149,14 @@ export const createTraceCollector = (opts: TraceCollectorOptions): EventHandler 
     const status = lifecycleStatus[lifecycle]
     const startedMs = Date.parse(existing.startedAt)
     const endedMs = Date.parse(event.time)
-    const durationMs = Number.isFinite(startedMs) && Number.isFinite(endedMs) ? Math.max(0, endedMs - startedMs) : 0
-    const err = status === 'error' ? errorPair(event) : {}
+    let durationMs = 0
+    if (Number.isFinite(startedMs) && Number.isFinite(endedMs)) {
+      durationMs = Math.max(0, endedMs - startedMs)
+    }
 
     const span: Span = {
       traceId: existing.traceId,
       spanId: existing.spanId,
-      ...(existing.parentSpanId !== undefined ? { parentSpanId: existing.parentSpanId } : {}),
       kind: existing.kind,
       name: existing.name,
       workspaceId: existing.workspaceId,
@@ -162,9 +164,14 @@ export const createTraceCollector = (opts: TraceCollectorOptions): EventHandler 
       endedAt: event.time,
       durationMs,
       status,
-      ...(err.code !== undefined ? { errorCode: err.code } : {}),
-      ...(err.message !== undefined ? { errorMessage: err.message } : {}),
       attributes: { ...existing.attributes, ...dataAttrs(event) },
+    }
+    if (existing.parentSpanId !== undefined) span.parentSpanId = existing.parentSpanId
+
+    if (status === 'error') {
+      const err = errorPair(event)
+      if (err.code !== undefined) span.errorCode = err.code
+      if (err.message !== undefined) span.errorMessage = err.message
     }
 
     try {
@@ -172,5 +179,20 @@ export const createTraceCollector = (opts: TraceCollectorOptions): EventHandler 
     } catch (e) {
       onError(e, event)
     }
+  }
+
+  return async (event) => {
+    const lifecycle = classify(event)
+    if (!lifecycle) return
+    const traceId = typeof event.traceId === 'string' ? event.traceId : ''
+    const spanId = typeof event.spanId === 'string' ? event.spanId : ''
+    if (!traceId || !spanId) return
+    const key = spanKey(traceId, spanId)
+
+    if (lifecycle === 'start') {
+      handleStart(event, key)
+      return
+    }
+    await handleEnd(event, key, lifecycle)
   }
 }

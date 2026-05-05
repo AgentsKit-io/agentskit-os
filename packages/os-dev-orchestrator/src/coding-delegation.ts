@@ -181,10 +181,8 @@ const execPrepared = async (
     }
   }
 
-  const row: DelegationSubTaskRow =
-    worktreePath !== undefined
-      ? { specId: shard.id, providerId: shard.providerId, result, worktreePath }
-      : { specId: shard.id, providerId: shard.providerId, result }
+  let row: DelegationSubTaskRow = { specId: shard.id, providerId: shard.providerId, result }
+  if (worktreePath !== undefined) row = { specId: shard.id, providerId: shard.providerId, result, worktreePath }
 
   const trace: DelegationTraceNode = {
     id: shard.id,
@@ -220,13 +218,14 @@ export const runDelegatedCodingTask = async (opts: {
     )
   }
 
-  const wm = opts.isolateWorktrees
-    ? createCodingAgentWorktreeManager(
-        opts.gitRunner !== undefined
-          ? { repoRoot: opts.repoRoot, runner: opts.gitRunner }
-          : { repoRoot: opts.repoRoot },
-      )
-    : undefined
+  let wm: CodingAgentWorktreeManager | undefined
+  if (opts.isolateWorktrees) {
+    if (opts.gitRunner !== undefined) {
+      wm = createCodingAgentWorktreeManager({ repoRoot: opts.repoRoot, runner: opts.gitRunner })
+    } else {
+      wm = createCodingAgentWorktreeManager({ repoRoot: opts.repoRoot })
+    }
+  }
 
   const shardTraceNodes: DelegationTraceNode[] = []
   const subRows: DelegationSubTaskRow[] = []

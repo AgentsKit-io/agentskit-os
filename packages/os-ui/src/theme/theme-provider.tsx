@@ -44,13 +44,13 @@ export function ThemeProvider({
 
   const resolveSystemTheme = useCallback((): 'dark' | 'light' => {
     if (typeof window === 'undefined') return 'dark'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light'
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
+    return 'light'
   }, [])
 
-  const resolvedTheme: 'dark' | 'light' | 'cyber' =
-    theme === 'system' ? resolveSystemTheme() : theme
+  let resolvedTheme: 'dark' | 'light' | 'cyber'
+  if (theme === 'system') resolvedTheme = resolveSystemTheme()
+  else resolvedTheme = theme
 
   useEffect(() => {
     if (typeof document === 'undefined') return

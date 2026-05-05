@@ -9,18 +9,19 @@ export const createToolHandler = (executor: ToolExecutor): NodeHandler<'tool'> =
         error: { code: 'tool.not_registered', message: `tool "${node.tool}" not registered` },
       }
     }
-    const args = (node.input ?? (typeof input === 'object' && input !== null ? input : {})) as Record<
-      string,
-      unknown
-    >
+    let baseArgs: unknown = {}
+    if (node.input !== undefined) baseArgs = node.input
+    else if (typeof input === 'object' && input !== null) baseArgs = input
+    const args = baseArgs as Record<string, unknown>
     try {
       const r = await executor.invoke({ toolId: node.tool, args }, ctx)
       if (r.kind === 'ok') return { kind: 'ok', value: r.value }
       return { kind: 'failed', error: { code: r.code, message: r.message } }
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
       return {
         kind: 'failed',
-        error: { code: 'tool.threw', message: (err as Error).message ?? String(err) },
+        error: { code: 'tool.threw', message },
       }
     }
   }

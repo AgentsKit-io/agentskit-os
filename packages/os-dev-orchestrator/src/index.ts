@@ -16,6 +16,8 @@ export type {
 export { computeCompletenessScore, runCodingAgentBenchmark } from './coding-benchmark.js'
 export type { CodingBenchmarkReport, CodingBenchmarkRow } from './coding-benchmark.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'
+export { simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
+export type { IssueToPrDryRunReport, IssueToPrPipelineEvent } from './issue-pr-pipeline.js'
 export type {
   DelegationReport,
   DelegationSubTaskRow,

@@ -95,4 +95,47 @@ describe('runDelegatedCodingTask', () => {
     expect(report.conflicts).toHaveLength(0)
     expect(report.suggestHumanInbox).toBe(false)
   })
+
+  it('runs dry-run shards in parallel on the same repo root (#365)', async () => {
+    const report = await runDelegatedCodingTask({
+      repoRoot: '/repo',
+      coordinatorPrompt: 'parallel smoke',
+      isolateWorktrees: false,
+      parallel: true,
+      shards: [
+        {
+          id: 'a',
+          providerId: 'p-a',
+          provider: fake('p-a', {
+            providerId: 'p-a',
+            status: 'ok',
+            files: [],
+            shell: [],
+            tools: [],
+            summary: 'a',
+          }),
+          prompt: 'x',
+          kind: 'free-form',
+          dryRun: true,
+        },
+        {
+          id: 'b',
+          providerId: 'p-b',
+          provider: fake('p-b', {
+            providerId: 'p-b',
+            status: 'ok',
+            files: [],
+            shell: [],
+            tools: [],
+            summary: 'b',
+          }),
+          prompt: 'y',
+          kind: 'free-form',
+          dryRun: true,
+        },
+      ],
+    })
+    expect(report.subtasks).toHaveLength(2)
+    expect(report.coordinatorSummary).toContain('parallel: true')
+  })
 })

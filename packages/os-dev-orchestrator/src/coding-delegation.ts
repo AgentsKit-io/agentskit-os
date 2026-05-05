@@ -1,7 +1,7 @@
 // Per #365 — multi-provider coding delegation (coordinator + merge signals).
 
 import type { CodingAgentProvider, CodingTaskKind, CodingTaskRequest, CodingTaskResult } from '@agentskit/os-core'
-import { createCodingAgentWorktreeManager, type GitRunner } from './git-worktree-manager.js'
+import { createCodingAgentWorktreeManager, type CodingAgentWorktreeManager, type GitRunner } from './git-worktree-manager.js'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -85,17 +85,141 @@ const buildTask = (
   dryRun,
 })
 
+type PrepOk = {
+  readonly ok: true
+  readonly shard: DelegationSubTaskSpec
+  readonly cwd: string
+  readonly taskId?: string
+  readonly worktreePath?: string
+}
+
+type PrepFail = {
+  readonly ok: false
+  readonly row: DelegationSubTaskRow
+  readonly trace: DelegationTraceNode
+}
+
+type Prep = PrepOk | PrepFail
+
+const prepareShard = async (
+  shard: DelegationSubTaskSpec,
+  wm: CodingAgentWorktreeManager | undefined,
+  repoRoot: string,
+): Promise<Prep> => {
+  if (!wm) {
+    return { ok: true, shard, cwd: repoRoot }
+  }
+
+  const basePath = await mkdtemp(join(tmpdir(), `ak-deleg-${shard.providerId}-`))
+  const taskId = `deleg-${shard.id}-${Date.now()}`
+  const created = await wm.createForTask({
+    taskId,
+    providerId: shard.providerId,
+    path: basePath,
+    branch: '',
+    cleanupDefault: 'delete',
+  })
+  if (!created.ok) {
+    return {
+      ok: false,
+      row: {
+        specId: shard.id,
+        providerId: shard.providerId,
+        result: {
+          providerId: shard.providerId,
+          status: 'fail',
+          files: [],
+          shell: [],
+          tools: [],
+          summary: created.error,
+          errorCode: 'delegation.worktree_failed',
+        },
+      },
+      trace: {
+        id: shard.id,
+        providerId: shard.providerId,
+        kind: 'shard',
+        detail: `worktree failed: ${created.error}`,
+      },
+    }
+  }
+
+  return {
+    ok: true,
+    shard,
+    cwd: created.meta.path,
+    taskId,
+    worktreePath: created.meta.path,
+  }
+}
+
+type ShardExec = { readonly row: DelegationSubTaskRow; readonly trace: DelegationTraceNode }
+
+const execPrepared = async (
+  p: PrepOk,
+  wm: CodingAgentWorktreeManager | undefined,
+): Promise<ShardExec> => {
+  const { shard, cwd, taskId, worktreePath } = p
+  const req = buildTask(shard.kind, shard.prompt, cwd, shard.dryRun)
+  let result: CodingTaskResult
+  try {
+    result = await shard.provider.runTask(req)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    result = {
+      providerId: shard.providerId,
+      status: 'fail',
+      files: [],
+      shell: [],
+      tools: [],
+      summary: msg,
+      errorCode: 'delegation.run_threw',
+    }
+  } finally {
+    if (wm && taskId) {
+      await wm.finalize(taskId, 'delete').catch(() => {})
+    }
+  }
+
+  const row: DelegationSubTaskRow =
+    worktreePath !== undefined
+      ? { specId: shard.id, providerId: shard.providerId, result, worktreePath }
+      : { specId: shard.id, providerId: shard.providerId, result }
+
+  const trace: DelegationTraceNode = {
+    id: shard.id,
+    providerId: shard.providerId,
+    kind: 'shard',
+    detail: `${result.status}: ${result.summary.slice(0, 120)}`,
+  }
+  return { row, trace }
+}
+
+const shardOrder = (shards: readonly DelegationSubTaskSpec[], rows: readonly ShardExec[]): ShardExec[] => {
+  const idx = new Map(shards.map((s, i) => [s.id, i] as const))
+  return [...rows].sort((a, b) => (idx.get(a.row.specId) ?? 0) - (idx.get(b.row.specId) ?? 0))
+}
+
 /**
- * Run delegated shards sequentially with optional git worktree per shard (#365).
- * Merge step compares edited file paths; overlaps set `suggestHumanInbox` for operator review.
+ * Run delegated shards with optional git worktree per shard (#365).
+ * When `parallel` is true, shard tasks run concurrently after worktrees are prepared
+ * (requires `isolateWorktrees` or all shards `dryRun`).
  */
 export const runDelegatedCodingTask = async (opts: {
   readonly repoRoot: string
   readonly coordinatorPrompt: string
   readonly shards: readonly DelegationSubTaskSpec[]
   readonly isolateWorktrees: boolean
+  readonly parallel?: boolean
   readonly gitRunner?: GitRunner
 }): Promise<DelegationReport> => {
+  const parallel = opts.parallel === true
+  if (parallel && !opts.isolateWorktrees && opts.shards.some((s) => !s.dryRun)) {
+    throw new Error(
+      'runDelegatedCodingTask: parallel=true requires isolateWorktrees=true unless every shard uses dryRun',
+    )
+  }
+
   const wm = opts.isolateWorktrees
     ? createCodingAgentWorktreeManager(
         opts.gitRunner !== undefined
@@ -107,79 +231,32 @@ export const runDelegatedCodingTask = async (opts: {
   const shardTraceNodes: DelegationTraceNode[] = []
   const subRows: DelegationSubTaskRow[] = []
 
+  const preps: Prep[] = []
   for (const shard of opts.shards) {
-    let cwd = opts.repoRoot
-    let worktreePath: string | undefined
-    let taskId: string | undefined
+    preps.push(await prepareShard(shard, wm, opts.repoRoot))
+  }
 
-    if (wm) {
-      const basePath = await mkdtemp(join(tmpdir(), `ak-deleg-${shard.providerId}-`))
-      taskId = `deleg-${shard.id}-${Date.now()}`
-      const created = await wm.createForTask({
-        taskId,
-        providerId: shard.providerId,
-        path: basePath,
-        branch: '',
-        cleanupDefault: 'delete',
-      })
-      if (!created.ok) {
-        subRows.push({
-          specId: shard.id,
-          providerId: shard.providerId,
-          result: {
-            providerId: shard.providerId,
-            status: 'fail',
-            files: [],
-            shell: [],
-            tools: [],
-            summary: created.error,
-            errorCode: 'delegation.worktree_failed',
-          },
-        })
-        shardTraceNodes.push({
-          id: shard.id,
-          providerId: shard.providerId,
-          kind: 'shard',
-          detail: `worktree failed: ${created.error}`,
-        })
-        continue
-      }
-      cwd = created.meta.path
-      worktreePath = created.meta.path
+  for (const p of preps) {
+    if (!p.ok) {
+      subRows.push(p.row)
+      shardTraceNodes.push(p.trace)
     }
+  }
 
-    const req = buildTask(shard.kind, shard.prompt, cwd, shard.dryRun)
-    let result: CodingTaskResult
-    try {
-      result = await shard.provider.runTask(req)
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      result = {
-        providerId: shard.providerId,
-        status: 'fail',
-        files: [],
-        shell: [],
-        tools: [],
-        summary: msg,
-        errorCode: 'delegation.run_threw',
-      }
-    } finally {
-      if (wm && taskId) {
-        await wm.finalize(taskId, 'delete').catch(() => {})
-      }
+  const oks = preps.filter((p): p is PrepOk => p.ok)
+  let execs: ShardExec[]
+  if (parallel) {
+    execs = shardOrder(opts.shards, await Promise.all(oks.map((p) => execPrepared(p, wm))))
+  } else {
+    execs = []
+    for (const p of oks) {
+      execs.push(await execPrepared(p, wm))
     }
+  }
 
-    subRows.push(
-      worktreePath !== undefined
-        ? { specId: shard.id, providerId: shard.providerId, result, worktreePath }
-        : { specId: shard.id, providerId: shard.providerId, result },
-    )
-    shardTraceNodes.push({
-      id: shard.id,
-      providerId: shard.providerId,
-      kind: 'shard',
-      detail: `${result.status}: ${result.summary.slice(0, 120)}`,
-    })
+  for (const e of execs) {
+    subRows.push(e.row)
+    shardTraceNodes.push(e.trace)
   }
 
   const conflicts = collectConflicts(subRows)
@@ -200,7 +277,7 @@ export const runDelegatedCodingTask = async (opts: {
   const trace: DelegationTraceNode = {
     id: 'coord',
     kind: 'coordinator',
-    detail: opts.coordinatorPrompt.slice(0, 240),
+    detail: `${opts.coordinatorPrompt.slice(0, 200)}${parallel ? ' [parallel]' : ''}`,
     children: [...shardTraceNodes, mergeNode],
   }
 
@@ -208,6 +285,7 @@ export const runDelegatedCodingTask = async (opts: {
 
   const coordinatorSummary = [
     `shards: ${opts.shards.length}`,
+    `parallel: ${parallel}`,
     `conflicts: ${conflicts.length}`,
     suggestHumanInbox ? 'human review recommended' : 'clean merge signal',
   ].join(' · ')

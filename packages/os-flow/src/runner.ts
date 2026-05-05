@@ -1,7 +1,11 @@
 // In-memory FlowConfig executor. Topo-ordered, run-mode aware.
 // Pure async — durable storage hooked via checkpoint callback if provided.
 
-import type { FlowConfig, FlowEdge, FlowNode, RunContext } from '@agentskit/os-core'
+import type { FlowConfig, FlowEdge, FlowNode, RunContext, WorkspacePolicyConfig } from '@agentskit/os-core'
+import {
+  evaluateWorkspacePolicyAtRunStart,
+  evaluateWorkspacePolicyBeforeTool,
+} from '@agentskit/os-core'
 import type { FlowDebugger } from './debugger.js'
 import type { NodeHandler, NodeHandlerMap, NodeOutcome } from './handlers.js'
 import {
@@ -66,6 +70,17 @@ export type RunOptions = {
    * #64 / P-5 — optional live-debugger hooks for breakpoints and mock injection.
    */
   readonly debugger?: FlowDebugger
+  /**
+   * #336 — workspace policy-as-code: evaluated at run start and before each `tool` node.
+   */
+  readonly workspacePolicyGate?: {
+    readonly policy: WorkspacePolicyConfig
+    readonly modelRef?: string
+    readonly residencyRegion?: string
+    readonly activeDomainPresets?: readonly string[]
+    /** Optional tool tags (e.g. `destructive`) keyed by tool id for irreversible gates. */
+    readonly toolTagsById?: ReadonlyMap<string, readonly string[]>
+  }
 }
 
 const edgeMatches = (edge: FlowEdge, outcome: NodeOutcome): boolean => {
@@ -101,6 +116,26 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
       outcomes: new Map(),
       executedOrder: [],
       reason: `graph_audit: ${issues.map((i) => i.code).join(',')}`,
+    }
+  }
+
+  if (opts.workspacePolicyGate) {
+    const g = opts.workspacePolicyGate
+    const decision = evaluateWorkspacePolicyAtRunStart({
+      policy: g.policy,
+      runMode: opts.ctx.runMode,
+      ...(g.modelRef !== undefined ? { modelRef: g.modelRef } : {}),
+      ...(g.residencyRegion !== undefined ? { residencyRegion: g.residencyRegion } : {}),
+      ...(g.activeDomainPresets !== undefined ? { activeDomainPresets: g.activeDomainPresets } : {}),
+    })
+    if (!decision.allow) {
+      const msg = decision.violations.map((v) => v.message).join('; ')
+      return {
+        status: 'failed',
+        outcomes: new Map(),
+        executedOrder: [],
+        reason: `policy.workspace_blocked: ${msg}`,
+      }
     }
   }
 
@@ -202,6 +237,36 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
       outcome = {
         kind: 'failed',
         error: { code: 'flow.handler_missing', message: `no handler registered for kind "${node.kind}"` },
+      }
+    } else if (node.kind === 'tool' && opts.workspacePolicyGate) {
+      const g = opts.workspacePolicyGate
+      const toolId = node.tool
+      const toolTags = g.toolTagsById?.get(toolId)
+      const toolDecision = evaluateWorkspacePolicyBeforeTool(
+        toolTags !== undefined
+          ? { policy: g.policy, toolId, toolTags }
+          : { policy: g.policy, toolId },
+      )
+      if (!toolDecision.allow) {
+        const msg = toolDecision.violations.map((v) => v.message).join('; ')
+        outcome = {
+          kind: 'failed',
+          error: { code: 'policy.tool_denied', message: msg },
+        }
+      } else if (toolDecision.requireHumanApproval) {
+        outcome = { kind: 'paused', reason: 'hitl' }
+      } else {
+        try {
+          outcome = await handler(node as never, opts.initialInput, opts.ctx)
+        } catch (err) {
+          outcome = {
+            kind: 'failed',
+            error: {
+              code: 'flow.handler_threw',
+              message: (err as Error).message ?? String(err),
+            },
+          }
+        }
       }
     } else {
       try {

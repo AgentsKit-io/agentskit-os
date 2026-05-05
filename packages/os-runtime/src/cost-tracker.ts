@@ -58,6 +58,15 @@ export type MeterAdapterOptions = {
   readonly tracker: CostTracker
   readonly meter?: CostMeter
   readonly currentNodeId?: () => string | undefined
+  /**
+   * Called after each recorded cost entry (same run). Used for live
+   * observability streams (ADR-0005 `cost.tick`).
+   */
+  readonly onAfterRecord?: (args: {
+    readonly ctx: RunContext
+    readonly entry: CostEntry
+    readonly runCost: RunCost
+  }) => void
 }
 
 // Wraps an LlmAdapter so every invoke() reports cost into the tracker.
@@ -92,6 +101,9 @@ export const meteredLlmAdapter = (
       if (result.inputTokens !== undefined) (entry as { inputTokens?: number }).inputTokens = result.inputTokens
       if (result.outputTokens !== undefined) (entry as { outputTokens?: number }).outputTokens = result.outputTokens
       opts.tracker.record(ctx.runId, entry)
+      const runCost = opts.tracker.forRun(ctx.runId)
+      const last = runCost.entries.at(-1)
+      if (last !== undefined) opts.onAfterRecord?.({ ctx, entry: last, runCost })
     }
     return result
   },

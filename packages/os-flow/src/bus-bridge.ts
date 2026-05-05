@@ -4,6 +4,7 @@
 
 import type { AnyEvent, EventBus, RunContext } from '@agentskit/os-core'
 import type { NodeOutcome } from './handlers.js'
+import type { FlowCostTickEvent } from './flow-observability-events.js'
 
 export type BridgeOptions = {
   readonly bus: EventBus
@@ -65,10 +66,28 @@ export type BridgeEvent =
   | { kind: 'node:resumed'; nodeId: string; outcome: NodeOutcome }
   /** #199 — emitted when the runner is cancelled via AbortSignal. */
   | { kind: 'run:cancelled'; reason: string }
+  /** #199 / ADR-0005 — live LLM cost + token totals after each metered invoke. */
+  | FlowCostTickEvent
 
 export const createBusOnEvent = (opts: BridgeOptions) => {
   return async (event: BridgeEvent): Promise<void> => {
     const runMode = opts.ctx.runMode
+    if (event.kind === 'cost.tick') {
+      const data: Record<string, unknown> = {
+        runMode,
+        totalUsd: event.totalUsd,
+        deltaUsd: event.deltaUsd,
+        cumulativeInputTokens: event.cumulativeInputTokens,
+        cumulativeOutputTokens: event.cumulativeOutputTokens,
+        system: event.system,
+        model: event.model,
+      }
+      if (event.inputTokens !== undefined) data.inputTokens = event.inputTokens
+      if (event.outputTokens !== undefined) data.outputTokens = event.outputTokens
+      if (event.nodeId !== undefined) data.nodeId = event.nodeId
+      await opts.bus.publish(buildEnvelope('cost.tick', data, opts))
+      return
+    }
     if (event.kind === 'run:cancelled') {
       await opts.bus.publish(
         buildEnvelope('flow.run.cancelled', { reason: event.reason, runMode }, opts),
@@ -125,5 +144,6 @@ export const FLOW_EVENT_TYPES = [
   'flow.node.skipped',
   'flow.node.resumed',
   'flow.run.cancelled',
+  'cost.tick',
 ] as const
 export type FlowEventType = (typeof FLOW_EVENT_TYPES)[number]

@@ -5,6 +5,7 @@ const TRACE_STATUS_LABEL: Record<SpanStatus, string> = {
   error: 'Error',
   skipped: 'Skipped',
   paused: 'Paused',
+  cancelled: 'Cancelled',
 }
 
 const STATUS_TOKEN: Record<SpanStatus, string> = {
@@ -12,6 +13,8 @@ const STATUS_TOKEN: Record<SpanStatus, string> = {
   error: 'border-[color-mix(in_srgb,var(--ag-danger)_32%,transparent)] bg-[color-mix(in_srgb,var(--ag-danger)_12%,transparent)] text-[var(--ag-danger)]',
   skipped: 'border-[color-mix(in_srgb,var(--ag-ink-subtle)_30%,transparent)] bg-[color-mix(in_srgb,var(--ag-ink-subtle)_10%,transparent)] text-[var(--ag-ink-muted)]',
   paused: 'border-[color-mix(in_srgb,var(--ag-warning)_32%,transparent)] bg-[color-mix(in_srgb,var(--ag-warning)_12%,transparent)] text-[var(--ag-warning)]',
+  cancelled:
+    'border-[color-mix(in_srgb,var(--ag-ink-subtle)_32%,transparent)] bg-[color-mix(in_srgb,var(--ag-accent)_8%,transparent)] text-[var(--ag-ink-muted)]',
 }
 
 const KIND_TOKEN: Record<SpanKind, string> = {
@@ -59,5 +62,6 @@ export function traceStatusTextClass(status: SpanStatus): string {
     ok: 'text-[var(--ag-success)]',
     paused: 'text-[var(--ag-warning)]',
     skipped: 'text-[var(--ag-ink-muted)]',
+    cancelled: 'text-[var(--ag-ink-muted)]',
   }[status]
 }

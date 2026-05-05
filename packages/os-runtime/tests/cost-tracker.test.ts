@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { CostMeter, parseRunContext } from '@agentskit/os-core'
 import {
   CostTracker,
@@ -73,6 +73,26 @@ describe('meteredLlmAdapter', () => {
     const adapter = meteredLlmAdapter(inner, { tracker })
     await adapter.invoke({ system: 'openai', model: 'gpt-4o', messages: [] }, ctx())
     expect(tracker.forRun('run_1').totalUsd).toBe(0.0042)
+  })
+
+  it('calls onAfterRecord with run totals', async () => {
+    const tracker = new CostTracker()
+    const cb = vi.fn()
+    const inner: LlmAdapter = {
+      id: 'fake',
+      invoke: async () => ({
+        text: 'hi',
+        finishReason: 'stop',
+        inputTokens: 10,
+        outputTokens: 5,
+        costUsd: 0.01,
+      }),
+    }
+    const adapter = meteredLlmAdapter(inner, { tracker, onAfterRecord: cb })
+    await adapter.invoke({ system: 'openai', model: 'gpt-4o', messages: [] }, ctx())
+    expect(cb).toHaveBeenCalledOnce()
+    expect(cb.mock.calls[0]![0].runCost.totalUsd).toBe(0.01)
+    expect(cb.mock.calls[0]![0].entry.costUsd).toBe(0.01)
   })
 
   it('falls back to CostMeter when costUsd absent', async () => {

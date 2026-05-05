@@ -42,7 +42,7 @@ export function VoiceOverlay() {
           className={[
             'h-2 w-2 shrink-0 rounded-full',
             state === 'listening'
-              ? 'animate-pulse bg-red-500'
+              ? 'animate-pulse bg-[var(--ag-danger)]'
               : 'bg-[var(--ag-accent)]',
           ].join(' ')}
         />

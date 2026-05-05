@@ -277,7 +277,7 @@ export function BenchmarkScreen() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar benchmark provider unavailable. Showing local sample data.
           </div>
         )}

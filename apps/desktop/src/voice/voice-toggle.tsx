@@ -24,7 +24,7 @@ export function VoiceToggle() {
       className={[
         'rounded p-0.5 transition-colors',
         isError
-          ? 'text-red-500 hover:text-red-400'
+          ? 'text-[var(--ag-danger)] hover:text-[var(--ag-danger)]'
           : isActive
             ? 'text-[var(--ag-accent)] hover:text-[var(--ag-accent)]'
             : 'text-[var(--ag-ink-subtle)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',

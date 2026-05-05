@@ -13,6 +13,7 @@ import { BenchmarkScreen } from './screens/benchmark'
 import { CostScreen } from './screens/cost'
 import { Dashboard } from './screens/dashboard'
 import { EvalsScreen } from './screens/evals'
+import { FlowsScreen } from './screens/flows'
 import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
 import { SecurityScreen } from './screens/security'
@@ -101,8 +102,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'flows',
         label: 'Flows',
         icon: '◇',
-        status: 'preview',
-        description: 'Visual flow editing is planned from ADR-0019 and will land behind typed graph contracts.',
+        status: 'supported',
       },
       {
         id: 'runs',
@@ -417,6 +417,7 @@ function AppShell({
 
   function renderActiveScreen(): React.ReactNode {
     if (activeScreen === 'dashboard') return <Dashboard />
+    if (activeScreen === 'flows') return <FlowsScreen />
     if (activeScreen === 'runs') return <RunsScreen />
     if (activeScreen === 'traces') return <TracesScreen />
     if (activeScreen === 'agents') return <AgentsScreen />

@@ -47,7 +47,10 @@ const EXPERIMENTAL: ReadonlySet<ExtensionPoint> = new Set([
 ])
 
 export const stabilityOf = (point: ExtensionPoint): StabilityTier =>
-  EXPERIMENTAL.has(point) ? 'experimental' : 'stable'
+  {
+    if (EXPERIMENTAL.has(point)) return 'experimental'
+    return 'stable'
+  }
 
 const HOT_RELOADABLE: ReadonlySet<ExtensionPoint> = new Set([
   'tool',
@@ -68,7 +71,7 @@ export const ExtensionRegistration = z.object({
   description: z.string().max(512).optional(),
   version: z
     .string()
-    .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/),
+    .regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+){0,1}(\+[0-9A-Za-z.-]+){0,1}$/),
 })
 export type ExtensionRegistration = z.infer<typeof ExtensionRegistration>
 

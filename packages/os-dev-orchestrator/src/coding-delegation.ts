@@ -195,7 +195,13 @@ const execPrepared = async (
 
 const shardOrder = (shards: readonly DelegationSubTaskSpec[], rows: readonly ShardExec[]): ShardExec[] => {
   const idx = new Map(shards.map((s, i) => [s.id, i] as const))
-  return [...rows].sort((a, b) => (idx.get(a.row.specId) ?? 0) - (idx.get(b.row.specId) ?? 0))
+  return [...rows].sort((a, b) => {
+    const ai = idx.get(a.row.specId)
+    const bi = idx.get(b.row.specId)
+    const aIdx = ai !== undefined ? ai : 0
+    const bIdx = bi !== undefined ? bi : 0
+    return aIdx - bIdx
+  })
 }
 
 /**

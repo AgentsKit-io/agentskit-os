@@ -25,9 +25,9 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export interface ThemeProviderProps {
   children: React.ReactNode
-  defaultTheme?: Theme
+  defaultTheme: Theme | undefined
   /** Optional additional theme definitions to merge into the registry. */
-  themes?: ThemeRegistry
+  themes: ThemeRegistry | undefined
 }
 
 export function ThemeProvider({
@@ -54,8 +54,9 @@ export function ThemeProvider({
 
   useEffect(() => {
     if (typeof document === 'undefined') return
-    const themeDefinition =
-      registry[resolvedTheme] ?? defaultThemes[resolvedTheme] ?? { name: resolvedTheme }
+    let themeDefinition = registry[resolvedTheme]
+    if (themeDefinition === undefined) themeDefinition = defaultThemes[resolvedTheme]
+    if (themeDefinition === undefined) themeDefinition = { name: resolvedTheme }
     applyThemeToDocument(themeDefinition)
   }, [resolvedTheme, registry])
 

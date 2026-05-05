@@ -46,24 +46,24 @@ export type DeterminismIssue = {
 }
 
 export type DeterminismCheckInput = {
-  readonly agents?: ReadonlyArray<{
+  readonly agents: ReadonlyArray<{
     id: string
-    model: { provider: string; model: string; temperature?: number }
-  }>
-  readonly tools?: ReadonlyArray<{ id: string; deterministicStub?: boolean }>
-  readonly randomnessSources?: ReadonlyArray<string>
+    model: { provider: string; model: string; temperature: number | undefined }
+  }> | undefined
+  readonly tools: ReadonlyArray<{ id: string; deterministicStub: boolean | undefined }> | undefined
+  readonly randomnessSources: ReadonlyArray<string> | undefined
 }
 
 const DETERMINISTIC_PINNED = /[-@](\d+(\.\d+)+|\d{4}-\d{2}-\d{2}|v\d+)/
 
 export const checkDeterminism = (input: DeterminismCheckInput): readonly DeterminismIssue[] => {
   const issues: DeterminismIssue[] = []
-  const agents = input.agents ?? []
-  const tools = input.tools ?? []
-  const randomness = input.randomnessSources ?? []
+  const agents = input.agents !== undefined ? input.agents : []
+  const tools = input.tools !== undefined ? input.tools : []
+  const randomness = input.randomnessSources !== undefined ? input.randomnessSources : []
 
   agents.forEach((a, i) => {
-    const t = a.model.temperature ?? 0
+    const t = a.model.temperature !== undefined ? a.model.temperature : 0
     if (t !== 0) {
       issues.push({
         path: ['agents', i, 'model', 'temperature'],

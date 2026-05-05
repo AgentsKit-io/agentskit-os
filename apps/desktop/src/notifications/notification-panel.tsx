@@ -1,13 +1,14 @@
 /**
- * NotificationPanel — slide-in panel from the right.
+ * NotificationPanel - slide-in panel from the right.
  *
  * Fixed position, full viewport height, 24rem wide (w-96).
- * Groups notifications by severity: error → warning → info → success.
+ * Groups notifications by severity: error > warning > info > success.
  * Uses GlassPanel from os-ui as the container.
  */
 
 import { useMemo } from 'react'
 import { Button, GlassPanel } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import { useNotifications } from './notifications-provider'
 import { NotificationItem } from './notification-item'
 import type { NotificationSeverity } from './types'
@@ -22,7 +23,7 @@ const SEVERITY_LABEL: Record<NotificationSeverity, string> = {
 }
 
 const PANEL_CLASSNAME =
-  'fixed inset-x-0 bottom-0 z-50 flex max-h-[88vh] flex-col overflow-hidden rounded-none rounded-t-xl border-b-0 bg-[var(--ag-glass-strong-bg)] shadow-2xl sm:inset-x-auto sm:right-0 sm:top-0 sm:h-screen sm:max-h-none sm:w-96 sm:rounded-l-xl sm:rounded-tr-none sm:border-r-0'
+  'fixed inset-x-0 bottom-0 z-50 flex max-h-[88vh] flex-col overflow-hidden rounded-none rounded-t-xl border-b-0 shadow-2xl sm:inset-x-auto sm:right-0 sm:top-0 sm:h-screen sm:max-h-none sm:w-96 sm:rounded-l-xl sm:rounded-tr-none sm:border-r-0'
 
 export function NotificationPanel() {
   const { items, unread, isOpen, close, markRead, clear } = useNotifications()
@@ -45,7 +46,7 @@ export function NotificationPanel() {
 
   return (
     <>
-      {/* Backdrop — click outside closes panel */}
+      {/* Backdrop: click outside closes panel. */}
       <div
         aria-hidden
         className="fixed inset-0 z-40 bg-black/60"
@@ -54,10 +55,13 @@ export function NotificationPanel() {
 
       {/* Panel */}
       <GlassPanel
-        role="complementary"
+        role="dialog"
+        aria-modal="true"
         aria-label="Notification center"
+        blur="lg"
         data-testid="notification-panel"
         className={PANEL_CLASSNAME}
+        style={{ background: 'var(--ag-glass-strong-bg)' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-4 py-3">
@@ -88,7 +92,7 @@ export function NotificationPanel() {
               className="flex h-6 w-6 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
               data-testid="close-panel"
             >
-              ×
+              <X aria-hidden className="h-4 w-4" />
             </button>
           </div>
         </div>

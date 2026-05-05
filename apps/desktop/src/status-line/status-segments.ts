@@ -1,17 +1,17 @@
 /**
- * status-segments — registry of all built-in status bar segments.
+ * status-segments - registry of all built-in status bar segments.
  *
  * Eight segments:
- *   workspace       — current workspace name
- *   run-mode        — sidecar run mode (real | preview | dry_run | sandbox)
- *   sidecar-status  — sidecar connection indicator
- *   active-runs     — count of currently active agent runs
- *   cost-24h        — total LLM cost accumulated in the past 24 hours
- *   notifications   — unread notification count
- *   theme           — name of the active UI theme
- *   time            — current clock (HH:MM)
+ *   workspace - current workspace name
+ *   run-mode - sidecar run mode (real | preview | dry_run | sandbox)
+ *   sidecar-status - sidecar connection indicator
+ *   active-runs - count of currently active agent runs
+ *   cost-24h - total LLM cost accumulated in the past 24 hours
+ *   notifications - unread notification count
+ *   theme - name of the active UI theme
+ *   time - current clock (HH:MM)
  *
- * Pure data — no React state. Renderers are pure functions of StatusContext.
+ * Pure data, no React state. Renderers are pure functions of StatusContext.
  */
 
 import type { StatusSegment } from './types'
@@ -42,9 +42,9 @@ const RUN_MODE_LABEL: Record<string, string> = {
 }
 
 const SIDECAR_DOT: Record<string, string> = {
-  connected: '●',
-  disconnected: '○',
-  error: '✕',
+  connected: 'ok',
+  disconnected: 'off',
+  error: 'err',
 }
 
 // ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ export const BUILT_IN_SEGMENTS: readonly StatusSegment[] = [
   {
     id: 'workspace',
     label: 'Workspace name',
-    render: (ctx) => ctx.workspaceName ?? '—',
+    render: (ctx) => ctx.workspaceName ?? '-',
   },
   {
     id: 'run-mode',

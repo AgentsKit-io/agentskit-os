@@ -1,5 +1,5 @@
 /**
- * StatusLineConfigPanel — modal for toggling / reordering status bar segments.
+ * StatusLineConfigPanel - modal for toggling / reordering status bar segments.
  *
  * Lists all built-in segments. Each row shows:
  *   - A checkbox to toggle visibility
@@ -11,8 +11,15 @@
  */
 
 import { GlassPanel } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import { useStatusLineConfig } from './status-line-provider'
 import { BUILT_IN_SEGMENTS } from './status-segments'
+
+const MOVE_BUTTON_CLASS = [
+  'flex h-5 w-5 items-center justify-center rounded-lg text-[var(--ag-ink-muted)]',
+  'transition-colors hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
+  'disabled:cursor-not-allowed disabled:opacity-30',
+].join(' ')
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,7 +59,7 @@ function SegmentRow({
     <div
       data-testid={`segment-row-${id}`}
       className={[
-        'flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors',
+        'flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors',
         checked ? '' : 'opacity-50',
       ].join(' ')}
     >
@@ -78,7 +85,7 @@ function SegmentRow({
             data-testid={`segment-up-${id}`}
             disabled={!canMoveUp}
             onClick={() => onMoveUp(id)}
-            className="flex h-5 w-5 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)] disabled:cursor-not-allowed disabled:opacity-30"
+            className={MOVE_BUTTON_CLASS}
           >
             ▲
           </button>
@@ -88,7 +95,7 @@ function SegmentRow({
             data-testid={`segment-down-${id}`}
             disabled={!canMoveDown}
             onClick={() => onMoveDown(id)}
-            className="flex h-5 w-5 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)] disabled:cursor-not-allowed disabled:opacity-30"
+            className={MOVE_BUTTON_CLASS}
           >
             ▼
           </button>
@@ -153,7 +160,7 @@ export function StatusLineConfigPanel({ isOpen, onClose }: StatusLineConfigPanel
         data-testid="status-line-config-panel"
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <GlassPanel className="flex w-full max-w-sm flex-col overflow-hidden rounded-xl shadow-2xl">
+        <GlassPanel className="flex max-h-[82vh] w-full max-w-sm flex-col overflow-hidden rounded-xl shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-5 py-4">
             <h2 className="text-[15px] font-semibold text-[var(--ag-ink)]">
@@ -164,9 +171,9 @@ export function StatusLineConfigPanel({ isOpen, onClose }: StatusLineConfigPanel
               aria-label="Close config panel"
               data-testid="close-status-line-config"
               onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ag-ink-muted)] transition-colors hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
             >
-              ×
+              <X aria-hidden className="h-4 w-4" />
             </button>
           </div>
 
@@ -233,7 +240,7 @@ export function StatusLineConfigPanel({ isOpen, onClose }: StatusLineConfigPanel
               type="button"
               data-testid="close-status-line-config-done"
               onClick={onClose}
-              className="rounded-md bg-[var(--ag-accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="rounded-full bg-[var(--ag-accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               Done
             </button>

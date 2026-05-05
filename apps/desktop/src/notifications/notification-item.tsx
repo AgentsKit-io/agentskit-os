@@ -13,17 +13,17 @@ import type { Notification, NotificationSeverity } from './types'
 // ---------------------------------------------------------------------------
 
 const SEVERITY_ICON: Record<NotificationSeverity, string> = {
-  info: 'ℹ',
-  warning: '⚠',
-  error: '✕',
-  success: '✓',
+  info: 'i',
+  warning: '!',
+  error: 'x',
+  success: 'ok',
 }
 
 const SEVERITY_COLOR: Record<NotificationSeverity, string> = {
-  info: 'text-blue-400',
-  warning: 'text-yellow-400',
-  error: 'text-red-400',
-  success: 'text-green-400',
+  info: 'text-[var(--ag-accent)]',
+  warning: 'text-[var(--ag-warning)]',
+  error: 'text-[var(--ag-danger)]',
+  success: 'text-[var(--ag-success)]',
 }
 
 // ---------------------------------------------------------------------------
@@ -72,7 +72,7 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
       <span
         aria-hidden
         className={[
-          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
+          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold uppercase',
           SEVERITY_COLOR[severity],
         ].join(' ')}
       >

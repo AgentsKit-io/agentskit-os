@@ -1,5 +1,5 @@
 /**
- * CustomWidgetEditor — modal form for creating and editing custom widgets.
+ * CustomWidgetEditor - modal form for creating and editing custom widgets.
  *
  * Fields:
  *   - title (string, required)
@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import {
   saveCustomWidget,
   makeCustomWidgetId,
@@ -162,7 +163,7 @@ export function CustomWidgetEditor({ isOpen, initial, onClose, onSaved }: Props)
           onClick={onClose}
           className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
         >
-          ×
+          <X aria-hidden className="h-4 w-4" />
         </button>
       </div>
 
@@ -183,7 +184,7 @@ export function CustomWidgetEditor({ isOpen, initial, onClose, onSaved }: Props)
             className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
           />
           {errors['title'] && (
-            <p className="text-xs text-red-500" role="alert">{errors['title']}</p>
+            <p className="text-xs text-[var(--ag-danger)]" role="alert">{errors['title']}</p>
           )}
         </div>
 
@@ -229,7 +230,7 @@ export function CustomWidgetEditor({ isOpen, initial, onClose, onSaved }: Props)
             className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 font-mono text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
           />
           {errors['method'] && (
-            <p className="text-xs text-red-500" role="alert">{errors['method']}</p>
+            <p className="text-xs text-[var(--ag-danger)]" role="alert">{errors['method']}</p>
           )}
         </div>
 
@@ -278,7 +279,7 @@ export function CustomWidgetEditor({ isOpen, initial, onClose, onSaved }: Props)
             className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
           />
           {errors['pollMs'] && (
-            <p className="text-xs text-red-500" role="alert">{errors['pollMs']}</p>
+            <p className="text-xs text-[var(--ag-danger)]" role="alert">{errors['pollMs']}</p>
           )}
         </div>
 

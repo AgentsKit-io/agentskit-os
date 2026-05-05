@@ -1,14 +1,14 @@
 /**
- * CustomWidgetRenderer — polls a sidecar JSON-RPC method on an interval
+ * CustomWidgetRenderer - polls a sidecar JSON-RPC method on an interval
  * and renders the resolved value according to the widget's display kind.
  *
  * Supported kinds:
- *   number    — large numeric display
- *   sparkline — row of small bars (last N values)
- *   gauge     — horizontal fill bar (0-100)
- *   text      — plain string value
+ *   number    - large numeric display
+ *   sparkline - row of small bars (last N values)
+ *   gauge     - horizontal fill bar (0-100)
+ *   text      - plain string value
  *
- * Path resolution uses `getPath()` — a minimal dot-notation getter that
+ * Path resolution uses `getPath()` - a minimal dot-notation getter that
  * avoids any external lodash dependency.
  */
 
@@ -51,7 +51,7 @@ function formatValue(
   raw: unknown,
   format: CustomWidget['format'],
 ): string {
-  if (raw === null || raw === undefined) return '—'
+  if (raw === null || raw === undefined) return '-'
   const { prefix = '', suffix = '', precision } = format ?? {}
   if (typeof raw === 'number') {
     const num = precision !== undefined ? raw.toFixed(precision) : String(raw)
@@ -196,13 +196,13 @@ export function CustomWidgetRenderer({ widget }: Props) {
     if (isLoading) {
       return (
         <p className="text-sm text-[var(--ag-ink-subtle)]" aria-live="polite">
-          Loading…
+          Loading...
         </p>
       )
     }
     if (errorMsg) {
       return (
-        <p className="text-xs text-red-500" role="alert" aria-live="polite">
+        <p className="text-xs text-[var(--ag-danger)]" role="alert" aria-live="polite">
           {errorMsg}
         </p>
       )

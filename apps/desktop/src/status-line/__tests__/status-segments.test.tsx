@@ -86,7 +86,7 @@ describe('segment render outputs', () => {
 
   it('workspace renders dash when workspaceName is null', () => {
     const ctx = makeCtx({ workspaceName: null })
-    expect(getSegmentById('workspace')?.render(ctx)).toBe('—')
+    expect(getSegmentById('workspace')?.render(ctx)).toBe('-')
   })
 
   it('run-mode renders human-readable label', () => {

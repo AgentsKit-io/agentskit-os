@@ -9,7 +9,7 @@ type EventFeedProps = Pick<EventFeedState, 'events' | 'isPaused' | 'toggle'>
 function dataSummary(data: Record<string, unknown>): string {
   try {
     const str = JSON.stringify(data)
-    return str.length > 120 ? `${str.slice(0, 120)}…` : str
+    return str.length > 120 ? `${str.slice(0, 120)}...` : str
   } catch {
     return '[unparseable]'
   }
@@ -64,7 +64,7 @@ export function EventFeed({ events, isPaused, toggle }: EventFeedProps) {
         >
           {events.length === 0 ? (
             <p className="pt-8 text-center text-xs text-[var(--ag-ink-subtle)]">
-              Waiting for sidecar events…
+              Waiting for sidecar events...
             </p>
           ) : (
             events.map((event, i) => <EventRow key={i} event={event} />)

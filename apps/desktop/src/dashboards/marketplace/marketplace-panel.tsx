@@ -1,9 +1,9 @@
 /**
- * MarketplacePanel — modal for browsing and applying dashboard templates.
+ * MarketplacePanel - modal for browsing and applying dashboard templates.
  *
  * Shows two sections:
- *   - "Built-in" — static templates from marketplace-data.ts
- *   - "From plugins" — templates contributed by plugins via usePluginContributions()
+ *   - "Built-in" - static templates from marketplace-data.ts
+ *   - "From plugins" - templates contributed by plugins via usePluginContributions()
  *                      Each plugin template shows a source-plugin pill.
  *
  * Applying a template creates a new dashboard pre-populated with the
@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import { Button } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import { BUILT_IN_TEMPLATES } from './marketplace-data'
 import { usePluginContributions } from '../../plugins/plugin-contributions-provider'
 import type { MarketplaceTemplate } from './marketplace-data'
@@ -121,18 +122,18 @@ export function MarketplacePanel({ isOpen, onClose, onApply }: Props) {
       data-testid="marketplace-panel"
       aria-label="Dashboard marketplace"
       aria-modal="true"
-      className="m-auto max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl border border-[var(--ag-line)] bg-[var(--ag-panel)] p-0 shadow-xl backdrop:bg-black/40"
+      className="m-auto max-h-[82vh] w-full max-w-lg overflow-y-auto rounded-xl border border-[var(--ag-line)] bg-[var(--ag-glass-strong-bg)] p-0 shadow-xl backdrop:bg-black/40 [backdrop-filter:var(--ag-glass-blur)]"
     >
       {/* Header */}
-      <div className="sticky top-0 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-panel)] px-5 py-4">
+      <div className="sticky top-0 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-glass-strong-bg)] px-5 py-4 [backdrop-filter:var(--ag-glass-blur)]">
         <h2 className="text-base font-semibold text-[var(--ag-ink)]">Dashboard templates</h2>
         <button
           type="button"
           aria-label="Close marketplace"
           onClick={onClose}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
         >
-          ×
+          <X aria-hidden className="h-4 w-4" />
         </button>
       </div>
 

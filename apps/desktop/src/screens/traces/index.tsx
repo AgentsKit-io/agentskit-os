@@ -17,17 +17,16 @@ import { TraceList } from './trace-list'
 import { SpanTree } from './span-tree'
 import { ReplayButton } from './replay-button'
 import { useTraceSpans } from './use-traces'
+import { TraceStatusBadge } from './trace-badges'
 import { ForkButton } from '../../fork/fork-button'
+import { formatShortDuration } from '../../lib/format'
 import { useSelection } from '../../lib/selection-store'
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const formatDuration = (ms: number): string => {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(2)}s`
-}
+const TRACES_HEADER_CLASS = [
+  'sticky top-0 z-20 flex shrink-0 flex-wrap items-center justify-between gap-4',
+  'border-b border-[var(--ag-line)] bg-[var(--ag-glass-strong-bg)] px-4 py-3',
+  '[backdrop-filter:var(--ag-glass-blur)] sm:px-6',
+].join(' ')
 
 // ---------------------------------------------------------------------------
 // Detail panel (right side)
@@ -50,47 +49,34 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
   const rootSpan = spans.find((s) => s.parentSpanId === undefined)
   const status = rootSpan?.status ?? 'ok'
 
-  const STATUS_COLORS: Record<string, string> = {
-    ok: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-    error: 'bg-red-500/15 text-red-400 border-red-500/25',
-    skipped: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/25',
-    paused: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-  }
-  const statusClass = STATUS_COLORS[status] ?? STATUS_COLORS['ok']
-
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex h-full min-h-0 flex-col">
       {/* Detail header */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-line shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <h2 className="text-xs font-medium text-ink-subtle uppercase tracking-widest shrink-0">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--ag-line)] px-4 py-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <h2 className="shrink-0 text-xs font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
             Trace
           </h2>
           <span
-            className="text-xs font-mono text-ink truncate"
+            className="truncate font-mono text-xs text-[var(--ag-ink)]"
             title={traceId}
           >
             {traceId}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Status badge */}
-          <span
-            className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.6rem] font-medium border ${statusClass}`}
-          >
-            {status}
-          </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <TraceStatusBadge status={status} />
 
           {/* Duration */}
           {totalDuration > 0 && (
-            <span className="text-xs font-mono text-ink-muted tabular-nums">
-              {formatDuration(totalDuration)}
+            <span className="font-mono text-xs text-[var(--ag-ink-muted)] tabular-nums">
+              {formatShortDuration(totalDuration)}
             </span>
           )}
 
           {/* Span count */}
-          <span className="text-xs text-ink-subtle">
+          <span className="text-xs text-[var(--ag-ink-subtle)]">
             {spanCount} span{spanCount !== 1 ? 's' : ''}
           </span>
 
@@ -103,12 +89,12 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
       </div>
 
       {/* Span tree body */}
-      <div className="flex-1 min-h-0 overflow-auto px-2 py-2">
+      <div className="min-h-0 flex-1 overflow-auto px-2 py-2">
         {loading && (
-          <p className="text-sm text-ink-subtle p-4">Loading spans…</p>
+          <p className="p-4 text-sm text-[var(--ag-ink-subtle)]">Loading spans...</p>
         )}
         {error !== null && (
-          <p className="text-sm text-red-400 p-4">Error: {error}</p>
+          <p className="p-4 text-sm text-[var(--ag-danger)]">Error: {error}</p>
         )}
         {!loading && error === null && (
           <SpanTree spans={spans} />
@@ -123,9 +109,9 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
 // ---------------------------------------------------------------------------
 
 const NoSelection = (): React.JSX.Element => (
-  <div className="flex flex-col items-center justify-center h-full gap-2 p-8 text-center">
-    <p className="text-sm text-ink-muted">Select a trace to inspect its spans.</p>
-    <p className="text-xs text-ink-subtle max-w-xs">
+  <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
+    <p className="text-sm text-[var(--ag-ink-muted)]">Select a trace to inspect its spans.</p>
+    <p className="max-w-xs text-xs text-[var(--ag-ink-subtle)]">
       Click any row on the left to open the span tree and view{' '}
       <span className="font-mono">gen_ai.*</span> attributes.
     </p>
@@ -147,31 +133,36 @@ export const TracesScreen = (): React.JSX.Element => {
   }, [globalSelected, selectedTraceId])
 
   return (
-    <section aria-label="Traces" className="flex flex-col h-full">
-      {/* Page header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-line shrink-0">
-        <h1 className="text-lg font-semibold text-ink tracking-tight">Traces</h1>
-        <p className="text-xs text-ink-subtle">
-          Read-only viewer — select a trace to inspect its span tree.
-        </p>
+    <section aria-label="Traces" className="flex min-h-full flex-col bg-[var(--ag-surface)]">
+      <div className={TRACES_HEADER_CLASS}>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
+            Debug mode
+          </p>
+          <h1 className="mt-1 text-lg font-semibold tracking-tight text-[var(--ag-ink)]">Traces</h1>
+          <p className="mt-1 max-w-2xl text-sm text-[var(--ag-ink-muted)]">
+            Inspect span trees, replay runs, and fork execution evidence into new flows.
+          </p>
+        </div>
       </div>
 
-      {/* Split body */}
-      <div className="flex flex-1 min-h-0 divide-x divide-line">
-        {/* Left: trace list */}
-        <div role="region" aria-label="Trace list" className="w-[55%] min-w-0 flex flex-col">
+      <div className="grid min-h-0 flex-1 gap-4 px-4 py-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)] sm:px-6">
+        <div role="region" aria-label="Trace list" className="min-w-0">
           <TraceList
             selectedTraceId={selectedTraceId}
             onSelect={(id) => {
               setSelectedTraceId(id)
               setGlobalSelected(id)
             }}
-            className="flex-1"
+            className="h-full"
           />
         </div>
 
-        {/* Right: span tree / detail */}
-        <div role="region" aria-label="Trace detail" className="flex-1 min-w-0 bg-surface/50">
+        <div
+          role="region"
+          aria-label="Trace detail"
+          className="min-h-[420px] min-w-0 overflow-hidden rounded-xl border border-[var(--ag-line)] bg-[var(--ag-panel)]"
+        >
           {selectedTraceId !== null ? (
             <TraceDetail traceId={selectedTraceId} />
           ) : (

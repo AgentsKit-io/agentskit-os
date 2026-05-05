@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   Sparkles,
   Workflow,
+  X,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { AgentsScreen } from './screens/agents'
@@ -133,6 +134,8 @@ type NavItem = {
   readonly keywords?: readonly string[]
 }
 
+type SecondaryScreen = Exclude<ActiveScreen, 'dashboard'>
+
 const NAV_GROUPS: ReadonlyArray<{
   readonly label: string
   readonly items: readonly NavItem[]
@@ -242,13 +245,14 @@ function ServiceModeBanner({
       aria-live="polite"
       className="flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-1.5 text-[13px] text-[var(--ag-ink)]"
     >
-      <span>Service mode active — the sidecar continues running in the background.</span>
+      <span>Service mode active - the sidecar continues running in the background.</span>
       <button
+        type="button"
         aria-label="Dismiss service mode banner"
         onClick={onDismiss}
-        className="px-1 text-[var(--ag-ink-muted)] hover:text-[var(--ag-ink)]"
+        className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
       >
-        ×
+        <X aria-hidden className="h-4 w-4" />
       </button>
     </div>
   )
@@ -412,6 +416,34 @@ function PreviewSurface({ screen }: { readonly screen: ActiveScreen }) {
   )
 }
 
+const SCREEN_COMPONENTS: Record<SecondaryScreen, () => React.JSX.Element> = {
+  flows: FlowsScreen,
+  runs: RunsScreen,
+  traces: TracesScreen,
+  agents: AgentsScreen,
+  hitl: HitlScreen,
+  triggers: TriggersScreen,
+  evals: EvalsScreen,
+  benchmark: BenchmarkScreen,
+  cost: CostScreen,
+  security: SecurityScreen,
+  examples: ExampleScreen,
+}
+
+function ScreenSurface({
+  screen,
+  onNavigate,
+}: {
+  readonly screen: ActiveScreen
+  readonly onNavigate?: (screen: ActiveScreen) => void
+}) {
+  if (screen === 'dashboard') {
+    return onNavigate ? <Dashboard onNavigate={onNavigate} /> : <Dashboard />
+  }
+  const Component = SCREEN_COMPONENTS[screen]
+  return <Component />
+}
+
 /** Inner shell that reads focus state and conditionally hides sidebar/banner. */
 function AppShell({
   activeScreen,
@@ -438,22 +470,6 @@ function AppShell({
     [activeScreen, setActiveScreen],
   )
 
-  function renderActiveScreen(): React.ReactNode {
-    if (activeScreen === 'dashboard') return <Dashboard onNavigate={navigateWithTransition} />
-    if (activeScreen === 'flows') return <FlowsScreen />
-    if (activeScreen === 'runs') return <RunsScreen />
-    if (activeScreen === 'traces') return <TracesScreen />
-    if (activeScreen === 'agents') return <AgentsScreen />
-    if (activeScreen === 'hitl') return <HitlScreen />
-    if (activeScreen === 'triggers') return <TriggersScreen />
-    if (activeScreen === 'evals') return <EvalsScreen />
-    if (activeScreen === 'benchmark') return <BenchmarkScreen />
-    if (activeScreen === 'cost') return <CostScreen />
-    if (activeScreen === 'security') return <SecurityScreen />
-    if (activeScreen === 'examples') return <ExampleScreen />
-    return <PreviewSurface screen={activeScreen} />
-  }
-
   return (
     <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
       {/* Global live region for screen-reader announcements */}
@@ -478,7 +494,7 @@ function AppShell({
         >
           {!split.open ? (
             <div key={activeScreen} className="app-screen flex min-h-0 flex-1 flex-col overflow-auto">
-              {renderActiveScreen()}
+              <ScreenSurface screen={activeScreen} onNavigate={navigateWithTransition} />
             </div>
           ) : (
             <div className="flex min-h-0 flex-1">
@@ -493,7 +509,9 @@ function AppShell({
                     Close split
                   </button>
                 </div>
-                <div className="app-screen flex min-h-0 flex-1 flex-col">{renderActiveScreen()}</div>
+                <div className="app-screen flex min-h-0 flex-1 flex-col">
+                  <ScreenSurface screen={activeScreen} onNavigate={navigateWithTransition} />
+                </div>
               </div>
               <div aria-hidden className="w-px bg-[var(--ag-line)]" />
               <div className="flex min-w-0 flex-1 flex-col overflow-auto bg-[var(--ag-surface)]/50">
@@ -517,22 +535,7 @@ function AppShell({
                   </div>
                 </div>
                 <div key={secondaryScreen} className="app-screen flex min-h-0 flex-1 flex-col">
-                  {/* Reuse the same renderer by temporarily switching on value */}
-                  {(() => {
-                    const screen = secondaryScreen
-                    if (screen === 'dashboard') return <Dashboard />
-                    if (screen === 'flows') return <FlowsScreen />
-                    if (screen === 'runs') return <RunsScreen />
-                    if (screen === 'traces') return <TracesScreen />
-                    if (screen === 'agents') return <AgentsScreen />
-                    if (screen === 'hitl') return <HitlScreen />
-                    if (screen === 'triggers') return <TriggersScreen />
-                    if (screen === 'evals') return <EvalsScreen />
-                    if (screen === 'benchmark') return <BenchmarkScreen />
-                    if (screen === 'cost') return <CostScreen />
-                    if (screen === 'security') return <SecurityScreen />
-                    return <PreviewSurface screen={screen} />
-                  })()}
+                  <ScreenSurface screen={secondaryScreen} />
                 </div>
               </div>
             </div>

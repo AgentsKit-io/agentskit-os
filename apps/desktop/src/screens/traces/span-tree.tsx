@@ -9,6 +9,7 @@
  */
 
 import type { Span, SpanStatus } from './use-traces'
+import { TraceKindBadge, TraceStatusBadge, traceStatusTextClass } from './trace-badges'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -95,32 +96,6 @@ const totalDurationMs = (spans: readonly Span[]): number => {
 }
 
 // ---------------------------------------------------------------------------
-// Status colors
-// ---------------------------------------------------------------------------
-
-const STATUS_COLORS: Record<SpanStatus, string> = {
-  ok: 'text-emerald-400',
-  error: 'text-red-400',
-  skipped: 'text-zinc-400',
-  paused: 'text-amber-400',
-}
-
-const STATUS_BADGE_COLORS: Record<SpanStatus, string> = {
-  ok: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  error: 'bg-red-500/15 text-red-400 border-red-500/25',
-  skipped: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/25',
-  paused: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
-}
-
-const KIND_BADGE_COLORS: Record<string, string> = {
-  flow: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  agent: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-  tool: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  human: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  unknown: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-}
-
-// ---------------------------------------------------------------------------
 // GenAI attributes rendering
 // ---------------------------------------------------------------------------
 
@@ -178,9 +153,7 @@ const SpanRow = ({
 }: SpanRowProps): React.JSX.Element => {
   const { span, children } = node
   const barWidthPct = Math.max(2, Math.round((span.durationMs / maxDurationMs) * 100))
-  const kindColor = KIND_BADGE_COLORS[span.kind] ?? KIND_BADGE_COLORS['unknown']
-  const statusColor = STATUS_COLORS[span.status]
-  const statusBadge = STATUS_BADGE_COLORS[span.status]
+  const statusColor = traceStatusTextClass(span.status)
 
   return (
     <li
@@ -190,49 +163,43 @@ const SpanRow = ({
       className="list-none"
     >
       <div
-        className="flex flex-col gap-0.5 py-1.5 pr-3 hover:bg-panel-alt rounded-md transition-colors"
+        className="flex flex-col gap-0.5 rounded-lg py-1.5 pr-3 transition hover:bg-[var(--ag-panel-alt)]"
         style={{ paddingLeft: `${8 + depth * 20}px` }}
       >
         {/* Rail indent lines */}
         {depth > 0 && (
           <div
             aria-hidden
-            className="absolute left-0 top-0 bottom-0 border-l border-line/30"
+            className="absolute bottom-0 left-0 top-0 border-l border-[var(--ag-line)]/30"
             style={{ marginLeft: `${depth * 20}px` }}
           />
         )}
 
         {/* Header row: kind + name + status + duration */}
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex min-w-0 items-center gap-2">
           {/* Kind badge */}
-          <span
-            data-testid="span-kind"
-            className={`shrink-0 inline-flex items-center rounded px-1.5 py-0.5 text-[0.6rem] font-medium border ${kindColor}`}
-          >
-            {span.kind}
+          <span data-testid="span-kind" className="shrink-0">
+            <TraceKindBadge kind={span.kind} />
           </span>
 
           {/* Span name */}
           <span
             data-testid="span-name"
-            className="flex-1 min-w-0 truncate text-xs font-mono text-ink"
+            className="min-w-0 flex-1 truncate font-mono text-xs text-[var(--ag-ink)]"
             title={span.name}
           >
             {span.name}
           </span>
 
           {/* Status badge */}
-          <span
-            data-testid="span-status"
-            className={`shrink-0 inline-flex items-center rounded px-1.5 py-0.5 text-[0.6rem] font-medium border ${statusBadge}`}
-          >
-            {span.status}
+          <span data-testid="span-status" className="shrink-0">
+            <TraceStatusBadge status={span.status} />
           </span>
 
           {/* Duration */}
           <span
             data-testid="span-duration"
-            className={`shrink-0 text-[0.65rem] font-mono tabular-nums ${statusColor}`}
+            className={`shrink-0 font-mono text-[0.65rem] tabular-nums ${statusColor}`}
           >
             {span.durationMs}ms
           </span>
@@ -241,7 +208,7 @@ const SpanRow = ({
         {/* Duration bar */}
         <div
           data-testid="duration-bar-rail"
-          className="h-1 rounded-full mt-0.5"
+          className="mt-0.5 h-1 rounded-full"
           style={{ background: 'color-mix(in srgb, var(--ag-accent) 10%, transparent)' }}
         >
           <div
@@ -260,7 +227,7 @@ const SpanRow = ({
 
         {/* Error message */}
         {span.errorMessage !== undefined && (
-          <p className="text-[0.65rem] text-red-400 font-mono mt-0.5 truncate" title={span.errorMessage}>
+          <p className="mt-0.5 truncate font-mono text-[0.65rem] text-[var(--ag-danger)]" title={span.errorMessage}>
             {span.errorCode !== undefined ? `[${span.errorCode}] ` : ''}{span.errorMessage}
           </p>
         )}

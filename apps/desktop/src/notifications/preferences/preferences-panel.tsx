@@ -1,9 +1,9 @@
 /**
- * NotificationPreferencesPanel — modal for per-event routing + quiet hours.
+ * NotificationPreferencesPanel - modal for per-event routing + quiet hours.
  *
  * Sections:
- *   Routing matrix — event-type rows × routing-mode columns, radio per row.
- *   Quiet hours    — toggle, start/end time pickers (24h), allow-critical checkbox.
+ *   Routing matrix - event-type rows x routing-mode columns, radio per row.
+ *   Quiet hours - toggle, start/end time pickers (24h), allow-critical checkbox.
  *
  * Changes are buffered in local state until Save is clicked.
  * Cancel discards changes; Reset restores defaults.
@@ -11,6 +11,7 @@
 
 import { useState, useCallback } from 'react'
 import { GlassPanel } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import { useNotificationPreferences } from './notification-preferences-provider'
 import {
   KNOWN_EVENT_TYPES,
@@ -293,7 +294,7 @@ export function NotificationPreferencesPanel({
               onClick={handleCancel}
               className="flex h-7 w-7 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
             >
-              ×
+              <X aria-hidden className="h-4 w-4" />
             </button>
           </div>
 

@@ -23,10 +23,10 @@ import {
 import type { Workspace, WorkspaceStatus } from './types'
 
 // ---------------------------------------------------------------------------
-// Mock data fallback
+// Fixture data fallback
 // ---------------------------------------------------------------------------
 
-const MOCK_WORKSPACES: Workspace[] = [
+const WORKSPACES_FIXTURE: Workspace[] = [
   { id: 'ws-1', name: 'Default', status: 'idle' },
   { id: 'ws-2', name: 'Production', status: 'running' },
   { id: 'ws-3', name: 'Staging', status: 'paused' },
@@ -94,13 +94,13 @@ export function WorkspacesProvider({
       .then((result) => {
         // If result is empty (sidecar unavailable stub returns {}), use mock
         const workspaces =
-          Array.isArray(result) && result.length > 0 ? result : MOCK_WORKSPACES
+          Array.isArray(result) && result.length > 0 ? result : WORKSPACES_FIXTURE
         setAll(workspaces)
         setLoadStatus('ready')
       })
       .catch(() => {
         // Sidecar unavailable — use mock data
-        setAll(MOCK_WORKSPACES)
+        setAll(WORKSPACES_FIXTURE)
         setLoadStatus('ready')
       })
   }, [initialWorkspaces])

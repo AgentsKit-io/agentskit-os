@@ -47,7 +47,11 @@ function minutesToTime(minutes: number): string {
 /** Convert HH:MM string to minutes-since-midnight. */
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number)
-  return (h ?? 0) * 60 + (m ?? 0)
+  let hours = 0
+  let minutes = 0
+  if (typeof h === 'number' && Number.isFinite(h)) hours = h
+  if (typeof m === 'number' && Number.isFinite(m)) minutes = m
+  return hours * 60 + minutes
 }
 
 // ---------------------------------------------------------------------------

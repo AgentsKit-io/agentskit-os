@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { MOCK_FLOWS, type FlowDefinition, type FlowStatus, type FlowTrigger, useFlows } from './use-flows'
+import { FLOWS_FIXTURE, type FlowDefinition, type FlowStatus, type FlowTrigger, useFlows } from './use-flows'
 import { sidecarRequest } from '../../lib/sidecar'
 import { getRunMode } from '../../lib/run-mode-store'
 
@@ -262,7 +262,7 @@ function FlowDetail({ flow }: { readonly flow: FlowDefinition | null }) {
 export function FlowsScreen() {
   const { flows, loading, error } = useFlows()
   const [filter, setFilter] = useState<FlowStatus | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_FLOWS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(FLOWS_FIXTURE[0]?.id ?? null)
   const [running, setRunning] = useState(false)
 
   const filteredFlows = useMemo(() => {
@@ -270,7 +270,9 @@ export function FlowsScreen() {
   }, [flows, filter])
 
   const selectedFlow = useMemo(() => {
-    return flows.find((flow) => flow.id === selectedId) ?? filteredFlows[0] ?? null
+    const match = flows.find((flow) => flow.id === selectedId)
+    if (match) return match
+    return filteredFlows[0] ?? null
   }, [flows, filteredFlows, selectedId])
 
   if (loading) {

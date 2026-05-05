@@ -258,6 +258,12 @@ export function ThemeEditorPanel({ isOpen, onClose }: ThemeEditorPanelProps) {
 
   const importRef = useRef<HTMLInputElement>(null)
 
+  const resolveTokenValue = (varName: string): string => {
+    const override = overrides[varName]
+    if (override !== undefined) return override
+    return resolvedTokens[varName] ?? ''
+  }
+
   const handleExport = () => {
     const theme = {
       id: `export-${Date.now()}`,
@@ -374,7 +380,7 @@ export function ThemeEditorPanel({ isOpen, onClose }: ThemeEditorPanelProps) {
                       varName={token.varName}
                       label={token.label}
                       kind={token.kind}
-                      value={overrides[token.varName] ?? resolvedTokens[token.varName] ?? ''}
+                      value={resolveTokenValue(token.varName)}
                       onChange={(v) => setToken(token.varName, v)}
                     />
                   ))}

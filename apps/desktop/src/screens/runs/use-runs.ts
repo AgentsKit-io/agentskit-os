@@ -32,7 +32,7 @@ type RunsState = {
   readonly error: string | null
 }
 
-export const MOCK_RUNS: readonly RunQueueItem[] = [
+export const RUNS_FIXTURE: readonly RunQueueItem[] = [
   {
     id: 'run-dev-001',
     task: 'Implement driver.js onboarding tour',
@@ -91,7 +91,7 @@ export const MOCK_RUNS: readonly RunQueueItem[] = [
 ]
 
 const normalizeRuns = (value: unknown): readonly RunQueueItem[] => {
-  return Array.isArray(value) ? (value as readonly RunQueueItem[]) : MOCK_RUNS
+  return Array.isArray(value) ? (value as readonly RunQueueItem[]) : RUNS_FIXTURE
 }
 
 export function useRuns(): RunsState {
@@ -104,7 +104,7 @@ export function useRuns(): RunsState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('runs.list')
+    sidecarRequest<readonly RunQueueItem[]>('runs.list')
       .then((result) => {
         if (!cancelled) {
           setState({ runs: normalizeRuns(result), loading: false, error: null })
@@ -113,7 +113,7 @@ export function useRuns(): RunsState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            runs: MOCK_RUNS,
+            runs: RUNS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

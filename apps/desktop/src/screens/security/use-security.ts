@@ -23,7 +23,7 @@ type SecurityState = {
   readonly error: string | null
 }
 
-export const MOCK_SECURITY_CONTROLS: readonly SecurityControl[] = [
+export const SECURITY_CONTROLS_FIXTURE: readonly SecurityControl[] = [
   {
     id: 'sec-audit-chain',
     name: 'Hash-chained audit log',
@@ -75,7 +75,7 @@ export const MOCK_SECURITY_CONTROLS: readonly SecurityControl[] = [
 ]
 
 function normalizeSecurityControls(value: unknown): readonly SecurityControl[] {
-  return Array.isArray(value) ? (value as readonly SecurityControl[]) : MOCK_SECURITY_CONTROLS
+  return Array.isArray(value) ? (value as readonly SecurityControl[]) : SECURITY_CONTROLS_FIXTURE
 }
 
 export function useSecurityControls(): SecurityState {
@@ -88,7 +88,7 @@ export function useSecurityControls(): SecurityState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('security.controls')
+    sidecarRequest<readonly SecurityControl[]>('security.controls')
       .then((result) => {
         if (!cancelled) {
           setState({ controls: normalizeSecurityControls(result), loading: false, error: null })
@@ -97,7 +97,7 @@ export function useSecurityControls(): SecurityState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            controls: MOCK_SECURITY_CONTROLS,
+            controls: SECURITY_CONTROLS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

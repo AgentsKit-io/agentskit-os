@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { MOCK_TRIGGERS, type TriggerProvider, type TriggerRule, type TriggerStatus, useTriggers } from './use-triggers'
+import { TRIGGERS_FIXTURE, type TriggerProvider, type TriggerRule, type TriggerStatus, useTriggers } from './use-triggers'
 
 const PROVIDER_LABEL: Record<TriggerProvider, string> = {
   slack: 'Slack',
@@ -232,14 +232,16 @@ function DetailBlock({
 export function TriggersScreen() {
   const { triggers, loading, error } = useTriggers()
   const [filter, setFilter] = useState<TriggerProvider | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_TRIGGERS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(TRIGGERS_FIXTURE[0]?.id ?? null)
 
   const filteredTriggers = useMemo(() => {
     return filter === 'all' ? triggers : triggers.filter((trigger) => trigger.provider === filter)
   }, [filter, triggers])
 
   const selectedTrigger = useMemo(() => {
-    return triggers.find((trigger) => trigger.id === selectedId) ?? filteredTriggers[0] ?? null
+    const match = triggers.find((trigger) => trigger.id === selectedId)
+    if (match) return match
+    return filteredTriggers[0] ?? null
   }, [filteredTriggers, selectedId, triggers])
 
   if (loading) {
@@ -259,7 +261,7 @@ export function TriggersScreen() {
             Route Slack, Teams, PR, cron, and webhook events into agent workflows.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

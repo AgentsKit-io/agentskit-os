@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { MOCK_EVAL_SUITES, type EvalCadence, type EvalStatus, type EvalSuite, useEvals } from './use-evals'
+import { EVAL_SUITES_FIXTURE, type EvalCadence, type EvalStatus, type EvalSuite, useEvals } from './use-evals'
 
 const STATUS_LABEL: Record<EvalStatus, string> = {
   passing: 'Passing',
@@ -252,14 +252,16 @@ function ListBlock({ label, items }: { readonly label: string; readonly items: r
 export function EvalsScreen() {
   const { suites, loading, error } = useEvals()
   const [filter, setFilter] = useState<EvalStatus | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_EVAL_SUITES[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(EVAL_SUITES_FIXTURE[0]?.id ?? null)
 
   const filteredSuites = useMemo(() => {
     return filter === 'all' ? suites : suites.filter((suite) => suite.status === filter)
   }, [filter, suites])
 
   const selectedSuite = useMemo(() => {
-    return suites.find((suite) => suite.id === selectedId) ?? filteredSuites[0] ?? null
+    const match = suites.find((suite) => suite.id === selectedId)
+    if (match) return match
+    return filteredSuites[0] ?? null
   }, [filteredSuites, selectedId, suites])
 
   if (loading) {
@@ -279,7 +281,7 @@ export function EvalsScreen() {
             Track evaluation suites, regression signals, datasets, and scorers across agent workflows.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

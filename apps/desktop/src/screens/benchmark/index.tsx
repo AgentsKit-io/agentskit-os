@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
-  MOCK_BENCHMARK_RESULTS,
+  BENCHMARK_RESULTS_FIXTURE,
   type BenchmarkProvider,
   type BenchmarkResult,
   type BenchmarkStatus,
@@ -242,14 +242,16 @@ function ListBlock({ label, items }: { readonly label: string; readonly items: r
 export function BenchmarkScreen() {
   const { results, loading, error } = useBenchmarks()
   const [filter, setFilter] = useState<BenchmarkProvider | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_BENCHMARK_RESULTS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(BENCHMARK_RESULTS_FIXTURE[0]?.id ?? null)
 
   const filteredResults = useMemo(() => {
     return filter === 'all' ? results : results.filter((result) => result.provider === filter)
   }, [filter, results])
 
   const selectedResult = useMemo(() => {
-    return results.find((result) => result.id === selectedId) ?? filteredResults[0] ?? null
+    const match = results.find((result) => result.id === selectedId)
+    if (match) return match
+    return filteredResults[0] ?? null
   }, [filteredResults, results, selectedId])
 
   if (loading) {
@@ -269,7 +271,7 @@ export function BenchmarkScreen() {
             Launch the same task across providers and compare completeness, tests, cost, and time.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

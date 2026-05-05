@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { MOCK_RUNS, type RunQueueItem, type RunStatus, useRuns } from './use-runs'
+import { RUNS_FIXTURE, type RunQueueItem, type RunStatus, useRuns } from './use-runs'
 import { useSelection } from '../../lib/selection-store'
 
 const STATUS_LABEL: Record<RunStatus, string> = {
@@ -230,7 +230,7 @@ function DetailMetric({ label, value }: { readonly label: string; readonly value
 export function RunsScreen() {
   const { runs, loading, error } = useRuns()
   const [filter, setFilter] = useState<RunStatus | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_RUNS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(RUNS_FIXTURE[0]?.id ?? null)
   const { setSelectedRunId } = useSelection()
 
   const filteredRuns = useMemo(() => {
@@ -238,7 +238,9 @@ export function RunsScreen() {
   }, [filter, runs])
 
   const selectedRun = useMemo(() => {
-    return runs.find((run) => run.id === selectedId) ?? filteredRuns[0] ?? null
+    const match = runs.find((run) => run.id === selectedId)
+    if (match) return match
+    return filteredRuns[0] ?? null
   }, [filteredRuns, runs, selectedId])
 
   if (loading) {
@@ -258,7 +260,7 @@ export function RunsScreen() {
             Monitor delegated agent tasks across providers, triggers, and cost.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

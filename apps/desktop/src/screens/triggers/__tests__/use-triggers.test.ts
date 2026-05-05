@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_TRIGGERS, useTriggers } from '../use-triggers'
+import { TRIGGERS_FIXTURE, useTriggers } from '../use-triggers'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useTriggers', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.triggers).toEqual(MOCK_TRIGGERS)
+    expect(result.current.triggers).toEqual(TRIGGERS_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 
@@ -31,7 +31,7 @@ describe('useTriggers', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.triggers).toEqual(MOCK_TRIGGERS)
+    expect(result.current.triggers).toEqual(TRIGGERS_FIXTURE)
     expect(result.current.error).toBe('sidecar unavailable')
   })
 })

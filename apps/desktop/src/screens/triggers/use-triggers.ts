@@ -24,7 +24,7 @@ type TriggersState = {
   readonly error: string | null
 }
 
-export const MOCK_TRIGGERS: readonly TriggerRule[] = [
+export const TRIGGERS_FIXTURE: readonly TriggerRule[] = [
   {
     id: 'trigger-slack-prd',
     name: 'Slack product request intake',
@@ -93,7 +93,7 @@ export const MOCK_TRIGGERS: readonly TriggerRule[] = [
 ]
 
 const normalizeTriggers = (value: unknown): readonly TriggerRule[] => {
-  return Array.isArray(value) ? (value as readonly TriggerRule[]) : MOCK_TRIGGERS
+  return Array.isArray(value) ? (value as readonly TriggerRule[]) : TRIGGERS_FIXTURE
 }
 
 export function useTriggers(): TriggersState {
@@ -106,7 +106,7 @@ export function useTriggers(): TriggersState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('triggers.list')
+    sidecarRequest<readonly TriggerRule[]>('triggers.list')
       .then((result) => {
         if (!cancelled) {
           setState({ triggers: normalizeTriggers(result), loading: false, error: null })
@@ -115,7 +115,7 @@ export function useTriggers(): TriggersState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            triggers: MOCK_TRIGGERS,
+            triggers: TRIGGERS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

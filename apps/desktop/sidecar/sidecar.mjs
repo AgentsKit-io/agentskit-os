@@ -31,20 +31,20 @@ import { createInterface } from 'node:readline'
 
 /** @type {import('@agentskit/os-headless').HeadlessRunner | null} */
 let runner = null
-/** @type {((opts: any) => import('@agentskit/os-headless').HeadlessRunner) | null} */
+/** @type {((opts: unknown) => import('@agentskit/os-headless').HeadlessRunner) | null} */
 let createHeadlessRunnerFn = null
-/** @type {any} */
+/** @type {unknown} */
 let baseRunnerOpts = null
 
-/** @type {Array<any>} */
+/** @type {Array<unknown>} */
 const traceRows = []
-/** @type {Map<string, Array<any>>} */
+/** @type {Map<string, Array<unknown>>} */
 const traceSpans = new Map()
 let traceCounter = 0
 
-/** @type {Map<string, any>} */
+/** @type {Map<string, unknown>} */
 const flowRegistry = new Map()
-/** @type {Map<string, any>} */
+/** @type {Map<string, unknown>} */
 const flowMeta = new Map()
 
 const tryInitRunner = async () => {
@@ -119,7 +119,7 @@ const notify = (method, params) => {
 
 const nowIso = () => new Date().toISOString()
 
-/** @param {any} flow */
+/** @param {unknown} flow */
 const indexNodeKinds = (flow) => {
   /** @type {Record<string, string>} */
   const out = {}
@@ -414,8 +414,14 @@ const dispatch = async (req) => {
 
     case 'flows.create': {
       const p = /** @type {Record<string, unknown>} */ (params ?? {})
-      const draft = /** @type {any} */ (p['draft'])
-      const baseName = typeof draft?.name === 'string' && draft.name.trim().length > 0 ? draft.name.trim() : 'flow'
+      const draft = p['draft']
+      const draftRecord =
+        draft && typeof draft === 'object'
+          ? /** @type {Record<string, unknown>} */ (draft)
+          : {}
+      const draftName = draftRecord['name']
+      const baseName =
+        typeof draftName === 'string' && draftName.trim().length > 0 ? draftName.trim() : 'flow'
       const newId = `flow-${Date.now()}`
       const flow = forkDraftToFlow(newId, draft)
       flowRegistry.set(newId, flow)

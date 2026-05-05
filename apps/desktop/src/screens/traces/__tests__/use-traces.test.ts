@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_SPANS, MOCK_TRACES, useTraceSpans, useTraces } from '../use-traces'
+import { SPANS_FIXTURE, TRACES_FIXTURE, useTraceSpans, useTraces } from '../use-traces'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useTraces', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.traces).toEqual(MOCK_TRACES)
+    expect(result.current.traces).toEqual(TRACES_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 })
@@ -37,7 +37,7 @@ describe('useTraceSpans', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.spans).toEqual(MOCK_SPANS['trace-001'])
+    expect(result.current.spans).toEqual(SPANS_FIXTURE['trace-001'])
     expect(result.current.error).toBeNull()
   })
 })

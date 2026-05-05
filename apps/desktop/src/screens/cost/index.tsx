@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
-  MOCK_COST_BUDGETS,
+  COST_BUDGETS_FIXTURE,
   type BudgetStatus,
   type CostBudget,
   type CostProvider,
@@ -261,14 +261,16 @@ function BudgetDetail({ budget }: { readonly budget: CostBudget | null }) {
 export function CostScreen() {
   const { budgets, loading, error } = useCostBudgets()
   const [filter, setFilter] = useState<CostProvider | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_COST_BUDGETS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(COST_BUDGETS_FIXTURE[0]?.id ?? null)
 
   const filteredBudgets = useMemo(() => {
     return filter === 'all' ? budgets : budgets.filter((budget) => budget.provider === filter)
   }, [budgets, filter])
 
   const selectedBudget = useMemo(() => {
-    return budgets.find((budget) => budget.id === selectedId) ?? filteredBudgets[0] ?? null
+    const match = budgets.find((budget) => budget.id === selectedId)
+    if (match) return match
+    return filteredBudgets[0] ?? null
   }, [budgets, filteredBudgets, selectedId])
 
   if (loading) {
@@ -291,7 +293,7 @@ export function CostScreen() {
             Track provider spend, quota pressure, tokens, and cost guard policies.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

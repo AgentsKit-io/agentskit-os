@@ -81,7 +81,7 @@ function MonitorsSection({
   onOpen,
 }: {
   readonly loading: boolean
-  readonly monitors: MonitorInfo[]
+  readonly monitors: readonly MonitorInfo[]
   readonly onOpen: (purpose: string, monitorId: string) => void
 }): React.JSX.Element {
   if (loading) {
@@ -150,7 +150,7 @@ function NewWindowSection({
   monitors,
   onOpen,
 }: {
-  readonly monitors: MonitorInfo[]
+  readonly monitors: readonly MonitorInfo[]
   readonly onOpen: (purpose: string, monitorId: string) => void
 }): React.JSX.Element {
   return (

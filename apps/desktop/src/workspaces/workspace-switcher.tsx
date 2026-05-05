@@ -16,6 +16,7 @@ import {
 import { useWorkspaces } from './workspaces-provider'
 import { WorkspaceStatusBadge } from './workspace-status-badge'
 import { useCommandPalette } from '../command-palette/command-palette-provider'
+import type { Command } from '../command-palette/commands'
 import { IconSvg } from '../components/icon-svg'
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -30,7 +31,7 @@ function ChevronIcon({ open }: { open: boolean }) {
 }
 
 const useWorkspaceSwitcherCommand = (args: {
-  registerCommand: (c: { id: string; label: string; keywords: string[]; category: string; run: () => void }) => void
+  registerCommand: (c: Command) => void
   openDropdown: () => void
 }): void => {
   const { registerCommand, openDropdown } = args

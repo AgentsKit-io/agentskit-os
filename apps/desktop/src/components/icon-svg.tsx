@@ -1,6 +1,6 @@
 export type IconSvgProps = {
   readonly size: number
-  readonly className?: string
+  readonly className?: string | undefined
   readonly children: React.ReactNode
 }
 

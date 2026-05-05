@@ -53,6 +53,8 @@ export const TRACES_FIXTURE: readonly TraceRow[] = [
   },
 ]
 
+const makeSpan = (value: unknown): Span => value as Span
+
 export const SPANS_FIXTURE: Record<string, readonly Span[]> = {
   'trace-001': [
     makeSpan({ traceId: 'trace-001', spanId: 'span-001-root', kind: 'flow', name: 'flow.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:00:00.000Z', endedAt: '2026-05-02T10:00:04.320Z', durationMs: 4320, status: 'ok', attributes: { 'agentskitos.flow_id': 'onboarding-flow', 'agentskitos.run_mode': 'real', 'agentskitos.workspace_id': 'ws-default' } }),
@@ -68,8 +70,6 @@ export const SPANS_FIXTURE: Record<string, readonly Span[]> = {
     makeSpan({ traceId: 'trace-003', spanId: 'span-003-tool', parentSpanId: 'span-003-root', kind: 'tool', name: 'tool.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:12:00.100Z', endedAt: '2026-05-02T10:12:00.800Z', durationMs: 700, status: 'skipped', attributes: { 'agentskitos.node_id': 'generate-pdf' } }),
   ],
 }
-
-const makeSpan = (value: unknown): Span => value as Span
 
 // ---------------------------------------------------------------------------
 // Hook

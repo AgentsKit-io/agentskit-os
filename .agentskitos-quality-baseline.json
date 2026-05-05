@@ -5,9 +5,9 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 475,
-    "issues": 5,
+    "issues": 3,
     "byKind": {
-      "cyclomatic-complexity": 5
+      "cyclomatic-complexity": 3
     }
   },
   "issues": [
@@ -29,22 +29,8 @@
       "id": "cyclomatic-complexity:packages/os-flow/src/multi-agent-handlers.ts:018a9608725cb546",
       "kind": "cyclomatic-complexity",
       "file": "packages/os-flow/src/multi-agent-handlers.ts",
-      "line": 625,
+      "line": 659,
       "detail": "createBlackboardHandler complexity 30 exceeds max 14."
-    },
-    {
-      "id": "cyclomatic-complexity:packages/os-flow/src/multi-agent-handlers.ts:597271e2d29c89ca",
-      "kind": "cyclomatic-complexity",
-      "file": "packages/os-flow/src/multi-agent-handlers.ts",
-      "line": 277,
-      "detail": "createVoteHandler complexity 20 exceeds max 14."
-    },
-    {
-      "id": "cyclomatic-complexity:packages/os-flow/src/multi-agent-handlers.ts:b4dc12ddc100c1d3",
-      "kind": "cyclomatic-complexity",
-      "file": "packages/os-flow/src/multi-agent-handlers.ts",
-      "line": 91,
-      "detail": "createCompareHandler complexity 25 exceeds max 14."
     }
   ]
 }

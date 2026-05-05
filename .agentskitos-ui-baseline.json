@@ -5,15 +5,15 @@
   "maxScreenLines": 240,
   "maxHookLines": 180,
   "totals": {
-    "filesScanned": 174,
-    "issues": 62,
+    "filesScanned": 178,
+    "issues": 58,
     "byKind": {
       "giant-inline-classname": 7,
       "hardcoded-color-class": 14,
       "oversized-ui-unit": 10,
       "screen-format-helper": 9,
       "screen-status-map": 17,
-      "sidecar-in-component": 5
+      "sidecar-in-component": 1
     }
   },
   "issues": [
@@ -417,38 +417,10 @@
       "detail": "Status labels/styles should use shared badge/status primitives instead of per-screen maps."
     },
     {
-      "id": "sidecar-in-component:apps/desktop/src/dashboards/custom/custom-widget-renderer.tsx:7d2bbd72cc5e8bc9",
-      "kind": "sidecar-in-component",
-      "file": "apps/desktop/src/dashboards/custom/custom-widget-renderer.tsx",
-      "line": 224,
-      "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
-    },
-    {
       "id": "sidecar-in-component:apps/desktop/src/fork/fork-panel.tsx:5dc426c5b54a69c7",
       "kind": "sidecar-in-component",
       "file": "apps/desktop/src/fork/fork-panel.tsx",
       "line": 6,
-      "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
-    },
-    {
-      "id": "sidecar-in-component:apps/desktop/src/plugins/plugin-contributions-provider.tsx:ddd340522af51d53",
-      "kind": "sidecar-in-component",
-      "file": "apps/desktop/src/plugins/plugin-contributions-provider.tsx",
-      "line": 136,
-      "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
-    },
-    {
-      "id": "sidecar-in-component:apps/desktop/src/plugins/plugin-widget-renderer.tsx:8674871f7cc167cf",
-      "kind": "sidecar-in-component",
-      "file": "apps/desktop/src/plugins/plugin-widget-renderer.tsx",
-      "line": 76,
-      "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
-    },
-    {
-      "id": "sidecar-in-component:apps/desktop/src/workspaces/workspaces-provider.tsx:ff9c1b81ac77e7a3",
-      "kind": "sidecar-in-component",
-      "file": "apps/desktop/src/workspaces/workspaces-provider.tsx",
-      "line": 93,
       "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
     }
   ]

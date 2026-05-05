@@ -14,15 +14,11 @@
  */
 
 import { useEffect, useState } from 'react'
-import { sidecarRequest } from '../lib/sidecar'
+import { usePluginWidgetHtml } from './use-plugin-widget-html'
 
 // ---------------------------------------------------------------------------
 // Sidecar response
 // ---------------------------------------------------------------------------
-
-type WidgetRenderResponse = {
-  html: string
-}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -66,6 +62,7 @@ export function PluginWidgetRenderer({
 }: PluginWidgetRendererProps) {
   const [html, setHtml] = useState<string>(PLACEHOLDER_HTML)
   const [error, setError] = useState<string | null>(null)
+  const getWidgetHtml = usePluginWidgetHtml()
 
   useEffect(() => {
     let cancelled = false
@@ -73,19 +70,9 @@ export function PluginWidgetRenderer({
     async function fetchRender() {
       try {
         // TODO #91/M5 — sidecar plugin host: implement `plugins.widget.render`
-        const response = await sidecarRequest<WidgetRenderResponse>(
-          'plugins.widget.render',
-          { pluginId, kind, props },
-        )
+        const rendered = await getWidgetHtml({ pluginId, kind, props })
         if (cancelled) return
-        if (
-          response &&
-          typeof response === 'object' &&
-          'html' in response &&
-          typeof response.html === 'string'
-        ) {
-          setHtml(response.html)
-        }
+        if (rendered.length > 0) setHtml(rendered)
         // else: no Tauri / no real response — placeholder remains
       } catch (err) {
         if (cancelled) return
@@ -97,7 +84,7 @@ export function PluginWidgetRenderer({
     return () => {
       cancelled = true
     }
-  }, [pluginId, kind, props])
+  }, [pluginId, kind, props, getWidgetHtml])
 
   if (error) {
     return (

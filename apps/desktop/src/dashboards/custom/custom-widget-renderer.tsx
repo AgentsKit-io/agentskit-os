@@ -14,8 +14,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-ui'
-import { sidecarRequest } from '../../lib/sidecar'
 import type { CustomWidget } from './custom-widget-types'
+import { useCustomWidgetMethod } from './use-custom-widget-method'
 
 const toGaugeValue = (rawValue: unknown): number => {
   if (typeof rawValue === 'number') return rawValue
@@ -203,6 +203,7 @@ export function CustomWidgetRenderer({ widget }: Props) {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState<string | undefined>(undefined)
 
+  const callMethod = useCustomWidgetMethod()
   const isMounted = useRef(true)
   useEffect(() => {
     isMounted.current = true
@@ -221,7 +222,7 @@ export function CustomWidgetRenderer({ widget }: Props) {
 
   const fetchValue = useCallback(async () => {
     try {
-      const response = await sidecarRequest(source.method)
+      const response = await callMethod(source.method)
       if (!isMounted.current) return
       const resolved = getPath(response, source.pathExpr ?? '')
       setRawValue(resolved)
@@ -236,7 +237,7 @@ export function CustomWidgetRenderer({ widget }: Props) {
     } finally {
       if (isMounted.current) setIsLoading(false)
     }
-  }, [source.method, source.pathExpr, kind, pushSparkValue])
+  }, [callMethod, source.method, source.pathExpr, kind, pushSparkValue])
 
   useEffect(() => {
     void fetchValue()

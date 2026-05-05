@@ -3,6 +3,7 @@ import { Badge } from '@agentskit/os-ui'
 import { RUNS_FIXTURE, type RunQueueItem, type RunStatus, useRuns } from './use-runs'
 import { useSelection } from '../../lib/selection-store'
 import { FilterPills } from '../../components/filter-pills'
+import { formatHms } from '../../lib/time'
 
 const STATUS_LABEL: Record<RunStatus, string> = {
   queued: 'Queued',
@@ -28,18 +29,6 @@ function formatDuration(ms: number): string {
   const minutes = Math.floor(ms / 60_000)
   const seconds = Math.floor((ms % 60_000) / 1000)
   return `${minutes}m ${seconds}s`
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function formatTokens(run: RunQueueItem): string {
@@ -147,7 +136,7 @@ function RunTable({
                 ${run.costUsd.toFixed(2)}
               </td>
               <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatTime(run.updatedAt)}
+                {formatHms(run.updatedAt)}
               </td>
             </tr>
           ))}

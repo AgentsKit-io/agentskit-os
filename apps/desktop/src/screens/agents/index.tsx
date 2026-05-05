@@ -3,6 +3,7 @@ import { Badge } from '@agentskit/os-ui'
 import type { AgentProfile, AgentProvider, AgentStatus } from './use-agents'
 import { AGENTS_FIXTURE, useAgents } from './use-agents'
 import { FilterPills } from '../../components/filter-pills'
+import { formatHms } from '../../lib/time'
 
 const STATUS_LABEL: Record<AgentStatus, string> = {
   ready: 'Ready',
@@ -33,18 +34,6 @@ function StatusPill({ status }: { readonly status: AgentStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function AgentsSummary({ agents }: { readonly agents: readonly AgentProfile[] }) {
@@ -137,7 +126,7 @@ function AgentList({
               </td>
               <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{agent.activeRuns}</td>
               <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatTime(agent.lastRunAt)}
+                {formatHms(agent.lastRunAt)}
               </td>
             </tr>
           ))}

@@ -8,6 +8,7 @@ import {
   useCostBudgets,
 } from './use-cost'
 import { FilterPills } from '../../components/filter-pills'
+import { formatMd } from '../../lib/time'
 
 const PROVIDER_LABEL: Record<CostProvider, string> = {
   openai: 'OpenAI',
@@ -50,14 +51,6 @@ function formatCurrency(value: number): string {
 
 function formatTokens(tokens: number): string {
   return new Intl.NumberFormat(undefined, { notation: 'compact' }).format(tokens)
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function percentUsed(budget: CostBudget): number {
@@ -166,7 +159,7 @@ function BudgetTable({
               </td>
               <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{budget.runs}</td>
               <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatDate(budget.resetAt)}
+                {formatMd(budget.resetAt)}
               </td>
             </tr>
           ))}

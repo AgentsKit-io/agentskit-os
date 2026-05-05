@@ -10,6 +10,7 @@
 
 import type { TraceRow } from './use-traces'
 import { useTraces } from './use-traces'
+import { formatMdHms } from '../../lib/time'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -30,20 +31,7 @@ const formatDuration = (ms: number): string => {
   return `${(ms / 1000).toFixed(2)}s`
 }
 
-const formatStarted = (iso: string): string => {
-  try {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
+const formatStarted = (iso: string): string => formatMdHms(iso)
 
 const STATUS_CLASSES: Record<string, string> = {
   ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',

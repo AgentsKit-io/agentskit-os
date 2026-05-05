@@ -5,16 +5,15 @@
   "maxScreenLines": 240,
   "maxHookLines": 180,
   "totals": {
-    "filesScanned": 170,
-    "issues": 77,
+    "filesScanned": 174,
+    "issues": 62,
     "byKind": {
       "giant-inline-classname": 7,
-      "hardcoded-color-class": 17,
-      "inline-date-in-component": 6,
+      "hardcoded-color-class": 14,
       "oversized-ui-unit": 10,
-      "screen-format-helper": 12,
+      "screen-format-helper": 9,
       "screen-status-map": 17,
-      "sidecar-in-component": 8
+      "sidecar-in-component": 5
     }
   },
   "issues": [
@@ -64,7 +63,7 @@
       "id": "giant-inline-classname:apps/desktop/src/search/find-similar-button.tsx:59d448a000e192b9",
       "kind": "giant-inline-classname",
       "file": "apps/desktop/src/search/find-similar-button.tsx",
-      "line": 50,
+      "line": 51,
       "detail": "Large className strings should become small components, variants, or cn/cva helpers."
     },
     {
@@ -85,7 +84,7 @@
       "id": "hardcoded-color-class:apps/desktop/src/screens/agents/index.tsx:44c10f91b894abbe",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 263,
+      "line": 252,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
@@ -99,14 +98,14 @@
       "id": "hardcoded-color-class:apps/desktop/src/screens/cost/index.tsx:8c006c0a4c02aec3",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 304,
+      "line": 297,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
       "id": "hardcoded-color-class:apps/desktop/src/screens/dashboard/index.tsx:2c9cf46bf0e9515b",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/dashboard/index.tsx",
-      "line": 63,
+      "line": 64,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
@@ -127,7 +126,7 @@
       "id": "hardcoded-color-class:apps/desktop/src/screens/traces/replay-button.tsx:21d14f5dd19d942a",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/traces/replay-button.tsx",
-      "line": 110,
+      "line": 105,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
@@ -141,14 +140,14 @@
       "id": "hardcoded-color-class:apps/desktop/src/snapshot/snapshot-panel.tsx:2a030bfa4c84a7e6",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/snapshot/snapshot-panel.tsx",
-      "line": 183,
+      "line": 184,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
       "id": "hardcoded-color-class:apps/desktop/src/snapshot/snapshot-panel.tsx:70a95091a6d048ae",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/snapshot/snapshot-panel.tsx",
-      "line": 174,
+      "line": 175,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
@@ -164,69 +163,6 @@
       "file": "apps/desktop/src/voice/voice-toggle.tsx",
       "line": 27,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
-      "id": "hardcoded-color-class:apps/desktop/src/workspaces/workspace-status-badge.tsx:281a76f466c5643d",
-      "kind": "hardcoded-color-class",
-      "file": "apps/desktop/src/workspaces/workspace-status-badge.tsx",
-      "line": 14,
-      "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
-      "id": "hardcoded-color-class:apps/desktop/src/workspaces/workspace-status-badge.tsx:5e0b402e9b91b687",
-      "kind": "hardcoded-color-class",
-      "file": "apps/desktop/src/workspaces/workspace-status-badge.tsx",
-      "line": 17,
-      "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
-      "id": "hardcoded-color-class:apps/desktop/src/workspaces/workspace-status-badge.tsx:8a8f190ec5d06fca",
-      "kind": "hardcoded-color-class",
-      "file": "apps/desktop/src/workspaces/workspace-status-badge.tsx",
-      "line": 16,
-      "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
-      "id": "inline-date-in-component:apps/desktop/src/screens/agents/index.tsx:214ea7dcd54e8a4e",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 44,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
-      "id": "inline-date-in-component:apps/desktop/src/screens/cost/index.tsx:ec4d3e28e4036c0b",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 57,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
-      "id": "inline-date-in-component:apps/desktop/src/screens/dashboard/event-feed.tsx:58ad1bd0410e0319",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/screens/dashboard/event-feed.tsx",
-      "line": 18,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
-      "id": "inline-date-in-component:apps/desktop/src/screens/dashboard/recent-runs.tsx:5a13b0090bfcd596",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/screens/dashboard/recent-runs.tsx",
-      "line": 33,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
-      "id": "inline-date-in-component:apps/desktop/src/screens/runs/index.tsx:214ea7dcd54e8a4e",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 39,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
-      "id": "inline-date-in-component:apps/desktop/src/screens/traces/trace-list.tsx:214ea7dcd54e8a4e",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/screens/traces/trace-list.tsx",
-      "line": 42,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
     },
     {
       "id": "oversized-ui-unit:apps/desktop/src/assistant/assistant-overlay.tsx:69459152d55267e0",
@@ -274,7 +210,7 @@
       "id": "oversized-ui-unit:apps/desktop/src/snapshot/snapshot-panel.tsx:be62e554e2650961",
       "kind": "oversized-ui-unit",
       "file": "apps/desktop/src/snapshot/snapshot-panel.tsx",
-      "line": 28,
+      "line": 29,
       "detail": "SnapshotPanel is 179 lines; keep components under 140 lines or split logic into hooks/primitives."
     },
     {
@@ -299,13 +235,6 @@
       "detail": "WorkspaceSwitcher is 142 lines; keep components under 140 lines or split logic into hooks/primitives."
     },
     {
-      "id": "screen-format-helper:apps/desktop/src/screens/agents/index.tsx:80ab91d126ee6712",
-      "kind": "screen-format-helper",
-      "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 38,
-      "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
-    },
-    {
       "id": "screen-format-helper:apps/desktop/src/screens/benchmark/index.tsx:107d558cf2ae4d7d",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/benchmark/index.tsx",
@@ -320,52 +249,38 @@
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
-      "id": "screen-format-helper:apps/desktop/src/screens/cost/index.tsx:1fc8673e2c436e76",
-      "kind": "screen-format-helper",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 55,
-      "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
-    },
-    {
       "id": "screen-format-helper:apps/desktop/src/screens/cost/index.tsx:651ae32d4d99b28c",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 51,
+      "line": 52,
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
       "id": "screen-format-helper:apps/desktop/src/screens/cost/index.tsx:a95498248259b1a1",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 43,
+      "line": 44,
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
       "id": "screen-format-helper:apps/desktop/src/screens/dashboard/recent-runs.tsx:107d558cf2ae4d7d",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/dashboard/recent-runs.tsx",
-      "line": 25,
+      "line": 26,
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
       "id": "screen-format-helper:apps/desktop/src/screens/runs/index.tsx:107d558cf2ae4d7d",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 25,
-      "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
-    },
-    {
-      "id": "screen-format-helper:apps/desktop/src/screens/runs/index.tsx:80ab91d126ee6712",
-      "kind": "screen-format-helper",
-      "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 33,
+      "line": 26,
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
       "id": "screen-format-helper:apps/desktop/src/screens/runs/index.tsx:811f4e3e7edf0351",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 45,
+      "line": 34,
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
@@ -379,14 +294,14 @@
       "id": "screen-format-helper:apps/desktop/src/screens/traces/trace-list.tsx:fca093e4080ae81d",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/traces/trace-list.tsx",
-      "line": 28,
+      "line": 29,
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
       "id": "screen-status-map:apps/desktop/src/screens/agents/index.tsx:bbc6f63efa82148d",
       "kind": "screen-status-map",
       "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 14,
+      "line": 15,
       "detail": "Status labels/styles should use shared badge/status primitives instead of per-screen maps."
     },
     {
@@ -400,7 +315,7 @@
       "id": "screen-status-map:apps/desktop/src/screens/cost/index.tsx:e6525a8088620264",
       "kind": "screen-status-map",
       "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 25,
+      "line": 26,
       "detail": "Status labels/styles should use shared badge/status primitives instead of per-screen maps."
     },
     {
@@ -442,7 +357,7 @@
       "id": "screen-status-map:apps/desktop/src/screens/runs/index.tsx:d70432b398202ec7",
       "kind": "screen-status-map",
       "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 15,
+      "line": 16,
       "detail": "Status labels/styles should use shared badge/status primitives instead of per-screen maps."
     },
     {
@@ -484,14 +399,14 @@
       "id": "screen-status-map:apps/desktop/src/screens/traces/trace-list.tsx:0f28b45454c0870f",
       "kind": "screen-status-map",
       "file": "apps/desktop/src/screens/traces/trace-list.tsx",
-      "line": 48,
+      "line": 36,
       "detail": "Status labels/styles should use shared badge/status primitives instead of per-screen maps."
     },
     {
       "id": "screen-status-map:apps/desktop/src/screens/traces/trace-list.tsx:beaab1d7ea12ecc4",
       "kind": "screen-status-map",
       "file": "apps/desktop/src/screens/traces/trace-list.tsx",
-      "line": 79,
+      "line": 67,
       "detail": "Status labels/styles should use shared badge/status primitives instead of per-screen maps."
     },
     {
@@ -527,27 +442,6 @@
       "kind": "sidecar-in-component",
       "file": "apps/desktop/src/plugins/plugin-widget-renderer.tsx",
       "line": 76,
-      "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
-    },
-    {
-      "id": "sidecar-in-component:apps/desktop/src/screens/dashboard/index.tsx:2fd7798485a12d21",
-      "kind": "sidecar-in-component",
-      "file": "apps/desktop/src/screens/dashboard/index.tsx",
-      "line": 129,
-      "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
-    },
-    {
-      "id": "sidecar-in-component:apps/desktop/src/screens/traces/replay-button.tsx:f1278c8f22f55d46",
-      "kind": "sidecar-in-component",
-      "file": "apps/desktop/src/screens/traces/replay-button.tsx",
-      "line": 46,
-      "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
-    },
-    {
-      "id": "sidecar-in-component:apps/desktop/src/search/find-similar-button.tsx:612c9a3121fb9ca0",
-      "kind": "sidecar-in-component",
-      "file": "apps/desktop/src/search/find-similar-button.tsx",
-      "line": 33,
       "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
     },
     {

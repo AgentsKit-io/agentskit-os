@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { getSidecarStatus, sidecarRequest, type RunMode, type SidecarStatus } from '../../lib/sidecar'
+import { getSidecarStatus, type RunMode, type SidecarStatus } from '../../lib/sidecar'
 import { getRunMode, setRunMode } from '../../lib/run-mode-store'
 import { useDashboardStats } from './use-dashboard-stats'
 import { useEventFeed } from './use-event-feed'
 import { StatsGrid } from './stats-grid'
 import { RecentRuns } from './recent-runs'
 import { EventFeed } from './event-feed'
+import { useDeployToCloud } from './use-deploy-to-cloud'
 
 // ---------------------------------------------------------------------------
 // Header
@@ -99,6 +100,7 @@ export function Dashboard({ onRegisterClear }: DashboardProps) {
   const { stats, isLoading } = useDashboardStats()
   const { events, isPaused, toggle, clear } = useEventFeed()
   const deployLabel = useMemo(() => (runMode === 'real' ? 'prod' : 'dev'), [runMode])
+  const deployToCloud = useDeployToCloud()
 
   // Expose `clear` to the parent once it stabilises.
   const registeredRef = useRef(false)
@@ -126,7 +128,7 @@ export function Dashboard({ onRegisterClear }: DashboardProps) {
           setRunModeState(mode)
         }}
         onDeploy={() => {
-          void sidecarRequest('cloud.deploy', { mode: runMode, label: deployLabel })
+          void deployToCloud({ mode: runMode, label: deployLabel })
         }}
       />
 

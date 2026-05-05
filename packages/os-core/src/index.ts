@@ -305,7 +305,11 @@ export {
   checkDeterminism,
   parseRunContext,
   safeParseRunContext,
+  STUB_RUN_MODES,
+  isStubRunMode,
+  createDefaultRunId,
 } from './runtime/run-mode.js'
+export type { StubRunMode } from './runtime/run-mode.js'
 
 export {
   FallbackEntry,

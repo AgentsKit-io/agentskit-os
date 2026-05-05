@@ -224,6 +224,11 @@ describe('buildLiveHandlers', () => {
     expect(handlers.condition).toBeDefined()
     expect(handlers.parallel).toBeDefined()
     expect(handlers.human).toBeUndefined()
+    expect(handlers.compare).toBeDefined()
+    expect(handlers.vote).toBeDefined()
+    expect(handlers.debate).toBeDefined()
+    expect(handlers.auction).toBeDefined()
+    expect(handlers.blackboard).toBeDefined()
   })
 
   it('always provides condition + parallel', () => {
@@ -234,5 +239,6 @@ describe('buildLiveHandlers', () => {
     expect(handlers.condition).toBeDefined()
     expect(handlers.parallel).toBeDefined()
     expect(handlers.agent).toBeUndefined()
+    expect(handlers.compare).toBeUndefined()
   })
 })

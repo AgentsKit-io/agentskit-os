@@ -69,14 +69,21 @@ const hasTauriRuntime = (): boolean =>
   typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
 function setScreenWithViewTransition(update: () => void): void {
-  const startViewTransition = (
-    document as Document & {
-      startViewTransition?: (callback: () => void) => void
-    }
-  ).startViewTransition
+  const viewTransitionDocument = document as Document & {
+    startViewTransition?: (callback: () => void) => void
+  }
 
-  if (startViewTransition && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-    startViewTransition(update)
+  if (
+    viewTransitionDocument.startViewTransition &&
+    window.matchMedia('(prefers-reduced-motion: no-preference)').matches
+  ) {
+    try {
+      viewTransitionDocument.startViewTransition(() => {
+        update()
+      })
+    } catch {
+      update()
+    }
     return
   }
 

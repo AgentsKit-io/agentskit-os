@@ -41,6 +41,7 @@ fn main() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            sidecar::sidecar_request,
             windows::list_monitors,
             windows::open_window,
             windows::close_window,

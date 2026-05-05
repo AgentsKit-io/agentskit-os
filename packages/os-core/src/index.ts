@@ -293,6 +293,16 @@ export {
   parseTelemetryConfig,
   safeParseTelemetryConfig,
 } from './obs/telemetry.js'
+export {
+  ActivationEventKind,
+  ActivationEvent,
+  RetentionCohort,
+  buildActivationFunnel,
+  buildRetentionCohorts,
+  decideEmitActivation,
+  parseActivationEvent,
+} from './obs/activation.js'
+export type { ActivationFunnel, RetentionInputs } from './obs/activation.js'
 export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 

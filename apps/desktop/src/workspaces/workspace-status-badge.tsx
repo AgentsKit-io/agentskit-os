@@ -11,10 +11,10 @@
 import type { WorkspaceStatus } from './types'
 
 const STATUS_CLASSES: Record<WorkspaceStatus, string> = {
-  running: 'bg-cyan-400',
+  running: 'bg-[var(--ag-accent)]',
   idle: 'bg-[var(--ag-accent)]',
-  error: 'bg-red-500',
-  paused: 'bg-amber-400',
+  error: 'bg-[var(--ag-danger)]',
+  paused: 'bg-[var(--ag-warn)]',
 }
 
 const STATUS_LABELS: Record<WorkspaceStatus, string> = {

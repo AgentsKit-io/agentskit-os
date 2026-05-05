@@ -75,6 +75,99 @@ function MonitorCard({ monitor, onOpen }: MonitorCardProps): React.JSX.Element {
   )
 }
 
+function MonitorsSection({
+  loading,
+  monitors,
+  onOpen,
+}: {
+  readonly loading: boolean
+  readonly monitors: readonly MonitorInfo[]
+  readonly onOpen: (purpose: string, monitorId: string) => void
+}): React.JSX.Element {
+  if (loading) {
+    return (
+      <p className="text-[13px] text-[var(--ag-ink-subtle)]" role="status">
+        Detecting connected displays…
+      </p>
+    )
+  }
+  if (monitors.length === 0) {
+    return <p className="text-[13px] text-[var(--ag-ink-subtle)]">No monitors detected.</p>
+  }
+  return (
+    <div className="space-y-3">
+      <p className="text-[12px] text-[var(--ag-ink-subtle)]">
+        {monitors.length} display{monitors.length > 1 ? 's' : ''} detected. Click a button to open a window on that
+        display.
+      </p>
+      {monitors.map((monitor) => (
+        <MonitorCard key={monitor.id} monitor={monitor} onOpen={onOpen} />
+      ))}
+    </div>
+  )
+}
+
+function RestoreLayoutSection({
+  hasDashboardLayout,
+  hasTracesLayout,
+  onRestore,
+}: {
+  readonly hasDashboardLayout: boolean
+  readonly hasTracesLayout: boolean
+  readonly onRestore: (purpose: string) => void
+}): React.JSX.Element | null {
+  if (!hasDashboardLayout && !hasTracesLayout) return null
+  return (
+    <div className="border-t border-[var(--ag-line)] pt-4">
+      <p className="mb-2 text-[12px] font-medium text-[var(--ag-ink)]">Restore last layout</p>
+      <div className="flex gap-2">
+        {hasDashboardLayout && (
+          <button
+            type="button"
+            data-testid="restore-dashboard"
+            onClick={() => onRestore('dashboard')}
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-[12px] text-[var(--ag-ink)] transition-colors hover:border-[var(--ag-ink-subtle)]"
+          >
+            Restore dashboard
+          </button>
+        )}
+        {hasTracesLayout && (
+          <button
+            type="button"
+            data-testid="restore-traces"
+            onClick={() => onRestore('traces')}
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-[12px] text-[var(--ag-ink)] transition-colors hover:border-[var(--ag-ink-subtle)]"
+          >
+            Restore traces
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function NewWindowSection({
+  monitors,
+  onOpen,
+}: {
+  readonly monitors: readonly MonitorInfo[]
+  readonly onOpen: (purpose: string, monitorId: string) => void
+}): React.JSX.Element {
+  return (
+    <div className="border-t border-[var(--ag-line)] pt-4">
+      <p className="mb-2 text-[12px] font-medium text-[var(--ag-ink)]">New window</p>
+      <button
+        type="button"
+        data-testid="open-trace-new-window"
+        onClick={() => onOpen('traces', monitors[0]?.id ?? '0')}
+        className="rounded-md bg-[var(--ag-accent)] px-4 py-2 text-[12px] font-medium text-white transition-opacity hover:opacity-90"
+      >
+        Open trace on a new window
+      </button>
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // Panel
 // ---------------------------------------------------------------------------
@@ -86,28 +179,30 @@ export function MultiMonitorPanel({ isOpen, onClose }: MultiMonitorPanelProps): 
 
   if (!isOpen) return null
 
+  const reportOpenError = (prefix: string, err: unknown): void => {
+    const msg = err instanceof Error ? err.message : String(err)
+    setOpenError(`${prefix}: ${msg}`)
+  }
+
+  const openWindow = (args: { purpose: string; monitorId: string; errorPrefix: string }): void => {
+    setOpenError(null)
+    invoke('open_window', { args: { purpose: args.purpose, monitorId: args.monitorId } }).catch((err: unknown) => {
+      reportOpenError(args.errorPrefix, err)
+    })
+  }
+
   // -------------------------------------------------------------------------
   // Handlers
   // -------------------------------------------------------------------------
 
   function handleOpen(purpose: string, monitorId: string): void {
-    setOpenError(null)
-    invoke('open_window', { args: { purpose, monitorId } }).catch((err: unknown) => {
-      const msg = err instanceof Error ? err.message : String(err)
-      setOpenError(`Could not open window: ${msg}`)
-    })
+    openWindow({ purpose, monitorId, errorPrefix: 'Could not open window' })
   }
 
   function handleRestore(purpose: string): void {
     const layout = getLayout(purpose)
     if (!layout) return
-    setOpenError(null)
-    invoke('open_window', {
-      args: { purpose, monitorId: layout.monitorId },
-    }).catch((err: unknown) => {
-      const msg = err instanceof Error ? err.message : String(err)
-      setOpenError(`Could not restore window: ${msg}`)
-    })
+    openWindow({ purpose, monitorId: layout.monitorId, errorPrefix: 'Could not restore window' })
   }
 
   const hasDashboardLayout = getLayout('dashboard') !== undefined
@@ -152,86 +247,20 @@ export function MultiMonitorPanel({ isOpen, onClose }: MultiMonitorPanelProps): 
 
           {/* Body */}
           <div className="space-y-4 px-5 py-5">
-            {loading && (
-              <p className="text-[13px] text-[var(--ag-ink-subtle)]" role="status">
-                Detecting connected displays…
-              </p>
-            )}
-
-            {!loading && monitors.length === 0 && (
-              <p className="text-[13px] text-[var(--ag-ink-subtle)]">
-                No monitors detected.
-              </p>
-            )}
-
-            {!loading && monitors.length > 0 && (
-              <div className="space-y-3">
-                <p className="text-[12px] text-[var(--ag-ink-subtle)]">
-                  {monitors.length} display{monitors.length > 1 ? 's' : ''} detected.
-                  Click a button to open a window on that display.
-                </p>
-                {monitors.map((monitor) => (
-                  <MonitorCard
-                    key={monitor.id}
-                    monitor={monitor}
-                    onOpen={handleOpen}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Restore last layout */}
-            {(hasDashboardLayout || hasTracesLayout) && (
-              <div className="border-t border-[var(--ag-line)] pt-4">
-                <p className="mb-2 text-[12px] font-medium text-[var(--ag-ink)]">
-                  Restore last layout
-                </p>
-                <div className="flex gap-2">
-                  {hasDashboardLayout && (
-                    <button
-                      type="button"
-                      data-testid="restore-dashboard"
-                      onClick={() => handleRestore('dashboard')}
-                      className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-[12px] text-[var(--ag-ink)] transition-colors hover:border-[var(--ag-ink-subtle)]"
-                    >
-                      Restore dashboard
-                    </button>
-                  )}
-                  {hasTracesLayout && (
-                    <button
-                      type="button"
-                      data-testid="restore-traces"
-                      onClick={() => handleRestore('traces')}
-                      className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-[12px] text-[var(--ag-ink)] transition-colors hover:border-[var(--ag-ink-subtle)]"
-                    >
-                      Restore traces
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Open new trace window (no monitor selection — uses current) */}
-            <div className="border-t border-[var(--ag-line)] pt-4">
-              <p className="mb-2 text-[12px] font-medium text-[var(--ag-ink)]">
-                New window
-              </p>
-              <button
-                type="button"
-                data-testid="open-trace-new-window"
-                onClick={() => handleOpen('traces', monitors[0]?.id ?? '0')}
-                className="rounded-md bg-[var(--ag-accent)] px-4 py-2 text-[12px] font-medium text-white transition-opacity hover:opacity-90"
-              >
-                Open trace on a new window
-              </button>
-            </div>
+            <MonitorsSection loading={loading} monitors={monitors} onOpen={handleOpen} />
+            <RestoreLayoutSection
+              hasDashboardLayout={hasDashboardLayout}
+              hasTracesLayout={hasTracesLayout}
+              onRestore={handleRestore}
+            />
+            <NewWindowSection monitors={monitors} onOpen={handleOpen} />
 
             {/* Error feedback */}
             {openError !== null && (
               <p
                 role="alert"
                 data-testid="multi-monitor-error"
-                className="text-[12px] text-red-500"
+                className="text-[12px] text-[var(--ag-danger)]"
               >
                 {openError}
               </p>

@@ -11,15 +11,11 @@
  */
 
 import { useState } from 'react'
-import { sidecarRequest } from '../../lib/sidecar'
+import { useReplayTrace } from './use-replay-trace'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-type ReplayResponse = {
-  readonly runId: string
-}
 
 export type ReplayButtonProps = {
   readonly traceId: string
@@ -38,15 +34,14 @@ export const ReplayButton = ({
 }: ReplayButtonProps): React.JSX.Element => {
   const [replaying, setReplaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const replayTrace = useReplayTrace()
 
   const handleReplay = async (): Promise<void> => {
     setReplaying(true)
     setError(null)
     try {
-      const res = await sidecarRequest<ReplayResponse>('traces.replay', {
-        traceId,
-      })
-      onReplay?.(res.runId)
+      const newRunId = await replayTrace(traceId)
+      onReplay?.(newRunId)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error'
       setError(message)
@@ -107,7 +102,7 @@ export const ReplayButton = ({
 
       {/* Inline error feedback */}
       {error !== null && (
-        <span className="ml-2 text-xs text-red-400" aria-live="polite">
+        <span className="ml-2 text-xs text-[var(--ag-danger)]" aria-live="polite">
           {error}
         </span>
       )}

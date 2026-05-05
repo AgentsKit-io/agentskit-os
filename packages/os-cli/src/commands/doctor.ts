@@ -45,7 +45,12 @@ export type DoctorLiveOpts = {
   readonly llmAdapter?: DoctorLlmAdapter
   readonly sandboxSpawner?: DoctorSandboxSpawner
   /** Override timeouts. Defaults: llm=10_000ms, sandbox=5_000ms. */
-  readonly timeoutMs?: { readonly llm?: number; readonly sandbox?: number }
+  readonly timeoutMs:
+    | {
+        readonly llm: number | undefined
+        readonly sandbox: number | undefined
+      }
+    | undefined
 }
 
 export type DoctorReport = {
@@ -56,11 +61,11 @@ export type DoctorReport = {
 }
 
 export type DoctorCredOpts = {
-  readonly airGapped?: boolean
-  readonly envPrefix?: string
-  readonly providers?: readonly string[]
+  readonly airGapped: boolean | undefined
+  readonly envPrefix: string | undefined
+  readonly providers: readonly string[] | undefined
   /** Key names treated as present (from `--secrets-file`; values never read for checks). */
-  readonly extraPresentKeys?: ReadonlySet<string>
+  readonly extraPresentKeys: ReadonlySet<string> | undefined
 }
 
 const presentEnvKeys = (envPrefix: string, env: NodeJS.ProcessEnv): Set<string> => {
@@ -74,14 +79,18 @@ const presentEnvKeys = (envPrefix: string, env: NodeJS.ProcessEnv): Set<string> 
   return present
 }
 
-const runCredChecks = (opts: DoctorCredOpts = {}): readonly ProviderCheckResult[] => {
-  const present = presentEnvKeys(opts.envPrefix ?? 'AGENTSKITOS_', process.env)
-  for (const k of opts.extraPresentKeys ?? []) {
+const runCredChecks = (opts: DoctorCredOpts | undefined): readonly ProviderCheckResult[] => {
+  let envPrefix = 'AGENTSKITOS_'
+  if (opts && opts.envPrefix) envPrefix = opts.envPrefix
+  const present = presentEnvKeys(envPrefix, process.env)
+  const extraPresentKeys = opts ? opts.extraPresentKeys : undefined
+  for (const k of extraPresentKeys ?? []) {
     if (k) present.add(k)
   }
-  const ids = opts.providers
+  const ids = opts ? opts.providers : undefined
   const pool = ids ? BUILTIN_PROVIDERS.filter((p) => ids.includes(p.id)) : BUILTIN_PROVIDERS
-  const checkOpts = opts.airGapped !== undefined ? { airGapped: opts.airGapped } : {}
+  const airGapped = opts ? opts.airGapped : undefined
+  const checkOpts = airGapped !== undefined ? { airGapped } : {}
   return pool.map((p) => checkProviderKeys(p, present, checkOpts))
 }
 
@@ -175,15 +184,20 @@ const probeSandbox = async (
   }
 }
 
-const runLiveChecks = async (opts: DoctorLiveOpts): Promise<LiveChecks> => {
-  const llmTimeout = opts.timeoutMs?.llm ?? 10_000
-  const sandboxTimeout = opts.timeoutMs?.sandbox ?? 5_000
+const runLiveChecks = async (opts: DoctorLiveOpts | undefined): Promise<LiveChecks> => {
+  const timeouts = opts ? opts.timeoutMs : undefined
+  let llmTimeout = 10_000
+  let sandboxTimeout = 5_000
+  if (timeouts) {
+    if (timeouts.llm !== undefined) llmTimeout = timeouts.llm
+    if (timeouts.sandbox !== undefined) sandboxTimeout = timeouts.sandbox
+  }
 
   const [llmResult, sandboxResult] = await Promise.all([
-    opts.llmAdapter
+    opts && opts.llmAdapter
       ? probeLlm(opts.llmAdapter, llmTimeout)
       : Promise.resolve({ status: 'skipped' as const, detail: 'no LLM adapter injected' }),
-    opts.sandboxSpawner
+    opts && opts.sandboxSpawner
       ? probeSandbox(opts.sandboxSpawner, sandboxTimeout)
       : Promise.resolve({ status: 'skipped' as const, detail: 'no sandbox spawner injected' }),
   ])
@@ -209,14 +223,17 @@ export const runDoctor = async (
   ]
   const failed = checks.filter((c) => !c.ok).length
 
-  const credChecks = credOpts === false ? undefined : runCredChecks(credOpts ?? {})
+  let credChecks: readonly ProviderCheckResult[] | undefined
+  if (credOpts !== false) credChecks = runCredChecks(credOpts)
 
   if (!live) {
-    return { checks, failed, ...(credChecks ? { credChecks } : {}) }
+    if (credChecks) return { checks, failed, credChecks }
+    return { checks, failed }
   }
 
-  const liveChecks = await runLiveChecks(liveOpts ?? {})
-  return { checks, failed, liveChecks, ...(credChecks ? { credChecks } : {}) }
+  const liveChecks = await runLiveChecks(liveOpts)
+  if (credChecks) return { checks, failed, liveChecks, credChecks }
+  return { checks, failed, liveChecks }
 }
 
 const formatReport = (report: DoctorReport): CliExit => {
@@ -226,18 +243,27 @@ const formatReport = (report: DoctorReport): CliExit => {
 
   if (report.liveChecks) {
     const lc = report.liveChecks
-    const llmIcon = lc.llm === 'ok' ? '[ok]' : lc.llm === 'fail' ? '[FAIL]' : '[skip]'
-    const sbIcon = lc.sandbox === 'ok' ? '[ok]' : lc.sandbox === 'fail' ? '[FAIL]' : '[skip]'
+    let llmIcon = '[skip]'
+    if (lc.llm === 'ok') llmIcon = '[ok]'
+    else if (lc.llm === 'fail') llmIcon = '[FAIL]'
+    let sbIcon = '[skip]'
+    if (lc.sandbox === 'ok') sbIcon = '[ok]'
+    else if (lc.sandbox === 'fail') sbIcon = '[FAIL]'
     lines.push(`${llmIcon} ${'live:llm'.padEnd(20)} ${lc.llmDetail ?? lc.llm}`)
     lines.push(`${sbIcon} ${'live:sandbox'.padEnd(20)} ${lc.sandboxDetail ?? lc.sandbox}`)
   }
 
   if (report.credChecks) {
     for (const cr of report.credChecks) {
-      const icon = cr.status === 'ok' ? '[ok]' : cr.status === 'skipped' ? '[skip]' : '[FAIL]'
-      const detail = cr.status === 'missing'
-        ? `missing: ${cr.missingKeys.join(', ')}  hint: ${cr.remediation ?? ''}`
-        : cr.status
+      let icon = '[FAIL]'
+      if (cr.status === 'ok') icon = '[ok]'
+      else if (cr.status === 'skipped') icon = '[skip]'
+      let detail: string = cr.status
+      if (cr.status === 'missing') {
+        let hint = ''
+        if (cr.remediation !== undefined) hint = cr.remediation
+        detail = `missing: ${cr.missingKeys.join(', ')}  hint: ${hint}`
+      }
       lines.push(`${icon} ${`creds:${cr.providerId}`.padEnd(20)} ${detail}`)
     }
     lines.push(
@@ -245,18 +271,16 @@ const formatReport = (report: DoctorReport): CliExit => {
     )
   }
 
-  const liveFailed =
-    report.liveChecks
-      ? (report.liveChecks.llm === 'fail' ? 1 : 0) +
-        (report.liveChecks.sandbox === 'fail' ? 1 : 0)
-      : 0
-  const credFailed = report.credChecks?.filter((c) => c.status === 'missing').length ?? 0
+  let liveFailed = 0
+  if (report.liveChecks) {
+    if (report.liveChecks.llm === 'fail') liveFailed += 1
+    if (report.liveChecks.sandbox === 'fail') liveFailed += 1
+  }
+  const credFailed = report.credChecks ? report.credChecks.filter((c) => c.status === 'missing').length : 0
   const totalFailed = report.failed + liveFailed + credFailed
 
-  const summary =
-    totalFailed === 0
-      ? `\nall checks passed (cli ${CLI_VERSION})`
-      : `\n${totalFailed} check(s) failed`
+  let summary = `\n${totalFailed} check(s) failed`
+  if (totalFailed === 0) summary = `\nall checks passed (cli ${CLI_VERSION})`
 
   const out = `${lines.join('\n')}${summary}\n`
   return {
@@ -312,14 +336,14 @@ const buildDoctorProgram = (
           return
         }
       }
-      const credOpts: DoctorCredOpts | false = opts.creds
-        ? {
-            ...(opts.airGap === true ? { airGapped: true } : {}),
-            ...(providers.length > 0 ? { providers } : {}),
-            ...(opts.envPrefix ? { envPrefix: opts.envPrefix } : {}),
-            ...(extraKeys ? { extraPresentKeys: extraKeys } : {}),
-          }
-        : false
+      let credOpts: DoctorCredOpts | false = false
+      if (opts.creds) {
+        const airGapped = opts.airGap === true ? true : undefined
+        const providerIds = providers.length > 0 ? providers : undefined
+        const envPrefix = opts.envPrefix !== undefined ? opts.envPrefix : undefined
+        const extraPresentKeys = extraKeys !== undefined ? extraKeys : undefined
+        credOpts = { airGapped, envPrefix, providers: providerIds, extraPresentKeys }
+      }
       const report = await runDoctor(live, live ? liveOpts : undefined, credOpts)
       result.current = formatReport(report)
     })

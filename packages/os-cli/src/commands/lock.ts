@@ -115,7 +115,7 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     .argument('<configPath>', 'workspace config file path')
     .option('--check', 'compare existing lockfile against current config; exit non-zero on drift', false)
     .option('--out <path>', 'write lockfile to this path (default: <config-dir>/agentskit-os.lock)')
-    .action(async (configPath: string, opts: { check?: boolean; out?: string }) => {
+    .action(async (configPath: string, opts: { check: boolean | undefined; out: string | undefined }) => {
       const loaded = await loadConfigFile(io, configPath)
       if (!loaded.ok) {
         result.current = { code: loaded.code, stdout: '', stderr: loaded.message }
@@ -135,7 +135,9 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
 
       const next = await buildLockfile(loaded.absolutePath, parsed)
 
-      const outPath = resolve(io.cwd(), opts.out ?? join(dirname(loaded.absolutePath), 'agentskit-os.lock'))
+      let outName = join(dirname(loaded.absolutePath), 'agentskit-os.lock')
+      if (opts.out) outName = opts.out
+      const outPath = resolve(io.cwd(), outName)
 
       if (opts.check) {
         const exists = await io.exists(outPath)
@@ -203,6 +205,7 @@ export const lock: CliCommand = {
     if (parsed.code !== 0) {
       return parsed
     }
-    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
+    if (result.current) return result.current
+    return { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

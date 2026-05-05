@@ -8,27 +8,33 @@ import { parseFlowConfig } from '@agentskit/os-core'
 import type { Importer, ImportResult, ImportWarning } from '../types.js'
 
 type LgNode = {
-  id?: string
-  type?: string
-  data?: {
-    label?: string
-    runnable?: { name?: string; provider?: string; model?: string; system?: string }
-  }
+  id: string | undefined
+  type: string | undefined
+  data:
+    | {
+        label: string | undefined
+        runnable:
+          | { name: string | undefined; provider: string | undefined; model: string | undefined; system: string | undefined }
+          | undefined
+      }
+    | undefined
 }
 
 type LgEdge = {
-  source?: string
-  target?: string
-  conditional?: { predicate?: string; description?: string }
+  source: string | undefined
+  target: string | undefined
+  conditional:
+    | { predicate: string | undefined; description: string | undefined }
+    | undefined
 }
 
 type LgGraph = {
-  name?: string
-  description?: string
-  nodes?: readonly LgNode[]
-  edges?: readonly LgEdge[]
-  entry?: string
-  exit?: readonly string[]
+  name: string | undefined
+  description: string | undefined
+  nodes: readonly LgNode[] | undefined
+  edges: readonly LgEdge[] | undefined
+  entry: string | undefined
+  exit: readonly string[] | undefined
 }
 
 const slug = (s: string): string => {
@@ -36,8 +42,11 @@ const slug = (s: string): string => {
   return out.length > 0 ? out.slice(0, 64) : 'node'
 }
 
-const isLg = (v: unknown): v is LgGraph =>
-  !!v && typeof v === 'object' && 'nodes' in (v as object) && 'edges' in (v as object)
+const isLg = (v: unknown): v is LgGraph => {
+  if (!v || typeof v !== 'object') return false
+  const obj = v as Record<string, unknown>
+  return 'nodes' in obj && 'edges' in obj
+}
 
 export const langgraphImporter: Importer = {
   source: 'langgraph',
@@ -49,8 +58,9 @@ export const langgraphImporter: Importer = {
       throw new Error('os.import.langgraph_invalid')
     }
 
-    const wsId = slug(input.name ?? 'langgraph-import')
-    const flowId = slug(input.name ?? 'flow')
+    const name = input.name ?? 'langgraph-import'
+    const wsId = slug(name)
+    const flowId = slug(name)
 
     const flowNodes = (input.nodes ?? []).map((n, i) => {
       const id = slug(n.id ?? `node-${i}`)
@@ -88,10 +98,18 @@ export const langgraphImporter: Importer = {
           message: 'conditional routing flattened to plain edge',
         })
       }
-      return { from: slug(e.source ?? ''), to: slug(e.target ?? '') }
+      const fromRaw = e.source !== undefined ? e.source : ''
+      const toRaw = e.target !== undefined ? e.target : ''
+      return { from: slug(fromRaw), to: slug(toRaw) }
     })
 
-    const entry = slug(input.entry ?? flowNodes[0]?.id ?? 'node-0')
+    let entry = 'node-0'
+    if (input.entry) entry = input.entry
+    else {
+      const first = flowNodes[0]?.id
+      if (first) entry = first
+    }
+    entry = slug(entry)
     const flowWithoutAgents = parseFlowConfig({
       schemaVersion: 1,
       id: flowId,

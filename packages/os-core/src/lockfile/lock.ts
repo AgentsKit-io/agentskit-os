@@ -13,7 +13,7 @@ const Sha512 = z
   .regex(/^sha512:[0-9a-f]{128}$/, { message: 'must be sha512:<128-hex>' })
 const SemverPlain = z
   .string()
-  .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/, {
+  .regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+){0,1}(\+[0-9A-Za-z.-]+){0,1}$/, {
     message: 'must be a SemVer string',
   })
 

@@ -11,71 +11,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useArtifactViewer } from './use-artifact-viewer'
-import type { Artifact, ArtifactKind } from './artifact-types'
-import { CodeRenderer } from './renderers/code-renderer'
-import { JsonRenderer } from './renderers/json-renderer'
-import { CsvRenderer } from './renderers/csv-renderer'
-import { SvgRenderer } from './renderers/svg-renderer'
-import { MermaidRenderer } from './renderers/mermaid-renderer'
-import { HtmlRenderer } from './renderers/html-renderer'
-import { MarkdownRenderer } from './renderers/markdown-renderer'
-import { ImageRenderer } from './renderers/image-renderer'
-
-// ---------------------------------------------------------------------------
-// Kind label map (duplicated to avoid circular dep with artifact-card)
-// ---------------------------------------------------------------------------
-
-const KIND_LABELS: Record<ArtifactKind, string> = {
-  code: 'Code',
-  json: 'JSON',
-  yaml: 'YAML',
-  csv: 'CSV',
-  svg: 'SVG',
-  mermaid: 'Mermaid',
-  html: 'HTML',
-  markdown: 'Markdown',
-  image: 'Image',
-  unknown: 'Unknown',
-}
-
-// ---------------------------------------------------------------------------
-// Content renderer (same logic as ArtifactCard)
-// ---------------------------------------------------------------------------
-
-function ArtifactContent({
-  artifact,
-  wordWrap,
-}: {
-  artifact: Artifact
-  wordWrap: boolean
-}): React.JSX.Element {
-  switch (artifact.kind) {
-    case 'code':
-    case 'yaml':
-    case 'unknown':
-      return (
-        <div className={wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'}>
-          <CodeRenderer content={artifact.content} />
-        </div>
-      )
-    case 'json':
-      return <JsonRenderer content={artifact.content} />
-    case 'csv':
-      return <CsvRenderer content={artifact.content} />
-    case 'svg':
-      return <SvgRenderer content={artifact.content} />
-    case 'mermaid':
-      return <MermaidRenderer content={artifact.content} />
-    case 'html':
-      return <HtmlRenderer content={artifact.content} />
-    case 'markdown':
-      return <MarkdownRenderer content={artifact.content} />
-    case 'image':
-      return <ImageRenderer content={artifact.content} name={artifact.name} />
-    default:
-      return <CodeRenderer content={artifact.content} />
-  }
-}
+import type { Artifact } from './artifact-types'
+import { ARTIFACT_KIND_LABELS } from './artifact-labels'
+import { ArtifactContent } from './artifact-content'
 
 // ---------------------------------------------------------------------------
 // ArtifactViewer modal
@@ -127,7 +65,7 @@ function ArtifactViewerModal({ artifact, onClose }: ArtifactViewerModalProps): R
     URL.revokeObjectURL(url)
   }, [artifact])
 
-  const title = artifact.name ?? `${KIND_LABELS[artifact.kind]} artifact`
+  const title = artifact.name ?? `${ARTIFACT_KIND_LABELS[artifact.kind]} artifact`
 
   return (
     /* Backdrop */
@@ -153,7 +91,7 @@ function ArtifactViewerModal({ artifact, onClose }: ArtifactViewerModalProps): R
           <div className="flex items-center gap-2 min-w-0">
             <span className="truncate text-sm font-semibold text-[var(--ag-ink)]">{title}</span>
             <span className="text-[10px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-              {KIND_LABELS[artifact.kind]}
+              {ARTIFACT_KIND_LABELS[artifact.kind]}
             </span>
           </div>
           <div className="flex items-center gap-1 shrink-0">

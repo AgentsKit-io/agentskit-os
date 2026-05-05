@@ -13,17 +13,20 @@ type N8nNode = {
   position?: readonly [number, number]
 }
 
-type N8nConnections = {
-  [fromNodeName: string]: {
-    main?: ReadonlyArray<ReadonlyArray<{ node: string; type?: string; index?: number }>>
+type N8nConnections = Record<
+  string,
+  {
+    main:
+      | ReadonlyArray<ReadonlyArray<{ node: string; type: string | undefined; index: number | undefined }>>
+      | undefined
   }
-}
+>
 
 type N8nWorkflow = {
-  name?: string
-  id?: string
-  nodes?: readonly N8nNode[]
-  connections?: N8nConnections
+  name: string | undefined
+  id: string | undefined
+  nodes: readonly N8nNode[] | undefined
+  connections: N8nConnections | undefined
 }
 
 const slugify = (input: string): string => {
@@ -61,6 +64,99 @@ const ensureUnique = (id: string, taken: Set<string>): string => {
   return candidate
 }
 
+const modelNameForAgent = (params: Record<string, unknown>): string =>
+  typeof params['model'] === 'string' ? params['model'] : 'gpt-4o'
+
+const toolNameFor = (type: string): string => `n8n.${type.replace(/^.*?\.([^.]+)$/, '$1')}`.slice(0, 128)
+
+const promptForHumanNode = (n: N8nNode): string => {
+  if (typeof n.parameters?.['message'] === 'string') return n.parameters['message'] as string
+  return `n8n trigger ${n.name} (review)`
+}
+
+const isKnownToolNamespace = (type: string): boolean => type.startsWith('n8n-nodes-base') || type.includes('langchain')
+
+const buildN8nNodes = (args: {
+  nodes: readonly N8nNode[]
+  warnings: ImportWarning[]
+}): {
+  agents: ReturnType<typeof parseAgentConfig>[]
+  flowNodes: Array<Record<string, unknown>>
+  nameToId: Map<string, string>
+} => {
+  const { nodes, warnings } = args
+  const takenNodeIds = new Set<string>()
+  const takenAgentIds = new Set<string>()
+  const nameToId = new Map<string, string>()
+  const agents: ReturnType<typeof parseAgentConfig>[] = []
+  const flowNodes: Array<Record<string, unknown>> = []
+
+  for (const n of nodes) {
+    const baseId = ensureUnique(slugify(n.name), takenNodeIds)
+    nameToId.set(n.name, baseId)
+
+    if (KNOWN_AGENT_TYPES.has(n.type)) {
+      const agentId = ensureUnique(slugify(`${n.name}-agent`), takenAgentIds)
+      try {
+        const params = n.parameters ?? {}
+        agents.push(parseAgentConfig({ id: agentId, name: n.name, model: { provider: 'openai', model: modelNameForAgent(params) } }))
+      } catch (err) {
+        warnings.push({
+          code: 'lossy_conversion',
+          path: ['nodes', n.name, 'agent'],
+          message: `agent parse failed: ${(err as Error).message}`,
+        })
+      }
+      flowNodes.push({ id: baseId, kind: 'agent', agent: agentId })
+      continue
+    }
+
+    if (KNOWN_HUMAN_TYPES.has(n.type)) {
+      flowNodes.push({ id: baseId, kind: 'human', prompt: promptForHumanNode(n) })
+      continue
+    }
+
+    flowNodes.push({ id: baseId, kind: 'tool', tool: toolNameFor(n.type) })
+    if (!isKnownToolNamespace(n.type)) {
+      warnings.push({
+        code: 'unknown_node_type',
+        path: ['nodes', n.name],
+        message: `unfamiliar n8n node type "${n.type}" — emitted as generic tool node`,
+      })
+    }
+  }
+
+  return { agents, flowNodes, nameToId }
+}
+
+const pickN8nEntryId = (args: { nodes: readonly N8nNode[]; flowNodes: Array<Record<string, unknown>>; nameToId: Map<string, string> }): string => {
+  const { nodes, flowNodes, nameToId } = args
+  const firstName = nodes[0]?.name
+  let entryId = 'entry'
+  if (firstName) {
+    const mapped = nameToId.get(firstName)
+    if (mapped) entryId = mapped
+  }
+  const firstNodeId = flowNodes[0]?.id as string | undefined
+  if (entryId === 'entry' && firstNodeId) entryId = firstNodeId
+  return entryId
+}
+
+const buildN8nEdges = (connections: N8nWorkflow['connections'] | undefined, nameToId: Map<string, string>): Array<{ from: string; to: string }> => {
+  const edges: Array<{ from: string; to: string }> = []
+  for (const [fromName, conn] of Object.entries(connections ?? {})) {
+    const fromId = nameToId.get(fromName)
+    if (!fromId) continue
+    for (const branch of conn.main ?? []) {
+      for (const c of branch) {
+        const toId = nameToId.get(c.node)
+        if (toId) edges.push({ from: fromId, to: toId })
+      }
+    }
+  }
+  return edges
+}
+
 export const n8nImporter: Importer = {
   source: 'n8n',
   displayName: 'n8n',
@@ -77,100 +173,22 @@ export const n8nImporter: Importer = {
     const wfName = input.name ?? 'imported-workflow'
     const workspaceId = slugify(input.id ?? wfName)
     const flowId = slugify(wfName)
-
-    const takenNodeIds = new Set<string>()
-    const takenAgentIds = new Set<string>()
-    const nameToId = new Map<string, string>()
-    const agents: ReturnType<typeof parseAgentConfig>[] = []
-    const flowNodes: Array<Record<string, unknown>> = []
-
-    for (const n of input.nodes ?? []) {
-      const baseId = ensureUnique(slugify(n.name), takenNodeIds)
-      nameToId.set(n.name, baseId)
-
-      if (KNOWN_AGENT_TYPES.has(n.type)) {
-        const agentId = ensureUnique(slugify(`${n.name}-agent`), takenAgentIds)
-        try {
-          const params = n.parameters ?? {}
-          agents.push(
-            parseAgentConfig({
-              id: agentId,
-              name: n.name,
-              model: {
-                provider: typeof params['model'] === 'object' ? 'openai' : 'openai',
-                model:
-                  typeof params['model'] === 'string'
-                    ? params['model']
-                    : 'gpt-4o',
-              },
-            }),
-          )
-        } catch (err) {
-          warnings.push({
-            code: 'lossy_conversion',
-            path: ['nodes', n.name, 'agent'],
-            message: `agent parse failed: ${(err as Error).message}`,
-          })
-        }
-        flowNodes.push({ id: baseId, kind: 'agent', agent: agentId })
-        continue
-      }
-
-      if (KNOWN_HUMAN_TYPES.has(n.type)) {
-        flowNodes.push({
-          id: baseId,
-          kind: 'human',
-          prompt: typeof n.parameters?.['message'] === 'string'
-            ? (n.parameters['message'] as string)
-            : `n8n trigger ${n.name} (review)`,
-        })
-        continue
-      }
-
-      // Default: treat as tool, encode original type as tool name suffix.
-      flowNodes.push({
-        id: baseId,
-        kind: 'tool',
-        tool: `n8n.${n.type.replace(/^.*?\.([^.]+)$/, '$1')}`.slice(0, 128),
-      })
-
-      if (!n.type.startsWith('n8n-nodes-base') && !n.type.includes('langchain')) {
-        warnings.push({
-          code: 'unknown_node_type',
-          path: ['nodes', n.name],
-          message: `unfamiliar n8n node type "${n.type}" — emitted as generic tool node`,
-        })
-      }
-    }
-
-    // First node = entry. n8n typically lists trigger first.
-    const firstName = (input.nodes ?? [])[0]?.name
-    const entryId = (firstName && nameToId.get(firstName)) ?? (flowNodes[0]?.id as string | undefined) ?? 'entry'
-
-    const edges: Array<{ from: string; to: string }> = []
-    for (const [fromName, conn] of Object.entries(input.connections ?? {})) {
-      const fromId = nameToId.get(fromName)
-      if (!fromId) continue
-      for (const branch of conn.main ?? []) {
-        for (const c of branch) {
-          const toId = nameToId.get(c.node)
-          if (toId) edges.push({ from: fromId, to: toId })
-        }
-      }
-    }
+    const built = buildN8nNodes({ nodes: input.nodes ?? [], warnings })
+    const entryId = pickN8nEntryId({ nodes: input.nodes ?? [], flowNodes: built.flowNodes, nameToId: built.nameToId })
+    const edges = buildN8nEdges(input.connections, built.nameToId)
 
     const flow = parseFlowConfig({
       id: flowId,
       name: wfName,
       entry: entryId,
-      nodes: flowNodes as never,
+      nodes: built.flowNodes as never,
       edges,
     })
 
     return {
       source: 'n8n',
       workspace: { id: workspaceId, name: wfName },
-      agents,
+      agents: built.agents,
       flows: [flow],
       warnings,
     } satisfies ImportResult

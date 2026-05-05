@@ -57,7 +57,7 @@ vi.mock('@agentskit/os-ui', () => {
       <div className={className} role={role} aria-label={ariaLabel} data-testid={(rest as { 'data-testid'?: string })['data-testid']}>{children}</div>
     ),
     Kbd: ({ children }: { children: React.ReactNode }) => <kbd>{children}</kbd>,
-    Button: ({ children, onClick, disabled, className, size: _size, variant: _variant, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: string; variant?: string }) => (
+    Button: ({ children, onClick, disabled, className, size: _size, variant: _variant, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement> & { size: string | undefined; variant: string | undefined }) => (
       <button onClick={onClick} disabled={disabled} className={className} {...rest}>{children}</button>
     ),
     Badge: ({ children, variant }: { children: React.ReactNode; variant?: string }) => <span data-variant={variant}>{children}</span>,
@@ -71,7 +71,7 @@ vi.mock('@agentskit/os-ui', () => {
     LiveRegion: ({ message }: { message: string }) => (
       <div role="status" aria-live="polite" style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }}>{message}</div>
     ),
-    SkipToContent: ({ targetId = 'main-content', label = 'Skip to main content' }: { targetId?: string; label?: string }) => (
+    SkipToContent: ({ targetId = 'main-content', label = 'Skip to main content' }: { targetId: string | undefined; label: string | undefined }) => (
       <a href={`#${targetId}`} data-testid="skip-to-content">{label}</a>
     ),
     applyThemeToDocument: () => undefined,

@@ -15,12 +15,12 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { sidecarRequest } from '../lib/sidecar'
+import { useListWorkspaces } from './use-list-workspaces'
 import {
   getCurrentWorkspaceId,
   setCurrentWorkspaceId,
 } from './use-workspaces-store'
-import type { Workspace, WorkspaceStatus } from './types'
+import type { Workspace } from './types'
 
 // ---------------------------------------------------------------------------
 // Fixture data fallback
@@ -67,13 +67,6 @@ export type WorkspacesProviderProps = {
   initialWorkspaces?: Workspace[]
 }
 
-type SidecarWorkspace = {
-  id: string
-  name: string
-  status: WorkspaceStatus
-  description?: string
-}
-
 export function WorkspacesProvider({
   children,
   initialWorkspaces,
@@ -81,6 +74,7 @@ export function WorkspacesProvider({
   const [all, setAll] = useState<Workspace[]>(initialWorkspaces ?? [])
   const [currentId, setCurrentId] = useState<string | null>(() => getCurrentWorkspaceId())
   const [loadStatus, setLoadStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const listWorkspaces = useListWorkspaces()
 
   // Fetch workspace list from sidecar on mount
   useEffect(() => {
@@ -90,20 +84,16 @@ export function WorkspacesProvider({
       return
     }
 
-    sidecarRequest<SidecarWorkspace[]>('workspaces.list')
-      .then((result) => {
-        // If result is empty (sidecar unavailable stub returns {}), use mock
-        const workspaces =
-          Array.isArray(result) && result.length > 0 ? result : WORKSPACES_FIXTURE
-        setAll(workspaces)
+    listWorkspaces()
+      .then((workspaces) => {
+        setAll(workspaces.length > 0 ? workspaces : WORKSPACES_FIXTURE)
         setLoadStatus('ready')
       })
       .catch(() => {
-        // Sidecar unavailable — use mock data
         setAll(WORKSPACES_FIXTURE)
         setLoadStatus('ready')
       })
-  }, [initialWorkspaces])
+  }, [initialWorkspaces, listWorkspaces])
 
   // When all changes, ensure currentId points to a valid workspace
   useEffect(() => {

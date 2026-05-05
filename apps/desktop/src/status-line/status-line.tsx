@@ -10,35 +10,13 @@
  * z-index, and uses the design-token palette for colours.
  */
 
-import { useEffect, useState } from 'react'
 import { useTheme } from '@agentskit/os-ui'
+import { useNow } from './use-now'
 import { useStatusLineConfig } from './status-line-provider'
 import { getSegmentById } from './status-segments'
 import { useNotifications } from '../notifications/notifications-provider'
 import { useWorkspaces } from '../workspaces/workspaces-provider'
 import type { StatusContext } from './types'
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function useNow(): Date {
-  const [now, setNow] = useState(() => new Date())
-
-  useEffect(() => {
-    // Align to the next whole minute, then tick every 60 s.
-    const msUntilNextMinute = (60 - new Date().getSeconds()) * 1000
-    const initial = setTimeout(() => {
-      setNow(new Date())
-      const interval = setInterval(() => setNow(new Date()), 60_000)
-      return () => clearInterval(interval)
-    }, msUntilNextMinute)
-
-    return () => clearTimeout(initial)
-  }, [])
-
-  return now
-}
 
 // ---------------------------------------------------------------------------
 // Component

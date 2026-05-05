@@ -6,7 +6,7 @@
  * overlay (D-6), and the theme switcher with persisted choice (D-9 / D-4).
  */
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import {
   Activity,
@@ -413,6 +413,27 @@ function PreviewSurface({ screen }: { readonly screen: ActiveScreen }) {
 }
 
 /** Inner shell that reads focus state and conditionally hides sidebar/banner. */
+const SCREEN_RENDERERS: Partial<Record<ActiveScreen, () => React.ReactNode>> = {
+  dashboard: () => <Dashboard />,
+  flows: () => <FlowsScreen />,
+  runs: () => <RunsScreen />,
+  traces: () => <TracesScreen />,
+  agents: () => <AgentsScreen />,
+  hitl: () => <HitlScreen />,
+  triggers: () => <TriggersScreen />,
+  evals: () => <EvalsScreen />,
+  benchmark: () => <BenchmarkScreen />,
+  cost: () => <CostScreen />,
+  security: () => <SecurityScreen />,
+  examples: () => <ExampleScreen />,
+}
+
+function renderScreen(screen: ActiveScreen): React.ReactNode {
+  const renderer = SCREEN_RENDERERS[screen]
+  if (renderer) return renderer()
+  return <PreviewSurface screen={screen} />
+}
+
 function AppShell({
   activeScreen,
   setActiveScreen,
@@ -438,21 +459,8 @@ function AppShell({
     [activeScreen, setActiveScreen],
   )
 
-  function renderActiveScreen(): React.ReactNode {
-    if (activeScreen === 'dashboard') return <Dashboard onNavigate={navigateWithTransition} />
-    if (activeScreen === 'flows') return <FlowsScreen />
-    if (activeScreen === 'runs') return <RunsScreen />
-    if (activeScreen === 'traces') return <TracesScreen />
-    if (activeScreen === 'agents') return <AgentsScreen />
-    if (activeScreen === 'hitl') return <HitlScreen />
-    if (activeScreen === 'triggers') return <TriggersScreen />
-    if (activeScreen === 'evals') return <EvalsScreen />
-    if (activeScreen === 'benchmark') return <BenchmarkScreen />
-    if (activeScreen === 'cost') return <CostScreen />
-    if (activeScreen === 'security') return <SecurityScreen />
-    if (activeScreen === 'examples') return <ExampleScreen />
-    return <PreviewSurface screen={activeScreen} />
-  }
+  const activeContent = useMemo(() => renderScreen(activeScreen), [activeScreen])
+  const secondaryContent = useMemo(() => renderScreen(secondaryScreen), [secondaryScreen])
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
@@ -478,7 +486,7 @@ function AppShell({
         >
           {!split.open ? (
             <div key={activeScreen} className="app-screen flex min-h-0 flex-1 flex-col overflow-auto">
-              {renderActiveScreen()}
+              {activeContent}
             </div>
           ) : (
             <div className="flex min-h-0 flex-1">
@@ -493,7 +501,7 @@ function AppShell({
                     Close split
                   </button>
                 </div>
-                <div className="app-screen flex min-h-0 flex-1 flex-col">{renderActiveScreen()}</div>
+                <div className="app-screen flex min-h-0 flex-1 flex-col">{activeContent}</div>
               </div>
               <div aria-hidden className="w-px bg-[var(--ag-line)]" />
               <div className="flex min-w-0 flex-1 flex-col overflow-auto bg-[var(--ag-surface)]/50">
@@ -517,22 +525,7 @@ function AppShell({
                   </div>
                 </div>
                 <div key={secondaryScreen} className="app-screen flex min-h-0 flex-1 flex-col">
-                  {/* Reuse the same renderer by temporarily switching on value */}
-                  {(() => {
-                    const screen = secondaryScreen
-                    if (screen === 'dashboard') return <Dashboard />
-                    if (screen === 'flows') return <FlowsScreen />
-                    if (screen === 'runs') return <RunsScreen />
-                    if (screen === 'traces') return <TracesScreen />
-                    if (screen === 'agents') return <AgentsScreen />
-                    if (screen === 'hitl') return <HitlScreen />
-                    if (screen === 'triggers') return <TriggersScreen />
-                    if (screen === 'evals') return <EvalsScreen />
-                    if (screen === 'benchmark') return <BenchmarkScreen />
-                    if (screen === 'cost') return <CostScreen />
-                    if (screen === 'security') return <SecurityScreen />
-                    return <PreviewSurface screen={screen} />
-                  })()}
+                  {secondaryContent}
                 </div>
               </div>
             </div>

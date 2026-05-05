@@ -46,21 +46,26 @@ export type CostBreakdown = {
 }
 
 export const computeCost = (usage: Usage, pricing: ModelPricing): CostBreakdown => {
-  const inputTokens = usage.inputTokens ?? 0
-  const cached = usage.cachedInputTokens ?? 0
+  const inputTokens = usage.inputTokens !== undefined ? usage.inputTokens : 0
+  const cached = usage.cachedInputTokens !== undefined ? usage.cachedInputTokens : 0
   const billableInput = Math.max(0, inputTokens - cached)
   const input = (billableInput / 1_000_000) * pricing.inputPerMillion
-  const output = ((usage.outputTokens ?? 0) / 1_000_000) * pricing.outputPerMillion
-  const cachedInput =
-    pricing.cachedInputPerMillion !== undefined
-      ? (cached / 1_000_000) * pricing.cachedInputPerMillion
-      : 0
-  const images =
-    pricing.imagesPerCall !== undefined ? (usage.images ?? 0) * pricing.imagesPerCall : 0
-  const audio =
-    pricing.audioPerSecond !== undefined
-      ? (usage.audioSeconds ?? 0) * pricing.audioPerSecond
-      : 0
+  const outputTokens = usage.outputTokens !== undefined ? usage.outputTokens : 0
+  const output = (outputTokens / 1_000_000) * pricing.outputPerMillion
+  let cachedInput = 0
+  if (pricing.cachedInputPerMillion !== undefined) {
+    cachedInput = (cached / 1_000_000) * pricing.cachedInputPerMillion
+  }
+  let images = 0
+  if (pricing.imagesPerCall !== undefined) {
+    const count = usage.images !== undefined ? usage.images : 0
+    images = count * pricing.imagesPerCall
+  }
+  let audio = 0
+  if (pricing.audioPerSecond !== undefined) {
+    const seconds = usage.audioSeconds !== undefined ? usage.audioSeconds : 0
+    audio = seconds * pricing.audioPerSecond
+  }
   const total = input + output + cachedInput + images + audio
   return { currency: pricing.currency, input, output, cachedInput, images, audio, total }
 }

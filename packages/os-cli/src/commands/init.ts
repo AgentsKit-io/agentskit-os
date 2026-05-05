@@ -39,11 +39,15 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     .option('--id <slug>', 'workspace id (default: slugified directory name)')
     .option('--name <name>', 'workspace display name (default: directory basename)')
     .option('--force', 'overwrite existing agentskit-os.config.yaml', false)
-    .action(async (dirArg: string, opts: { id?: string; name?: string; force?: boolean }) => {
+    .action(async (dirArg: string, opts: { id: string | undefined; name: string | undefined; force: boolean | undefined }) => {
       const baseDir = resolve(io.cwd(), dirArg || '.')
       const baseName = basename(baseDir)
-      const id = slugify(opts.id ?? baseName)
-      const name = opts.name ?? (baseName.length > 0 ? baseName : 'Workspace')
+      let idInput = baseName
+      if (opts.id) idInput = opts.id
+      const id = slugify(idInput)
+      let name = 'Workspace'
+      if (baseName.length > 0) name = baseName
+      if (opts.name) name = opts.name
 
       const configPath = join(baseDir, 'agentskit-os.config.yaml')
       const dataDir = join(baseDir, '.agentskitos')
@@ -99,6 +103,7 @@ export const init: CliCommand = {
     if (parsed.code !== 0) {
       return parsed
     }
-    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
+    if (result.current) return result.current
+    return { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

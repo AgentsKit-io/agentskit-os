@@ -46,6 +46,19 @@ type Args = {
   stdin?: boolean
 }
 
+export const providerCheckTag = (status: ProviderCheckResult['status']): 'ok' | 'skipped' | 'MISSING' => {
+  if (status === 'ok') return 'ok'
+  if (status === 'skipped') return 'skipped'
+  return 'MISSING'
+}
+
+export const providerCheckMissingDetail = (r: ProviderCheckResult): string => {
+  if (r.status !== 'missing') return ''
+  let hint = ''
+  if (r.remediation !== undefined) hint = r.remediation
+  return `  missing: ${r.missingKeys.join(', ')}  hint: ${hint}`
+}
+
 const toArgs = (sub: Args['sub'], opts: CredsCliOpts, projectDir: string, setKey?: string): Args => ({
   sub,
   airGap: opts.airGap === true,
@@ -106,8 +119,10 @@ const renderListText = (providers: readonly ProviderRequirement[]): string => {
   if (providers.length === 0) return '(no providers match the filter)\n'
   const lines: string[] = []
   for (const p of providers) {
-    const required = p.requiredKeys.length > 0 ? p.requiredKeys.join(', ') : '(none)'
-    const optional = p.optionalKeys.length > 0 ? `  optional: ${p.optionalKeys.join(', ')}` : ''
+    let required = '(none)'
+    if (p.requiredKeys.length > 0) required = p.requiredKeys.join(', ')
+    let optional = ''
+    if (p.optionalKeys.length > 0) optional = `  optional: ${p.optionalKeys.join(', ')}`
     lines.push(`${p.id.padEnd(14)} ${p.kind.padEnd(11)} cloud=${p.cloud}  required: ${required}${optional}`)
   }
   return `${lines.join('\n')}\n`
@@ -116,9 +131,8 @@ const renderListText = (providers: readonly ProviderRequirement[]): string => {
 const renderCheckText = (results: readonly ProviderCheckResult[]): string => {
   const lines: string[] = []
   for (const r of results) {
-    const tag = r.status === 'ok' ? 'ok' : r.status === 'skipped' ? 'skipped' : 'MISSING'
-    const detail =
-      r.status === 'missing' ? `  missing: ${r.missingKeys.join(', ')}  hint: ${r.remediation ?? ''}` : ''
+    const tag = providerCheckTag(r.status)
+    const detail = providerCheckMissingDetail(r)
     lines.push(`[${tag}] ${r.providerId}${detail}`)
   }
   return `${lines.join('\n')}\n`
@@ -211,8 +225,10 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     )
     .option('--stdin', 'read secret value from stdin (recommended; avoids shell history)', false)
     .option('--project <dir>', 'workspace root (default: current directory)')
-    .action(async (key: string, opts: { stdin?: boolean; project?: string }) => {
-      const projectDir = resolve(io.cwd(), opts.project ?? '.')
+    .action(async (key: string, opts: { stdin: boolean | undefined; project: string | undefined }) => {
+      let project = '.'
+      if (opts.project) project = opts.project
+      const projectDir = resolve(io.cwd(), project)
       if (!isCredentialEnvKey(key)) {
         result.current = {
           code: 2,

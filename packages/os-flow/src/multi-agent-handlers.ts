@@ -88,6 +88,91 @@ export type CompareHandlerOptions = {
 
 type IndexedResult = { idx: number; agentId: string; result: AgentRunResult }
 
+const collectFulfilled = (args: {
+  settled: PromiseSettledResult<AgentRunResult>[]
+  agents: readonly string[]
+}): IndexedResult[] => {
+  const { settled, agents } = args
+  const results: IndexedResult[] = []
+  for (let i = 0; i < settled.length; i++) {
+    const s = settled[i]!
+    if (s.status === 'fulfilled') results.push({ idx: i, agentId: agents[i]!, result: s.value })
+  }
+  return results
+}
+
+const failAllAgents = (): NodeOutcome => {
+  return {
+    kind: 'failed',
+    error: { code: 'compare.all_agents_failed', message: 'all agents returned errors' },
+  }
+}
+
+const combineAll = (args: {
+  results: IndexedResult[]
+  combine: 'concat' | 'merge'
+}): unknown => {
+  const { results, combine } = args
+  const outputs = results.map((r) => r.result.output)
+  if (combine === 'concat') {
+    return Array.isArray(outputs[0]) ? (outputs as unknown[][]).flat() : outputs
+  }
+  return Object.assign({}, ...outputs.map((o) => (typeof o === 'object' && o !== null ? o : {})))
+}
+
+const pickFirstByMetric = (args: {
+  results: IndexedResult[]
+  metric: 'fastest' | 'cheapest'
+}): unknown => {
+  const { results, metric } = args
+  if (metric === 'fastest') {
+    const winner = results.reduce((best, cur) => {
+      const bLat = best.result.latencyMs ?? Infinity
+      const cLat = cur.result.latencyMs ?? Infinity
+      return cLat < bLat ? cur : best
+    })
+    return winner.result.output
+  }
+  const winner = results.reduce((best, cur) => {
+    const bCost = best.result.usd ?? Infinity
+    const cCost = cur.result.usd ?? Infinity
+    return cCost < bCost ? cur : best
+  })
+  return winner.result.output
+}
+
+const failMissingEvaluator = (): NodeOutcome => {
+  return {
+    kind: 'failed',
+    error: {
+      code: 'compare.evaluator_not_provided',
+      message:
+        'selection.mode=eval requires an evaluator function injected via createCompareHandler options',
+    },
+  }
+}
+
+const failMissingJudger = (): NodeOutcome => {
+  return {
+    kind: 'failed',
+    error: {
+      code: 'compare.judger_not_provided',
+      message:
+        'selection.mode=judge requires a judger function injected via createCompareHandler options',
+    },
+  }
+}
+
+const failInvalidWinnerIdx = (mode: 'eval' | 'judge', winnerIdx: number): NodeOutcome => {
+  return {
+    kind: 'failed',
+    error: {
+      code: mode === 'eval' ? 'compare.eval_invalid_index' : 'compare.judge_invalid_index',
+      message: `${mode} returned index ${winnerIdx} out of range`,
+    },
+  }
+}
+
 export const createCompareHandler = (opts: CompareHandlerOptions) => {
   return async (
     node: CompareNode,
@@ -101,19 +186,10 @@ export const createCompareHandler = (opts: CompareHandlerOptions) => {
       node.agents.map((agentId) => opts.runAgent(agentId, nodeInput, ctx)),
     )
 
-    const results: IndexedResult[] = []
-    for (let i = 0; i < settled.length; i++) {
-      const s = settled[i]!
-      if (s.status === 'fulfilled') {
-        results.push({ idx: i, agentId: node.agents[i]!, result: s.value })
-      }
-    }
+    const results = collectFulfilled({ settled, agents: node.agents })
 
     if (results.length === 0) {
-      return {
-        kind: 'failed',
-        error: { code: 'compare.all_agents_failed', message: 'all agents returned errors' },
-      }
+      return failAllAgents()
     }
 
     const sel = node.selection
@@ -124,74 +200,23 @@ export const createCompareHandler = (opts: CompareHandlerOptions) => {
         return { kind: 'paused', reason: 'hitl' }
 
       case 'all': {
-        const outputs = results.map((r) => r.result.output)
-        const combined =
-          sel.combine === 'concat'
-            ? Array.isArray(outputs[0])
-              ? (outputs as unknown[][]).flat()
-              : outputs
-            : Object.assign(
-                {},
-                ...outputs.map((o) => (typeof o === 'object' && o !== null ? o : {})),
-              )
-        return { kind: 'ok', value: combined }
+        return { kind: 'ok', value: combineAll({ results, combine: sel.combine }) }
       }
 
       case 'first': {
-        if (sel.metric === 'fastest') {
-          const winner = results.reduce((best, cur) => {
-            const bLat = best.result.latencyMs ?? Infinity
-            const cLat = cur.result.latencyMs ?? Infinity
-            return cLat < bLat ? cur : best
-          })
-          return { kind: 'ok', value: winner.result.output }
-        } else {
-          // cheapest
-          const winner = results.reduce((best, cur) => {
-            const bCost = best.result.usd ?? Infinity
-            const cCost = cur.result.usd ?? Infinity
-            return cCost < bCost ? cur : best
-          })
-          return { kind: 'ok', value: winner.result.output }
-        }
+        return { kind: 'ok', value: pickFirstByMetric({ results, metric: sel.metric }) }
       }
 
       case 'eval': {
-        if (!opts.evaluator) {
-          return {
-            kind: 'failed',
-            error: {
-              code: 'compare.evaluator_not_provided',
-              message:
-                'selection.mode=eval requires an evaluator function injected via createCompareHandler options',
-            },
-          }
-        }
+        if (!opts.evaluator) return failMissingEvaluator()
         const winnerIdx = await opts.evaluator(results.map((r) => r.result), sel.evalRef, ctx)
         const winner = results[winnerIdx]
-        if (!winner) {
-          return {
-            kind: 'failed',
-            error: {
-              code: 'compare.eval_invalid_index',
-              message: `evaluator returned index ${winnerIdx} out of range`,
-            },
-          }
-        }
+        if (!winner) return failInvalidWinnerIdx('eval', winnerIdx)
         return { kind: 'ok', value: winner.result.output }
       }
 
       case 'judge': {
-        if (!opts.judger) {
-          return {
-            kind: 'failed',
-            error: {
-              code: 'compare.judger_not_provided',
-              message:
-                'selection.mode=judge requires a judger function injected via createCompareHandler options',
-            },
-          }
-        }
+        if (!opts.judger) return failMissingJudger()
         const winnerIdx = await opts.judger(
           results.map((r) => r.result),
           results.map((r) => r.agentId),
@@ -200,15 +225,7 @@ export const createCompareHandler = (opts: CompareHandlerOptions) => {
           ctx,
         )
         const winner = results[winnerIdx]
-        if (!winner) {
-          return {
-            kind: 'failed',
-            error: {
-              code: 'compare.judge_invalid_index',
-              message: `judger returned index ${winnerIdx} out of range`,
-            },
-          }
-        }
+        if (!winner) return failInvalidWinnerIdx('judge', winnerIdx)
         return { kind: 'ok', value: winner.result.output }
       }
 
@@ -241,6 +258,54 @@ export type VoteHandlerOptions = {
   judger?: VoteJudgeFn
 }
 
+type VoteRecord = { agentId: string; output: unknown }
+
+const collectVotes = (args: {
+  settled: PromiseSettledResult<AgentRunResult>[]
+  agents: readonly string[]
+}): VoteRecord[] => {
+  const { settled, agents } = args
+  const votes: VoteRecord[] = []
+  for (let i = 0; i < settled.length; i++) {
+    const s = settled[i]!
+    if (s.status === 'fulfilled') votes.push({ agentId: agents[i]!, output: s.value.output })
+  }
+  return votes
+}
+
+const failAllVotes = (): NodeOutcome => {
+  return { kind: 'failed', error: { code: 'vote.all_agents_failed', message: 'all agents failed' } }
+}
+
+const resolveWinnerKey = (rawKey: string): NodeOutcome => {
+  return { kind: 'ok', value: JSON.parse(rawKey) }
+}
+
+const handleTieBreak = async (args: {
+  node: VoteNode
+  outputs: unknown[]
+  agentIds: string[]
+  ctx: RunContext
+  judger: VoteJudgeFn | undefined
+}): Promise<NodeOutcome> => {
+  const { node, outputs, agentIds, ctx, judger } = args
+  switch (node.onTie) {
+    case 'human':
+      return { kind: 'paused', reason: 'hitl' }
+    case 'first':
+      return { kind: 'ok', value: outputs[0] }
+    case 'judge': {
+      if (!judger || !node.judgeAgent) return { kind: 'paused', reason: 'hitl' }
+      const judged = await judger(outputs, agentIds, node.judgeAgent, ctx)
+      return { kind: 'ok', value: judged }
+    }
+    default: {
+      const _exhaustive: never = node.onTie
+      return { kind: 'paused', reason: 'hitl' }
+    }
+  }
+}
+
 const tally = (
   outputs: unknown[],
   agentIds: string[],
@@ -249,7 +314,11 @@ const tally = (
   const scores = new Map<string, number>()
   for (let i = 0; i < outputs.length; i++) {
     const key = JSON.stringify(outputs[i])
-    const w = weights ? (weights[agentIds[i]!] ?? 1) : 1
+    let w = 1
+    if (weights) {
+      const maybe = weights[agentIds[i]!] 
+      if (typeof maybe === 'number' && Number.isFinite(maybe)) w = maybe
+    }
     scores.set(key, (scores.get(key) ?? 0) + w)
   }
   return scores
@@ -282,48 +351,17 @@ export const createVoteHandler = (opts: VoteHandlerOptions) => {
       node.agents.map((agentId) => opts.runAgent(agentId, nodeInput, ctx)),
     )
 
-    const votes: { agentId: string; output: unknown }[] = []
-    for (let i = 0; i < settled.length; i++) {
-      const s = settled[i]!
-      if (s.status === 'fulfilled') {
-        votes.push({ agentId: node.agents[i]!, output: s.value.output })
-      }
-    }
+    const votes = collectVotes({ settled, agents: node.agents })
 
     if (votes.length === 0) {
-      return {
-        kind: 'failed',
-        error: { code: 'vote.all_agents_failed', message: 'all agents failed' },
-      }
+      return failAllVotes()
     }
 
     const outputs = votes.map((v) => v.output)
     const agentIds = votes.map((v) => v.agentId)
     const ballot = node.ballot
 
-    const resolveWinner = (rawKey: string): NodeOutcome => {
-      return { kind: 'ok', value: JSON.parse(rawKey) }
-    }
-
-    const handleTie = async (): Promise<NodeOutcome> => {
-      switch (node.onTie) {
-        case 'human':
-          return { kind: 'paused', reason: 'hitl' }
-        case 'first':
-          return { kind: 'ok', value: outputs[0] }
-        case 'judge': {
-          if (!opts.judger || !node.judgeAgent) {
-            return { kind: 'paused', reason: 'hitl' }
-          }
-          const judged = await opts.judger(outputs, agentIds, node.judgeAgent, ctx)
-          return { kind: 'ok', value: judged }
-        }
-        default: {
-          const _exhaustive: never = node.onTie
-          return { kind: 'paused', reason: 'hitl' }
-        }
-      }
-    }
+    const handleTie = (): Promise<NodeOutcome> => handleTieBreak({ node, outputs, agentIds, ctx, judger: opts.judger })
 
     switch (ballot.mode) {
       case 'majority': {
@@ -333,14 +371,14 @@ export const createVoteHandler = (opts: VoteHandlerOptions) => {
         if (isTie || topScore <= total / 2) {
           return handleTie()
         }
-        return resolveWinner(winner)
+        return resolveWinnerKey(winner)
       }
 
       case 'weighted': {
         const scores = tally(outputs, agentIds, ballot.weights)
         const { winner, isTie } = plurality(scores)
         if (isTie) return handleTie()
-        return resolveWinner(winner)
+        return resolveWinnerKey(winner)
       }
 
       case 'unanimous': {
@@ -357,7 +395,7 @@ export const createVoteHandler = (opts: VoteHandlerOptions) => {
         if (isTie || topScore / total < ballot.threshold) {
           return handleTie()
         }
-        return resolveWinner(winner)
+        return resolveWinnerKey(winner)
       }
 
       default: {
@@ -618,108 +656,163 @@ const orderedAgents = (
   }
 }
 
+type BlackboardTotals = { totalTokens: number; totalUsd: number; totalSteps: number }
+
+const writeScratchpad = (store: ScratchpadStore, writes: Record<string, unknown>): void => {
+  for (const [k, v] of Object.entries(writes)) {
+    store.set(k, v)
+  }
+}
+
+const shouldStopForBudget = (args: {
+  totals: BlackboardTotals
+  limits: { tokensPerRun: number | undefined; usdPerRun: number | undefined; maxStepsPerRun: number | undefined }
+}): boolean => {
+  const { totals, limits } = args
+  if (limits.tokensPerRun !== undefined && totals.totalTokens >= limits.tokensPerRun) return true
+  if (limits.usdPerRun !== undefined && totals.totalUsd >= limits.usdPerRun) return true
+  if (limits.maxStepsPerRun !== undefined && totals.totalSteps >= limits.maxStepsPerRun) return true
+  return false
+}
+
+const updateConsensusValue = (args: {
+  store: ScratchpadStore
+  consensusValue: string | undefined
+}): string | undefined => {
+  const { store, consensusValue } = args
+  const c = store.get('consensus')
+  if (c === undefined) return consensusValue
+  const serialized = JSON.stringify(c)
+  if (consensusValue === undefined) return serialized
+  return consensusValue === serialized ? consensusValue : undefined
+}
+
+const shouldStopAfterRound = (args: {
+  term: BlackboardNode['termination']
+  consensusValue: string | undefined
+  scheduleMode: BlackboardNode['schedule']['mode']
+  allDone: boolean
+}): boolean => {
+  const { term, consensusValue, scheduleMode, allDone } = args
+  if (term.mode === 'consensus' && consensusValue !== undefined) return true
+  if (scheduleMode === 'volunteer' && allDone) return true
+  return false
+}
+
 export const createBlackboardHandler = (opts: BlackboardHandlerOptions) => {
-  return async (
-    node: BlackboardNode,
-    input: unknown,
-    ctx: RunContext,
-  ): Promise<NodeOutcome> => {
-    const store = opts.scratchpadStore ?? new InMemoryScratchpadStore()
-    const term = node.termination
+  return async (node: BlackboardNode, input: unknown, ctx: RunContext): Promise<NodeOutcome> => {
+    return await runBlackboardNode({ opts, node, input, ctx })
+  }
+}
 
-    let totalTokens = 0
-    let totalUsd = 0
-    let totalSteps = 0
-    let done = false
+const runBlackboardNode = async (args: {
+  opts: BlackboardHandlerOptions
+  node: BlackboardNode
+  input: unknown
+  ctx: RunContext
+}): Promise<NodeOutcome> => {
+  const { opts, node, input, ctx } = args
+  const store = opts.scratchpadStore ?? new InMemoryScratchpadStore()
+  const totals: BlackboardTotals = { totalTokens: 0, totalUsd: 0, totalSteps: 0 }
+  const done = await runBlackboardRounds({ opts, node, input, ctx, store, totals })
+  void done
+  return {
+    kind: 'ok',
+    value: {
+      scratchpad: Object.fromEntries(store.entries()),
+      totalTokens: totals.totalTokens,
+      totalUsd: totals.totalUsd,
+      totalSteps: totals.totalSteps,
+    },
+  }
+}
 
-    const maxRounds = term.mode === 'rounds' ? term.n : 1000
+const runBlackboardRounds = async (args: {
+  opts: BlackboardHandlerOptions
+  node: BlackboardNode
+  input: unknown
+  ctx: RunContext
+  store: ScratchpadStore
+  totals: BlackboardTotals
+}): Promise<boolean> => {
+  const { opts, node, input, ctx, store, totals } = args
+  const term = node.termination
+  const maxRounds = term.mode === 'rounds' ? term.n : 1000
+  let done = false
 
-    for (let round = 0; round < maxRounds && !done; round++) {
-      const agents = orderedAgents([...node.agents], node.schedule)
-      let allDone = true // track if all agents signal done (volunteer mode consensus)
-      let consensusValue: string | undefined
+  for (let round = 0; round < maxRounds && !done; round++) {
+    const agents = orderedAgents([...node.agents], node.schedule)
+    const step = await runBlackboardRound({ opts, node, input, ctx, store, totals, term, agents, round })
+    done = step.done
+  }
 
-      for (let stepIdx = 0; stepIdx < agents.length && !done; stepIdx++) {
-        const agentId = agents[stepIdx]!
-        const bbInput: BlackboardAgentInput = {
-          scratchpad: store.entries(),
-          agentId,
-          round,
-          stepInRound: stepIdx,
-          input,
-        }
+  return done
+}
 
-        const result = await opts.runAgent(agentId, bbInput, ctx)
-        totalSteps++
-        totalTokens += result.tokens ?? 0
-        totalUsd += result.usd ?? 0
+const runBlackboardRound = async (args: {
+  opts: BlackboardHandlerOptions
+  node: BlackboardNode
+  input: unknown
+  ctx: RunContext
+  store: ScratchpadStore
+  totals: BlackboardTotals
+  term: BlackboardNode['termination']
+  agents: string[]
+  round: number
+}): Promise<{ done: boolean }> => {
+  const { opts, node, input, ctx, store, totals, term, agents, round } = args
+  let done = false
+  let allDone = true
+  let consensusValue: string | undefined
 
-        const parsed = parseBbOutput(result.output)
+  for (let stepIdx = 0; stepIdx < agents.length && !done; stepIdx++) {
+    const agentId = agents[stepIdx]!
+    const bbInput: BlackboardAgentInput = { scratchpad: store.entries(), agentId, round, stepInRound: stepIdx, input }
 
-        if (parsed.writes) {
-          for (const [k, v] of Object.entries(parsed.writes)) {
-            store.set(k, v)
-          }
-        }
+    const result = await opts.runAgent(agentId, bbInput, ctx)
+    totals.totalSteps++
+    totals.totalTokens += result.tokens ?? 0
+    totals.totalUsd += result.usd ?? 0
 
-        if (!parsed.done) allDone = false
+    const parsed = parseBbOutput(result.output)
+    if (parsed.writes) writeScratchpad(store, parsed.writes)
+    if (!parsed.done) allDone = false
 
-        switch (term.mode) {
-          case 'agent-signal':
-            if (parsed.done) done = true
-            break
+    const stepResult = applyTerminationStep({ term, parsedDone: parsed.done === true, store, consensusValue, totals })
+    consensusValue = stepResult.consensusValue
+    done = stepResult.done
+  }
 
-          case 'consensus': {
-            const c = store.get('consensus')
-            if (c !== undefined) {
-              const serialized = JSON.stringify(c)
-              if (consensusValue === undefined) {
-                consensusValue = serialized
-              } else if (consensusValue !== serialized) {
-                consensusValue = undefined // agents disagree
-              }
-            }
-            break
-          }
+  if (done) return { done }
+  if (shouldStopAfterRound({ term, consensusValue, scheduleMode: node.schedule.mode, allDone })) return { done: true }
+  return { done: false }
+}
 
-          case 'budget': {
-            const limits = term.limits
-            if (limits.tokensPerRun !== undefined && totalTokens >= limits.tokensPerRun) done = true
-            if (limits.usdPerRun !== undefined && totalUsd >= limits.usdPerRun) done = true
-            if (limits.maxStepsPerRun !== undefined && totalSteps >= limits.maxStepsPerRun) done = true
-            break
-          }
+const applyTerminationStep = (args: {
+  term: BlackboardNode['termination']
+  parsedDone: boolean
+  store: ScratchpadStore
+  consensusValue: string | undefined
+  totals: BlackboardTotals
+}): { done: boolean; consensusValue: string | undefined } => {
+  const { term, parsedDone, store, consensusValue, totals } = args
+  if (term.mode === 'agent-signal') return { done: parsedDone, consensusValue }
+  if (term.mode === 'consensus') return { done: false, consensusValue: updateConsensusValue({ store, consensusValue }) }
+  if (term.mode === 'budget') {
+    const limits = normalizeBudgetLimits(term.limits)
+    return { done: shouldStopForBudget({ totals, limits }), consensusValue }
+  }
+  return { done: false, consensusValue }
+}
 
-          case 'rounds':
-            // Handled by outer loop bound
-            break
-
-          default: {
-            const _exhaustive: never = term
-            break
-          }
-        }
-      }
-
-      // After all agents in round have run, check consensus
-      if (term.mode === 'consensus' && consensusValue !== undefined) {
-        done = true
-      }
-
-      // Volunteer mode: if all agents signaled done, stop
-      if (node.schedule.mode === 'volunteer' && allDone) {
-        done = true
-      }
-    }
-
-    return {
-      kind: 'ok',
-      value: {
-        scratchpad: Object.fromEntries(store.entries()),
-        totalTokens,
-        totalUsd,
-        totalSteps,
-      },
-    }
+const normalizeBudgetLimits = (limits: {
+  tokensPerRun?: number | undefined
+  usdPerRun?: number | undefined
+  maxStepsPerRun?: number | undefined
+}): { tokensPerRun: number | undefined; usdPerRun: number | undefined; maxStepsPerRun: number | undefined } => {
+  return {
+    tokensPerRun: limits.tokensPerRun,
+    usdPerRun: limits.usdPerRun,
+    maxStepsPerRun: limits.maxStepsPerRun,
   }
 }

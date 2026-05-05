@@ -200,9 +200,12 @@ export type BreakGlassDecision =
 
 export const evaluateBreakGlass = (
   act: BreakGlassActivation,
-  options: { now?: Date; allowedExtraReasons?: readonly string[] } = {},
+  options:
+    | { now: Date | undefined; allowedExtraReasons: readonly string[] | undefined }
+    | undefined = undefined,
 ): BreakGlassDecision => {
-  const now = options.now ?? new Date()
+  let now = new Date()
+  if (options && options.now) now = options.now
 
   if (act.bypasses.length === 0) {
     return {
@@ -226,7 +229,10 @@ export const evaluateBreakGlass = (
   }
 
   const isCanonical = (BREAK_GLASS_REASONS as readonly string[]).includes(act.reason as string)
-  const isExtended = options.allowedExtraReasons?.includes(act.reason as string) ?? false
+  let isExtended = false
+  if (options && options.allowedExtraReasons) {
+    isExtended = options.allowedExtraReasons.includes(act.reason as string)
+  }
   if (!isCanonical && !isExtended) {
     return {
       kind: 'reject',

@@ -43,7 +43,7 @@ export function ImageRenderer({ content, name }: ImageRendererProps): React.JSX.
 
   if (!source.valid) {
     return (
-      <div className="rounded-md border border-red-500/25 bg-red-500/10 p-3 text-xs text-red-400">
+      <div className="rounded-md border border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 p-3 text-xs text-[var(--ag-danger)]">
         Cannot render image: {source.reason}
       </div>
     )

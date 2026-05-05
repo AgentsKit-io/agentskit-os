@@ -5,14 +5,14 @@ import { formatTime } from '../../lib/format'
 import { EvalTable } from './eval-table'
 import { EvalSummary } from './eval-summary'
 
-const STATUS_LABEL: Record<EvalStatus, string> = {
+const statusLabelByStatus: Record<EvalStatus, string> = {
   passing: 'Passing',
   regressed: 'Regressed',
   running: 'Running',
   failing: 'Failing',
 }
 
-const STATUS_CLASSES: Record<EvalStatus, string> = {
+const statusClassByStatus: Record<EvalStatus, string> = {
   passing: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   regressed: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
   running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
@@ -29,8 +29,8 @@ const FILTERS: Array<EvalStatus | 'all'> = ['all', 'passing', 'regressed', 'runn
 
 function StatusPill({ status }: { readonly status: EvalStatus }) {
   return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${statusClassByStatus[status]}`}>
+      {statusLabelByStatus[status]}
     </span>
   )
 }
@@ -174,7 +174,7 @@ export function EvalsScreen() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar eval registry unavailable. Showing local sample data.
           </div>
         )}

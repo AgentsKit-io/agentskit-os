@@ -58,7 +58,11 @@ function MonitorCard({ monitor, onOpen }: MonitorCardProps): React.JSX.Element {
           type="button"
           data-testid={`open-dashboard-${monitor.id}`}
           onClick={() => onOpen('dashboard', monitor.id)}
-          className="flex-1 rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-3 py-1.5 text-[12px] text-[var(--ag-ink)] transition-colors hover:border-[var(--ag-ink-subtle)] hover:text-[var(--ag-ink)]"
+          className={[
+            'flex-1 rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-3 py-1.5',
+            'text-[12px] text-[var(--ag-ink)] transition-colors',
+            'hover:border-[var(--ag-ink-subtle)] hover:text-[var(--ag-ink)]',
+          ].join(' ')}
         >
           Open dashboard here
         </button>
@@ -66,7 +70,11 @@ function MonitorCard({ monitor, onOpen }: MonitorCardProps): React.JSX.Element {
           type="button"
           data-testid={`open-traces-${monitor.id}`}
           onClick={() => onOpen('traces', monitor.id)}
-          className="flex-1 rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-3 py-1.5 text-[12px] text-[var(--ag-ink)] transition-colors hover:border-[var(--ag-ink-subtle)] hover:text-[var(--ag-ink)]"
+          className={[
+            'flex-1 rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-3 py-1.5',
+            'text-[12px] text-[var(--ag-ink)] transition-colors',
+            'hover:border-[var(--ag-ink-subtle)] hover:text-[var(--ag-ink)]',
+          ].join(' ')}
         >
           Open traces here
         </button>

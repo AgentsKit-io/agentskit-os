@@ -98,14 +98,14 @@ const totalDurationMs = (spans: readonly Span[]): number => {
 // Status colors
 // ---------------------------------------------------------------------------
 
-const STATUS_COLORS: Record<SpanStatus, string> = {
+const strokeColorByStatus: Record<SpanStatus, string> = {
   ok: 'text-[var(--ag-success)]',
   error: 'text-[var(--ag-danger)]',
   skipped: 'text-[var(--ag-ink-muted)]',
   paused: 'text-[var(--ag-warn)]',
 }
 
-const STATUS_BADGE_COLORS: Record<SpanStatus, string> = {
+const badgeClassByStatus: Record<SpanStatus, string> = {
   ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',
   error: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)] border-[var(--ag-danger)]/25',
   skipped: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/25',
@@ -179,8 +179,8 @@ const SpanRow = ({
   const { span, children } = node
   const barWidthPct = Math.max(2, Math.round((span.durationMs / maxDurationMs) * 100))
   const kindColor = KIND_BADGE_COLORS[span.kind] ?? KIND_BADGE_COLORS['unknown']
-  const statusColor = STATUS_COLORS[span.status]
-  const statusBadge = STATUS_BADGE_COLORS[span.status]
+  const statusColor = strokeColorByStatus[span.status]
+  const statusBadge = badgeClassByStatus[span.status]
 
   return (
     <li

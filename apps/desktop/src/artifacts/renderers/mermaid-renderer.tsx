@@ -65,7 +65,7 @@ export function MermaidRenderer({ content }: MermaidRendererProps): React.JSX.El
   if (error !== null) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="rounded-md border border-red-500/25 bg-red-500/10 p-3 text-xs text-red-400">
+        <div className="rounded-md border border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 p-3 text-xs text-[var(--ag-danger)]">
           Mermaid render error: {error}
         </div>
         <CodeRenderer content={source} language="mermaid" />
@@ -90,7 +90,7 @@ export function MermaidRenderer({ content }: MermaidRendererProps): React.JSX.El
   // Mermaid.js not loaded — stub with source + notice
   return (
     <div className="flex flex-col gap-2">
-      <div className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-xs text-amber-400">
+      <div className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-xs text-[var(--ag-warn)]">
         Diagram preview pending mermaid.js load. The source is shown below.
       </div>
       <CodeRenderer content={source} language="mermaid" />

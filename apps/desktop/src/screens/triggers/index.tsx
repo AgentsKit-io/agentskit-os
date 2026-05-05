@@ -15,14 +15,14 @@ const PROVIDER_LABEL: Record<TriggerProvider, string> = {
   webhook: 'Webhook',
 }
 
-const STATUS_LABEL: Record<TriggerStatus, string> = {
+const statusLabelByStatus: Record<TriggerStatus, string> = {
   active: 'Active',
   paused: 'Paused',
   failing: 'Failing',
   needs_auth: 'Needs auth',
 }
 
-const STATUS_CLASSES: Record<TriggerStatus, string> = {
+const statusClassByStatus: Record<TriggerStatus, string> = {
   active: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   paused: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
   failing: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
@@ -33,8 +33,8 @@ const FILTERS: Array<TriggerProvider | 'all'> = ['all', 'slack', 'discord', 'tea
 
 function StatusPill({ status }: { readonly status: TriggerStatus }) {
   return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${statusClassByStatus[status]}`}>
+      {statusLabelByStatus[status]}
     </span>
   )
 }
@@ -157,7 +157,7 @@ export function TriggersScreen() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar trigger registry unavailable. Showing local sample data.
           </div>
         )}

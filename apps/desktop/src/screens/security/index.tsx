@@ -17,13 +17,13 @@ const AREA_LABEL: Record<SecurityArea, string> = {
   privacy: 'Privacy',
 }
 
-const STATUS_LABEL: Record<SecurityStatus, string> = {
+const statusLabelByStatus: Record<SecurityStatus, string> = {
   healthy: 'Healthy',
   watch: 'Watch',
   blocked: 'Blocked',
 }
 
-const STATUS_CLASSES: Record<SecurityStatus, string> = {
+const statusClassByStatus: Record<SecurityStatus, string> = {
   healthy: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   watch: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
   blocked: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
@@ -34,9 +34,9 @@ const FILTERS: Array<SecurityArea | 'all'> = ['all', 'audit', 'vault', 'policy',
 function StatusPill({ status }: { readonly status: SecurityStatus }) {
   return (
     <span
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${STATUS_CLASSES[status]}`}
+      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${statusClassByStatus[status]}`}
     >
-      {STATUS_LABEL[status]}
+      {statusLabelByStatus[status]}
     </span>
   )
 }
@@ -266,7 +266,7 @@ export function SecurityScreen() {
         {error !== null && (
           <div
             role="status"
-            className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300"
+            className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]"
           >
             Sidecar security provider unavailable. Showing local sample data.
           </div>

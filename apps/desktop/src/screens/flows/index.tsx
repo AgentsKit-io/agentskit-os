@@ -6,14 +6,14 @@ import { formatDate, formatDuration } from '../../lib/format'
 import { useRunFlow } from './use-run-flow'
 import { FLOW_FILTERS, FlowRegistryPanel, FlowSummary } from './flow-registry-panel'
 
-const STATUS_LABEL: Record<FlowStatus, string> = {
+const statusLabelByStatus: Record<FlowStatus, string> = {
   active: 'Active',
   draft: 'Draft',
   paused: 'Paused',
   failing: 'Failing',
 }
 
-const STATUS_CLASSES: Record<FlowStatus, string> = {
+const statusClassByStatus: Record<FlowStatus, string> = {
   active: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   draft: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
   paused: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
@@ -33,9 +33,9 @@ const FILTERS: Array<FlowStatus | 'all'> = FLOW_FILTERS
 function StatusPill({ status }: { readonly status: FlowStatus }) {
   return (
     <span
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${STATUS_CLASSES[status]}`}
+      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${statusClassByStatus[status]}`}
     >
-      {STATUS_LABEL[status]}
+      {statusLabelByStatus[status]}
     </span>
   )
 }
@@ -173,7 +173,12 @@ export function FlowsScreen() {
           <button
             type="button"
             disabled={running || selectedFlow === null}
-            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)] disabled:opacity-50"
+            className={[
+              'rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5',
+              'text-sm font-medium text-[var(--ag-ink)]',
+              'hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]',
+              'disabled:opacity-50',
+            ].join(' ')}
             onClick={() => {
               if (!selectedFlow) return
               void runFlow({ flowId: selectedFlow.id, mode: getRunMode() })

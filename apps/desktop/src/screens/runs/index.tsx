@@ -6,8 +6,10 @@ import { FilterPills } from '../../components/filter-pills'
 import { formatHms } from '../../lib/time'
 import { RunTable } from './run-table'
 import { RunSummary } from './run-summary'
+import { formatShortDuration } from '../../lib/format'
+import { formatRunsTokens } from './run-format'
 
-const STATUS_LABEL: Record<RunStatus, string> = {
+const statusLabelByStatus: Record<RunStatus, string> = {
   queued: 'Queued',
   running: 'Running',
   blocked: 'Blocked',
@@ -15,7 +17,7 @@ const STATUS_LABEL: Record<RunStatus, string> = {
   failed: 'Failed',
 }
 
-const STATUS_CLASSES: Record<RunStatus, string> = {
+const statusClassByStatus: Record<RunStatus, string> = {
   queued: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
   running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
   blocked: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
@@ -25,23 +27,10 @@ const STATUS_CLASSES: Record<RunStatus, string> = {
 
 const FILTERS: Array<RunStatus | 'all'> = ['all', 'running', 'blocked', 'queued', 'succeeded', 'failed']
 
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
-  const minutes = Math.floor(ms / 60_000)
-  const seconds = Math.floor((ms % 60_000) / 1000)
-  return `${minutes}m ${seconds}s`
-}
-
-function formatTokens(run: RunQueueItem): string {
-  const total = run.inputTokens + run.outputTokens
-  return new Intl.NumberFormat(undefined, { notation: 'compact' }).format(total)
-}
-
 function StatusPill({ status }: { readonly status: RunStatus }) {
   return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${statusClassByStatus[status]}`}>
+      {statusLabelByStatus[status]}
     </span>
   )
 }
@@ -75,9 +64,9 @@ function RunDetail({ run }: { readonly run: RunQueueItem | null }) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 border-b border-[var(--ag-line)] p-4">
-        <DetailMetric label="Duration" value={formatDuration(run.durationMs)} />
+        <DetailMetric label="Duration" value={formatShortDuration(run.durationMs)} />
         <DetailMetric label="Cost" value={`$${run.costUsd.toFixed(2)}`} />
-        <DetailMetric label="Tokens" value={formatTokens(run)} />
+        <DetailMetric label="Tokens" value={formatRunsTokens([run])} />
         <DetailMetric label="Trigger" value={run.trigger} />
       </div>
 

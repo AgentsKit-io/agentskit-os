@@ -1,6 +1,7 @@
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-ui'
 import type { RunMode } from '../../lib/sidecar'
 import { formatHms } from '../../lib/time'
+import { formatShortDuration } from '../../lib/format'
 
 export type RunRecord = {
   readonly id: string
@@ -21,16 +22,6 @@ const STATUS_VARIANT: Record<RunRecord['status'], 'default' | 'accent' | 'outlin
 
 type RecentRunsProps = {
   runs: readonly RunRecord[]
-}
-
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
-  return `${Math.floor(ms / 60_000)}m ${Math.floor((ms % 60_000) / 1000)}s`
-}
-
-function formatStarted(iso: string): string {
-  return formatHms(iso)
 }
 
 export function RecentRuns({ runs }: RecentRunsProps) {
@@ -85,10 +76,10 @@ export function RecentRuns({ runs }: RecentRunsProps) {
                       <Badge variant={STATUS_VARIANT[run.status]}>{run.status}</Badge>
                     </td>
                     <td className="py-2.5 pr-4 font-mono text-xs text-[var(--ag-ink-muted)]">
-                      {formatStarted(run.startedAt)}
+                      {formatHms(run.startedAt)}
                     </td>
                     <td className="py-2.5 pr-4 tabular-nums">
-                      {formatDuration(run.durationMs)}
+                      {formatShortDuration(run.durationMs)}
                     </td>
                     <td className="py-2.5 tabular-nums text-[var(--ag-ink-muted)]">
                       ${run.costUsd.toFixed(4)}

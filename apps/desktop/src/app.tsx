@@ -535,7 +535,11 @@ function AppShell({
       {focusActive && (
         <button
           type="button"
-          className="fixed right-4 top-4 z-[60] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] shadow-2xl hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
+          className={[
+            'fixed right-4 top-4 z-[60] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5',
+            'text-sm font-medium text-[var(--ag-ink)] shadow-2xl',
+            'hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]',
+          ].join(' ')}
           onClick={disableFocus}
         >
           Exit focus mode

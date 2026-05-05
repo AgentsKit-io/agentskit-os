@@ -7,7 +7,7 @@
  * the store.
  */
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Dashboard, Widget, WidgetId } from './types'
 import { renderWidget } from './widget-renderers'
 import type { WidgetRenderContext } from './widget-registry'
@@ -138,51 +138,41 @@ function GridTile({
 // Grid
 // ---------------------------------------------------------------------------
 
-export function DashboardGrid({ dashboard, ctx, onLayoutChange, onRemoveWidget }: Props) {
+function useDashboardGridLayout(args: {
+  dashboard: Dashboard
+  onLayoutChange: (widgets: Widget[]) => void
+  onRemoveWidget?: (widgetId: WidgetId) => void
+}) {
+  const { dashboard, onLayoutChange, onRemoveWidget } = args
   const { widgets, gridCols, gridRowHeight } = dashboard
 
-  // Track which widget is currently being dragged
   const [draggingId, setDraggingId] = useState<WidgetId | null>(null)
-  // Optimistic layout during drag (committed on pointer-up)
   const [optimisticWidgets, setOptimisticWidgets] = useState<Widget[]>(widgets)
 
-  // Keep track of current drag state in a ref (avoids stale closure issues)
   const dragState = useRef<DragState | null>(null)
-  // Reference to the grid container to calculate cell sizes
   const gridRef = useRef<HTMLDivElement>(null)
 
-  // Sync optimistic widgets when dashboard changes (from outside)
-  const prevDashboardId = useRef(dashboard.id)
-  if (prevDashboardId.current !== dashboard.id) {
-    prevDashboardId.current = dashboard.id
+  useEffect(() => {
     setOptimisticWidgets(widgets)
-  }
-  // Sync when widgets change from store while not dragging
-  const prevWidgets = useRef(widgets)
-  if (prevWidgets.current !== widgets && !draggingId) {
-    prevWidgets.current = widgets
-    setOptimisticWidgets(widgets)
-  }
+  }, [dashboard.id, widgets])
 
-  // Compute cell width/height from the grid container
+  useEffect(() => {
+    if (draggingId !== null) return
+    setOptimisticWidgets(widgets)
+  }, [widgets, draggingId])
+
   const getCellSize = useCallback((): { cellW: number; cellH: number } => {
     if (!gridRef.current) return { cellW: 80, cellH: gridRowHeight }
     const rect = gridRef.current.getBoundingClientRect()
-    return {
-      cellW: rect.width / gridCols,
-      cellH: gridRowHeight,
-    }
+    return { cellW: rect.width / gridCols, cellH: gridRowHeight }
   }, [gridCols, gridRowHeight])
 
   const handleDragHandlePointerDown = useCallback(
     (e: React.PointerEvent, widgetId: WidgetId) => {
       e.preventDefault()
-      const target = e.currentTarget as HTMLElement
-      target.setPointerCapture(e.pointerId)
-
+      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
       const w = optimisticWidgets.find((wgt) => wgt.id === widgetId)
       if (!w) return
-
       dragState.current = {
         widgetId,
         mode: 'move',
@@ -201,12 +191,9 @@ export function DashboardGrid({ dashboard, ctx, onLayoutChange, onRemoveWidget }
   const handleResizeHandlePointerDown = useCallback(
     (e: React.PointerEvent, widgetId: WidgetId) => {
       e.preventDefault()
-      const target = e.currentTarget as HTMLElement
-      target.setPointerCapture(e.pointerId)
-
+      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
       const w = optimisticWidgets.find((wgt) => wgt.id === widgetId)
       if (!w) return
-
       dragState.current = {
         widgetId,
         mode: 'resize',
@@ -234,17 +221,14 @@ export function DashboardGrid({ dashboard, ctx, onLayoutChange, onRemoveWidget }
       setOptimisticWidgets((prev) =>
         prev.map((w) => {
           if (w.id !== ds.widgetId) return w
-
           if (ds.mode === 'move') {
             const newX = Math.max(0, Math.min(ds.origX + dx, gridCols - w.w))
             const newY = Math.max(0, ds.origY + dy)
             return { ...w, x: newX, y: newY }
-          } else {
-            // resize
-            const newW = Math.max(1, Math.min(ds.origW + dx, gridCols - ds.origX))
-            const newH = Math.max(1, ds.origH + dy)
-            return { ...w, w: newW, h: newH }
           }
+          const newW = Math.max(1, Math.min(ds.origW + dx, gridCols - ds.origX))
+          const newH = Math.max(1, ds.origH + dy)
+          return { ...w, w: newW, h: newH }
         }),
       )
     },
@@ -255,57 +239,67 @@ export function DashboardGrid({ dashboard, ctx, onLayoutChange, onRemoveWidget }
     if (!dragState.current) return
     dragState.current = null
     setDraggingId(null)
-    // Commit the optimistic layout to the store
     setOptimisticWidgets((current) => {
       onLayoutChange(current)
       return current
     })
   }, [onLayoutChange])
 
-  const handleRemoveWidget = useCallback(
-    (widgetId: WidgetId) => {
-      onRemoveWidget?.(widgetId)
-    },
-    [onRemoveWidget],
-  )
+  const handleRemoveWidget = useCallback((widgetId: WidgetId) => onRemoveWidget?.(widgetId), [onRemoveWidget])
 
-  const displayed = draggingId ? optimisticWidgets : widgets
+  return {
+    gridRef,
+    gridCols,
+    gridRowHeight,
+    widgets,
+    displayed: draggingId ? optimisticWidgets : widgets,
+    draggingId,
+    handlePointerMove,
+    handlePointerUp,
+    handleDragHandlePointerDown,
+    handleResizeHandlePointerDown,
+    handleRemoveWidget,
+  }
+}
+
+export function DashboardGrid({ dashboard, ctx, onLayoutChange, onRemoveWidget }: Props) {
+  const grid = useDashboardGridLayout({ dashboard, onLayoutChange, onRemoveWidget })
 
   return (
     <div
-      ref={gridRef}
+      ref={grid.gridRef}
       data-testid="dashboard-grid"
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
+      onPointerMove={grid.handlePointerMove}
+      onPointerUp={grid.handlePointerUp}
+      onPointerLeave={grid.handlePointerUp}
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
-        gridAutoRows: `${gridRowHeight}px`,
+        gridTemplateColumns: `repeat(${grid.gridCols}, 1fr)`,
+        gridAutoRows: `${grid.gridRowHeight}px`,
         gap: '8px',
         padding: '16px',
         minHeight: '200px',
         touchAction: 'none',
       }}
     >
-      {displayed.map((widget) => (
+      {grid.displayed.map((widget) => (
         <GridTile
           key={widget.id}
           widget={widget}
-          gridCols={gridCols}
-          rowHeight={gridRowHeight}
-          isDragging={draggingId === widget.id}
-          onDragHandlePointerDown={handleDragHandlePointerDown}
-          onResizeHandlePointerDown={handleResizeHandlePointerDown}
-          onRemove={onRemoveWidget ? handleRemoveWidget : undefined}
+          gridCols={grid.gridCols}
+          rowHeight={grid.gridRowHeight}
+          isDragging={grid.draggingId === widget.id}
+          onDragHandlePointerDown={grid.handleDragHandlePointerDown}
+          onResizeHandlePointerDown={grid.handleResizeHandlePointerDown}
+          onRemove={onRemoveWidget ? grid.handleRemoveWidget : undefined}
         >
           {renderWidget(widget.kind, ctx)}
         </GridTile>
       ))}
 
-      {displayed.length === 0 && (
+      {grid.displayed.length === 0 && (
         <div
-          style={{ gridColumn: `1 / span ${gridCols}` }}
+          style={{ gridColumn: `1 / span ${grid.gridCols}` }}
           className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--ag-line)] p-12 text-center"
         >
           <p className="text-sm text-[var(--ag-ink-muted)]">

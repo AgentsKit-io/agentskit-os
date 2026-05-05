@@ -19,13 +19,13 @@ const PROVIDER_LABEL: Record<CostProvider, string> = {
   cursor: 'Cursor',
 }
 
-const STATUS_LABEL: Record<BudgetStatus, string> = {
+const statusLabelByStatus: Record<BudgetStatus, string> = {
   healthy: 'Healthy',
   watch: 'Watch',
   exceeded: 'Exceeded',
 }
 
-const STATUS_CLASSES: Record<BudgetStatus, string> = {
+const statusClassByStatus: Record<BudgetStatus, string> = {
   healthy: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   watch: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
   exceeded: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
@@ -36,9 +36,9 @@ const FILTERS: Array<CostProvider | 'all'> = ['all', 'openai', 'anthropic', 'goo
 function StatusPill({ status }: { readonly status: BudgetStatus }) {
   return (
     <span
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${STATUS_CLASSES[status]}`}
+      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${statusClassByStatus[status]}`}
     >
-      {STATUS_LABEL[status]}
+      {statusLabelByStatus[status]}
     </span>
   )
 }
@@ -168,7 +168,7 @@ export function CostScreen() {
         {error !== null && (
           <div
             role="status"
-            className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300"
+            className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]"
           >
             Sidecar cost provider unavailable. Showing local sample data.
           </div>

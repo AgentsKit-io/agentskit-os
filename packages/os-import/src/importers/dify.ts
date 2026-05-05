@@ -89,8 +89,11 @@ const TYPE_MAP: Record<string, 'agent' | 'tool' | 'human' | 'condition' | 'unkno
   'question-classifier': 'condition',
 }
 
-const inferKind = (type: string): 'agent' | 'tool' | 'human' | 'condition' | 'unknown' =>
-  TYPE_MAP[type] ?? 'unknown'
+const inferKind = (type: string): 'agent' | 'tool' | 'human' | 'condition' | 'unknown' => {
+  const hit = TYPE_MAP[type]
+  if (hit) return hit
+  return 'unknown'
+}
 
 const NORMALIZE_PROVIDER: Record<string, string> = {
   openai: 'openai',
@@ -194,10 +197,13 @@ export const difyImporter: Importer = {
     }
 
     const startEntry = nodes.find((n) => n.data?.type === 'start')
-    const entryId =
-      (startEntry && idMap.get(startEntry.id)) ??
-      (flowNodes[0]?.id as string | undefined) ??
-      'entry'
+    let entryId = 'entry'
+    if (startEntry) {
+      const mapped = idMap.get(startEntry.id)
+      if (mapped) entryId = mapped
+    }
+    const first = flowNodes[0]?.id as string | undefined
+    if (entryId === 'entry' && first) entryId = first
 
     const flow = parseFlowConfig({
       id: flowId,

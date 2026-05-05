@@ -36,8 +36,11 @@ const slug = (s: string): string => {
   return out.length > 0 ? out.slice(0, 64) : 'node'
 }
 
-const isLg = (v: unknown): v is LgGraph =>
-  !!v && typeof v === 'object' && 'nodes' in (v as object) && 'edges' in (v as object)
+const isLg = (v: unknown): v is LgGraph => {
+  if (!v || typeof v !== 'object') return false
+  const obj = v as Record<string, unknown>
+  return 'nodes' in obj && 'edges' in obj
+}
 
 export const langgraphImporter: Importer = {
   source: 'langgraph',
@@ -49,8 +52,9 @@ export const langgraphImporter: Importer = {
       throw new Error('os.import.langgraph_invalid')
     }
 
-    const wsId = slug(input.name ?? 'langgraph-import')
-    const flowId = slug(input.name ?? 'flow')
+    const name = input.name ?? 'langgraph-import'
+    const wsId = slug(name)
+    const flowId = slug(name)
 
     const flowNodes = (input.nodes ?? []).map((n, i) => {
       const id = slug(n.id ?? `node-${i}`)
@@ -91,7 +95,13 @@ export const langgraphImporter: Importer = {
       return { from: slug(e.source ?? ''), to: slug(e.target ?? '') }
     })
 
-    const entry = slug(input.entry ?? flowNodes[0]?.id ?? 'node-0')
+    let entry = 'node-0'
+    if (input.entry) entry = input.entry
+    else {
+      const first = flowNodes[0]?.id
+      if (first) entry = first
+    }
+    entry = slug(entry)
     const flowWithoutAgents = parseFlowConfig({
       schemaVersion: 1,
       id: flowId,

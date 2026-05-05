@@ -86,18 +86,16 @@ const extractModel = (
 ): { provider: string; model: string } => {
   if (!template) return { provider: 'openai', model: 'gpt-4o' }
   const candidate = template['model_name'] ?? template['model'] ?? template['model_id']
-  const value =
-    typeof candidate === 'object' && candidate !== null
-      ? (candidate as Record<string, unknown>)['value']
-      : candidate
-  const model = typeof value === 'string' && value.length > 0 ? value : 'gpt-4o'
-  const provider = /^claude/i.test(model)
-    ? 'anthropic'
-    : /^gemini/i.test(model)
-      ? 'gemini'
-      : /^command/i.test(model)
-        ? 'cohere'
-        : 'openai'
+  let value: unknown = candidate
+  if (typeof candidate === 'object' && candidate !== null) {
+    value = (candidate as Record<string, unknown>)['value']
+  }
+  let model = 'gpt-4o'
+  if (typeof value === 'string' && value.length > 0) model = value
+  let provider = 'openai'
+  if (/^claude/i.test(model)) provider = 'anthropic'
+  else if (/^gemini/i.test(model)) provider = 'gemini'
+  else if (/^command/i.test(model)) provider = 'cohere'
   return { provider, model }
 }
 
@@ -181,7 +179,9 @@ export const langflowImporter: Importer = {
       throw new Error('langflowImporter: flow has no nodes')
     }
 
-    const entryId = (flowNodes[0]?.id as string | undefined) ?? 'entry'
+    let entryId = 'entry'
+    const first = flowNodes[0]?.id as string | undefined
+    if (first) entryId = first
     const flow = parseFlowConfig({
       id: flowId,
       name: flowName,

@@ -5,11 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 465,
-    "issues": 150,
+    "issues": 148,
     "byKind": {
       "cyclomatic-complexity": 18,
       "duplicate-block": 88,
-      "nested-ternary": 44
+      "nested-ternary": 42
     }
   },
   "issues": [
@@ -122,14 +122,14 @@
       "id": "cyclomatic-complexity:packages/os-import/src/importers/dify.ts:30c471f6aafbca70",
       "kind": "cyclomatic-complexity",
       "file": "packages/os-import/src/importers/dify.ts",
-      "line": 112,
-      "detail": "parse complexity 24 exceeds max 14."
+      "line": 115,
+      "detail": "parse complexity 25 exceeds max 14."
     },
     {
       "id": "cyclomatic-complexity:packages/os-import/src/importers/langflow.ts:30c471f6aafbca70",
       "kind": "cyclomatic-complexity",
       "file": "packages/os-import/src/importers/langflow.ts",
-      "line": 108,
+      "line": 106,
       "detail": "parse complexity 23 exceeds max 14."
     },
     {
@@ -137,7 +137,7 @@
       "kind": "cyclomatic-complexity",
       "file": "packages/os-import/src/importers/n8n.ts",
       "line": 67,
-      "detail": "detect complexity 29 exceeds max 14."
+      "detail": "detect complexity 30 exceeds max 14."
     },
     {
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:1623f72dbb1126db",
@@ -871,7 +871,7 @@
       "id": "nested-ternary:packages/os-import/src/importers/dify.ts:25b475f06aa7806d",
       "kind": "nested-ternary",
       "file": "packages/os-import/src/importers/dify.ts",
-      "line": 144,
+      "line": 147,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
@@ -885,14 +885,14 @@
       "id": "nested-ternary:packages/os-import/src/importers/langflow.ts:8d199d8dd2fdfdb5",
       "kind": "nested-ternary",
       "file": "packages/os-import/src/importers/langflow.ts",
-      "line": 127,
+      "line": 125,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
       "id": "nested-ternary:packages/os-import/src/importers/langflow.ts:94fbf068eae623d3",
       "kind": "nested-ternary",
       "file": "packages/os-import/src/importers/langflow.ts",
-      "line": 113,
+      "line": 111,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
@@ -900,13 +900,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-import/src/importers/langflow.ts",
       "line": 10,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-import/src/importers/langgraph.ts:40a5ad4f8ed11940",
-      "kind": "nested-ternary",
-      "file": "packages/os-import/src/importers/langgraph.ts",
-      "line": 94,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
@@ -927,7 +920,7 @@
       "id": "nested-ternary:packages/os-import/src/importers/langgraph.ts:d2f01c7b23a9c1bc",
       "kind": "nested-ternary",
       "file": "packages/os-import/src/importers/langgraph.ts",
-      "line": 91,
+      "line": 95,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
@@ -935,13 +928,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-import/src/importers/n8n.ts",
       "line": 18,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-import/src/importers/n8n.ts:f476f608ff0c2d42",
-      "kind": "nested-ternary",
-      "file": "packages/os-import/src/importers/n8n.ts",
-      "line": 148,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

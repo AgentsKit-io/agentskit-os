@@ -117,12 +117,14 @@ export const n8nImporter: Importer = {
       }
 
       if (KNOWN_HUMAN_TYPES.has(n.type)) {
+        let prompt = `n8n trigger ${n.name} (review)`
+        if (typeof n.parameters?.['message'] === 'string') {
+          prompt = n.parameters['message'] as string
+        }
         flowNodes.push({
           id: baseId,
           kind: 'human',
-          prompt: typeof n.parameters?.['message'] === 'string'
-            ? (n.parameters['message'] as string)
-            : `n8n trigger ${n.name} (review)`,
+          prompt,
         })
         continue
       }
@@ -145,7 +147,13 @@ export const n8nImporter: Importer = {
 
     // First node = entry. n8n typically lists trigger first.
     const firstName = (input.nodes ?? [])[0]?.name
-    const entryId = (firstName && nameToId.get(firstName)) ?? (flowNodes[0]?.id as string | undefined) ?? 'entry'
+    let entryId = 'entry'
+    if (firstName) {
+      const mapped = nameToId.get(firstName)
+      if (mapped) entryId = mapped
+    }
+    const firstNodeId = flowNodes[0]?.id as string | undefined
+    if (entryId === 'entry' && firstNodeId) entryId = firstNodeId
 
     const edges: Array<{ from: string; to: string }> = []
     for (const [fromName, conn] of Object.entries(input.connections ?? {})) {

@@ -4,11 +4,11 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 467,
-    "issues": 92,
+    "filesScanned": 468,
+    "issues": 89,
     "byKind": {
       "cyclomatic-complexity": 18,
-      "duplicate-block": 69,
+      "duplicate-block": 66,
       "nested-ternary": 5
     }
   },
@@ -600,27 +600,6 @@
       "file": "packages/os-core/src/schema/trigger.ts",
       "line": 115,
       "detail": "Duplicate 8-line block also appears at packages/os-core/src/index.ts:41."
-    },
-    {
-      "id": "duplicate-block:packages/os-flow/src/runner.ts:486aa4a5437d6b0f",
-      "kind": "duplicate-block",
-      "file": "packages/os-flow/src/runner.ts",
-      "line": 90,
-      "detail": "Duplicate 8-line block also appears at packages/os-flow/src/durable.ts:70."
-    },
-    {
-      "id": "duplicate-block:packages/os-flow/src/runner.ts:b3ebcbb71f349fa1",
-      "kind": "duplicate-block",
-      "file": "packages/os-flow/src/runner.ts",
-      "line": 89,
-      "detail": "Duplicate 8-line block also appears at packages/os-flow/src/durable.ts:69."
-    },
-    {
-      "id": "duplicate-block:packages/os-flow/src/runner.ts:c1bdce971f3605e0",
-      "kind": "duplicate-block",
-      "file": "packages/os-flow/src/runner.ts",
-      "line": 88,
-      "detail": "Duplicate 8-line block also appears at packages/os-flow/src/durable.ts:68."
     },
     {
       "id": "nested-ternary:packages/os-import/src/importers/dify.ts:25b475f06aa7806d",

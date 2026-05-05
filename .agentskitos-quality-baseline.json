@@ -4,7 +4,7 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 558,
+    "filesScanned": 575,
     "issues": 4,
     "byKind": {
       "cyclomatic-complexity": 2,

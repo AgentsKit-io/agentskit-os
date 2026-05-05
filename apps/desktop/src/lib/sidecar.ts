@@ -98,6 +98,14 @@ export async function resumeRuns(): Promise<void> {
 }
 
 /**
+ * Request cancellation of the flow run associated with a desktop trace (#199).
+ * No-op in web/dev when Tauri is unavailable.
+ */
+export async function cancelRunForTrace(traceId: string): Promise<void> {
+  await sidecarRequest('runner.cancelRun', { traceId })
+}
+
+/**
  * Ask the sidecar to dispose cleanly (flush audit events, close handles).
  * Called before the app exits via the tray Quit action.
  */

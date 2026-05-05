@@ -17,6 +17,7 @@ import {
   type AgentMap,
   type CheckpointStore,
   type FlowCostEstimate,
+  type FlowCostTickEvent,
   type PriceMap,
   type RunOptions,
 } from '@agentskit/os-flow'
@@ -53,6 +54,8 @@ const RUN_MODE_SET = new Set(RUN_MODES as readonly string[])
 
 type CliRunEvent =
   | Parameters<NonNullable<RunOptions['onEvent']>>[0]
+  | FlowCostTickEvent
+  | { kind: 'run:cancelled'; reason: string }
   | { kind: 'node:resumed'; nodeId: string; outcome: { kind: string } }
 
 type Args = {
@@ -213,7 +216,11 @@ const executeRun = async (args: Args, io: CliIo): Promise<CliExit> => {
         else if (e.kind === 'node:paused') events.push(`⏸ ${e.nodeId} (${e.reason})`)
         else if (e.kind === 'node:mock-applied') events.push(`↪ ${e.nodeId} (mocked)`)
         else if (e.kind === 'node:resumed') events.push(`✓ ${e.nodeId} (resumed)`)
-        else events.push(`  ${e.nodeId}: ${e.outcome.kind}`)
+        else if (e.kind === 'cost.tick') {
+          const tok = e.cumulativeInputTokens + e.cumulativeOutputTokens
+          events.push(`¢ $${e.totalUsd.toFixed(4)} (+$${e.deltaUsd.toFixed(4)})  ${tok} tok`)
+        } else if (e.kind === 'run:cancelled') events.push('✗ run cancelled')
+        else if (e.kind === 'node:end') events.push(`  ${e.nodeId}: ${e.outcome.kind}`)
       }
 
   const durable = args.store !== undefined

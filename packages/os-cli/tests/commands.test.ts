@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import * as mcpBridge from '@agentskit/os-mcp-bridge'
@@ -293,6 +293,9 @@ describe('coding-agent benchmark', () => {
     expect(out).toContain('--providers')
     expect(out).toContain('--prompt')
     expect(out).toContain('--persist')
+    expect(out).toContain('--artifact-dir')
+    expect(out).toContain('--capture-run-artifacts')
+    expect(out).toContain('--artifact-trace-id')
   })
 
   it('rejects unknown provider id in csv', async () => {
@@ -331,6 +334,73 @@ describe('coding-agent benchmark', () => {
       const disk = JSON.parse(readFileSync(outPath, 'utf8')) as { repoRoot: string; rows: unknown[] }
       expect(typeof disk.repoRoot).toBe('string')
       expect(Array.isArray(disk.rows)).toBe(true)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('writes --artifact-dir task report bundle', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ak-artifact-'))
+    try {
+      const r = await route(
+        [
+          'coding-agent',
+          'benchmark',
+          '--providers',
+          'codex',
+          '--prompt',
+          'noop',
+          '--timeout-ms',
+          '100',
+          '--artifact-dir',
+          dir,
+          '--trace-url',
+          'https://trace.example/t1',
+        ],
+        fakeIo({}),
+      )
+      expect([0, 1] as const).toContain(r.code)
+      expect(existsSync(join(dir, 'coding-task-report.json'))).toBe(true)
+      expect(existsSync(join(dir, 'coding-task-report.md'))).toBe(true)
+      expect(existsSync(join(dir, 'coding-task-dashboard.json'))).toBe(true)
+      const disk = JSON.parse(readFileSync(join(dir, 'coding-task-report.json'), 'utf8')) as {
+        links: { traceUrl?: string }
+      }
+      expect(disk.links.traceUrl).toBe('https://trace.example/t1')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('writes coding run artifact JSON when --capture-run-artifacts is set', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ak-run-art-'))
+    try {
+      const r = await route(
+        [
+          'coding-agent',
+          'benchmark',
+          '--providers',
+          'codex',
+          '--prompt',
+          'noop',
+          '--timeout-ms',
+          '100',
+          '--capture-run-artifacts',
+          dir,
+          '--artifact-trace-id',
+          'trace-xyz',
+        ],
+        fakeIo({}),
+      )
+      expect([0, 1] as const).toContain(r.code)
+      const files = readdirSync(dir).filter((f) => f.startsWith('coding-run-artifact-'))
+      expect(files.length).toBeGreaterThanOrEqual(1)
+      const disk = JSON.parse(readFileSync(join(dir, files[0]!), 'utf8')) as {
+        ids: { traceId?: string }
+        phase: string
+      }
+      expect(disk.ids.traceId).toBe('trace-xyz')
+      expect(disk.phase).toBe('provider_completed')
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }

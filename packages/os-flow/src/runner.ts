@@ -17,6 +17,7 @@ import {
 import { buildSnapshotEmitter, type SnapshotOptions } from './snapshot.js'
 import { auditGraph, buildAdjacency, topoSort } from './topo.js'
 import { edgeMatches } from './edge-matches.js'
+import type { FlowCostTickEvent } from './flow-observability-events.js'
 
 export type RunResult = {
   readonly status: 'completed' | 'failed' | 'paused' | 'skipped' | 'cancelled'
@@ -42,7 +43,9 @@ export type RunOptions = {
       | { kind: 'node:start'; nodeId: string }
       | { kind: 'node:end'; nodeId: string; outcome: NodeOutcome }
       | { kind: 'node:paused'; nodeId: string; reason: 'breakpoint' | 'manual' | 'step' }
-      | { kind: 'node:mock-applied'; nodeId: string; outcome: NodeOutcome },
+      | { kind: 'node:mock-applied'; nodeId: string; outcome: NodeOutcome }
+      | FlowCostTickEvent
+      | { kind: 'run:cancelled'; reason: string },
   ) => void
   /**
    * Optional registries used by `deterministic` mode to enforce ADR-0009's
@@ -87,6 +90,7 @@ export type RunOptions = {
 export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunResult> => {
   // #199 — check before we do any real work
   if (opts.signal?.aborted) {
+    opts.onEvent?.({ kind: 'run:cancelled', reason: 'os.flow.cancelled' })
     return {
       status: 'cancelled',
       outcomes: new Map(),
@@ -191,6 +195,7 @@ export const runFlow = async (flow: FlowConfig, opts: RunOptions): Promise<RunRe
 
     // #199 — check abort signal between nodes
     if (opts.signal?.aborted) {
+      opts.onEvent?.({ kind: 'run:cancelled', reason: 'os.flow.cancelled' })
       return {
         status: 'cancelled',
         outcomes,

@@ -6,8 +6,8 @@ import type { FlowConfig, RunContext, WorkspaceConfig } from '@agentskit/os-core
 import { createDefaultRunId, isStubRunMode, parseRunContext } from '@agentskit/os-core'
 import type { RunResult, RunOptions, CheckpointFn } from '@agentskit/os-flow'
 import { runFlow as flowRunFlow, defaultStubHandlers } from '@agentskit/os-flow'
-import type { AdapterRegistry, AgentLookup } from '@agentskit/os-runtime'
-import { buildLiveHandlers } from '@agentskit/os-runtime'
+import type { AdapterRegistry, AgentLookup, CostEntry } from '@agentskit/os-runtime'
+import { CostTracker, buildLiveHandlers, meteredLlmAdapter } from '@agentskit/os-runtime'
 import type { AuditEmitter } from '@agentskit/os-audit'
 import type { SandboxRegistry } from '@agentskit/os-sandbox'
 import type { RunMode } from '@agentskit/os-core'
@@ -146,6 +146,40 @@ const buildRunOptions = (
   ...(observability !== undefined ? { onEvent: observability } : {}),
 })
 
+const sumRecordedTokens = (
+  entries: readonly CostEntry[],
+  key: 'inputTokens' | 'outputTokens',
+): number => entries.reduce((sum, e) => sum + (e[key] ?? 0), 0)
+
+/** #199 — wrap LLM adapter so each invoke emits `cost.tick` via observability. */
+const wrapAdaptersForCostTicks = (
+  adapters: AdapterRegistry,
+  observability: RunOptions['onEvent'] | undefined,
+): AdapterRegistry => {
+  if (!adapters.llm || !observability) return adapters
+  const tracker = new CostTracker()
+  return {
+    ...adapters,
+    llm: meteredLlmAdapter(adapters.llm, {
+      tracker,
+      onAfterRecord: ({ entry, runCost }) => {
+        observability({
+          kind: 'cost.tick',
+          totalUsd: runCost.totalUsd,
+          deltaUsd: entry.costUsd,
+          cumulativeInputTokens: sumRecordedTokens(runCost.entries, 'inputTokens'),
+          cumulativeOutputTokens: sumRecordedTokens(runCost.entries, 'outputTokens'),
+          ...(entry.inputTokens !== undefined ? { inputTokens: entry.inputTokens } : {}),
+          ...(entry.outputTokens !== undefined ? { outputTokens: entry.outputTokens } : {}),
+          ...(entry.nodeId !== undefined ? { nodeId: entry.nodeId } : {}),
+          system: entry.system,
+          model: entry.model,
+        })
+      },
+    }),
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
@@ -155,19 +189,15 @@ export const createHeadlessRunner = (opts: HeadlessRunnerOptions): HeadlessRunne
   const lookupAgent = opts.lookupAgent ?? noopLookupAgent
   const workspaceId = opts.config.id
 
-  const buildHandlers = (mode: RunMode): RunOptions['handlers'] => {
-    if (isStubRunMode(mode)) {
-      return defaultStubHandlers(mode)
-    }
-    return buildLiveHandlers({ adapters: opts.adapters, lookupAgent })
-  }
-
   return {
     runFlow: async (flow, runOpts) => {
       const mode: RunMode = runOpts?.mode ?? 'dry_run'
       const runId = newRunId()
       const ctx = buildCtx({ runId, workspaceId, mode })
-      const handlers = buildHandlers(mode)
+      const adaptersForRun = wrapAdaptersForCostTicks(opts.adapters, opts.observability)
+      const handlers = isStubRunMode(mode)
+        ? defaultStubHandlers(mode)
+        : buildLiveHandlers({ adapters: adaptersForRun, lookupAgent })
       const flowConfig = resolveFlow(flow, opts.flows)
 
       const result = await flowRunFlow(
@@ -188,7 +218,10 @@ export const createHeadlessRunner = (opts: HeadlessRunnerOptions): HeadlessRunne
       const mode: RunMode = agentOpts?.mode ?? 'dry_run'
       const runId = newRunId()
       const ctx = buildCtx({ runId, workspaceId, mode })
-      const handlers = buildHandlers(mode)
+      const adaptersForRun = wrapAdaptersForCostTicks(opts.adapters, opts.observability)
+      const handlers = isStubRunMode(mode)
+        ? defaultStubHandlers(mode)
+        : buildLiveHandlers({ adapters: adaptersForRun, lookupAgent })
 
       // Build a minimal single-agent FlowConfig.
       // parseFlowConfig requires name and tags but the raw shape accepted by

@@ -15,8 +15,8 @@ const ctx = parseRunContext({
 })
 
 describe('FLOW_EVENT_TYPES', () => {
-  it('exposes 7 stable types including flow.run.cancelled', () => {
-    expect(FLOW_EVENT_TYPES.length).toBe(7)
+  it('exposes stable types including flow.run.cancelled and cost.tick', () => {
+    expect(FLOW_EVENT_TYPES.length).toBe(8)
     expect(FLOW_EVENT_TYPES).toContain('flow.node.started')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.completed')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.failed')
@@ -24,6 +24,7 @@ describe('FLOW_EVENT_TYPES', () => {
     expect(FLOW_EVENT_TYPES).toContain('flow.node.skipped')
     expect(FLOW_EVENT_TYPES).toContain('flow.node.resumed')
     expect(FLOW_EVENT_TYPES).toContain('flow.run.cancelled')
+    expect(FLOW_EVENT_TYPES).toContain('cost.tick')
   })
 })
 
@@ -106,6 +107,26 @@ describe('createBusOnEvent', () => {
       outcome: { kind: 'ok', value: 1 },
     })
     expect(handler).toHaveBeenCalledOnce()
+  })
+
+  it('maps cost.tick → cost.tick envelope', async () => {
+    const bus = new InMemoryEventBus()
+    const handler = vi.fn()
+    bus.subscribe('cost.tick', handler)
+    await createBusOnEvent({ bus, ctx })({
+      kind: 'cost.tick',
+      totalUsd: 0.05,
+      deltaUsd: 0.01,
+      cumulativeInputTokens: 100,
+      cumulativeOutputTokens: 50,
+      system: 'openai',
+      model: 'gpt-4o',
+    })
+    expect(handler).toHaveBeenCalledOnce()
+    const ev = handler.mock.calls[0]![0]
+    expect(ev.type).toBe('cost.tick')
+    expect(ev.data.totalUsd).toBe(0.05)
+    expect(ev.data.cumulativeInputTokens).toBe(100)
   })
 
   it('handles unserializable values defensively', async () => {

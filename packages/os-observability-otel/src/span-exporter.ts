@@ -69,6 +69,7 @@ const statusOf = (status: SpanStatus): { code: OtelSpanStatusCode; message?: str
       return { code: OTEL_SPAN_STATUS_ERROR, message: 'span.status=error' }
     case 'paused':
     case 'skipped':
+    case 'cancelled':
       return { code: OTEL_SPAN_STATUS_UNSET, message: status }
   }
 }

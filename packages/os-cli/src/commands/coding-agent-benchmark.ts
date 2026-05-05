@@ -1,8 +1,14 @@
-import { writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
 import { Command } from 'commander'
-import { runCodingAgentBenchmark } from '@agentskit/os-dev-orchestrator'
-import type { CodingTaskKind } from '@agentskit/os-core'
+import {
+  buildCodingTaskReportFromBenchmark,
+  renderCodingTaskReportMarkdown,
+  runCodingAgentBenchmark,
+  serializeCodingTaskReportJson,
+  toCodingTaskDashboardPayload,
+} from '@agentskit/os-dev-orchestrator'
+import { createDefaultRunId, type CodingTaskKind } from '@agentskit/os-core'
 import {
   BUILTIN_CODING_AGENT_IDS,
   createBuiltinCodingAgentProvider,
@@ -11,6 +17,7 @@ import {
 } from '@agentskit/os-coding-agents'
 import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit } from '../types.js'
+import { putReportLink } from './coding-agent-report-links.js'
 
 const TASK_KINDS: readonly CodingTaskKind[] = [
   'edit',
@@ -35,6 +42,11 @@ type BenchmarkOpts = {
   timeoutMs: string
   json?: boolean
   persist?: string
+  artifactDir?: string
+  captureRunArtifacts?: string
+  artifactTraceId?: string
+  traceUrl?: string
+  prUrl?: string
 }
 
 const parseProviders = (csv: string): string[] =>
@@ -73,6 +85,23 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
     .option('--timeout-ms <ms>', 'per-provider task timeout in milliseconds', '120000')
     .option('--json', 'print CodingBenchmarkReport as JSON', false)
     .option('--persist <path>', 'write JSON report to file (same payload as --json)', undefined)
+    .option(
+      '--artifact-dir <path>',
+      'write coding-task-report.json, coding-task-report.md, coding-task-dashboard.json (#368)',
+      undefined,
+    )
+    .option(
+      '--capture-run-artifacts <path>',
+      'write per-provider coding-run-artifact-*.json bundles under this directory (#367)',
+      undefined,
+    )
+    .option(
+      '--artifact-trace-id <id>',
+      'trace id stored in each coding run artifact (use with --capture-run-artifacts)',
+      undefined,
+    )
+    .option('--trace-url <url>', 'trace URL embedded in task report artifacts', undefined)
+    .option('--pr-url <url>', 'PR URL embedded in task report artifacts', undefined)
     .action(async (opts: BenchmarkOpts) => {
       const ids = parseProviders(opts.providers)
       const narrowed: BuiltinCodingAgentId[] = []
@@ -95,6 +124,8 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         return
       }
       const providers = narrowed.map((id) => createBuiltinCodingAgentProvider(id))
+      const captureDir = opts.captureRunArtifacts?.trim()
+      const traceIdOpt = opts.artifactTraceId?.trim()
       const report = await runCodingAgentBenchmark({
         repoRoot: resolve(opts.repoRoot),
         providers,
@@ -103,7 +134,36 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         dryRun,
         isolateWorktrees: opts.isolateWorktrees === true,
         timeoutMs,
+        ...(captureDir !== undefined && captureDir.length > 0
+          ? {
+              artifacts: {
+                outDir: resolve(captureDir),
+                runId: createDefaultRunId(),
+                ...(traceIdOpt !== undefined && traceIdOpt.length > 0 ? { traceId: traceIdOpt } : {}),
+              },
+            }
+          : {}),
       })
+
+      if (opts.artifactDir !== undefined && opts.artifactDir.trim().length > 0) {
+        const dir = resolve(opts.artifactDir.trim())
+        await mkdir(dir, { recursive: true })
+        const linkMap: Record<string, string> = {}
+        putReportLink(linkMap, 'traceUrl', opts.traceUrl)
+        putReportLink(linkMap, 'prUrl', opts.prUrl)
+        const reportOpts: { links?: Record<string, string> } = {}
+        if (Object.keys(linkMap).length > 0) {
+          reportOpts.links = linkMap
+        }
+        const taskReport = buildCodingTaskReportFromBenchmark(report, reportOpts)
+        await writeFile(join(dir, 'coding-task-report.json'), serializeCodingTaskReportJson(taskReport), 'utf8')
+        await writeFile(join(dir, 'coding-task-report.md'), renderCodingTaskReportMarkdown(taskReport), 'utf8')
+        await writeFile(
+          join(dir, 'coding-task-dashboard.json'),
+          `${JSON.stringify(toCodingTaskDashboardPayload(taskReport), null, 2)}\n`,
+          'utf8',
+        )
+      }
 
       const jsonOut = `${JSON.stringify(report, null, 2)}\n`
       if (opts.persist !== undefined && opts.persist !== '') {
@@ -114,9 +174,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         const ok = report.rows.every(
           (r: (typeof report.rows)[number]) => r.status === 'ok' || r.status === 'partial',
         )
-        result.current = ok
-          ? { code: 0, stdout: jsonOut, stderr: '' }
-          : { code: 1, stdout: '', stderr: jsonOut }
+        if (ok) {
+          result.current = { code: 0, stdout: jsonOut, stderr: '' }
+        } else {
+          result.current = { code: 1, stdout: '', stderr: jsonOut }
+        }
         return
       }
 
@@ -134,9 +196,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       const ok = report.rows.every(
         (r: (typeof report.rows)[number]) => r.status === 'ok' || r.status === 'partial',
       )
-      result.current = ok
-        ? { code: 0, stdout: text, stderr: '' }
-        : { code: 1, stdout: '', stderr: text }
+      if (ok) {
+        result.current = { code: 0, stdout: text, stderr: '' }
+      } else {
+        result.current = { code: 1, stdout: '', stderr: text }
+      }
     })
 
   return { program, result }

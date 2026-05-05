@@ -11,7 +11,7 @@ import type { AnyEvent, EventHandler } from '@agentskit/os-core'
 
 export type SpanKind = 'flow' | 'agent' | 'tool' | 'human' | 'unknown'
 
-export type SpanStatus = 'ok' | 'error' | 'skipped' | 'paused'
+export type SpanStatus = 'ok' | 'error' | 'skipped' | 'paused' | 'cancelled'
 
 export type Span = {
   readonly traceId: string

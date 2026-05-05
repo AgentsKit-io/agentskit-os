@@ -1,7 +1,15 @@
-import { resolve } from 'node:path'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join, resolve } from 'node:path'
 import { Command } from 'commander'
 import type { CodingTaskKind } from '@agentskit/os-core'
-import { runDelegatedCodingTask, type DelegationSubTaskRow } from '@agentskit/os-dev-orchestrator'
+import {
+  buildCodingTaskReportFromDelegation,
+  renderCodingTaskReportMarkdown,
+  runDelegatedCodingTask,
+  serializeCodingTaskReportJson,
+  toCodingTaskDashboardPayload,
+  type DelegationSubTaskRow,
+} from '@agentskit/os-dev-orchestrator'
 import {
   BUILTIN_CODING_AGENT_IDS,
   createBuiltinCodingAgentProvider,
@@ -10,6 +18,7 @@ import {
 } from '@agentskit/os-coding-agents'
 import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit } from '../types.js'
+import { putReportLink } from './coding-agent-report-links.js'
 
 const TASK_KINDS: readonly CodingTaskKind[] = [
   'edit',
@@ -45,6 +54,9 @@ type DelegateOpts = {
   isolateWorktrees: boolean
   parallel: boolean
   json?: boolean
+  artifactDir?: string
+  traceUrl?: string
+  prUrl?: string
 }
 
 const buildProgram = (): { program: Command; result: { current?: CliExit } } => {
@@ -78,6 +90,13 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       false,
     )
     .option('--json', 'print DelegationReport as JSON', false)
+    .option(
+      '--artifact-dir <path>',
+      'write coding-task-report.json, coding-task-report.md, coding-task-dashboard.json (#368)',
+      undefined,
+    )
+    .option('--trace-url <url>', 'trace URL embedded in task report artifacts', undefined)
+    .option('--pr-url <url>', 'PR URL embedded in task report artifacts', undefined)
     .action(async (opts: DelegateOpts) => {
       if (opts.sub.length === 0) {
         program.error('at least one --sub provider:prompt is required', { exitCode: 2 })
@@ -120,13 +139,47 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         return
       }
 
+      if (opts.artifactDir !== undefined && opts.artifactDir.trim().length > 0) {
+        const dir = resolve(opts.artifactDir.trim())
+        await mkdir(dir, { recursive: true })
+        const linkMap: Record<string, string> = {}
+        putReportLink(linkMap, 'traceUrl', opts.traceUrl)
+        putReportLink(linkMap, 'prUrl', opts.prUrl)
+        const dryRun = opts.apply !== true
+        const delegationOpts: { links?: Record<string, string> } = {}
+        if (Object.keys(linkMap).length > 0) {
+          delegationOpts.links = linkMap
+        }
+        const taskReport = buildCodingTaskReportFromDelegation(
+          report,
+          {
+            kind: opts.kind,
+            prompt: opts.coordinatorPrompt,
+            dryRun,
+            repoRoot: resolve(opts.repoRoot),
+            isolateWorktrees: opts.isolateWorktrees === true,
+          },
+          delegationOpts,
+        )
+        await writeFile(join(dir, 'coding-task-report.json'), serializeCodingTaskReportJson(taskReport), 'utf8')
+        await writeFile(join(dir, 'coding-task-report.md'), renderCodingTaskReportMarkdown(taskReport), 'utf8')
+        await writeFile(
+          join(dir, 'coding-task-dashboard.json'),
+          `${JSON.stringify(toCodingTaskDashboardPayload(taskReport), null, 2)}\n`,
+          'utf8',
+        )
+      }
+
       if (opts.json) {
         const out = `${JSON.stringify(report, null, 2)}\n`
-        result.current =
+        const badJson =
           report.suggestHumanInbox ||
           report.subtasks.some((s: DelegationSubTaskRow) => s.result.status === 'fail')
-            ? { code: 1, stdout: '', stderr: out }
-            : { code: 0, stdout: out, stderr: '' }
+        if (badJson) {
+          result.current = { code: 1, stdout: '', stderr: out }
+        } else {
+          result.current = { code: 0, stdout: out, stderr: '' }
+        }
         return
       }
 
@@ -143,7 +196,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       const bad =
         report.suggestHumanInbox ||
         report.subtasks.some((s: DelegationSubTaskRow) => s.result.status === 'fail')
-      result.current = bad ? { code: 1, stdout: '', stderr: text } : { code: 0, stdout: text, stderr: '' }
+      if (bad) {
+        result.current = { code: 1, stdout: '', stderr: text }
+      } else {
+        result.current = { code: 0, stdout: text, stderr: '' }
+      }
     })
 
   return { program, result }

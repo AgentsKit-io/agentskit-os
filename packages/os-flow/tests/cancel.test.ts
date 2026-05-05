@@ -1,5 +1,5 @@
 // Tests for #199 — cost stream cancel signal (engine half)
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { InMemoryEventBus, parseFlowConfig, parseRunContext } from '@agentskit/os-core'
 import {
   runFlow,
@@ -37,13 +37,16 @@ describe('runFlow AbortSignal cancellation', () => {
   it('cancel before run starts returns cancelled immediately', async () => {
     const controller = new AbortController()
     controller.abort()
+    const onEvent = vi.fn()
 
     const r = await runFlow(linear, {
       handlers: okHandlers,
       ctx,
       signal: controller.signal,
+      onEvent,
     })
 
+    expect(onEvent).toHaveBeenCalledWith({ kind: 'run:cancelled', reason: 'os.flow.cancelled' })
     expect(r.status).toBe('cancelled')
     expect(r.reason).toBe('os.flow.cancelled')
     expect(r.executedOrder).toEqual([])
@@ -53,6 +56,7 @@ describe('runFlow AbortSignal cancellation', () => {
   it('cancel mid-run stops after current node', async () => {
     const controller = new AbortController()
     const executed: string[] = []
+    const onEvent = vi.fn()
 
     const handlers: NodeHandlerMap = {
       tool: async (n) => {
@@ -67,8 +71,10 @@ describe('runFlow AbortSignal cancellation', () => {
       handlers,
       ctx,
       signal: controller.signal,
+      onEvent,
     })
 
+    expect(onEvent).toHaveBeenCalledWith({ kind: 'run:cancelled', reason: 'os.flow.cancelled' })
     // 'a' ran, then signal checked before 'b' → cancelled
     expect(r.status).toBe('cancelled')
     expect(r.reason).toBe('os.flow.cancelled')

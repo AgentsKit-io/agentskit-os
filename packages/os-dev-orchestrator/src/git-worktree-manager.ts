@@ -1,3 +1,5 @@
+import { mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
 import { spawn } from 'node:child_process'
 
 export type GitRunResult = {
@@ -47,7 +49,6 @@ export const defaultGitRunner: GitRunner = async ({ repoRoot, args, timeoutMs })
 
 const assertSafeFsPath = (p: string): void => {
   if (!p || p.includes('\0')) throw new Error('invalid path')
-  // prevent obvious traversal; callers should still prefer absolute paths
   const norm = p.replaceAll('\\', '/')
   if (norm.split('/').some((seg) => seg === '..')) throw new Error('path must not contain ".." segments')
 }
@@ -120,5 +121,144 @@ export const createDevOrchestratorWorktreeManager = (opts: {
       }
       return { ok: true }
     },
+  }
+}
+
+export type WorktreeCleanupOutcome = 'preserve' | 'archive' | 'delete'
+
+export type WorktreeTaskMeta = {
+  readonly taskId: string
+  readonly providerId: string
+  readonly branch: string
+  readonly baseRef?: string
+  readonly path: string
+  readonly cleanupDefault: WorktreeCleanupOutcome
+  readonly changedFiles: readonly string[]
+  readonly createdAtMs: number
+}
+
+export type CodingAgentWorktreeCreateInput = {
+  readonly taskId: string
+  readonly providerId: string
+  readonly path: string
+  readonly branch: string
+  readonly baseRef?: string
+  readonly cleanupDefault?: WorktreeCleanupOutcome
+  readonly changedFiles?: readonly string[]
+}
+
+export type CodingAgentWorktreeManager = DevOrchestratorWorktreeManager & {
+  readonly createForTask: (
+    input: CodingAgentWorktreeCreateInput,
+  ) => Promise<{ ok: true; meta: WorktreeTaskMeta } | { ok: false; error: string }>
+  readonly finalize: (
+    taskId: string,
+    outcome: WorktreeCleanupOutcome,
+  ) => Promise<{ ok: true } | { ok: false; error: string }>
+  readonly getMeta: (taskId: string) => WorktreeTaskMeta | undefined
+  readonly listTasks: () => readonly WorktreeTaskMeta[]
+}
+
+const sanitizeId = (s: string): string =>
+  s.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48) || 'task'
+
+/**
+ * Git worktree manager for coding-agent runs: task-scoped metadata, collision-safe
+ * branch naming helpers, and post-review cleanup (`preserve` | `archive` | `delete`).
+ */
+export const createCodingAgentWorktreeManager = (opts: {
+  readonly repoRoot: string
+  readonly runner?: GitRunner
+  readonly timeoutMs?: number
+}): CodingAgentWorktreeManager => {
+  const base = createDevOrchestratorWorktreeManager(opts)
+  const runner = opts.runner ?? defaultGitRunner
+  const timeoutMs = opts.timeoutMs ?? 30_000
+  const repoRoot = opts.repoRoot
+  const tasks = new Map<string, WorktreeTaskMeta>()
+  const usedBranches = new Set<string>()
+
+  const uniqueBranch = (providerId: string, taskId: string): string => {
+    const p = sanitizeId(providerId)
+    const t = sanitizeId(taskId)
+    let n = 0
+    let b = `agentskit/${p}-${t}`
+    while (usedBranches.has(b)) {
+      n += 1
+      b = `agentskit/${p}-${t}-${n}`
+    }
+    usedBranches.add(b)
+    return b
+  }
+
+  return {
+    ...base,
+    createForTask: async (input) => {
+      const branch =
+        input.branch.trim().length > 0
+          ? input.branch.trim()
+          : uniqueBranch(input.providerId, input.taskId)
+      const add = await base.add({
+        path: input.path,
+        branch,
+        ...(input.baseRef !== undefined ? { startPoint: input.baseRef } : {}),
+      })
+      if (!add.ok) return add
+      usedBranches.add(branch)
+
+      const cleanupDefault = input.cleanupDefault ?? 'delete'
+      const meta: WorktreeTaskMeta = {
+        taskId: input.taskId,
+        providerId: input.providerId,
+        branch,
+        ...(input.baseRef !== undefined ? { baseRef: input.baseRef } : {}),
+        path: input.path,
+        cleanupDefault,
+        changedFiles: input.changedFiles ?? [],
+        createdAtMs: Date.now(),
+      }
+      tasks.set(input.taskId, meta)
+      return { ok: true, meta }
+    },
+
+    finalize: async (taskId, outcome) => {
+      const meta = tasks.get(taskId)
+      if (!meta) return { ok: false, error: `unknown task id: ${taskId}` }
+
+      if (outcome === 'preserve') {
+        return { ok: true }
+      }
+
+      if (outcome === 'archive') {
+        const destDir = join(repoRoot, '.agentskitos', 'worktrees', 'archive')
+        try {
+          await mkdir(destDir, { recursive: true })
+        } catch (err) {
+          return { ok: false, error: err instanceof Error ? err.message : String(err) }
+        }
+        const destPath = join(destDir, sanitizeId(taskId))
+        const mv = await runner({
+          repoRoot,
+          args: ['worktree', 'move', meta.path, destPath],
+          timeoutMs,
+        })
+        if (mv.exitCode !== 0) {
+          const rm = await base.remove(meta.path)
+          if (!rm.ok) return rm
+        }
+        usedBranches.delete(meta.branch)
+        tasks.delete(taskId)
+        return { ok: true }
+      }
+
+      const rm = await base.remove(meta.path)
+      if (!rm.ok) return rm
+      usedBranches.delete(meta.branch)
+      tasks.delete(taskId)
+      return { ok: true }
+    },
+
+    getMeta: (taskId) => tasks.get(taskId),
+    listTasks: () => [...tasks.values()],
   }
 }

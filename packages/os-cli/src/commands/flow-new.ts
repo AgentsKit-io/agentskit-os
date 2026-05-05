@@ -15,7 +15,16 @@ import { defaultIo } from '../io.js'
 type Persona = 'dev' | 'agency' | 'clinical' | 'non-tech'
 
 const personaSuggestions: Record<Persona, readonly string[]> = {
-  dev: ['dev-pr-review', 'dev-bug-fix', 'dev-code-review', 'dev-refactor', 'dev-eval', 'pr-review', 'compose-nested'],
+  dev: [
+    'dev-pr-review',
+    'dev-bug-fix',
+    'dev-code-review',
+    'dev-refactor',
+    'dev-eval',
+    'dev-issue-to-pr',
+    'pr-review',
+    'compose-nested',
+  ],
   agency: ['marketing-3way', 'compare-models', 'vote-majority', 'parallel-fanout'],
   clinical: ['clinical-consensus', 'vote-majority', 'debate-pro-con', 'condition-triage'],
   'non-tech': ['support-triage', 'condition-triage', 'linear-doc-summarize'],

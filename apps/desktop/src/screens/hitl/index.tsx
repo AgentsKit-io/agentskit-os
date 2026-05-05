@@ -71,11 +71,17 @@ function formatTime(iso: string): string {
   }
 }
 
-function HitlSummary({ requests }: { readonly requests: readonly HitlRequest[] }) {
-  const pending = requests.filter((request) => request.status === 'pending').length
+function HitlSummary({
+  requests,
+  statusOf,
+}: {
+  readonly requests: readonly HitlRequest[]
+  readonly statusOf: (r: HitlRequest) => HitlStatus
+}) {
+  const pending = requests.filter((request) => statusOf(request) === 'pending').length
   const highRisk = requests.filter((request) => request.risk === 'high').length
-  const approved = requests.filter((request) => request.status === 'approved').length
-  const denied = requests.filter((request) => request.status === 'denied').length
+  const approved = requests.filter((request) => statusOf(request) === 'approved').length
+  const denied = requests.filter((request) => statusOf(request) === 'denied').length
 
   const items = [
     { label: 'Pending', value: pending.toString() },
@@ -104,22 +110,26 @@ function RequestTable({
   requests,
   selectedId,
   onSelect,
+  statusOf,
 }: {
   readonly requests: readonly HitlRequest[]
   readonly selectedId: string | null
   readonly onSelect: (id: string) => void
+  readonly statusOf: (r: HitlRequest) => HitlStatus
 }) {
   return (
     <div className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <table className="w-full border-collapse text-sm" aria-label="Human approval inbox">
+      <table className="w-full border-collapse text-sm" aria-label="Human task inbox">
         <thead>
           <tr className="border-b border-[var(--ag-line)] text-left text-[0.65rem] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
             <th className="px-4 py-2 font-medium">Request</th>
             <th className="px-3 py-2 font-medium">Kind</th>
             <th className="px-3 py-2 font-medium">Status</th>
             <th className="px-3 py-2 font-medium">Risk</th>
+            <th className="px-3 py-2 font-medium">Policy</th>
             <th className="px-3 py-2 font-medium">Agent</th>
-            <th className="px-4 py-2 font-medium">Expires</th>
+            <th className="px-3 py-2 font-medium">Trace</th>
+            <th className="px-4 py-2 font-medium">Due</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--ag-line-soft)]">
@@ -154,12 +164,25 @@ function RequestTable({
                 {KIND_LABEL[request.kind]}
               </td>
               <td className="px-3 py-3">
-                <Pill label={STATUS_LABEL[request.status]} className={STATUS_CLASSES[request.status]} />
+                <Pill label={STATUS_LABEL[statusOf(request)]} className={STATUS_CLASSES[statusOf(request)]} />
               </td>
               <td className="px-3 py-3">
                 <Pill label={RISK_LABEL[request.risk]} className={RISK_CLASSES[request.risk]} />
               </td>
+              <td className="max-w-[140px] px-3 py-3 font-mono text-[10px] text-[var(--ag-ink-muted)]">
+                <span className="line-clamp-2" title={(request.policyRuleIds ?? []).join(', ')}>
+                  {(request.policyRuleIds ?? []).length > 0 ? `${request.policyRuleIds!.length} rules` : '—'}
+                </span>
+              </td>
               <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">{request.agent}</td>
+              <td className="px-3 py-3">
+                <a
+                  className="text-xs font-medium text-[var(--ag-accent)] hover:underline"
+                  href={request.traceUrl ?? `#/traces/${encodeURIComponent(request.runId)}`}
+                >
+                  Open
+                </a>
+              </td>
               <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
                 {formatTime(request.expiresAt)}
               </td>
@@ -171,7 +194,21 @@ function RequestTable({
   )
 }
 
-function RequestDetail({ request }: { readonly request: HitlRequest | null }) {
+function RequestDetail({
+  request,
+  statusOf,
+  escalationNotes,
+  onApprove,
+  onReject,
+  onEscalate,
+}: {
+  readonly request: HitlRequest | null
+  readonly statusOf: (r: HitlRequest) => HitlStatus
+  readonly escalationNotes: Readonly<Partial<Record<string, string>>>
+  readonly onApprove: (id: string) => void
+  readonly onReject: (id: string) => void
+  readonly onEscalate: (id: string) => void
+}) {
   if (request === null) {
     return (
       <aside className="flex min-h-0 flex-col justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-6 text-center">
@@ -195,7 +232,7 @@ function RequestDetail({ request }: { readonly request: HitlRequest | null }) {
               {request.id}
             </p>
           </div>
-          <Pill label={STATUS_LABEL[request.status]} className={STATUS_CLASSES[request.status]} />
+          <Pill label={STATUS_LABEL[statusOf(request)]} className={STATUS_CLASSES[statusOf(request)]} />
         </div>
       </div>
 
@@ -205,6 +242,63 @@ function RequestDetail({ request }: { readonly request: HitlRequest | null }) {
         <DetailMetric label="Agent" value={request.agent} />
         <DetailMetric label="Created" value={formatTime(request.createdAt)} />
       </div>
+
+      {escalationNotes[request.id] !== undefined && (
+        <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-sm text-amber-100">
+          {escalationNotes[request.id]}
+        </div>
+      )}
+
+      {statusOf(request) === 'pending' && (
+        <div className="flex flex-wrap gap-2 border-b border-[var(--ag-line)] p-4">
+          <button
+            type="button"
+            className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25"
+            onClick={() => onApprove(request.id)}
+          >
+            Approve
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-sm font-medium text-red-200 hover:bg-red-500/25"
+            onClick={() => onReject(request.id)}
+          >
+            Reject
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-amber-500/40 bg-amber-500/15 px-3 py-1.5 text-sm font-medium text-amber-200 hover:bg-amber-500/25"
+            onClick={() => onEscalate(request.id)}
+          >
+            Escalate
+          </button>
+        </div>
+      )}
+
+      <div className="border-b border-[var(--ag-line)] p-4">
+        <h3 className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">Trace</h3>
+        <a
+          className="mt-2 inline-block text-sm font-medium text-[var(--ag-accent)] hover:underline"
+          href={request.traceUrl ?? `#/traces/${encodeURIComponent(request.runId)}`}
+        >
+          Open trace for {request.runId}
+        </a>
+      </div>
+
+      {(request.policyRuleIds?.length ?? 0) > 0 && (
+        <div className="border-b border-[var(--ag-line)] p-4">
+          <h3 className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+            Policy context
+          </h3>
+          <ul className="mt-2 flex flex-col gap-1">
+            {(request.policyRuleIds ?? []).map((rule) => (
+              <li key={rule} className="font-mono text-xs text-[var(--ag-ink-muted)]">
+                {rule}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <DetailBlock label="Summary" value={request.summary} />
       <DetailBlock label="Requester" value={request.requester} />
@@ -272,10 +366,15 @@ export function HitlScreen() {
   const { requests, loading, error } = useHitlRequests()
   const [filter, setFilter] = useState<HitlStatus | 'all'>('all')
   const [selectedId, setSelectedId] = useState<string | null>(MOCK_HITL_REQUESTS[1]?.id ?? null)
+  const [localStatus, setLocalStatus] = useState<Partial<Record<string, HitlStatus>>>({})
+  const [escalationNotes, setEscalationNotes] = useState<Partial<Record<string, string>>>({})
+
+  const statusOf = (r: HitlRequest): HitlStatus => localStatus[r.id] ?? r.status
 
   const filteredRequests = useMemo(() => {
-    return filter === 'all' ? requests : requests.filter((request) => request.status === filter)
-  }, [filter, requests])
+    const eff = (r: HitlRequest) => localStatus[r.id] ?? r.status
+    return filter === 'all' ? requests : requests.filter((request) => eff(request) === filter)
+  }, [filter, requests, localStatus])
 
   const selectedRequest = useMemo(() => {
     return requests.find((request) => request.id === selectedId) ?? filteredRequests[0] ?? null
@@ -294,8 +393,11 @@ export function HitlScreen() {
       <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[var(--ag-line)] px-6 py-4">
         <div>
           <h1 className="text-lg font-semibold tracking-tight text-[var(--ag-ink)]">HITL Inbox</h1>
+          <p className="mt-0.5 text-xs font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+            Human task inbox
+          </p>
           <p className="mt-1 text-sm text-[var(--ag-ink-muted)]">
-            Review agent pauses for cost exceptions, deploy gates, data access, and code changes.
+            Approvals, escalations, deploy gates, data access, and failed runs that need an operator decision.
           </p>
         </div>
         <Badge variant="outline">Preview data</Badge>
@@ -308,7 +410,7 @@ export function HitlScreen() {
           </div>
         )}
 
-        <HitlSummary requests={requests} />
+        <HitlSummary requests={requests} statusOf={statusOf} />
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filter approvals by status">
           {FILTERS.map((item) => (
@@ -335,8 +437,25 @@ export function HitlScreen() {
           </div>
         ) : (
           <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <RequestTable requests={filteredRequests} selectedId={selectedRequest?.id ?? null} onSelect={setSelectedId} />
-            <RequestDetail request={selectedRequest} />
+            <RequestTable
+              requests={filteredRequests}
+              selectedId={selectedRequest?.id ?? null}
+              onSelect={setSelectedId}
+              statusOf={statusOf}
+            />
+            <RequestDetail
+              request={selectedRequest}
+              statusOf={statusOf}
+              escalationNotes={escalationNotes}
+              onApprove={(id) => setLocalStatus((m) => ({ ...m, [id]: 'approved' }))}
+              onReject={(id) => setLocalStatus((m) => ({ ...m, [id]: 'denied' }))}
+              onEscalate={(id) =>
+                setEscalationNotes((n) => ({
+                  ...n,
+                  [id]: 'Escalated to L2 operator queue (demo — wire to sidecar in production).',
+                }))
+              }
+            />
           </div>
         )}
       </div>

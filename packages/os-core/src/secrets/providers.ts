@@ -98,7 +98,7 @@ export const checkProviderKeys = (
     providerId: provider.id,
     status: 'missing',
     missingKeys: missing,
-    remediation: `set ${missing.join(', ')} via \`agentskit-os creds set <key>\` (or your vault backend)`,
+    remediation: `set ${missing.join(', ')} via \`agentskit-os creds set KEY --stdin\` (see \`agentskit-os creds guide\`) or your vault backend; use \`--secrets-file\` with creds check / doctor`,
   }
 }
 

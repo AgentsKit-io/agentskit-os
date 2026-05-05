@@ -43,6 +43,7 @@ export default defineConfig({
     'src/obs/gen-ai-semconv.ts',
     'src/cost/cost-meter.ts',
     'src/security/airgap.ts',
+    'src/security/workspace-policy-engine.ts',
     'src/runtime/adapter-fallback.ts',
     'src/runtime/workspace-paths.ts',
     'src/runtime/agent-lifecycle.ts',

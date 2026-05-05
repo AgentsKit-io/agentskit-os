@@ -56,7 +56,7 @@ export const SAMPLE_REGISTRY: ReadonlyArray<MarketplaceTheme> = [
   {
     id: 'marketplace-paper',
     name: 'Paper',
-    description: 'Warm off-white surface with amber ink — easy on the eyes.',
+    description: 'Warm off-white surface with amber ink, easy on the eyes.',
     base: 'light',
     overrides: {
       '--ag-surface': '#fdf8f0',
@@ -108,7 +108,7 @@ export function MarketplaceStub({ onPreview }: MarketplaceStubProps) {
         {SAMPLE_REGISTRY.map((mt) => (
           <li
             key={mt.id}
-            className="flex items-center justify-between rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-2"
+            className="flex items-center justify-between gap-3 rounded-xl border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-2"
           >
             <div>
               <p className="text-[13px] font-medium text-[var(--ag-ink)]">{mt.name}</p>
@@ -118,7 +118,7 @@ export function MarketplaceStub({ onPreview }: MarketplaceStubProps) {
               type="button"
               data-testid={`preview-${mt.id}`}
               onClick={() => onPreview(mt.overrides)}
-              className="rounded-md border border-[var(--ag-line)] px-2.5 py-1 text-[12px] text-[var(--ag-ink-muted)] transition-colors hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-accent)]"
+              className="rounded-full border border-[var(--ag-line)] px-2.5 py-1 text-[12px] text-[var(--ag-ink-muted)] transition-colors hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-accent)]"
             >
               Preview
             </button>

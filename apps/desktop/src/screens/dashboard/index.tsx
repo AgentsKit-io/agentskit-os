@@ -1,92 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Badge } from '@agentskit/os-ui'
-import { getSidecarStatus, type RunMode, type SidecarStatus } from '../../lib/sidecar'
-import { getRunMode, setRunMode } from '../../lib/run-mode-store'
-import { useDashboardStats } from './use-dashboard-stats'
-import { useEventFeed } from './use-event-feed'
+import { useEffect, useRef } from 'react'
 import { StatsGrid } from './stats-grid'
-import { RecentRuns } from './recent-runs'
-import { EventFeed } from './event-feed'
-import { useDeployToCloud } from './use-deploy-to-cloud'
-
-// ---------------------------------------------------------------------------
-// Header
-// ---------------------------------------------------------------------------
-
-type HeaderProps = {
-  workspaceName: string
-  runMode: RunMode
-  status: SidecarStatus
-  onChangeRunMode: (mode: RunMode) => void
-  onDeploy: () => void
-}
-
-const RUN_MODE_LABEL: Record<RunMode, string> = {
-  real: 'real',
-  preview: 'preview',
-  dry_run: 'dry run',
-  sandbox: 'sandbox',
-}
-
-function Header({ workspaceName, runMode, status, onChangeRunMode, onDeploy }: HeaderProps) {
-  const connected = status === 'connected'
-  const modeLabel = RUN_MODE_LABEL[runMode]
-  const isProd = runMode === 'real'
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ag-line)] px-6 py-4">
-      <div className="flex flex-wrap items-center gap-3">
-      <h1 className="text-base font-semibold text-[var(--ag-ink)]">{workspaceName}</h1>
-
-      <Badge variant="outline">{modeLabel}</Badge>
-
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-          connected
-            ? 'border-transparent bg-[var(--ag-accent-dim)] text-[var(--ag-accent-hover)]'
-            : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)]'
-        }`}
-      >
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${
-            connected ? 'bg-[var(--ag-accent)]' : 'bg-[var(--ag-ink-subtle)]'
-          }`}
-        />
-        {connected ? 'Connected' : 'Disconnected'}
-      </span>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          className={[
-            'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-            isProd
-              ? 'border-[var(--ag-success)]/30 bg-[var(--ag-success)]/10 text-[var(--ag-success)] hover:border-[var(--ag-success)]/60'
-              : 'border-[var(--ag-line)] bg-[var(--ag-panel-alt)] text-[var(--ag-ink)] hover:border-[var(--ag-accent)]/60',
-          ].join(' ')}
-          onClick={() => onChangeRunMode(isProd ? 'preview' : 'real')}
-          title="Toggle between preview (dev-safe) and real (prod) execution."
-        >
-          {isProd ? 'Prod: real' : 'Dev: preview'}
-        </button>
-        <button
-          type="button"
-          className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
-          onClick={onDeploy}
-          title="Deploy the current workspace to AgentsKitOS Cloud."
-        >
-          Deploy to Cloud
-        </button>
-      </div>
-    </div>
-  )
-}
+import { HomeHero } from './home-hero'
+import { HomeActivityPanel } from './home-activity-panel'
+import { NextActions } from './next-actions'
+import { useDashboardRuntime } from './use-dashboard-runtime'
 
 // ---------------------------------------------------------------------------
 // Dashboard
 // ---------------------------------------------------------------------------
 
 type DashboardProps = {
+  readonly onNavigate?: (screen: 'flows' | 'runs') => void
   /**
    * Optional ref-setter called once on mount so a parent (e.g. the command
    * palette provider) can imperatively trigger `clearEventFeed`.
@@ -94,48 +18,37 @@ type DashboardProps = {
   onRegisterClear?: (clear: () => void) => void
 }
 
-export function Dashboard({ onRegisterClear }: DashboardProps) {
-  const [sidecarStatus, setSidecarStatus] = useState<SidecarStatus>('disconnected')
-  const [runMode, setRunModeState] = useState<RunMode>(() => getRunMode())
-  const { stats, isLoading } = useDashboardStats()
-  const { events, isPaused, toggle, clear } = useEventFeed()
-  const deployLabel = useMemo(() => (runMode === 'real' ? 'prod' : 'dev'), [runMode])
-  const deployToCloud = useDeployToCloud()
+export function Dashboard({ onNavigate, onRegisterClear }: DashboardProps) {
+  const runtime = useDashboardRuntime()
+  const { eventsState, statsState } = runtime
 
-  // Expose `clear` to the parent once it stabilises.
   const registeredRef = useRef(false)
   useEffect(() => {
     if (!registeredRef.current && onRegisterClear) {
       registeredRef.current = true
-      onRegisterClear(clear)
+      onRegisterClear(eventsState.clear)
     }
-  }, [clear, onRegisterClear])
-
-  useEffect(() => {
-    getSidecarStatus().then(setSidecarStatus).catch(() => {
-      setSidecarStatus('error')
-    })
-  }, [])
+  }, [eventsState.clear, onRegisterClear])
 
   return (
-    <section aria-label="Dashboard" className="flex flex-col">
-      <Header
-        workspaceName="My Workspace"
-        runMode={runMode}
-        status={sidecarStatus}
-        onChangeRunMode={(mode) => {
-          setRunMode(mode)
-          setRunModeState(mode)
-        }}
-        onDeploy={() => {
-          void deployToCloud({ mode: runMode, label: deployLabel })
-        }}
-      />
-
-      <div className="flex flex-col gap-6 px-6 py-6">
-        <StatsGrid stats={stats} isLoading={isLoading} />
-        <RecentRuns runs={[]} />
-        <EventFeed events={events} isPaused={isPaused} toggle={toggle} />
+    <section aria-label="Dashboard" className="flex min-h-full flex-col bg-[var(--ag-surface)]">
+      <div className="flex flex-col gap-5 px-4 py-5 sm:px-6">
+        <HomeHero
+          onChangeRunMode={runtime.setMode}
+          onCreateAutomation={() => onNavigate?.('flows')}
+          onDeploy={runtime.deploy}
+          onOpenRuns={() => onNavigate?.('runs')}
+          runMode={runtime.runMode}
+          status={runtime.sidecarStatus}
+          workspaceName="My Workspace"
+        />
+        <StatsGrid stats={statsState.stats} isLoading={statsState.isLoading} />
+        <NextActions onCreateAutomation={() => onNavigate?.('flows')} />
+        <HomeActivityPanel
+          events={eventsState.events}
+          isPaused={eventsState.isPaused}
+          toggle={eventsState.toggle}
+        />
       </div>
     </section>
   )

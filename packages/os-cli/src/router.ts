@@ -30,6 +30,8 @@ import { devWorktree } from './commands/dev-worktree.js'
 import { codingAgentBenchmark } from './commands/coding-agent-benchmark.js'
 import { codingAgentConformance } from './commands/coding-agent-conformance.js'
 import { codingAgentDelegate } from './commands/coding-agent-delegate.js'
+import { snapshotSchedule } from './commands/snapshot-schedule.js'
+import { snapshotRetention } from './commands/snapshot-retention.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
@@ -65,6 +67,8 @@ export const COMMANDS: readonly CliCommand[] = [
   codingAgentConformance,
   codingAgentBenchmark,
   codingAgentDelegate,
+  snapshotSchedule,
+  snapshotRetention,
   version,
 ]
 

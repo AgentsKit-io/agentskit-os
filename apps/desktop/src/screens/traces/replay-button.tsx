@@ -82,7 +82,7 @@ export const ReplayButton = ({
         >
           <path d="M3 3.732a1.5 1.5 0 0 1 2.305-1.265l6.706 4.269a1.5 1.5 0 0 1 0 2.528l-6.706 4.27A1.5 1.5 0 0 1 3 12.268V3.732Z" />
         </svg>
-        {replaying ? 'Replaying…' : 'Replay'}
+        {replaying ? 'Replaying...' : 'Replay'}
       </button>
 
       {/* Tooltip — always shown for stub */}
@@ -91,8 +91,8 @@ export const ReplayButton = ({
           role="tooltip"
           className={[
             'pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50',
-            'rounded-md border border-line bg-panel px-2.5 py-1.5',
-            'text-xs text-ink whitespace-nowrap shadow-lg',
+            'rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-2.5 py-1.5',
+            'whitespace-nowrap text-xs text-[var(--ag-ink)] shadow-lg',
             'opacity-0 group-hover:opacity-100 transition-opacity',
           ].join(' ')}
         >

@@ -60,7 +60,7 @@ function TabContextMenu({ state, onClose, onRename, onDelete }: ContextMenuProps
       aria-label="Dashboard options"
       data-testid="tab-context-menu"
       style={{ left: state.x, top: state.y }}
-      className="fixed z-50 min-w-[140px] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] py-1 shadow-lg"
+      className="fixed z-50 min-w-[140px] rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] py-1 shadow-lg"
     >
       <button
         role="menuitem"
@@ -68,7 +68,7 @@ function TabContextMenu({ state, onClose, onRename, onDelete }: ContextMenuProps
         onClick={handleRename}
         className="flex w-full items-center px-3 py-1.5 text-sm text-[var(--ag-ink)] hover:bg-[var(--ag-panel-alt)]"
       >
-        Rename…
+        Rename...
       </button>
       <button
         role="menuitem"
@@ -115,7 +115,7 @@ export function DashboardTabs() {
         role="tablist"
         aria-label="Dashboards"
         data-testid="dashboard-tabs"
-        className="flex items-center gap-1 border-b border-[var(--ag-line)] px-4 py-1 overflow-x-auto"
+        className="flex items-center gap-1 overflow-x-auto border-b border-[var(--ag-line)] px-4 py-1"
       >
         {all.map((dashboard) => (
           <button
@@ -127,7 +127,7 @@ export function DashboardTabs() {
             onClick={() => switchDashboard(dashboard.id)}
             onContextMenu={(e) => handleContextMenu(e, dashboard.id, dashboard.name)}
             className={[
-              'flex shrink-0 items-center rounded-t-md px-3 py-1.5 text-sm transition-colors',
+              'flex shrink-0 items-center rounded-t-lg px-3 py-1.5 text-sm transition-colors',
               dashboard.id === active.id
                 ? 'border border-b-0 border-[var(--ag-line)] bg-[var(--ag-surface)] font-medium text-[var(--ag-ink)]'
                 : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
@@ -142,7 +142,7 @@ export function DashboardTabs() {
           data-testid="create-dashboard-btn"
           aria-label="Create new dashboard"
           onClick={handleCreate}
-          className="ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
+          className="ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
         >
           +
         </button>

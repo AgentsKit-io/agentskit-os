@@ -1,5 +1,5 @@
 /**
- * TraceList — table of recent traces.
+ * TraceList - table of recent traces.
  *
  * Displays trace id, flow, mode, started, duration, and status.
  * Highlights the selected row. Calls `onSelect` on row click.
@@ -10,42 +10,14 @@
 
 import type { TraceRow } from './use-traces'
 import { useTraces } from './use-traces'
-import { formatMdHms } from '../../lib/time'
-import { formatShortDuration } from '../../lib/format'
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import { TraceModeBadge, TraceStatusBadge } from './trace-badges'
+import { formatDateTime, formatShortDuration } from '../../lib/format'
 
 export type TraceListProps = {
   readonly selectedTraceId: string | null
   readonly onSelect: (traceId: string) => void
   readonly className?: string
 }
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const statusClassByStatus: Record<string, string> = {
-  ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',
-  error: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)] border-[var(--ag-danger)]/25',
-  skipped: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/25',
-  paused: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)] border-[var(--ag-warn)]/25',
-}
-
-const modeClassByMode: Record<string, string> = {
-  real: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
-  preview: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
-  dry_run: 'bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/20',
-  replay: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
-  simulate: 'bg-[var(--ag-warn)]/10 text-[var(--ag-warn)] border-[var(--ag-warn)]/20',
-  deterministic: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
-}
-
-// ---------------------------------------------------------------------------
-// TraceRow component
-// ---------------------------------------------------------------------------
 
 type TraceRowItemProps = {
   readonly row: TraceRow
@@ -58,9 +30,6 @@ const TraceRowItem = ({
   selected,
   onSelect,
 }: TraceRowItemProps): React.JSX.Element => {
-  const statusClass = statusClassByStatus[row.status] ?? statusClassByStatus['ok']
-  const modeClass = modeClassByMode[row.runMode] ?? modeClassByMode['real']
-
   return (
     <tr
       data-testid="trace-row"
@@ -77,56 +46,45 @@ const TraceRowItem = ({
         }
       }}
       className={[
-        'cursor-pointer transition-colors',
+        'cursor-pointer transition focus-visible:outline focus-visible:outline-2',
+        'focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ag-accent)]',
         selected
-          ? 'bg-accent/10 hover:bg-accent/15'
-          : 'hover:bg-panel-alt',
+          ? 'bg-[color-mix(in_srgb,var(--ag-accent)_10%,transparent)]'
+          : 'hover:bg-[var(--ag-panel-alt)]',
       ].join(' ')}
     >
       {/* Trace ID */}
-      <td className="py-2 pl-4 pr-3 text-xs font-mono text-ink-muted truncate max-w-[120px]">
-        <span title={row.traceId}>{row.traceId.slice(0, 12)}…</span>
+      <td className="max-w-[120px] truncate py-2 pl-4 pr-3 font-mono text-xs text-[var(--ag-ink-muted)]">
+        <span title={row.traceId}>{row.traceId.slice(0, 12)}...</span>
       </td>
 
       {/* Flow */}
-      <td className="py-2 px-3 text-xs text-ink truncate max-w-[160px]">
+      <td className="max-w-[160px] truncate px-3 py-2 text-xs text-[var(--ag-ink)]">
         <span title={row.flowId}>{row.flowId}</span>
       </td>
 
       {/* Mode */}
       <td className="py-2 px-3">
-        <span
-          className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.6rem] font-medium border ${modeClass}`}
-        >
-          {row.runMode}
-        </span>
+        <TraceModeBadge mode={row.runMode} />
       </td>
 
       {/* Started */}
-      <td className="py-2 px-3 text-xs font-mono text-ink-subtle whitespace-nowrap">
-        {formatMdHms(row.startedAt)}
+      <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-[var(--ag-ink-subtle)]">
+        {formatDateTime(row.startedAt)}
       </td>
 
       {/* Duration */}
-      <td className="py-2 px-3 text-xs font-mono text-ink-muted tabular-nums whitespace-nowrap">
+      <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-[var(--ag-ink-muted)] tabular-nums">
         {formatShortDuration(row.durationMs)}
       </td>
 
       {/* Status */}
       <td className="py-2 pl-3 pr-4">
-        <span
-          className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.6rem] font-medium border ${statusClass}`}
-        >
-          {row.status}
-        </span>
+        <TraceStatusBadge status={row.status} />
       </td>
     </tr>
   )
 }
-
-// ---------------------------------------------------------------------------
-// TraceList
-// ---------------------------------------------------------------------------
 
 export const TraceList = ({
   selectedTraceId,
@@ -138,7 +96,7 @@ export const TraceList = ({
   if (loading) {
     return (
       <div className={`flex items-center justify-center p-6 text-sm text-ink-subtle ${className ?? ''}`}>
-        Loading traces…
+        Loading traces...
       </div>
     )
   }
@@ -163,35 +121,35 @@ export const TraceList = ({
   }
 
   return (
-    <div className={`overflow-auto ${className ?? ''}`}>
+    <div className={`overflow-auto rounded-xl border border-[var(--ag-line)] bg-[var(--ag-panel)] ${className ?? ''}`}>
       <table
         data-testid="trace-list-table"
         aria-label="Trace list"
-        className="w-full border-collapse"
+        className="w-full min-w-[760px] border-collapse"
       >
         <thead>
-          <tr className="border-b border-line">
-            <th className="py-2 pl-4 pr-3 text-left text-[0.65rem] font-medium text-ink-subtle uppercase tracking-widest">
+          <tr className="border-b border-[var(--ag-line)]">
+            <th className="py-2 pl-4 pr-3 text-left text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
               Trace ID
             </th>
-            <th className="py-2 px-3 text-left text-[0.65rem] font-medium text-ink-subtle uppercase tracking-widest">
+            <th className="px-3 py-2 text-left text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
               Flow
             </th>
-            <th className="py-2 px-3 text-left text-[0.65rem] font-medium text-ink-subtle uppercase tracking-widest">
+            <th className="px-3 py-2 text-left text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
               Mode
             </th>
-            <th className="py-2 px-3 text-left text-[0.65rem] font-medium text-ink-subtle uppercase tracking-widest">
+            <th className="px-3 py-2 text-left text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
               Started
             </th>
-            <th className="py-2 px-3 text-left text-[0.65rem] font-medium text-ink-subtle uppercase tracking-widest">
+            <th className="px-3 py-2 text-left text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
               Duration
             </th>
-            <th className="py-2 pl-3 pr-4 text-left text-[0.65rem] font-medium text-ink-subtle uppercase tracking-widest">
+            <th className="py-2 pl-3 pr-4 text-left text-[0.65rem] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
               Status
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-line/50">
+        <tbody className="divide-y divide-[var(--ag-line-soft)]">
           {traces.map((row) => (
             <TraceRowItem
               key={row.traceId}

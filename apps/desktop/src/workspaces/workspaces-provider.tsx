@@ -85,8 +85,9 @@ export function WorkspacesProvider({
     }
 
     listWorkspaces()
-      .then((workspaces) => {
-        setAll(workspaces.length > 0 ? workspaces : WORKSPACES_FIXTURE)
+      .then((result) => {
+        const workspaces = result.length > 0 ? result : WORKSPACES_FIXTURE
+        setAll(workspaces)
         setLoadStatus('ready')
       })
       .catch(() => {

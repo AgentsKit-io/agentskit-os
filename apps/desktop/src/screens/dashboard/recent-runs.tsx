@@ -1,7 +1,7 @@
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-ui'
+import { formatClockTime, formatShortDuration, formatUsd } from '../../lib/format'
 import type { RunMode } from '../../lib/sidecar'
 import { formatHms } from '../../lib/time'
-import { formatShortDuration } from '../../lib/format'
 
 export type RunRecord = {
   readonly id: string
@@ -76,13 +76,13 @@ export function RecentRuns({ runs }: RecentRunsProps) {
                       <Badge variant={STATUS_VARIANT[run.status]}>{run.status}</Badge>
                     </td>
                     <td className="py-2.5 pr-4 font-mono text-xs text-[var(--ag-ink-muted)]">
-                      {formatHms(run.startedAt)}
+                      {formatClockTime(run.startedAt)}
                     </td>
                     <td className="py-2.5 pr-4 tabular-nums">
                       {formatShortDuration(run.durationMs)}
                     </td>
                     <td className="py-2.5 tabular-nums text-[var(--ag-ink-muted)]">
-                      ${run.costUsd.toFixed(4)}
+                      {formatUsd(run.costUsd, 4)}
                     </td>
                   </tr>
                 ))}

@@ -1,14 +1,14 @@
 /**
- * CustomWidgetRenderer — polls a sidecar JSON-RPC method on an interval
+ * CustomWidgetRenderer - polls a sidecar JSON-RPC method on an interval
  * and renders the resolved value according to the widget's display kind.
  *
  * Supported kinds:
- *   number    — large numeric display
- *   sparkline — row of small bars (last N values)
- *   gauge     — horizontal fill bar (0-100)
- *   text      — plain string value
+ *   number    - large numeric display
+ *   sparkline - row of small bars (last N values)
+ *   gauge     - horizontal fill bar (0-100)
+ *   text      - plain string value
  *
- * Path resolution uses `getPath()` — a minimal dot-notation getter that
+ * Path resolution uses `getPath()` - a minimal dot-notation getter that
  * avoids any external lodash dependency.
  */
 
@@ -36,7 +36,7 @@ const WidgetBody = (args: {
   if (isLoading) {
     return (
       <p className="text-sm text-[var(--ag-ink-subtle)]" aria-live="polite">
-        Loading…
+        Loading...
       </p>
     )
   }
@@ -129,7 +129,7 @@ function formatValue(
   raw: unknown,
   format: CustomWidget['format'],
 ): string {
-  if (raw === null || raw === undefined) return '—'
+  if (raw === null || raw === undefined) return '-'
   const { prefix = '', suffix = '', precision } = format ?? {}
   if (typeof raw === 'number') {
     const num = precision !== undefined ? raw.toFixed(precision) : String(raw)
@@ -243,7 +243,81 @@ export function CustomWidgetRenderer({ widget }: Props) {
     void fetchValue()
     const interval = setInterval(() => void fetchValue(), pollMs)
     return () => clearInterval(interval)
-  }, [pollMs, fetchValue])
+  }, [pollMs])
+
+  // Render body
+  const renderBody = () => {
+    if (isLoading) {
+      return (
+        <p className="text-sm text-[var(--ag-ink-subtle)]" aria-live="polite">
+          Loading...
+        </p>
+      )
+    }
+    if (errorMsg) {
+      return (
+        <p className="text-xs text-[var(--ag-danger)]" role="alert" aria-live="polite">
+          {errorMsg}
+        </p>
+      )
+    }
+
+    switch (kind) {
+      case 'number':
+        return (
+          <p
+            data-testid="custom-widget-value"
+            className="text-3xl font-semibold tabular-nums text-[var(--ag-ink)]"
+          >
+            {formatValue(rawValue, format)}
+          </p>
+        )
+
+      case 'sparkline':
+        return (
+          <div className="flex flex-col gap-2">
+            <p
+              data-testid="custom-widget-value"
+              className="text-sm font-semibold tabular-nums text-[var(--ag-ink)]"
+            >
+              {formatValue(rawValue, format)}
+            </p>
+            <Sparkline values={sparkValues.length > 0 ? sparkValues : [0]} />
+          </div>
+        )
+
+      case 'gauge': {
+        const numVal =
+          typeof rawValue === 'number'
+            ? rawValue
+            : parseFloat(String(rawValue))
+        return (
+          <div className="flex flex-col gap-2">
+            <p
+              data-testid="custom-widget-value"
+              className="text-sm font-semibold tabular-nums text-[var(--ag-ink)]"
+            >
+              {formatValue(rawValue, format)}
+            </p>
+            <Gauge value={isNaN(numVal) ? 0 : numVal} />
+          </div>
+        )
+      }
+
+      case 'text':
+        return (
+          <p
+            data-testid="custom-widget-value"
+            className="text-sm text-[var(--ag-ink)]"
+          >
+            {formatValue(rawValue, format)}
+          </p>
+        )
+
+      default:
+        return null
+    }
+  }
 
   return (
     <Card className="h-full" data-testid={`custom-widget-${widget.id}`}>

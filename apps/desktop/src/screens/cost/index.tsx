@@ -1,139 +1,26 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import {
-  COST_BUDGETS_FIXTURE,
-  type BudgetStatus,
-  type CostBudget,
-  type CostProvider,
-  useCostBudgets,
-} from './use-cost'
-import { FilterPills } from '../../components/filter-pills'
+import { BudgetDetailPanel } from './budget-detail-panel'
 import { BudgetTable } from './budget-table'
+import { CostProviderFilters, COST_FILTERS, type CostFilter } from './cost-provider-filters'
 import { CostSummary } from './cost-summary'
-import { formatUsd, percentUsed } from './cost-format'
+import { COST_BUDGETS_FIXTURE, useCostBudgets } from './use-cost'
 
-const PROVIDER_LABEL: Record<CostProvider, string> = {
-  openai: 'OpenAI',
-  anthropic: 'Anthropic',
-  google: 'Google',
-  cursor: 'Cursor',
-}
-
-const statusLabelByStatus: Record<BudgetStatus, string> = {
-  healthy: 'Healthy',
-  watch: 'Watch',
-  exceeded: 'Exceeded',
-}
-
-const statusClassByStatus: Record<BudgetStatus, string> = {
-  healthy: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
-  watch: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
-  exceeded: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
-}
-
-const FILTERS: Array<CostProvider | 'all'> = ['all', 'openai', 'anthropic', 'google', 'cursor']
-
-function StatusPill({ status }: { readonly status: BudgetStatus }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${statusClassByStatus[status]}`}
-    >
-      {statusLabelByStatus[status]}
-    </span>
-  )
-}
-
-function DetailMetric({ label, value }: { readonly label: string; readonly value: string }) {
-  return (
-    <div className="min-w-0">
-      <div className="text-[10px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-        {label}
-      </div>
-      <div className="mt-1 truncate text-sm font-semibold text-[var(--ag-ink)]" title={value}>
-        {value}
-      </div>
-    </div>
-  )
-}
-
-function DetailBlock({ label, value }: { readonly label: string; readonly value: string }) {
-  return (
-    <div className="border-b border-[var(--ag-line)] p-4">
-      <h3 className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-        {label}
-      </h3>
-      <div className="mt-2 rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-3 py-2 text-sm text-[var(--ag-ink-muted)]">
-        {value}
-      </div>
-    </div>
-  )
-}
-
-function BudgetDetail({ budget }: { readonly budget: CostBudget | null }) {
-  if (budget === null) {
-    return (
-      <aside className="flex min-h-0 flex-col justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-6 text-center">
-        <p className="text-sm font-medium text-[var(--ag-ink)]">Select a budget</p>
-        <p className="mt-1 text-sm text-[var(--ag-ink-muted)]">
-          Inspect spend, limits, owner policy, and quota notes for the selected provider.
-        </p>
-      </aside>
-    )
-  }
-
-  return (
-    <aside className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <div className="border-b border-[var(--ag-line)] px-4 py-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="truncate text-sm font-semibold text-[var(--ag-ink)]" title={budget.name}>
-              {budget.name}
-            </h2>
-            <p className="mt-1 truncate font-mono text-xs text-[var(--ag-ink-subtle)]" title={budget.id}>
-              {budget.id}
-            </p>
-          </div>
-          <StatusPill status={budget.status} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 border-b border-[var(--ag-line)] p-4">
-        <DetailMetric label="Provider" value={PROVIDER_LABEL[budget.provider]} />
-        <DetailMetric label="Used" value={`${percentUsed(budget).toFixed(0)}%`} />
-        <DetailMetric label="Spend" value={formatUsd(budget.spendUsd)} />
-        <DetailMetric label="Limit" value={formatUsd(budget.limitUsd)} />
-      </div>
-
-      <DetailBlock label="Owner" value={budget.owner} />
-      <DetailBlock label="Policy" value={budget.policy} />
-
-      <div className="p-4">
-        <h3 className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-          Quota Notes
-        </h3>
-        <ul className="mt-3 flex flex-col gap-2">
-          {budget.quotaNotes.map((note) => (
-            <li
-              key={note}
-              className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-3 py-2 text-sm text-[var(--ag-ink-muted)]"
-            >
-              {note}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </aside>
-  )
-}
+const COST_HEADER_CLASS = [
+  'sticky top-0 z-20 flex shrink-0 flex-wrap items-center justify-between gap-4',
+  'border-b border-[var(--ag-line)] bg-[var(--ag-glass-strong-bg)] px-4 py-3',
+  '[backdrop-filter:var(--ag-glass-blur)] sm:px-6',
+].join(' ')
 
 export function CostScreen() {
   const { budgets, loading, error } = useCostBudgets()
-  const [filter, setFilter] = useState<CostProvider | 'all'>('all')
+  const [filter, setFilter] = useState<CostFilter>(COST_FILTERS[0])
   const [selectedId, setSelectedId] = useState<string | null>(COST_BUDGETS_FIXTURE[0]?.id ?? null)
 
-  const filteredBudgets = useMemo(() => {
-    return filter === 'all' ? budgets : budgets.filter((budget) => budget.provider === filter)
-  }, [budgets, filter])
+  const filteredBudgets = useMemo(
+    () => (filter === 'all' ? budgets : budgets.filter((budget) => budget.provider === filter)),
+    [budgets, filter],
+  )
 
   const selectedBudget = useMemo(() => {
     const match = budgets.find((budget) => budget.id === selectedId)
@@ -153,45 +40,47 @@ export function CostScreen() {
   }
 
   return (
-    <section aria-label="Cost & Quotas" className="flex h-full min-h-0 flex-col bg-[var(--ag-surface)]">
-      <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[var(--ag-line)] px-6 py-4">
+    <section aria-label="Cost & Quotas" className="flex min-h-full flex-col bg-[var(--ag-surface)]">
+      <div className={COST_HEADER_CLASS}>
         <div>
-          <h1 className="text-lg font-semibold tracking-tight text-[var(--ag-ink)]">Cost & Quotas</h1>
-          <p className="mt-1 text-sm text-[var(--ag-ink-muted)]">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
+            Spend control
+          </p>
+          <h1 className="mt-1 text-lg font-semibold tracking-tight text-[var(--ag-ink)]">
+            Cost & Quotas
+          </h1>
+          <p className="mt-1 max-w-2xl text-sm text-[var(--ag-ink-muted)]">
             Track provider spend, quota pressure, tokens, and cost guard policies.
           </p>
         </div>
         <Badge variant="outline">Preview mode</Badge>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
+      <div className="flex flex-col gap-4 px-4 py-5 sm:px-6">
         {error !== null && (
           <div
             role="status"
-            className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]"
+            className="rounded-xl border border-[color-mix(in_srgb,var(--ag-warning)_32%,transparent)] bg-[color-mix(in_srgb,var(--ag-warning)_12%,transparent)] px-3 py-2 text-sm text-[var(--ag-warning)]"
           >
             Sidecar cost provider unavailable. Showing local sample data.
           </div>
         )}
 
         <CostSummary budgets={budgets} />
-
-        <FilterPills
-          items={FILTERS}
-          active={filter}
-          onChange={setFilter}
-          ariaLabel="Filter budgets by provider"
-          labelFor={(item) => (item === 'all' ? 'All' : PROVIDER_LABEL[item])}
-        />
+        <CostProviderFilters filter={filter} onFilter={setFilter} />
 
         {filteredBudgets.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">
+          <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">
             <p className="text-sm text-[var(--ag-ink-muted)]">No budgets match this provider.</p>
           </div>
         ) : (
-          <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <BudgetTable budgets={filteredBudgets} selectedId={selectedBudget?.id ?? null} onSelect={setSelectedId} />
-            <BudgetDetail budget={selectedBudget} />
+          <div className="grid min-h-0 gap-4 2xl:grid-cols-[minmax(0,1fr)_380px]">
+            <BudgetTable
+              budgets={filteredBudgets}
+              selectedId={selectedBudget?.id ?? null}
+              onSelect={setSelectedId}
+            />
+            <BudgetDetailPanel budget={selectedBudget} />
           </div>
         )}
       </div>

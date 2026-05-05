@@ -1,4 +1,4 @@
-export function formatDate(iso: string): string {
+export function formatDateTime(iso: string): string {
   try {
     return new Intl.DateTimeFormat(undefined, {
       day: 'numeric',
@@ -11,13 +11,12 @@ export function formatDate(iso: string): string {
   }
 }
 
-export function formatTime(iso: string): string {
+export function formatClockTime(iso: string): string {
   try {
     return new Intl.DateTimeFormat(undefined, {
-      month: 'short',
-      day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      second: '2-digit',
     }).format(new Date(iso))
   } catch {
     return iso
@@ -30,24 +29,7 @@ export function formatDuration(ms: number): string {
   if (minutes < 60) return `${minutes}m`
   const hours = Math.floor(minutes / 60)
   const remainder = minutes % 60
-  if (remainder === 0) return `${hours}h`
-  return `${hours}h ${remainder}m`
-}
-
-export function formatDateTime(iso: string): string {
-  return formatDate(iso)
-}
-
-export function formatClockTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
+  return remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`
 }
 
 export function formatShortDuration(ms: number): string {
@@ -73,9 +55,10 @@ export function formatCompactNumber(value: number): string {
 
 export function formatShortDate(iso: string): string {
   try {
-    return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' }).format(new Date(iso))
+    return new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' }).format(
+      new Date(iso),
+    )
   } catch {
     return iso
   }
 }
-

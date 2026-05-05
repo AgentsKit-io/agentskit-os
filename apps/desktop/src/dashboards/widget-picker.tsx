@@ -1,22 +1,23 @@
 /**
- * WidgetPicker — modal listing widget kinds in three sections:
- *   1. Built-in   — static built-in widget kinds
- *   2. Custom     — user-created custom widget kinds (future)
- *   3. Plugin widgets — widgets contributed by plugins, with source-plugin pill
+ * WidgetPicker - modal listing widget kinds in three sections:
+ *   1. Built-in - static built-in widget kinds
+ *   2. Custom - user-created custom widget kinds (future)
+ *   3. Plugin widgets - widgets contributed by plugins, with source-plugin pill
  *
  * Plugin widget kinds follow the `plugin:<pluginId>:<widgetId>` convention.
  *
  * Part of M2 #248 — plugin-contributed dashboards + widgets extension point.
  *
  * Props:
- *   isOpen   — controls visibility
- *   onClose  — called when closed without adding
- *   onAdd    — called with the chosen widget kind
+ *   isOpen - controls visibility
+ *   onClose - called when closed without adding
+ *   onAdd - called with the chosen widget kind
  */
 
 import { useCallback, useEffect, useRef } from 'react'
 import { BUILT_IN_WIDGETS } from './widget-registry'
 import { Button } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import { usePluginContributions } from '../plugins/plugin-contributions-provider'
 
 type Props = {
@@ -92,17 +93,17 @@ export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
       data-testid="widget-picker"
       aria-label="Add widget"
       aria-modal="true"
-      className="m-auto max-h-[80vh] w-full max-w-md overflow-y-auto rounded-xl border border-[var(--ag-line)] bg-[var(--ag-panel)] p-0 shadow-xl backdrop:bg-black/40"
+      className="m-auto max-h-[82vh] w-full max-w-md overflow-y-auto rounded-xl border border-[var(--ag-line)] bg-[var(--ag-glass-strong-bg)] p-0 shadow-xl backdrop:bg-black/40 [backdrop-filter:var(--ag-glass-blur)]"
     >
-      <div className="sticky top-0 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-panel)] px-5 py-4">
+      <div className="sticky top-0 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-glass-strong-bg)] px-5 py-4 [backdrop-filter:var(--ag-glass-blur)]">
         <h2 className="text-base font-semibold text-[var(--ag-ink)]">Add widget</h2>
         <button
           type="button"
           aria-label="Close widget picker"
           onClick={onClose}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
         >
-          ×
+          <X aria-hidden className="h-4 w-4" />
         </button>
       </div>
 
@@ -113,12 +114,12 @@ export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
           {BUILT_IN_WIDGETS.map((entry) => (
             <li
               key={entry.kind}
-              className="flex items-center justify-between px-5 py-3"
+              className="flex items-center justify-between gap-3 px-5 py-3"
             >
               <div>
                 <p className="text-sm font-medium text-[var(--ag-ink)]">{entry.label}</p>
                 <p className="mt-0.5 text-xs text-[var(--ag-ink-subtle)]">
-                  Default size: {entry.defaultSize[0]}×{entry.defaultSize[1]}
+                  Default size: {entry.defaultSize[0]} x {entry.defaultSize[1]}
                 </p>
               </div>
               <Button
@@ -150,7 +151,7 @@ export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
             {pluginWidgets.map((pw) => (
               <li
                 key={pw.kind}
-                className="flex items-center justify-between px-5 py-3"
+                className="flex items-center justify-between gap-3 px-5 py-3"
               >
                 <div>
                   <p className="flex items-center text-sm font-medium text-[var(--ag-ink)]">
@@ -158,7 +159,7 @@ export function WidgetPicker({ isOpen, onClose, onAdd }: Props) {
                     <SourcePill pluginId={pw.pluginId} />
                   </p>
                   <p className="mt-0.5 text-xs text-[var(--ag-ink-subtle)]">
-                    Default size: {pw.defaultSize[0]}×{pw.defaultSize[1]}
+                    Default size: {pw.defaultSize[0]} x {pw.defaultSize[1]}
                   </p>
                 </div>
                 <Button

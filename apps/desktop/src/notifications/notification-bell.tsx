@@ -2,7 +2,7 @@
  * NotificationBell — sidebar header button showing the unread count badge.
  *
  * Renders a bell icon button. When there are unread notifications, a small
- * red badge is overlaid showing the count (capped at 99+).
+ * alert badge is overlaid showing the count (capped at 99+).
  */
 
 import { useNotifications } from './notifications-provider'

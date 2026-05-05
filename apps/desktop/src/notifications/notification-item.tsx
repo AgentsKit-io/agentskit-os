@@ -13,17 +13,33 @@ import { formatRelativeTimeFromNow } from '../lib/relative-time'
 // ---------------------------------------------------------------------------
 
 const SEVERITY_ICON: Record<NotificationSeverity, string> = {
-  info: 'ℹ',
-  warning: '⚠',
-  error: '✕',
-  success: '✓',
+  info: 'i',
+  warning: '!',
+  error: 'x',
+  success: 'ok',
 }
 
 const SEVERITY_COLOR: Record<NotificationSeverity, string> = {
   info: 'text-[var(--ag-accent)]',
-  warning: 'text-[var(--ag-warn)]',
+  warning: 'text-[var(--ag-warning)]',
   error: 'text-[var(--ag-danger)]',
   success: 'text-[var(--ag-success)]',
+}
+
+// ---------------------------------------------------------------------------
+// Relative time helper
+// ---------------------------------------------------------------------------
+
+function formatRelativeTime(iso: string): string {
+  const now = Date.now()
+  const then = new Date(iso).getTime()
+  const diffMs = now - then
+
+  if (diffMs < 0) return 'just now'
+  if (diffMs < 60_000) return 'just now'
+  if (diffMs < 3_600_000) return `${Math.floor(diffMs / 60_000)}m ago`
+  if (diffMs < 86_400_000) return `${Math.floor(diffMs / 3_600_000)}h ago`
+  return `${Math.floor(diffMs / 86_400_000)}d ago`
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +73,7 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
       <span
         aria-hidden
         className={[
-          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
+          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold uppercase',
           SEVERITY_COLOR[severity],
         ].join(' ')}
       >

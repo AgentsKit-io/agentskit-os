@@ -1,9 +1,9 @@
 /**
- * NotificationPreferencesPanel — modal for per-event routing + quiet hours.
+ * NotificationPreferencesPanel - modal for per-event routing + quiet hours.
  *
  * Sections:
- *   Routing matrix — event-type rows × routing-mode columns, radio per row.
- *   Quiet hours    — toggle, start/end time pickers (24h), allow-critical checkbox.
+ *   Routing matrix - event-type rows x routing-mode columns, radio per row.
+ *   Quiet hours - toggle, start/end time pickers (24h), allow-critical checkbox.
  *
  * Changes are buffered in local state until Save is clicked.
  * Cancel discards changes; Reset restores defaults.
@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { GlassPanel } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import { useNotificationPreferences } from './notification-preferences-provider'
 import {
   KNOWN_EVENT_TYPES,
@@ -346,6 +347,10 @@ export function NotificationPreferencesPanel({
     onClose()
   }, [save, draft, onClose])
 
+  const handleCancel = useCallback(() => {
+    onClose()
+  }, [onClose])
+
   const handleReset = useCallback(() => {
     reset()
     setDraft(DEFAULT_NOTIFICATION_PREFERENCES)
@@ -354,13 +359,108 @@ export function NotificationPreferencesPanel({
   if (!isOpen) return null
 
   return (
-    <NotificationPreferencesModal
-      onCancel={onClose}
-      onSave={handleSave}
-      onReset={handleReset}
-      draft={draft}
-      onRoutingChange={handleRoutingChange}
-      onQuietHoursChange={handleQuietHoursChange}
-    />
+    <>
+      {/* Backdrop */}
+      <div
+        aria-hidden
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        onClick={handleCancel}
+      />
+
+      {/* Modal */}
+      <div
+        role="dialog"
+        aria-label="Notification preferences"
+        aria-modal="true"
+        data-testid="notification-preferences-panel"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      >
+        <GlassPanel className="flex w-full max-w-3xl flex-col overflow-hidden rounded-xl shadow-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-5 py-4">
+            <h2 className="text-[15px] font-semibold text-[var(--ag-ink)]">
+              Notification preferences
+            </h2>
+            <button
+              type="button"
+              aria-label="Close notification preferences"
+              data-testid="close-notification-preferences"
+              onClick={handleCancel}
+              className="flex h-7 w-7 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+            >
+              <X aria-hidden className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto p-5 space-y-8">
+            {/* Routing matrix */}
+            <section aria-labelledby="routing-heading">
+              <h3
+                id="routing-heading"
+                className="mb-3 text-[13px] font-semibold text-[var(--ag-ink)]"
+              >
+                Per-event routing
+              </h3>
+              <p className="mb-4 text-[12px] text-[var(--ag-ink-subtle)]">
+                Choose where each event type is delivered. &quot;Silent&quot; suppresses
+                the notification entirely.
+              </p>
+              <RoutingMatrix
+                routing={draft.routing}
+                onChange={handleRoutingChange}
+              />
+            </section>
+
+            {/* Quiet hours */}
+            <section aria-labelledby="quiet-hours-heading">
+              <h3
+                id="quiet-hours-heading"
+                className="mb-3 text-[13px] font-semibold text-[var(--ag-ink)]"
+              >
+                Quiet hours
+              </h3>
+              <p className="mb-4 text-[12px] text-[var(--ag-ink-subtle)]">
+                During the configured window, non-critical notifications are suppressed.
+              </p>
+              <QuietHoursSection
+                quietHours={draft.quietHours}
+                onChange={handleQuietHoursChange}
+              />
+            </section>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between border-t border-[var(--ag-line)] px-5 py-3">
+            <button
+              type="button"
+              data-testid="reset-notification-preferences"
+              onClick={handleReset}
+              className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+            >
+              Reset to defaults
+            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                data-testid="cancel-notification-preferences"
+                onClick={handleCancel}
+                className="rounded-md border border-[var(--ag-line)] px-4 py-1.5 text-sm text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                data-testid="save-notification-preferences"
+                onClick={handleSave}
+                className="rounded-md bg-[var(--ag-accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </GlassPanel>
+      </div>
+    </>
   )
 }

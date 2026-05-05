@@ -1,5 +1,5 @@
 /**
- * CustomWidgetEditor — modal form for creating and editing custom widgets.
+ * CustomWidgetEditor - modal form for creating and editing custom widgets.
  *
  * Fields:
  *   - title (string, required)
@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@agentskit/os-ui'
+import { X } from 'lucide-react'
 import {
   saveCustomWidget,
   makeCustomWidgetId,
@@ -476,14 +477,230 @@ export function CustomWidgetEditor({ isOpen, initial, onClose, onSaved }: Props)
   if (!isOpen) return null
 
   return (
-    <CustomWidgetEditorDialog
-      dialogRef={dialogRef}
-      initial={initial}
-      form={form}
-      errors={errors}
-      onClose={onClose}
-      onSave={handleSave}
-      setForm={setForm}
-    />
+    <dialog
+      ref={dialogRef}
+      data-testid="custom-widget-editor"
+      aria-label={initial ? 'Edit custom widget' : 'New custom widget'}
+      aria-modal="true"
+      className="m-auto max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-[var(--ag-line)] bg-[var(--ag-panel)] p-0 shadow-xl backdrop:bg-black/40"
+    >
+      {/* Header */}
+      <div className="sticky top-0 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-panel)] px-5 py-4">
+        <h2 className="text-base font-semibold text-[var(--ag-ink)]">
+          {initial ? 'Edit custom widget' : 'New custom widget'}
+        </h2>
+        <button
+          type="button"
+          aria-label="Close editor"
+          onClick={onClose}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]"
+        >
+          <X aria-hidden className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-col gap-5 px-5 py-5">
+        {/* Title */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cwe-title" className="text-sm font-medium text-[var(--ag-ink)]">
+            Title
+          </label>
+          <input
+            id="cwe-title"
+            type="text"
+            data-testid="cwe-title"
+            value={form.title}
+            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+            placeholder="e.g. Total cost"
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+          />
+          {errors['title'] && (
+            <p className="text-xs text-[var(--ag-danger)]" role="alert">{errors['title']}</p>
+          )}
+        </div>
+
+        {/* Kind */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cwe-kind" className="text-sm font-medium text-[var(--ag-ink)]">
+            Display kind
+          </label>
+          <select
+            id="cwe-kind"
+            data-testid="cwe-kind"
+            value={form.kind}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, kind: e.target.value as CustomWidgetKind }))
+            }
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+          >
+            {KIND_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Source method */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cwe-method" className="text-sm font-medium text-[var(--ag-ink)]">
+            Source method{' '}
+            <span className="text-xs font-normal text-[var(--ag-ink-subtle)]">
+              (sidecar JSON-RPC)
+            </span>
+          </label>
+          <input
+            id="cwe-method"
+            type="text"
+            data-testid="cwe-method"
+            value={form.source.method}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, source: { ...f.source, method: e.target.value } }))
+            }
+            placeholder="e.g. metrics.cost.total"
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 font-mono text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+          />
+          {errors['method'] && (
+            <p className="text-xs text-[var(--ag-danger)]" role="alert">{errors['method']}</p>
+          )}
+        </div>
+
+        {/* Path expression */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cwe-path" className="text-sm font-medium text-[var(--ag-ink)]">
+            Path expression{' '}
+            <span className="text-xs font-normal text-[var(--ag-ink-subtle)]">
+              (optional, e.g. data.value)
+            </span>
+          </label>
+          <input
+            id="cwe-path"
+            type="text"
+            data-testid="cwe-path"
+            value={form.source.pathExpr ?? ''}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                source: { ...f.source, pathExpr: e.target.value },
+              }))
+            }
+            placeholder="e.g. result.total"
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 font-mono text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+          />
+        </div>
+
+        {/* Poll interval */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="cwe-poll" className="text-sm font-medium text-[var(--ag-ink)]">
+            Poll interval{' '}
+            <span className="text-xs font-normal text-[var(--ag-ink-subtle)]">(ms)</span>
+          </label>
+          <input
+            id="cwe-poll"
+            type="number"
+            data-testid="cwe-poll"
+            min={100}
+            value={form.source.pollMs ?? 5000}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                source: { ...f.source, pollMs: Number(e.target.value) },
+              }))
+            }
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-3 py-1.5 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+          />
+          {errors['pollMs'] && (
+            <p className="text-xs text-[var(--ag-danger)]" role="alert">{errors['pollMs']}</p>
+          )}
+        </div>
+
+        {/* Format options */}
+        <fieldset className="rounded-md border border-[var(--ag-line)] p-4">
+          <legend className="px-1 text-sm font-medium text-[var(--ag-ink)]">
+            Format{' '}
+            <span className="text-xs font-normal text-[var(--ag-ink-subtle)]">(optional)</span>
+          </legend>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="cwe-prefix" className="text-xs text-[var(--ag-ink-muted)]">
+                Prefix
+              </label>
+              <input
+                id="cwe-prefix"
+                type="text"
+                data-testid="cwe-prefix"
+                value={form.format?.prefix ?? ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    format: { ...f.format, prefix: e.target.value },
+                  }))
+                }
+                placeholder="$"
+                className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-2 py-1 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="cwe-suffix" className="text-xs text-[var(--ag-ink-muted)]">
+                Suffix
+              </label>
+              <input
+                id="cwe-suffix"
+                type="text"
+                data-testid="cwe-suffix"
+                value={form.format?.suffix ?? ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    format: { ...f.format, suffix: e.target.value },
+                  }))
+                }
+                placeholder="ms"
+                className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-2 py-1 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="cwe-precision" className="text-xs text-[var(--ag-ink-muted)]">
+                Precision
+              </label>
+              <input
+                id="cwe-precision"
+                type="number"
+                data-testid="cwe-precision"
+                min={0}
+                max={20}
+                value={form.format?.precision ?? ''}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    format: {
+                      ...f.format,
+                      precision: e.target.value === '' ? undefined : Number(e.target.value),
+                    },
+                  }))
+                }
+                placeholder="2"
+                className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface)] px-2 py-1 text-sm text-[var(--ag-ink)] outline-none focus:ring-2 focus:ring-[var(--ag-accent)]"
+              />
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-end gap-2 border-t border-[var(--ag-line)] px-5 py-4">
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button
+          size="sm"
+          data-testid="cwe-save"
+          onClick={handleSave}
+        >
+          Save
+        </Button>
+      </div>
+    </dialog>
   )
 }

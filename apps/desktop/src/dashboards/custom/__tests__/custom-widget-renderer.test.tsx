@@ -105,7 +105,7 @@ describe('CustomWidgetRenderer', () => {
     // Never resolve
     mockSidecarRequest.mockReturnValue(new Promise(() => undefined))
     render(<CustomWidgetRenderer widget={makeWidget()} />)
-    expect(screen.getByText('Loading…')).toBeInTheDocument()
+    expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
 
   it('renders a number value with format', async () => {
@@ -173,7 +173,7 @@ describe('CustomWidgetRenderer', () => {
     })
     render(<CustomWidgetRenderer widget={widget} />)
     await waitFor(() => {
-      expect(screen.getByTestId('custom-widget-value')).toHaveTextContent('—')
+      expect(screen.getByTestId('custom-widget-value')).toHaveTextContent('-')
     })
   })
 })

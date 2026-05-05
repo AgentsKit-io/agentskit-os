@@ -225,7 +225,7 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     )
     .option('--stdin', 'read secret value from stdin (recommended; avoids shell history)', false)
     .option('--project <dir>', 'workspace root (default: current directory)')
-    .action(async (key: string, opts: { stdin?: boolean; project?: string }) => {
+    .action(async (key: string, opts: { stdin: boolean | undefined; project: string | undefined }) => {
       let project = '.'
       if (opts.project) project = opts.project
       const projectDir = resolve(io.cwd(), project)

@@ -5,11 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 465,
-    "issues": 162,
+    "issues": 150,
     "byKind": {
       "cyclomatic-complexity": 18,
       "duplicate-block": 88,
-      "nested-ternary": 56
+      "nested-ternary": 44
     }
   },
   "issues": [
@@ -756,20 +756,6 @@
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:21."
     },
     {
-      "id": "nested-ternary:apps/desktop/src/__tests__/a11y-landmarks.test.tsx:7c729c549bc645cd",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/__tests__/a11y-landmarks.test.tsx",
-      "line": 74,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/__tests__/a11y-landmarks.test.tsx:88aa2fba8908ab0a",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/__tests__/a11y-landmarks.test.tsx",
-      "line": 60,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
       "id": "nested-ternary:apps/desktop/src/command-palette/__tests__/command-palette.test.tsx:14e414a43d6465ea",
       "kind": "nested-ternary",
       "file": "apps/desktop/src/command-palette/__tests__/command-palette.test.tsx",
@@ -798,55 +784,6 @@
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
-      "id": "nested-ternary:packages/os-cli/src/commands/creds.ts:94fd8693a0d1c608",
-      "kind": "nested-ternary",
-      "file": "packages/os-cli/src/commands/creds.ts",
-      "line": 228,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/brand/brand-kit.ts:f1155aba6e82031d",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/brand/brand-kit.ts",
-      "line": 8,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/consent/consent.ts:3b2a7dc7d2a085fc",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/consent/consent.ts",
-      "line": 203,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/cost/cost-meter.ts:d56cad788fb1cb48",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/cost/cost-meter.ts",
-      "line": 59,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/cost/cost-meter.ts:e7d875d966b05805",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/cost/cost-meter.ts",
-      "line": 62,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/events/bus.ts:5b54345de0394536",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/events/bus.ts",
-      "line": 38,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/lockfile/lock.ts:849e79d73682eb44",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/lockfile/lock.ts",
-      "line": 16,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
       "id": "nested-ternary:packages/os-core/src/plugins/catalog.ts:369ac201b78eebaa",
       "kind": "nested-ternary",
       "file": "packages/os-core/src/plugins/catalog.ts",
@@ -865,27 +802,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-core/src/runtime/run-mode.ts",
       "line": 53,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/schema/agent-version.ts:849e79d73682eb44",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/schema/agent-version.ts",
-      "line": 13,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/schema/plugin.ts:849e79d73682eb44",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/schema/plugin.ts",
-      "line": 47,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-core/src/schema/plugin.ts:e2061192cb21dd8e",
-      "kind": "nested-ternary",
-      "file": "packages/os-core/src/schema/plugin.ts",
-      "line": 52,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

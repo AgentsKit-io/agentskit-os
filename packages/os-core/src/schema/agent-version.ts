@@ -10,7 +10,7 @@ const SemVerString = z
   .string()
   .min(1)
   .max(64)
-  .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/, {
+  .regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+){0,1}(\+[0-9A-Za-z.-]+){0,1}$/, {
     message: 'must be a SemVer 2.0 string',
   })
 

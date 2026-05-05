@@ -320,6 +320,18 @@ export {
 } from './runtime/adapter-fallback.js'
 export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-fallback.js'
 
+export {
+  MarketplaceCacheEntry,
+  MarketplaceCacheSnapshot,
+  decideMarketplaceSource,
+  mergeMarketplaceSnapshot,
+  parseMarketplaceCacheSnapshot,
+} from './runtime/marketplace-cache.js'
+export type {
+  MarketplaceSourceDecision,
+  MarketplaceDecisionInputs,
+} from './runtime/marketplace-cache.js'
+
 export { resolveWorkspacePaths } from './runtime/workspace-paths.js'
 export type {
   WorkspacePaths,

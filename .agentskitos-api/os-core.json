@@ -1,1453 +1,3031 @@
 {
-  "exports": {
-    "AUDIT_SCHEMA_VERSION": {
-      "kind": "reexport"
-    },
-    "Action": {
-      "kind": "reexport"
-    },
-    "AgentConfig": {
-      "kind": "reexport"
-    },
-    "AgentDependency": {
-      "kind": "reexport"
-    },
-    "AgentEnvironment": {
-      "kind": "reexport"
-    },
-    "AgentLifecycleEvent": {
-      "kind": "reexport"
-    },
-    "AgentLifecycleState": {
-      "kind": "reexport"
-    },
-    "AgentLock": {
-      "kind": "reexport"
-    },
-    "AgentMemoryRef": {
-      "kind": "reexport"
-    },
-    "AgentModelConfig": {
-      "kind": "reexport"
-    },
-    "AgentNode": {
-      "kind": "reexport"
-    },
-    "AgentRegistryEntry": {
-      "kind": "reexport"
-    },
-    "AgentRiskTier": {
-      "kind": "reexport"
-    },
-    "AgentVersion": {
-      "kind": "reexport"
-    },
-    "AgentVersionSnapshot": {
-      "kind": "reexport"
-    },
-    "AgentsManifest": {
-      "kind": "reexport"
-    },
-    "AgentsManifestVersion": {
-      "kind": "reexport"
-    },
-    "AirGapDecision": {
-      "kind": "reexport"
-    },
-    "AirGapPolicy": {
-      "kind": "reexport"
-    },
-    "AirGapRequest": {
-      "kind": "reexport"
-    },
-    "AnchorRecord": {
-      "kind": "reexport"
-    },
-    "AnomalyDetection": {
-      "kind": "reexport"
-    },
-    "AnyEvent": {
-      "kind": "reexport"
-    },
-    "AuctionNode": {
-      "kind": "reexport"
-    },
-    "AuditBatch": {
-      "kind": "reexport"
-    },
-    "AuditKeyCustody": {
-      "kind": "reexport"
-    },
-    "AuditLogConfig": {
-      "kind": "reexport"
-    },
-    "AuditMetadata": {
-      "kind": "reexport"
-    },
-    "AuditSignature": {
-      "kind": "reexport"
-    },
-    "AuthContext": {
-      "kind": "reexport"
-    },
-    "BREAK_GLASS_BYPASSES": {
-      "kind": "reexport"
-    },
-    "BUILTIN_PROVIDERS": {
-      "kind": "reexport"
-    },
-    "BannedPhrase": {
-      "kind": "reexport"
-    },
-    "BlackboardNode": {
-      "kind": "reexport"
-    },
-    "BlackboardSchedule": {
-      "kind": "reexport"
-    },
-    "BlackboardScratchpad": {
-      "kind": "reexport"
-    },
-    "BlackboardTermination": {
-      "kind": "reexport"
-    },
-    "BrandKit": {
-      "kind": "reexport"
-    },
-    "BrandViolation": {
-      "kind": "reexport"
-    },
-    "BreakGlassActivation": {
-      "kind": "reexport"
-    },
-    "BreakGlassBypass": {
-      "kind": "reexport"
-    },
-    "BreakGlassDecision": {
-      "kind": "reexport"
-    },
-    "BreakGlassPostHoc": {
-      "kind": "reexport"
-    },
-    "BreakGlassReason": {
-      "kind": "reexport"
-    },
-    "BudgetDecision": {
-      "kind": "reexport"
-    },
-    "BumpKind": {
-      "kind": "reexport"
-    },
-    "CONFIG_LAYERS": {
-      "kind": "reexport"
-    },
-    "CONFIG_ROOT_VERSION": {
-      "kind": "reexport"
-    },
-    "Capability": {
-      "kind": "reexport"
-    },
-    "CapabilityConstraints": {
-      "kind": "reexport"
-    },
-    "CapabilitySignature": {
-      "kind": "reexport"
-    },
-    "CdcTrigger": {
-      "kind": "reexport"
-    },
-    "ChainBreak": {
-      "kind": "reexport"
-    },
-    "ChangelogEntry": {
-      "kind": "reexport"
-    },
-    "ChangelogSummary": {
-      "kind": "reexport"
-    },
-    "ChunkerConfig": {
-      "kind": "reexport"
-    },
-    "ChunkerStrategy": {
-      "kind": "reexport"
-    },
-    "CitationRequirement": {
-      "kind": "reexport"
-    },
-    "ClientRef": {
-      "kind": "reexport"
-    },
-    "CloudPlan": {
-      "kind": "reexport"
-    },
-    "CloudSyncConfig": {
-      "kind": "reexport"
-    },
-    "CodingAgentCapability": {
-      "kind": "reexport"
-    },
-    "CodingAgentInvocationModel": {
-      "kind": "reexport"
-    },
-    "CodingAgentProvider": {
-      "kind": "reexport"
-    },
-    "CodingAgentProviderInfo": {
-      "kind": "reexport"
-    },
-    "CodingTaskKind": {
-      "kind": "reexport"
-    },
-    "CodingTaskRequest": {
-      "kind": "reexport"
-    },
-    "CodingTaskResult": {
-      "kind": "reexport"
-    },
-    "CompareNode": {
-      "kind": "reexport"
-    },
-    "ConditionNode": {
-      "kind": "reexport"
-    },
-    "ConfigChangeOp": {
-      "kind": "reexport"
-    },
-    "ConfigInputs": {
-      "kind": "reexport"
-    },
-    "ConfigLayer": {
-      "kind": "reexport"
-    },
-    "ConfigRoot": {
-      "kind": "reexport"
-    },
-    "ConformanceCheck": {
-      "kind": "reexport"
-    },
-    "ConformanceCheckResult": {
-      "kind": "reexport"
-    },
-    "ConformanceReport": {
-      "kind": "reexport"
-    },
-    "ConsentDecision": {
-      "kind": "reexport"
-    },
-    "ConsentRef": {
-      "kind": "reexport"
-    },
-    "ConsentScope": {
-      "kind": "reexport"
-    },
-    "CostBreakdown": {
-      "kind": "reexport"
-    },
-    "CostBudget": {
-      "kind": "reexport"
-    },
-    "CostBudgetCheck": {
-      "kind": "reexport"
-    },
-    "CostKey": {
-      "kind": "reexport"
-    },
-    "CostMeasurement": {
-      "kind": "reexport"
-    },
-    "CostMeter": {
-      "kind": "reexport"
-    },
-    "CostMeterId": {
-      "kind": "reexport"
-    },
-    "CostQuota": {
-      "kind": "reexport"
-    },
-    "CostThrottleConfig": {
-      "kind": "reexport"
-    },
-    "CronTrigger": {
-      "kind": "reexport"
-    },
-    "Currency": {
-      "kind": "reexport"
-    },
-    "DataResidencyConfig": {
-      "kind": "reexport"
-    },
-    "DataSchemaUri": {
-      "kind": "reexport"
-    },
-    "DebateNode": {
-      "kind": "reexport"
-    },
-    "DeepPartial": {
-      "kind": "reexport"
-    },
-    "DeterminismCheckInput": {
-      "kind": "reexport"
-    },
-    "DeterminismIssue": {
-      "kind": "reexport"
-    },
-    "DomainPack": {
-      "kind": "reexport"
-    },
-    "DriftCheckInput": {
-      "kind": "reexport"
-    },
-    "ERROR_SCHEMA_VERSION": {
-      "kind": "reexport"
-    },
-    "EVENT_SPEC_VERSION": {
-      "kind": "reexport"
-    },
-    "EXTENSION_API_VERSION": {
-      "kind": "reexport"
-    },
-    "EXTENSION_POINTS": {
-      "kind": "reexport"
-    },
-    "EgressDecision": {
-      "kind": "reexport"
-    },
-    "EgressGrant": {
-      "kind": "reexport"
-    },
-    "EgressPolicy": {
-      "kind": "reexport"
-    },
-    "EgressProxy": {
-      "kind": "reexport"
-    },
-    "EmailTrigger": {
-      "kind": "reexport"
-    },
-    "EmbedderConfig": {
-      "kind": "reexport"
-    },
-    "EnvVault": {
-      "kind": "reexport"
-    },
-    "ErrorCategory": {
-      "kind": "reexport"
-    },
-    "ErrorCode": {
-      "kind": "reexport"
-    },
-    "EscalationRule": {
-      "kind": "reexport"
-    },
-    "EvalCriterion": {
-      "kind": "reexport"
-    },
-    "EvalDef": {
-      "kind": "reexport"
-    },
-    "EvalKind": {
-      "kind": "reexport"
-    },
-    "EvalResult": {
-      "kind": "reexport"
-    },
-    "EvalResultStatus": {
-      "kind": "reexport"
-    },
-    "EvalSuite": {
-      "kind": "reexport"
-    },
-    "EvalSuiteVersion": {
-      "kind": "reexport"
-    },
-    "EventBus": {
-      "kind": "reexport"
-    },
-    "EventEnvelope": {
-      "kind": "reexport"
-    },
-    "EventHandler": {
-      "kind": "reexport"
-    },
-    "EventSource": {
-      "kind": "reexport"
-    },
-    "EventType": {
-      "kind": "reexport"
-    },
-    "ExtensionPoint": {
-      "kind": "reexport"
-    },
-    "ExtensionRegistration": {
-      "kind": "reexport"
-    },
-    "ExternalVault": {
-      "kind": "reexport"
-    },
-    "FLOW_ENVELOPE_FORMAT": {
-      "kind": "reexport"
-    },
-    "FallbackEntry": {
-      "kind": "reexport"
-    },
-    "FileEdit": {
-      "kind": "reexport"
-    },
-    "FileMemoryStore": {
-      "kind": "reexport"
-    },
-    "FileVault": {
-      "kind": "reexport"
-    },
-    "FileWatchTrigger": {
-      "kind": "reexport"
-    },
-    "FlowConfig": {
-      "kind": "reexport"
-    },
-    "FlowEdge": {
-      "kind": "reexport"
-    },
-    "FlowEnvelope": {
-      "kind": "reexport"
-    },
-    "FlowEnvelopeSignature": {
-      "kind": "reexport"
-    },
-    "FlowLock": {
-      "kind": "reexport"
-    },
-    "FlowNode": {
-      "kind": "reexport"
-    },
-    "FlowNodeLock": {
-      "kind": "reexport"
-    },
-    "FormattingConfig": {
-      "kind": "reexport"
-    },
-    "GENESIS_PREV_HASH": {
-      "kind": "reexport"
-    },
-    "GEN_AI_FINISH_REASONS": {
-      "kind": "reexport"
-    },
-    "GEN_AI_OPERATION_NAMES": {
-      "kind": "reexport"
-    },
-    "GenAiAttr": {
-      "kind": "reexport"
-    },
-    "GenAiAttrName": {
-      "kind": "reexport"
-    },
-    "GenAiFinishReason": {
-      "kind": "reexport"
-    },
-    "GenAiOperationName": {
-      "kind": "reexport"
-    },
-    "GenAiRequest": {
-      "kind": "reexport"
-    },
-    "GenAiResponse": {
-      "kind": "reexport"
-    },
-    "GenAiSpanAttributes": {
-      "kind": "reexport"
-    },
-    "GitCommitResolver": {
-      "kind": "reexport"
-    },
-    "GitHubTrigger": {
-      "kind": "reexport"
-    },
-    "GlossaryEntry": {
-      "kind": "reexport"
-    },
-    "Hasher": {
-      "kind": "reexport"
-    },
-    "HumanNode": {
-      "kind": "reexport"
-    },
-    "HybridSearchConfig": {
-      "kind": "reexport"
-    },
-    "IdentityConfig": {
-      "kind": "reexport"
-    },
-    "InMemoryEventBus": {
-      "kind": "reexport"
-    },
-    "InMemoryStore": {
-      "kind": "reexport"
-    },
-    "KnowledgeFallbackBehavior": {
-      "kind": "reexport"
-    },
-    "KnowledgeGovernance": {
-      "kind": "reexport"
-    },
-    "KnowledgeSensitivity": {
-      "kind": "reexport"
-    },
-    "KnowledgeTrustLevel": {
-      "kind": "reexport"
-    },
-    "LOCKFILE_VERSION": {
-      "kind": "reexport"
-    },
-    "LinearTrigger": {
-      "kind": "reexport"
-    },
-    "LocalStorageMemoryStore": {
-      "kind": "reexport"
-    },
-    "LockDriftIssue": {
-      "kind": "reexport"
-    },
-    "LockSignature": {
-      "kind": "reexport"
-    },
-    "Lockfile": {
-      "kind": "reexport"
-    },
-    "MIN_SANDBOX_FOR": {
-      "kind": "reexport"
-    },
-    "MemoryConfig": {
-      "kind": "reexport"
-    },
-    "MigrationError": {
-      "kind": "reexport"
-    },
-    "MigrationRegistry": {
-      "kind": "reexport"
-    },
-    "MigrationResult": {
-      "kind": "reexport"
-    },
-    "MigrationStep": {
-      "kind": "reexport"
-    },
-    "ModeAction": {
-      "kind": "reexport"
-    },
-    "ModelLock": {
-      "kind": "reexport"
-    },
-    "ModelPricing": {
-      "kind": "reexport"
-    },
-    "NoAdapterAvailableError": {
-      "kind": "reexport"
-    },
-    "ObservabilityConfig": {
-      "kind": "reexport"
-    },
-    "OsErrorEnvelope": {
-      "kind": "reexport"
-    },
-    "OsKeychainVault": {
-      "kind": "reexport"
-    },
-    "OsRunHints": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "ParallelNode": {
-      "kind": "reexport"
-    },
-    "PickAdapterOptions": {
-      "kind": "reexport"
-    },
-    "PickAdapterSuccess": {
-      "kind": "reexport"
-    },
-    "PiiCategory": {
-      "kind": "reexport"
-    },
-    "PiiRedactionConfig": {
-      "kind": "reexport"
-    },
-    "PluginConfig": {
-      "kind": "reexport"
-    },
-    "PluginContribution": {
-      "kind": "reexport"
-    },
-    "PluginEntrypoint": {
-      "kind": "reexport"
-    },
-    "PluginLock": {
-      "kind": "reexport"
-    },
-    "PluginPermission": {
-      "kind": "reexport"
-    },
-    "PluginRegistry": {
-      "kind": "reexport"
-    },
-    "PluginSignature": {
-      "kind": "reexport"
-    },
-    "PreferredTerm": {
-      "kind": "reexport"
-    },
-    "Principal": {
-      "kind": "reexport"
-    },
-    "PrincipalKind": {
-      "kind": "reexport"
-    },
-    "PrincipalRef": {
-      "kind": "reexport"
-    },
-    "PromptFirewallConfig": {
-      "kind": "reexport"
-    },
-    "ProvenanceEntry": {
-      "kind": "reexport"
-    },
-    "ProvenanceMap": {
-      "kind": "reexport"
-    },
-    "ProviderCheckResult": {
-      "kind": "reexport"
-    },
-    "ProviderCheckStatus": {
-      "kind": "reexport"
-    },
-    "ProviderFilterOptions": {
-      "kind": "reexport"
-    },
-    "ProviderKind": {
-      "kind": "reexport"
-    },
-    "ProviderLock": {
-      "kind": "reexport"
-    },
-    "ProviderRef": {
-      "kind": "reexport"
-    },
-    "ProviderRequirement": {
-      "kind": "reexport"
-    },
-    "RESERVED_DOMAINS": {
-      "kind": "reexport"
-    },
-    "RESERVED_TOPIC_ROOTS": {
-      "kind": "reexport"
-    },
-    "RUN_MODES": {
-      "kind": "reexport"
-    },
-    "RUN_MODE_POLICY": {
-      "kind": "reexport"
-    },
-    "RagConfig": {
-      "kind": "reexport"
-    },
-    "RagLoader": {
-      "kind": "reexport"
-    },
-    "RagPipeline": {
-      "kind": "reexport"
-    },
-    "RagPipelineRef": {
-      "kind": "reexport"
-    },
-    "RbacRole": {
-      "kind": "reexport"
-    },
-    "RedisMemoryStore": {
-      "kind": "reexport"
-    },
-    "RegistryConflict": {
-      "kind": "reexport"
-    },
-    "RegistryStore": {
-      "kind": "reexport"
-    },
-    "RegistryWriteResult": {
-      "kind": "reexport"
-    },
-    "RepoRef": {
-      "kind": "const"
-    },
-    "RequiredDisclaimer": {
-      "kind": "reexport"
-    },
-    "RerankerConfig": {
-      "kind": "reexport"
-    },
-    "RerankerKind": {
-      "kind": "reexport"
-    },
-    "ResolveResult": {
-      "kind": "reexport"
-    },
-    "ResolveWorkspacePathsOptions": {
-      "kind": "reexport"
-    },
-    "ResourceRef": {
-      "kind": "reexport"
-    },
-    "RetryPolicy": {
-      "kind": "reexport"
-    },
-    "RunContext": {
-      "kind": "reexport"
-    },
-    "RunMode": {
-      "kind": "reexport"
-    },
-    "RunModePolicy": {
-      "kind": "reexport"
-    },
-    "SANDBOX_LEVELS": {
-      "kind": "reexport"
-    },
-    "SCHEMA_VERSION": {
-      "kind": "reexport"
-    },
-    "SEMCONV_VERSION": {
-      "kind": "reexport"
-    },
-    "SENSITIVITY_LEVELS": {
-      "kind": "reexport"
-    },
-    "SIDE_EFFECTS": {
-      "kind": "reexport"
-    },
-    "SandboxConfig": {
-      "kind": "reexport"
-    },
-    "SandboxDecision": {
-      "kind": "reexport"
-    },
-    "SandboxLevel": {
-      "kind": "reexport"
-    },
-    "SandboxRuntime": {
-      "kind": "reexport"
-    },
-    "SchemaVersionsLock": {
-      "kind": "reexport"
-    },
-    "SecurityConfig": {
-      "kind": "reexport"
-    },
-    "Sensitivity": {
-      "kind": "reexport"
-    },
-    "Severity": {
-      "kind": "reexport"
-    },
-    "ShellInvocation": {
-      "kind": "reexport"
-    },
-    "SideEffect": {
-      "kind": "reexport"
-    },
-    "SideEffectList": {
-      "kind": "reexport"
-    },
-    "SignatureVerifier": {
-      "kind": "reexport"
-    },
-    "SignedEventRef": {
-      "kind": "reexport"
-    },
-    "SkillRef": {
-      "kind": "reexport"
-    },
-    "SlaRef": {
-      "kind": "reexport"
-    },
-    "SlackTrigger": {
-      "kind": "reexport"
-    },
-    "SloRef": {
-      "kind": "reexport"
-    },
-    "Slug": {
-      "kind": "const"
-    },
-    "SnapshotDiff": {
-      "kind": "reexport"
-    },
-    "SqliteMemoryStore": {
-      "kind": "reexport"
-    },
-    "SsoProvider": {
-      "kind": "reexport"
-    },
-    "StabilityTier": {
-      "kind": "reexport"
-    },
-    "Subscription": {
-      "kind": "reexport"
-    },
-    "SupportContact": {
-      "kind": "reexport"
-    },
-    "SyncStrategy": {
-      "kind": "reexport"
-    },
-    "TRIGGER_PRESETS": {
-      "kind": "reexport"
-    },
-    "Tag": {
-      "kind": "const"
-    },
-    "TagList": {
-      "kind": "const"
-    },
-    "TeamSeat": {
-      "kind": "reexport"
-    },
-    "TelemetryConfig": {
-      "kind": "reexport"
-    },
-    "TelemetryConsent": {
-      "kind": "reexport"
-    },
-    "TelemetryConsentState": {
-      "kind": "reexport"
-    },
-    "TelemetryEvent": {
-      "kind": "reexport"
-    },
-    "TelemetryEventKind": {
-      "kind": "reexport"
-    },
-    "TelemetrySink": {
-      "kind": "reexport"
-    },
-    "TemplateLock": {
-      "kind": "reexport"
-    },
-    "ThrottleAction": {
-      "kind": "reexport"
-    },
-    "ThrottleDecision": {
-      "kind": "reexport"
-    },
-    "ThrottleScope": {
-      "kind": "reexport"
-    },
-    "ToolLock": {
-      "kind": "reexport"
-    },
-    "ToolManifest": {
-      "kind": "reexport"
-    },
-    "ToolNode": {
-      "kind": "reexport"
-    },
-    "ToolRef": {
-      "kind": "reexport"
-    },
-    "ToolUse": {
-      "kind": "reexport"
-    },
-    "TraceExporter": {
-      "kind": "reexport"
-    },
-    "TransitionCheck": {
-      "kind": "reexport"
-    },
-    "TransitionDecision": {
-      "kind": "reexport"
-    },
-    "TransitionRequirements": {
-      "kind": "reexport"
-    },
-    "TriggerConfig": {
-      "kind": "reexport"
-    },
-    "TriggerPreset": {
-      "kind": "reexport"
-    },
-    "Ulid": {
-      "kind": "reexport"
-    },
-    "Usage": {
-      "kind": "reexport"
-    },
-    "ValidationOptions": {
-      "kind": "reexport"
-    },
-    "VaultBackend": {
-      "kind": "reexport"
-    },
-    "VaultConfig": {
-      "kind": "reexport"
-    },
-    "VaultResolver": {
-      "kind": "reexport"
-    },
-    "VaultSecretRef": {
-      "kind": "const"
-    },
-    "VectorMemoryStore": {
-      "kind": "reexport"
-    },
-    "VectorStoreConfig": {
-      "kind": "reexport"
-    },
-    "VerifyDecision": {
-      "kind": "reexport"
-    },
-    "VocabularyConfig": {
-      "kind": "reexport"
-    },
-    "VoiceConfig": {
-      "kind": "reexport"
-    },
-    "VoiceTone": {
-      "kind": "reexport"
-    },
-    "VoteNode": {
-      "kind": "reexport"
-    },
-    "WebhookHmacAlgorithm": {
-      "kind": "type"
-    },
-    "WebhookSignature": {
-      "kind": "type"
-    },
-    "WebhookSigningConfig": {
-      "kind": "type"
-    },
-    "WebhookTrigger": {
-      "kind": "reexport"
-    },
-    "WebhookVerifyDecision": {
-      "kind": "type"
-    },
-    "WorkspaceConfig": {
-      "kind": "reexport"
-    },
-    "WorkspaceIsolation": {
-      "kind": "reexport"
-    },
-    "WorkspaceKind": {
-      "kind": "reexport"
-    },
-    "WorkspaceLimits": {
-      "kind": "reexport"
-    },
-    "WorkspacePaths": {
-      "kind": "reexport"
-    },
-    "airGapEnforce": {
-      "kind": "reexport"
-    },
-    "applyBump": {
-      "kind": "reexport"
-    },
-    "applyLifecycleEvent": {
-      "kind": "reexport"
-    },
-    "bucketDuration": {
-      "kind": "reexport"
-    },
-    "buildChangelogEntries": {
-      "kind": "reexport"
-    },
-    "buildProvenance": {
-      "kind": "reexport"
-    },
-    "buildRequestAttributes": {
-      "kind": "reexport"
-    },
-    "buildResponseAttributes": {
-      "kind": "reexport"
-    },
-    "canonicalFlowBody": {
-      "kind": "reexport"
-    },
-    "canonicalJson": {
-      "kind": "reexport"
-    },
-    "checkBudget": {
-      "kind": "reexport"
-    },
-    "checkConsent": {
-      "kind": "reexport"
-    },
-    "checkDeterminism": {
-      "kind": "reexport"
-    },
-    "checkEgress": {
-      "kind": "reexport"
-    },
-    "checkProviderKeys": {
-      "kind": "reexport"
-    },
-    "compareSensitivity": {
-      "kind": "reexport"
-    },
-    "computeBatchDigest": {
-      "kind": "reexport"
-    },
-    "computeCost": {
-      "kind": "reexport"
-    },
-    "computeMerkleRoot": {
-      "kind": "reexport"
-    },
-    "computeWebhookSignature": {
-      "kind": "const"
-    },
-    "decideEmit": {
-      "kind": "reexport"
-    },
-    "decideSandbox": {
-      "kind": "reexport"
-    },
-    "decideThrottle": {
-      "kind": "reexport"
-    },
-    "decideToolAction": {
-      "kind": "reexport"
-    },
-    "detectLockDrift": {
-      "kind": "reexport"
-    },
-    "diffConfigs": {
-      "kind": "reexport"
-    },
-    "diffSnapshots": {
-      "kind": "reexport"
-    },
-    "effectiveLimitsFor": {
-      "kind": "reexport"
-    },
-    "escalationRule": {
-      "kind": "reexport"
-    },
-    "evaluateBreakGlass": {
-      "kind": "reexport"
-    },
-    "evaluateTransition": {
-      "kind": "reexport"
-    },
-    "filterProviders": {
-      "kind": "reexport"
-    },
-    "findVaultRefs": {
-      "kind": "reexport"
-    },
-    "formatWebhookSignatureHeader": {
-      "kind": "const"
-    },
-    "getTriggerPreset": {
-      "kind": "reexport"
-    },
-    "hasBlockingViolation": {
-      "kind": "reexport"
-    },
-    "hashSnapshot": {
-      "kind": "reexport"
-    },
-    "isApiCompatible": {
-      "kind": "reexport"
-    },
-    "isHotReloadable": {
-      "kind": "reexport"
-    },
-    "isTransitionAllowed": {
-      "kind": "reexport"
-    },
-    "listTriggerPresets": {
-      "kind": "reexport"
-    },
-    "maxSeverity": {
-      "kind": "reexport"
-    },
-    "mergeLayers": {
-      "kind": "reexport"
-    },
-    "migrateConfig": {
-      "kind": "reexport"
-    },
-    "parseAgentConfig": {
-      "kind": "reexport"
-    },
-    "parseAgentLifecycleEvent": {
-      "kind": "reexport"
-    },
-    "parseAgentRegistryEntry": {
-      "kind": "reexport"
-    },
-    "parseAgentVersion": {
-      "kind": "reexport"
-    },
-    "parseAgentsManifest": {
-      "kind": "reexport"
-    },
-    "parseAirGapPolicy": {
-      "kind": "reexport"
-    },
-    "parseAuditBatch": {
-      "kind": "reexport"
-    },
-    "parseAuthContext": {
-      "kind": "reexport"
-    },
-    "parseBrandKit": {
-      "kind": "reexport"
-    },
-    "parseBreakGlassActivation": {
-      "kind": "reexport"
-    },
-    "parseCapability": {
-      "kind": "reexport"
-    },
-    "parseCloudSyncConfig": {
-      "kind": "reexport"
-    },
-    "parseCodingTaskRequest": {
-      "kind": "reexport"
-    },
-    "parseCodingTaskResult": {
-      "kind": "reexport"
-    },
-    "parseConfigRoot": {
-      "kind": "reexport"
-    },
-    "parseConformanceReport": {
-      "kind": "reexport"
-    },
-    "parseConsentRef": {
-      "kind": "reexport"
-    },
-    "parseCostMeasurement": {
-      "kind": "reexport"
-    },
-    "parseDomainPack": {
-      "kind": "reexport"
-    },
-    "parseEgressPolicy": {
-      "kind": "reexport"
-    },
-    "parseEvalDef": {
-      "kind": "reexport"
-    },
-    "parseEvalSuite": {
-      "kind": "reexport"
-    },
-    "parseEvent": {
-      "kind": "reexport"
-    },
-    "parseFallbackEntry": {
-      "kind": "reexport"
-    },
-    "parseFlowConfig": {
-      "kind": "reexport"
-    },
-    "parseFlowEnvelope": {
-      "kind": "reexport"
-    },
-    "parseGenAiAttributes": {
-      "kind": "reexport"
-    },
-    "parseLockfile": {
-      "kind": "reexport"
-    },
-    "parseMemoryConfig": {
-      "kind": "reexport"
-    },
-    "parseModelPricing": {
-      "kind": "reexport"
-    },
-    "parseObservabilityConfig": {
-      "kind": "reexport"
-    },
-    "parseOsError": {
-      "kind": "reexport"
-    },
-    "parsePluginConfig": {
-      "kind": "reexport"
-    },
-    "parsePluginEntrypoint": {
-      "kind": "reexport"
-    },
-    "parsePrincipal": {
-      "kind": "reexport"
-    },
-    "parseProviderRequirement": {
-      "kind": "reexport"
-    },
-    "parseRagConfig": {
-      "kind": "reexport"
-    },
-    "parseRagPipeline": {
-      "kind": "reexport"
-    },
-    "parseRepoRef": {
-      "kind": "const"
-    },
-    "parseRunContext": {
-      "kind": "reexport"
-    },
-    "parseSecurityConfig": {
-      "kind": "reexport"
-    },
-    "parseTelemetryConfig": {
-      "kind": "reexport"
-    },
-    "parseTelemetryEvent": {
-      "kind": "reexport"
-    },
-    "parseThrottleConfig": {
-      "kind": "reexport"
-    },
-    "parseToolManifest": {
-      "kind": "reexport"
-    },
-    "parseTriggerConfig": {
-      "kind": "reexport"
-    },
-    "parseVaultConfig": {
-      "kind": "reexport"
-    },
-    "parseWebhookSignatureHeader": {
-      "kind": "const"
-    },
-    "parseWorkspaceConfig": {
-      "kind": "reexport"
-    },
-    "parseWorkspaceLimits": {
-      "kind": "reexport"
-    },
-    "passesThreshold": {
-      "kind": "reexport"
-    },
-    "pickAdapter": {
-      "kind": "reexport"
-    },
-    "renderAgentChangelog": {
-      "kind": "reexport"
-    },
-    "renderManifestChangelogs": {
-      "kind": "reexport"
-    },
-    "replayEvents": {
-      "kind": "reexport"
-    },
-    "requirementsFor": {
-      "kind": "reexport"
-    },
-    "requiresConsent": {
-      "kind": "reexport"
-    },
-    "resolveVaultRefs": {
-      "kind": "reexport"
-    },
-    "resolveWorkspacePaths": {
-      "kind": "reexport"
-    },
-    "runConformance": {
-      "kind": "reexport"
-    },
-    "safeParseAgentConfig": {
-      "kind": "reexport"
-    },
-    "safeParseAgentLifecycleEvent": {
-      "kind": "reexport"
-    },
-    "safeParseAgentRegistryEntry": {
-      "kind": "reexport"
-    },
-    "safeParseAgentVersion": {
-      "kind": "reexport"
-    },
-    "safeParseAgentsManifest": {
-      "kind": "reexport"
-    },
-    "safeParseAirGapPolicy": {
-      "kind": "reexport"
-    },
-    "safeParseAuditBatch": {
-      "kind": "reexport"
-    },
-    "safeParseAuthContext": {
-      "kind": "reexport"
-    },
-    "safeParseBrandKit": {
-      "kind": "reexport"
-    },
-    "safeParseBreakGlassActivation": {
-      "kind": "reexport"
-    },
-    "safeParseCapability": {
-      "kind": "reexport"
-    },
-    "safeParseCloudSyncConfig": {
-      "kind": "reexport"
-    },
-    "safeParseCodingTaskRequest": {
-      "kind": "reexport"
-    },
-    "safeParseCodingTaskResult": {
-      "kind": "reexport"
-    },
-    "safeParseConfigRoot": {
-      "kind": "reexport"
-    },
-    "safeParseConformanceReport": {
-      "kind": "reexport"
-    },
-    "safeParseConsentRef": {
-      "kind": "reexport"
-    },
-    "safeParseCostMeasurement": {
-      "kind": "reexport"
-    },
-    "safeParseDomainPack": {
-      "kind": "reexport"
-    },
-    "safeParseEgressPolicy": {
-      "kind": "reexport"
-    },
-    "safeParseEvalDef": {
-      "kind": "reexport"
-    },
-    "safeParseEvalSuite": {
-      "kind": "reexport"
-    },
-    "safeParseEvent": {
-      "kind": "reexport"
-    },
-    "safeParseFallbackEntry": {
-      "kind": "reexport"
-    },
-    "safeParseFlowConfig": {
-      "kind": "reexport"
-    },
-    "safeParseFlowEnvelope": {
-      "kind": "reexport"
-    },
-    "safeParseGenAiAttributes": {
-      "kind": "reexport"
-    },
-    "safeParseLockfile": {
-      "kind": "reexport"
-    },
-    "safeParseMemoryConfig": {
-      "kind": "reexport"
-    },
-    "safeParseModelPricing": {
-      "kind": "reexport"
-    },
-    "safeParseObservabilityConfig": {
-      "kind": "reexport"
-    },
-    "safeParseOsError": {
-      "kind": "reexport"
-    },
-    "safeParsePluginConfig": {
-      "kind": "reexport"
-    },
-    "safeParsePluginEntrypoint": {
-      "kind": "reexport"
-    },
-    "safeParsePrincipal": {
-      "kind": "reexport"
-    },
-    "safeParseProviderRequirement": {
-      "kind": "reexport"
-    },
-    "safeParseRagConfig": {
-      "kind": "reexport"
-    },
-    "safeParseRagPipeline": {
-      "kind": "reexport"
-    },
-    "safeParseRepoRef": {
-      "kind": "const"
-    },
-    "safeParseRunContext": {
-      "kind": "reexport"
-    },
-    "safeParseSecurityConfig": {
-      "kind": "reexport"
-    },
-    "safeParseTelemetryConfig": {
-      "kind": "reexport"
-    },
-    "safeParseTelemetryEvent": {
-      "kind": "reexport"
-    },
-    "safeParseThrottleConfig": {
-      "kind": "reexport"
-    },
-    "safeParseToolManifest": {
-      "kind": "reexport"
-    },
-    "safeParseTriggerConfig": {
-      "kind": "reexport"
-    },
-    "safeParseVaultConfig": {
-      "kind": "reexport"
-    },
-    "safeParseWorkspaceConfig": {
-      "kind": "reexport"
-    },
-    "safeParseWorkspaceLimits": {
-      "kind": "reexport"
-    },
-    "sha256OfCanonical": {
-      "kind": "reexport"
-    },
-    "signWebhookRequest": {
-      "kind": "const"
-    },
-    "spanName": {
-      "kind": "reexport"
-    },
-    "stabilityOf": {
-      "kind": "reexport"
-    },
-    "stageLabel": {
-      "kind": "reexport"
-    },
-    "suggestBump": {
-      "kind": "reexport"
-    },
-    "type WebhookHmacAlgorithm": {
-      "kind": "reexport"
-    },
-    "type WebhookSignature": {
-      "kind": "reexport"
-    },
-    "type WebhookSigningConfig": {
-      "kind": "reexport"
-    },
-    "type WebhookVerifyDecision": {
-      "kind": "reexport"
-    },
-    "validateAgainstBrandKit": {
-      "kind": "reexport"
-    },
-    "verifyCapability": {
-      "kind": "reexport"
-    },
-    "verifyChain": {
-      "kind": "reexport"
-    },
-    "verifyWebhookRequest": {
-      "kind": "const"
+  "entries": {
+    "audit/batch.d.ts": {
+      "AUDIT_SCHEMA_VERSION": {
+        "kind": "const"
+      },
+      "AnchorRecord": {
+        "kind": "const"
+      },
+      "AuditBatch": {
+        "kind": "const"
+      },
+      "AuditKeyCustody": {
+        "kind": "const"
+      },
+      "AuditSignature": {
+        "kind": "const"
+      },
+      "ChainBreak": {
+        "kind": "type"
+      },
+      "GENESIS_PREV_HASH": {
+        "kind": "const"
+      },
+      "SignatureVerifier": {
+        "kind": "type"
+      },
+      "SignedEventRef": {
+        "kind": "const"
+      },
+      "computeBatchDigest": {
+        "kind": "const"
+      },
+      "computeMerkleRoot": {
+        "kind": "const"
+      },
+      "parseAuditBatch": {
+        "kind": "const"
+      },
+      "safeParseAuditBatch": {
+        "kind": "const"
+      },
+      "type ChainBreak": {
+        "kind": "reexport"
+      },
+      "type SignatureVerifier": {
+        "kind": "reexport"
+      },
+      "verifyChain": {
+        "kind": "const"
+      }
+    },
+    "auth/capability.d.ts": {
+      "Action": {
+        "kind": "const"
+      },
+      "AuthContext": {
+        "kind": "const"
+      },
+      "Capability": {
+        "kind": "const"
+      },
+      "CapabilityConstraints": {
+        "kind": "const"
+      },
+      "CapabilitySignature": {
+        "kind": "const"
+      },
+      "ResourceRef": {
+        "kind": "const"
+      },
+      "parseAuthContext": {
+        "kind": "const"
+      },
+      "parseCapability": {
+        "kind": "const"
+      },
+      "safeParseAuthContext": {
+        "kind": "const"
+      },
+      "safeParseCapability": {
+        "kind": "const"
+      }
+    },
+    "auth/principal.d.ts": {
+      "Principal": {
+        "kind": "const"
+      },
+      "PrincipalKind": {
+        "kind": "const"
+      },
+      "PrincipalRef": {
+        "kind": "const"
+      },
+      "parsePrincipal": {
+        "kind": "const"
+      },
+      "safeParsePrincipal": {
+        "kind": "const"
+      }
+    },
+    "auth/verify.d.ts": {
+      "VerifyDecision": {
+        "kind": "type"
+      },
+      "type VerifyDecision": {
+        "kind": "reexport"
+      },
+      "verifyCapability": {
+        "kind": "const"
+      }
+    },
+    "brand/brand-kit.d.ts": {
+      "BannedPhrase": {
+        "kind": "const"
+      },
+      "BrandKit": {
+        "kind": "const"
+      },
+      "BrandViolation": {
+        "kind": "type"
+      },
+      "FormattingConfig": {
+        "kind": "const"
+      },
+      "GlossaryEntry": {
+        "kind": "const"
+      },
+      "IdentityConfig": {
+        "kind": "const"
+      },
+      "PreferredTerm": {
+        "kind": "const"
+      },
+      "RequiredDisclaimer": {
+        "kind": "const"
+      },
+      "Severity": {
+        "kind": "const"
+      },
+      "ValidationOptions": {
+        "kind": "type"
+      },
+      "VocabularyConfig": {
+        "kind": "const"
+      },
+      "VoiceConfig": {
+        "kind": "const"
+      },
+      "VoiceTone": {
+        "kind": "const"
+      },
+      "hasBlockingViolation": {
+        "kind": "const"
+      },
+      "parseBrandKit": {
+        "kind": "const"
+      },
+      "safeParseBrandKit": {
+        "kind": "const"
+      },
+      "type BrandViolation": {
+        "kind": "reexport"
+      },
+      "type ValidationOptions": {
+        "kind": "reexport"
+      },
+      "validateAgainstBrandKit": {
+        "kind": "const"
+      }
+    },
+    "config/diff.d.ts": {
+      "ConfigChangeOp": {
+        "kind": "type"
+      },
+      "diffConfigs": {
+        "kind": "const"
+      },
+      "type ConfigChangeOp": {
+        "kind": "reexport"
+      }
+    },
+    "config/merge.d.ts": {
+      "CONFIG_LAYERS": {
+        "kind": "const"
+      },
+      "ConfigInputs": {
+        "kind": "type"
+      },
+      "ConfigLayer": {
+        "kind": "type"
+      },
+      "DeepPartial": {
+        "kind": "type"
+      },
+      "ProvenanceEntry": {
+        "kind": "type"
+      },
+      "ProvenanceMap": {
+        "kind": "type"
+      },
+      "buildProvenance": {
+        "kind": "const"
+      },
+      "mergeLayers": {
+        "kind": "const"
+      },
+      "type ConfigInputs": {
+        "kind": "reexport"
+      },
+      "type ConfigLayer": {
+        "kind": "reexport"
+      },
+      "type DeepPartial": {
+        "kind": "reexport"
+      },
+      "type ProvenanceEntry": {
+        "kind": "reexport"
+      },
+      "type ProvenanceMap": {
+        "kind": "reexport"
+      }
+    },
+    "config/migrate.d.ts": {
+      "MigrationError": {
+        "kind": "class"
+      },
+      "MigrationRegistry": {
+        "kind": "type"
+      },
+      "MigrationResult": {
+        "kind": "type"
+      },
+      "MigrationStep": {
+        "kind": "type"
+      },
+      "migrateConfig": {
+        "kind": "const"
+      },
+      "type MigrationRegistry": {
+        "kind": "reexport"
+      },
+      "type MigrationResult": {
+        "kind": "reexport"
+      },
+      "type MigrationStep": {
+        "kind": "reexport"
+      }
+    },
+    "consent/consent.d.ts": {
+      "BREAK_GLASS_BYPASSES": {
+        "kind": "const"
+      },
+      "BREAK_GLASS_REASONS": {
+        "kind": "const"
+      },
+      "BreakGlassActivation": {
+        "kind": "const"
+      },
+      "BreakGlassBypass": {
+        "kind": "const"
+      },
+      "BreakGlassDecision": {
+        "kind": "type"
+      },
+      "BreakGlassPostHoc": {
+        "kind": "const"
+      },
+      "BreakGlassReason": {
+        "kind": "const"
+      },
+      "ConsentDecision": {
+        "kind": "type"
+      },
+      "ConsentRef": {
+        "kind": "const"
+      },
+      "ConsentScope": {
+        "kind": "const"
+      },
+      "ConsentSignature": {
+        "kind": "const"
+      },
+      "Jurisdiction": {
+        "kind": "const"
+      },
+      "SENSITIVITY_LEVELS": {
+        "kind": "const"
+      },
+      "Sensitivity": {
+        "kind": "const"
+      },
+      "checkConsent": {
+        "kind": "const"
+      },
+      "compareSensitivity": {
+        "kind": "const"
+      },
+      "evaluateBreakGlass": {
+        "kind": "const"
+      },
+      "parseBreakGlassActivation": {
+        "kind": "const"
+      },
+      "parseConsentRef": {
+        "kind": "const"
+      },
+      "requiresConsent": {
+        "kind": "const"
+      },
+      "safeParseBreakGlassActivation": {
+        "kind": "const"
+      },
+      "safeParseConsentRef": {
+        "kind": "const"
+      },
+      "type BreakGlassDecision": {
+        "kind": "reexport"
+      },
+      "type ConsentDecision": {
+        "kind": "reexport"
+      }
+    },
+    "cost/cost-meter.d.ts": {
+      "BudgetDecision": {
+        "kind": "type"
+      },
+      "CostBreakdown": {
+        "kind": "type"
+      },
+      "CostBudgetCheck": {
+        "kind": "const"
+      },
+      "CostKey": {
+        "kind": "type"
+      },
+      "CostMeter": {
+        "kind": "class"
+      },
+      "CostMeterId": {
+        "kind": "type"
+      },
+      "Currency": {
+        "kind": "const"
+      },
+      "ModelPricing": {
+        "kind": "const"
+      },
+      "Usage": {
+        "kind": "type"
+      },
+      "checkBudget": {
+        "kind": "const"
+      },
+      "computeCost": {
+        "kind": "const"
+      },
+      "parseModelPricing": {
+        "kind": "const"
+      },
+      "safeParseModelPricing": {
+        "kind": "const"
+      },
+      "type BudgetDecision": {
+        "kind": "reexport"
+      },
+      "type CostBreakdown": {
+        "kind": "reexport"
+      },
+      "type CostKey": {
+        "kind": "reexport"
+      },
+      "type CostMeterId": {
+        "kind": "reexport"
+      },
+      "type Usage": {
+        "kind": "reexport"
+      }
+    },
+    "errors/codes.d.ts": {
+      "ErrorCategory": {
+        "kind": "const"
+      },
+      "ErrorCode": {
+        "kind": "const"
+      },
+      "RESERVED_DOMAINS": {
+        "kind": "const"
+      },
+      "ReservedDomain": {
+        "kind": "type"
+      },
+      "type ReservedDomain": {
+        "kind": "reexport"
+      }
+    },
+    "errors/error.d.ts": {
+      "ERROR_SCHEMA_VERSION": {
+        "kind": "const"
+      },
+      "OsErrorEnvelope": {
+        "kind": "const"
+      },
+      "parseOsError": {
+        "kind": "const"
+      },
+      "safeParseOsError": {
+        "kind": "const"
+      }
+    },
+    "events/bus.d.ts": {
+      "EventBus": {
+        "kind": "interface"
+      },
+      "EventHandler": {
+        "kind": "type"
+      },
+      "InMemoryEventBus": {
+        "kind": "class"
+      },
+      "Subscription": {
+        "kind": "type"
+      },
+      "type EventBus": {
+        "kind": "reexport"
+      },
+      "type EventHandler": {
+        "kind": "reexport"
+      },
+      "type Subscription": {
+        "kind": "reexport"
+      }
+    },
+    "events/event.d.ts": {
+      "AnyEvent": {
+        "kind": "const"
+      },
+      "DataSchemaUri": {
+        "kind": "const"
+      },
+      "EVENT_SPEC_VERSION": {
+        "kind": "const"
+      },
+      "EventEnvelope": {
+        "kind": "const"
+      },
+      "EventSource": {
+        "kind": "const"
+      },
+      "EventType": {
+        "kind": "const"
+      },
+      "RESERVED_TOPIC_ROOTS": {
+        "kind": "const"
+      },
+      "ReservedTopicRoot": {
+        "kind": "type"
+      },
+      "Ulid": {
+        "kind": "const"
+      },
+      "parseEvent": {
+        "kind": "const"
+      },
+      "safeParseEvent": {
+        "kind": "const"
+      },
+      "type ReservedTopicRoot": {
+        "kind": "reexport"
+      }
+    },
+    "index.d.ts": {
+      "AUDIT_SCHEMA_VERSION": {
+        "kind": "reexport"
+      },
+      "Action": {
+        "kind": "reexport"
+      },
+      "ActivationEvent": {
+        "kind": "const"
+      },
+      "ActivationEventKind": {
+        "kind": "const"
+      },
+      "ActivationFunnel": {
+        "kind": "type"
+      },
+      "AgentConfig": {
+        "kind": "reexport"
+      },
+      "AgentDependency": {
+        "kind": "reexport"
+      },
+      "AgentEnvironment": {
+        "kind": "reexport"
+      },
+      "AgentLifecycleEvent": {
+        "kind": "reexport"
+      },
+      "AgentLifecycleState": {
+        "kind": "reexport"
+      },
+      "AgentLock": {
+        "kind": "reexport"
+      },
+      "AgentMemoryRef": {
+        "kind": "reexport"
+      },
+      "AgentModelConfig": {
+        "kind": "reexport"
+      },
+      "AgentNode": {
+        "kind": "reexport"
+      },
+      "AgentRegistryEntry": {
+        "kind": "reexport"
+      },
+      "AgentRiskTier": {
+        "kind": "reexport"
+      },
+      "AgentVersion": {
+        "kind": "reexport"
+      },
+      "AgentVersionSnapshot": {
+        "kind": "reexport"
+      },
+      "AgentsManifest": {
+        "kind": "reexport"
+      },
+      "AgentsManifestVersion": {
+        "kind": "reexport"
+      },
+      "AirGapDecision": {
+        "kind": "reexport"
+      },
+      "AirGapPolicy": {
+        "kind": "reexport"
+      },
+      "AirGapRequest": {
+        "kind": "reexport"
+      },
+      "AnchorRecord": {
+        "kind": "reexport"
+      },
+      "AnomalyDetection": {
+        "kind": "reexport"
+      },
+      "AnyEvent": {
+        "kind": "reexport"
+      },
+      "AuctionNode": {
+        "kind": "reexport"
+      },
+      "AuditBatch": {
+        "kind": "reexport"
+      },
+      "AuditKeyCustody": {
+        "kind": "reexport"
+      },
+      "AuditLogConfig": {
+        "kind": "reexport"
+      },
+      "AuditMetadata": {
+        "kind": "reexport"
+      },
+      "AuditSignature": {
+        "kind": "reexport"
+      },
+      "AuthContext": {
+        "kind": "reexport"
+      },
+      "BREAK_GLASS_BYPASSES": {
+        "kind": "reexport"
+      },
+      "BUILTIN_PROVIDERS": {
+        "kind": "reexport"
+      },
+      "BannedPhrase": {
+        "kind": "reexport"
+      },
+      "BlackboardNode": {
+        "kind": "reexport"
+      },
+      "BlackboardSchedule": {
+        "kind": "reexport"
+      },
+      "BlackboardScratchpad": {
+        "kind": "reexport"
+      },
+      "BlackboardTermination": {
+        "kind": "reexport"
+      },
+      "BrandKit": {
+        "kind": "reexport"
+      },
+      "BrandViolation": {
+        "kind": "reexport"
+      },
+      "BreakGlassActivation": {
+        "kind": "reexport"
+      },
+      "BreakGlassBypass": {
+        "kind": "reexport"
+      },
+      "BreakGlassDecision": {
+        "kind": "reexport"
+      },
+      "BreakGlassPostHoc": {
+        "kind": "reexport"
+      },
+      "BreakGlassReason": {
+        "kind": "reexport"
+      },
+      "BudgetDecision": {
+        "kind": "reexport"
+      },
+      "BumpKind": {
+        "kind": "reexport"
+      },
+      "CONFIG_LAYERS": {
+        "kind": "reexport"
+      },
+      "CONFIG_ROOT_VERSION": {
+        "kind": "reexport"
+      },
+      "CONFORMANCE_PROMPTS": {
+        "kind": "reexport"
+      },
+      "Capability": {
+        "kind": "reexport"
+      },
+      "CapabilityConstraints": {
+        "kind": "reexport"
+      },
+      "CapabilitySignature": {
+        "kind": "reexport"
+      },
+      "CdcTrigger": {
+        "kind": "reexport"
+      },
+      "ChainBreak": {
+        "kind": "reexport"
+      },
+      "ChangelogEntry": {
+        "kind": "reexport"
+      },
+      "ChangelogSummary": {
+        "kind": "reexport"
+      },
+      "ChunkerConfig": {
+        "kind": "reexport"
+      },
+      "ChunkerStrategy": {
+        "kind": "reexport"
+      },
+      "CitationRequirement": {
+        "kind": "reexport"
+      },
+      "ClientRef": {
+        "kind": "reexport"
+      },
+      "CloudPlan": {
+        "kind": "reexport"
+      },
+      "CloudSyncConfig": {
+        "kind": "reexport"
+      },
+      "CodingAgentCapability": {
+        "kind": "reexport"
+      },
+      "CodingAgentInvocationModel": {
+        "kind": "reexport"
+      },
+      "CodingAgentProvider": {
+        "kind": "reexport"
+      },
+      "CodingAgentProviderInfo": {
+        "kind": "reexport"
+      },
+      "CodingTaskKind": {
+        "kind": "reexport"
+      },
+      "CodingTaskRequest": {
+        "kind": "reexport"
+      },
+      "CodingTaskResult": {
+        "kind": "reexport"
+      },
+      "CompareNode": {
+        "kind": "reexport"
+      },
+      "ConditionNode": {
+        "kind": "reexport"
+      },
+      "ConfigChangeOp": {
+        "kind": "reexport"
+      },
+      "ConfigInputs": {
+        "kind": "reexport"
+      },
+      "ConfigLayer": {
+        "kind": "reexport"
+      },
+      "ConfigRoot": {
+        "kind": "reexport"
+      },
+      "ConformanceCheck": {
+        "kind": "reexport"
+      },
+      "ConformanceCheckResult": {
+        "kind": "reexport"
+      },
+      "ConformanceReport": {
+        "kind": "reexport"
+      },
+      "ConsentDecision": {
+        "kind": "reexport"
+      },
+      "ConsentRef": {
+        "kind": "reexport"
+      },
+      "ConsentScope": {
+        "kind": "reexport"
+      },
+      "CostBreakdown": {
+        "kind": "reexport"
+      },
+      "CostBudget": {
+        "kind": "reexport"
+      },
+      "CostBudgetCheck": {
+        "kind": "reexport"
+      },
+      "CostKey": {
+        "kind": "reexport"
+      },
+      "CostMeasurement": {
+        "kind": "reexport"
+      },
+      "CostMeter": {
+        "kind": "reexport"
+      },
+      "CostMeterId": {
+        "kind": "reexport"
+      },
+      "CostQuota": {
+        "kind": "reexport"
+      },
+      "CostThrottleConfig": {
+        "kind": "reexport"
+      },
+      "CronTrigger": {
+        "kind": "reexport"
+      },
+      "Currency": {
+        "kind": "reexport"
+      },
+      "DataResidencyConfig": {
+        "kind": "reexport"
+      },
+      "DataSchemaUri": {
+        "kind": "reexport"
+      },
+      "DebateNode": {
+        "kind": "reexport"
+      },
+      "DeepPartial": {
+        "kind": "reexport"
+      },
+      "DeterminismCheckInput": {
+        "kind": "reexport"
+      },
+      "DeterminismIssue": {
+        "kind": "reexport"
+      },
+      "DomainPack": {
+        "kind": "reexport"
+      },
+      "DriftCheckInput": {
+        "kind": "reexport"
+      },
+      "ERROR_SCHEMA_VERSION": {
+        "kind": "reexport"
+      },
+      "EVENT_SPEC_VERSION": {
+        "kind": "reexport"
+      },
+      "EXTENSION_API_VERSION": {
+        "kind": "reexport"
+      },
+      "EXTENSION_POINTS": {
+        "kind": "reexport"
+      },
+      "EgressDecision": {
+        "kind": "reexport"
+      },
+      "EgressGrant": {
+        "kind": "reexport"
+      },
+      "EgressPolicy": {
+        "kind": "reexport"
+      },
+      "EgressProxy": {
+        "kind": "reexport"
+      },
+      "EmailTrigger": {
+        "kind": "reexport"
+      },
+      "EmbedderConfig": {
+        "kind": "reexport"
+      },
+      "EnvVault": {
+        "kind": "reexport"
+      },
+      "ErrorCategory": {
+        "kind": "reexport"
+      },
+      "ErrorCode": {
+        "kind": "reexport"
+      },
+      "EscalationRule": {
+        "kind": "reexport"
+      },
+      "EvalCriterion": {
+        "kind": "reexport"
+      },
+      "EvalDef": {
+        "kind": "reexport"
+      },
+      "EvalKind": {
+        "kind": "reexport"
+      },
+      "EvalResult": {
+        "kind": "reexport"
+      },
+      "EvalResultStatus": {
+        "kind": "reexport"
+      },
+      "EvalSuite": {
+        "kind": "reexport"
+      },
+      "EvalSuiteVersion": {
+        "kind": "reexport"
+      },
+      "EventBus": {
+        "kind": "reexport"
+      },
+      "EventEnvelope": {
+        "kind": "reexport"
+      },
+      "EventHandler": {
+        "kind": "reexport"
+      },
+      "EventSource": {
+        "kind": "reexport"
+      },
+      "EventType": {
+        "kind": "reexport"
+      },
+      "ExtensionPoint": {
+        "kind": "reexport"
+      },
+      "ExtensionRegistration": {
+        "kind": "reexport"
+      },
+      "ExternalVault": {
+        "kind": "reexport"
+      },
+      "FLOW_ENVELOPE_FORMAT": {
+        "kind": "reexport"
+      },
+      "FallbackEntry": {
+        "kind": "reexport"
+      },
+      "FileEdit": {
+        "kind": "reexport"
+      },
+      "FileMemoryStore": {
+        "kind": "reexport"
+      },
+      "FileVault": {
+        "kind": "reexport"
+      },
+      "FileWatchTrigger": {
+        "kind": "reexport"
+      },
+      "FlowConfig": {
+        "kind": "reexport"
+      },
+      "FlowEdge": {
+        "kind": "reexport"
+      },
+      "FlowEnvelope": {
+        "kind": "reexport"
+      },
+      "FlowEnvelopeSignature": {
+        "kind": "reexport"
+      },
+      "FlowLock": {
+        "kind": "reexport"
+      },
+      "FlowNode": {
+        "kind": "reexport"
+      },
+      "FlowNodeLock": {
+        "kind": "reexport"
+      },
+      "FormattingConfig": {
+        "kind": "reexport"
+      },
+      "GENESIS_PREV_HASH": {
+        "kind": "reexport"
+      },
+      "GEN_AI_FINISH_REASONS": {
+        "kind": "reexport"
+      },
+      "GEN_AI_OPERATION_NAMES": {
+        "kind": "reexport"
+      },
+      "GenAiAttr": {
+        "kind": "reexport"
+      },
+      "GenAiAttrName": {
+        "kind": "reexport"
+      },
+      "GenAiFinishReason": {
+        "kind": "reexport"
+      },
+      "GenAiOperationName": {
+        "kind": "reexport"
+      },
+      "GenAiRequest": {
+        "kind": "reexport"
+      },
+      "GenAiResponse": {
+        "kind": "reexport"
+      },
+      "GenAiSpanAttributes": {
+        "kind": "reexport"
+      },
+      "GitCommitResolver": {
+        "kind": "reexport"
+      },
+      "GitHubTrigger": {
+        "kind": "reexport"
+      },
+      "GlossaryEntry": {
+        "kind": "reexport"
+      },
+      "Hasher": {
+        "kind": "reexport"
+      },
+      "HumanNode": {
+        "kind": "reexport"
+      },
+      "HybridSearchConfig": {
+        "kind": "reexport"
+      },
+      "IdentityConfig": {
+        "kind": "reexport"
+      },
+      "InMemoryEventBus": {
+        "kind": "reexport"
+      },
+      "InMemoryStore": {
+        "kind": "reexport"
+      },
+      "KnowledgeFallbackBehavior": {
+        "kind": "reexport"
+      },
+      "KnowledgeGovernance": {
+        "kind": "reexport"
+      },
+      "KnowledgeSensitivity": {
+        "kind": "reexport"
+      },
+      "KnowledgeTrustLevel": {
+        "kind": "reexport"
+      },
+      "LOCKFILE_VERSION": {
+        "kind": "reexport"
+      },
+      "LinearTrigger": {
+        "kind": "reexport"
+      },
+      "LocalStorageMemoryStore": {
+        "kind": "reexport"
+      },
+      "LockDriftIssue": {
+        "kind": "reexport"
+      },
+      "LockSignature": {
+        "kind": "reexport"
+      },
+      "Lockfile": {
+        "kind": "reexport"
+      },
+      "MIN_SANDBOX_FOR": {
+        "kind": "reexport"
+      },
+      "MarketplaceCacheEntry": {
+        "kind": "const"
+      },
+      "MarketplaceCacheSnapshot": {
+        "kind": "const"
+      },
+      "MarketplaceConformanceBadge": {
+        "kind": "reexport"
+      },
+      "MarketplaceDecisionInputs": {
+        "kind": "type"
+      },
+      "MarketplaceSourceDecision": {
+        "kind": "type"
+      },
+      "MemoryConfig": {
+        "kind": "reexport"
+      },
+      "MigrationError": {
+        "kind": "reexport"
+      },
+      "MigrationRegistry": {
+        "kind": "reexport"
+      },
+      "MigrationResult": {
+        "kind": "reexport"
+      },
+      "MigrationStep": {
+        "kind": "reexport"
+      },
+      "ModeAction": {
+        "kind": "reexport"
+      },
+      "ModelLock": {
+        "kind": "reexport"
+      },
+      "ModelPricing": {
+        "kind": "reexport"
+      },
+      "NoAdapterAvailableError": {
+        "kind": "reexport"
+      },
+      "ObservabilityConfig": {
+        "kind": "reexport"
+      },
+      "OperatorAction": {
+        "kind": "const"
+      },
+      "OperatorRoleAssignment": {
+        "kind": "const"
+      },
+      "OperatorRoleKind": {
+        "kind": "const"
+      },
+      "OperatorScreen": {
+        "kind": "const"
+      },
+      "OsErrorEnvelope": {
+        "kind": "reexport"
+      },
+      "OsKeychainVault": {
+        "kind": "reexport"
+      },
+      "OsRunHints": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "ParallelNode": {
+        "kind": "reexport"
+      },
+      "PickAdapterOptions": {
+        "kind": "reexport"
+      },
+      "PickAdapterSuccess": {
+        "kind": "reexport"
+      },
+      "PiiCategory": {
+        "kind": "reexport"
+      },
+      "PiiRedactionConfig": {
+        "kind": "reexport"
+      },
+      "PluginConfig": {
+        "kind": "reexport"
+      },
+      "PluginContribution": {
+        "kind": "reexport"
+      },
+      "PluginEntrypoint": {
+        "kind": "reexport"
+      },
+      "PluginLock": {
+        "kind": "reexport"
+      },
+      "PluginPermission": {
+        "kind": "reexport"
+      },
+      "PluginRegistry": {
+        "kind": "reexport"
+      },
+      "PluginSignature": {
+        "kind": "reexport"
+      },
+      "PolicyViolation": {
+        "kind": "reexport"
+      },
+      "PreferredTerm": {
+        "kind": "reexport"
+      },
+      "Principal": {
+        "kind": "reexport"
+      },
+      "PrincipalKind": {
+        "kind": "reexport"
+      },
+      "PrincipalRef": {
+        "kind": "reexport"
+      },
+      "PromptFirewallConfig": {
+        "kind": "reexport"
+      },
+      "ProvenanceEntry": {
+        "kind": "reexport"
+      },
+      "ProvenanceMap": {
+        "kind": "reexport"
+      },
+      "ProviderCheckResult": {
+        "kind": "reexport"
+      },
+      "ProviderCheckStatus": {
+        "kind": "reexport"
+      },
+      "ProviderFilterOptions": {
+        "kind": "reexport"
+      },
+      "ProviderKind": {
+        "kind": "reexport"
+      },
+      "ProviderLock": {
+        "kind": "reexport"
+      },
+      "ProviderRef": {
+        "kind": "reexport"
+      },
+      "ProviderRequirement": {
+        "kind": "reexport"
+      },
+      "RESERVED_DOMAINS": {
+        "kind": "reexport"
+      },
+      "RESERVED_TOPIC_ROOTS": {
+        "kind": "reexport"
+      },
+      "RUN_MODES": {
+        "kind": "reexport"
+      },
+      "RUN_MODE_POLICY": {
+        "kind": "reexport"
+      },
+      "RagConfig": {
+        "kind": "reexport"
+      },
+      "RagLoader": {
+        "kind": "reexport"
+      },
+      "RagPipeline": {
+        "kind": "reexport"
+      },
+      "RagPipelineRef": {
+        "kind": "reexport"
+      },
+      "RbacRole": {
+        "kind": "reexport"
+      },
+      "RedisMemoryStore": {
+        "kind": "reexport"
+      },
+      "RegistryConflict": {
+        "kind": "reexport"
+      },
+      "RegistryStore": {
+        "kind": "reexport"
+      },
+      "RegistryWriteResult": {
+        "kind": "reexport"
+      },
+      "RepoRef": {
+        "kind": "const"
+      },
+      "RequiredDisclaimer": {
+        "kind": "reexport"
+      },
+      "RerankerConfig": {
+        "kind": "reexport"
+      },
+      "RerankerKind": {
+        "kind": "reexport"
+      },
+      "ResolveResult": {
+        "kind": "reexport"
+      },
+      "ResolveWorkspacePathsOptions": {
+        "kind": "reexport"
+      },
+      "ResourceRef": {
+        "kind": "reexport"
+      },
+      "RetentionCohort": {
+        "kind": "const"
+      },
+      "RetentionInputs": {
+        "kind": "type"
+      },
+      "RetryPolicy": {
+        "kind": "reexport"
+      },
+      "RunContext": {
+        "kind": "reexport"
+      },
+      "RunMode": {
+        "kind": "reexport"
+      },
+      "RunModePolicy": {
+        "kind": "reexport"
+      },
+      "RunStartPolicyInput": {
+        "kind": "reexport"
+      },
+      "SANDBOX_LEVELS": {
+        "kind": "reexport"
+      },
+      "SCHEMA_VERSION": {
+        "kind": "reexport"
+      },
+      "SEMCONV_VERSION": {
+        "kind": "reexport"
+      },
+      "SENSITIVITY_LEVELS": {
+        "kind": "reexport"
+      },
+      "SIDE_EFFECTS": {
+        "kind": "reexport"
+      },
+      "STUB_RUN_MODES": {
+        "kind": "reexport"
+      },
+      "SandboxConfig": {
+        "kind": "reexport"
+      },
+      "SandboxDecision": {
+        "kind": "reexport"
+      },
+      "SandboxLevel": {
+        "kind": "reexport"
+      },
+      "SandboxRuntime": {
+        "kind": "reexport"
+      },
+      "SchemaVersionsLock": {
+        "kind": "reexport"
+      },
+      "SecurityConfig": {
+        "kind": "reexport"
+      },
+      "Sensitivity": {
+        "kind": "reexport"
+      },
+      "Severity": {
+        "kind": "reexport"
+      },
+      "ShellInvocation": {
+        "kind": "reexport"
+      },
+      "SideEffect": {
+        "kind": "reexport"
+      },
+      "SideEffectList": {
+        "kind": "reexport"
+      },
+      "SignatureVerifier": {
+        "kind": "reexport"
+      },
+      "SignedEventRef": {
+        "kind": "reexport"
+      },
+      "SkillRef": {
+        "kind": "reexport"
+      },
+      "SlaRef": {
+        "kind": "reexport"
+      },
+      "SlackTrigger": {
+        "kind": "reexport"
+      },
+      "SloRef": {
+        "kind": "reexport"
+      },
+      "Slug": {
+        "kind": "const"
+      },
+      "SnapshotDiff": {
+        "kind": "reexport"
+      },
+      "SqliteMemoryStore": {
+        "kind": "reexport"
+      },
+      "SsoProvider": {
+        "kind": "reexport"
+      },
+      "StabilityTier": {
+        "kind": "reexport"
+      },
+      "StubRunMode": {
+        "kind": "reexport"
+      },
+      "Subscription": {
+        "kind": "reexport"
+      },
+      "SupportContact": {
+        "kind": "reexport"
+      },
+      "SyncStrategy": {
+        "kind": "reexport"
+      },
+      "TRIGGER_PRESETS": {
+        "kind": "reexport"
+      },
+      "Tag": {
+        "kind": "const"
+      },
+      "TagList": {
+        "kind": "const"
+      },
+      "TeamSeat": {
+        "kind": "reexport"
+      },
+      "TelemetryConfig": {
+        "kind": "reexport"
+      },
+      "TelemetryConsent": {
+        "kind": "reexport"
+      },
+      "TelemetryConsentState": {
+        "kind": "reexport"
+      },
+      "TelemetryEvent": {
+        "kind": "reexport"
+      },
+      "TelemetryEventKind": {
+        "kind": "reexport"
+      },
+      "TelemetrySink": {
+        "kind": "reexport"
+      },
+      "TemplateLock": {
+        "kind": "reexport"
+      },
+      "ThrottleAction": {
+        "kind": "reexport"
+      },
+      "ThrottleDecision": {
+        "kind": "reexport"
+      },
+      "ThrottleScope": {
+        "kind": "reexport"
+      },
+      "ToolLock": {
+        "kind": "reexport"
+      },
+      "ToolManifest": {
+        "kind": "reexport"
+      },
+      "ToolNode": {
+        "kind": "reexport"
+      },
+      "ToolPolicyInput": {
+        "kind": "reexport"
+      },
+      "ToolRef": {
+        "kind": "reexport"
+      },
+      "ToolUse": {
+        "kind": "reexport"
+      },
+      "TraceExporter": {
+        "kind": "reexport"
+      },
+      "TransitionCheck": {
+        "kind": "reexport"
+      },
+      "TransitionDecision": {
+        "kind": "reexport"
+      },
+      "TransitionRequirements": {
+        "kind": "reexport"
+      },
+      "TriggerConfig": {
+        "kind": "reexport"
+      },
+      "TriggerPreset": {
+        "kind": "reexport"
+      },
+      "Ulid": {
+        "kind": "reexport"
+      },
+      "Usage": {
+        "kind": "reexport"
+      },
+      "ValidationOptions": {
+        "kind": "reexport"
+      },
+      "VaultBackend": {
+        "kind": "reexport"
+      },
+      "VaultConfig": {
+        "kind": "reexport"
+      },
+      "VaultResolver": {
+        "kind": "reexport"
+      },
+      "VaultSecretRef": {
+        "kind": "const"
+      },
+      "VectorMemoryStore": {
+        "kind": "reexport"
+      },
+      "VectorStoreConfig": {
+        "kind": "reexport"
+      },
+      "VerifyDecision": {
+        "kind": "reexport"
+      },
+      "VocabularyConfig": {
+        "kind": "reexport"
+      },
+      "VoiceConfig": {
+        "kind": "reexport"
+      },
+      "VoiceTone": {
+        "kind": "reexport"
+      },
+      "VoteNode": {
+        "kind": "reexport"
+      },
+      "WebhookHmacAlgorithm": {
+        "kind": "type"
+      },
+      "WebhookSignature": {
+        "kind": "type"
+      },
+      "WebhookSigningConfig": {
+        "kind": "type"
+      },
+      "WebhookTrigger": {
+        "kind": "reexport"
+      },
+      "WebhookVerifyDecision": {
+        "kind": "type"
+      },
+      "WorkspaceConfig": {
+        "kind": "reexport"
+      },
+      "WorkspaceIsolation": {
+        "kind": "reexport"
+      },
+      "WorkspaceKind": {
+        "kind": "reexport"
+      },
+      "WorkspaceLimits": {
+        "kind": "reexport"
+      },
+      "WorkspacePaths": {
+        "kind": "reexport"
+      },
+      "WorkspacePolicyConfig": {
+        "kind": "reexport"
+      },
+      "WorkspacePolicyDecision": {
+        "kind": "reexport"
+      },
+      "airGapEnforce": {
+        "kind": "reexport"
+      },
+      "allowedActionsForRole": {
+        "kind": "const"
+      },
+      "applyBump": {
+        "kind": "reexport"
+      },
+      "applyLifecycleEvent": {
+        "kind": "reexport"
+      },
+      "bucketDuration": {
+        "kind": "reexport"
+      },
+      "buildActivationFunnel": {
+        "kind": "const"
+      },
+      "buildChangelogEntries": {
+        "kind": "reexport"
+      },
+      "buildProvenance": {
+        "kind": "reexport"
+      },
+      "buildRequestAttributes": {
+        "kind": "reexport"
+      },
+      "buildResponseAttributes": {
+        "kind": "reexport"
+      },
+      "buildRetentionCohorts": {
+        "kind": "const"
+      },
+      "canPerformAction": {
+        "kind": "const"
+      },
+      "canViewScreen": {
+        "kind": "const"
+      },
+      "canonicalFlowBody": {
+        "kind": "reexport"
+      },
+      "canonicalJson": {
+        "kind": "reexport"
+      },
+      "checkBudget": {
+        "kind": "reexport"
+      },
+      "checkConsent": {
+        "kind": "reexport"
+      },
+      "checkDeterminism": {
+        "kind": "reexport"
+      },
+      "checkEgress": {
+        "kind": "reexport"
+      },
+      "checkProviderKeys": {
+        "kind": "reexport"
+      },
+      "compareSensitivity": {
+        "kind": "reexport"
+      },
+      "computeBatchDigest": {
+        "kind": "reexport"
+      },
+      "computeCost": {
+        "kind": "reexport"
+      },
+      "computeMerkleRoot": {
+        "kind": "reexport"
+      },
+      "computeWebhookSignature": {
+        "kind": "const"
+      },
+      "createDefaultRunId": {
+        "kind": "reexport"
+      },
+      "decideEmit": {
+        "kind": "reexport"
+      },
+      "decideEmitActivation": {
+        "kind": "const"
+      },
+      "decideMarketplaceSource": {
+        "kind": "const"
+      },
+      "decideSandbox": {
+        "kind": "reexport"
+      },
+      "decideThrottle": {
+        "kind": "reexport"
+      },
+      "decideToolAction": {
+        "kind": "reexport"
+      },
+      "detectLockDrift": {
+        "kind": "reexport"
+      },
+      "diffConfigs": {
+        "kind": "reexport"
+      },
+      "diffSnapshots": {
+        "kind": "reexport"
+      },
+      "effectiveLimitsFor": {
+        "kind": "reexport"
+      },
+      "escalationRule": {
+        "kind": "reexport"
+      },
+      "evaluateBreakGlass": {
+        "kind": "reexport"
+      },
+      "evaluateTransition": {
+        "kind": "reexport"
+      },
+      "evaluateWorkspacePolicyAtRunStart": {
+        "kind": "reexport"
+      },
+      "evaluateWorkspacePolicyBeforeTool": {
+        "kind": "reexport"
+      },
+      "filterProviders": {
+        "kind": "reexport"
+      },
+      "findVaultRefs": {
+        "kind": "reexport"
+      },
+      "formatWebhookSignatureHeader": {
+        "kind": "const"
+      },
+      "getTriggerPreset": {
+        "kind": "reexport"
+      },
+      "hasBlockingViolation": {
+        "kind": "reexport"
+      },
+      "hashSnapshot": {
+        "kind": "reexport"
+      },
+      "hiddenScreensForRole": {
+        "kind": "const"
+      },
+      "isApiCompatible": {
+        "kind": "reexport"
+      },
+      "isHotReloadable": {
+        "kind": "reexport"
+      },
+      "isStubRunMode": {
+        "kind": "reexport"
+      },
+      "isTransitionAllowed": {
+        "kind": "reexport"
+      },
+      "listTriggerPresets": {
+        "kind": "reexport"
+      },
+      "maxSeverity": {
+        "kind": "reexport"
+      },
+      "mergeLayers": {
+        "kind": "reexport"
+      },
+      "mergeMarketplaceSnapshot": {
+        "kind": "const"
+      },
+      "migrateConfig": {
+        "kind": "reexport"
+      },
+      "parseActivationEvent": {
+        "kind": "const"
+      },
+      "parseAgentConfig": {
+        "kind": "reexport"
+      },
+      "parseAgentLifecycleEvent": {
+        "kind": "reexport"
+      },
+      "parseAgentRegistryEntry": {
+        "kind": "reexport"
+      },
+      "parseAgentVersion": {
+        "kind": "reexport"
+      },
+      "parseAgentsManifest": {
+        "kind": "reexport"
+      },
+      "parseAirGapPolicy": {
+        "kind": "reexport"
+      },
+      "parseAuditBatch": {
+        "kind": "reexport"
+      },
+      "parseAuthContext": {
+        "kind": "reexport"
+      },
+      "parseBrandKit": {
+        "kind": "reexport"
+      },
+      "parseBreakGlassActivation": {
+        "kind": "reexport"
+      },
+      "parseCapability": {
+        "kind": "reexport"
+      },
+      "parseCloudSyncConfig": {
+        "kind": "reexport"
+      },
+      "parseCodingTaskRequest": {
+        "kind": "reexport"
+      },
+      "parseCodingTaskResult": {
+        "kind": "reexport"
+      },
+      "parseConfigRoot": {
+        "kind": "reexport"
+      },
+      "parseConformanceReport": {
+        "kind": "reexport"
+      },
+      "parseConsentRef": {
+        "kind": "reexport"
+      },
+      "parseCostMeasurement": {
+        "kind": "reexport"
+      },
+      "parseDomainPack": {
+        "kind": "reexport"
+      },
+      "parseEgressPolicy": {
+        "kind": "reexport"
+      },
+      "parseEvalDef": {
+        "kind": "reexport"
+      },
+      "parseEvalSuite": {
+        "kind": "reexport"
+      },
+      "parseEvent": {
+        "kind": "reexport"
+      },
+      "parseFallbackEntry": {
+        "kind": "reexport"
+      },
+      "parseFlowConfig": {
+        "kind": "reexport"
+      },
+      "parseFlowEnvelope": {
+        "kind": "reexport"
+      },
+      "parseGenAiAttributes": {
+        "kind": "reexport"
+      },
+      "parseLockfile": {
+        "kind": "reexport"
+      },
+      "parseMarketplaceCacheSnapshot": {
+        "kind": "const"
+      },
+      "parseMemoryConfig": {
+        "kind": "reexport"
+      },
+      "parseModelPricing": {
+        "kind": "reexport"
+      },
+      "parseObservabilityConfig": {
+        "kind": "reexport"
+      },
+      "parseOperatorRoleAssignment": {
+        "kind": "const"
+      },
+      "parseOsError": {
+        "kind": "reexport"
+      },
+      "parsePluginConfig": {
+        "kind": "reexport"
+      },
+      "parsePluginEntrypoint": {
+        "kind": "reexport"
+      },
+      "parsePrincipal": {
+        "kind": "reexport"
+      },
+      "parseProviderRequirement": {
+        "kind": "reexport"
+      },
+      "parseRagConfig": {
+        "kind": "reexport"
+      },
+      "parseRagPipeline": {
+        "kind": "reexport"
+      },
+      "parseRepoRef": {
+        "kind": "const"
+      },
+      "parseRunContext": {
+        "kind": "reexport"
+      },
+      "parseSecurityConfig": {
+        "kind": "reexport"
+      },
+      "parseTelemetryConfig": {
+        "kind": "reexport"
+      },
+      "parseTelemetryEvent": {
+        "kind": "reexport"
+      },
+      "parseThrottleConfig": {
+        "kind": "reexport"
+      },
+      "parseToolManifest": {
+        "kind": "reexport"
+      },
+      "parseTriggerConfig": {
+        "kind": "reexport"
+      },
+      "parseVaultConfig": {
+        "kind": "reexport"
+      },
+      "parseWebhookSignatureHeader": {
+        "kind": "const"
+      },
+      "parseWorkspaceConfig": {
+        "kind": "reexport"
+      },
+      "parseWorkspaceLimits": {
+        "kind": "reexport"
+      },
+      "passesThreshold": {
+        "kind": "reexport"
+      },
+      "pickAdapter": {
+        "kind": "reexport"
+      },
+      "policyGlobMatch": {
+        "kind": "reexport"
+      },
+      "renderAgentChangelog": {
+        "kind": "reexport"
+      },
+      "renderManifestChangelogs": {
+        "kind": "reexport"
+      },
+      "replayEvents": {
+        "kind": "reexport"
+      },
+      "requirementsFor": {
+        "kind": "reexport"
+      },
+      "requiresConsent": {
+        "kind": "reexport"
+      },
+      "resolveVaultRefs": {
+        "kind": "reexport"
+      },
+      "resolveWorkspacePaths": {
+        "kind": "reexport"
+      },
+      "runConformance": {
+        "kind": "reexport"
+      },
+      "safeParseAgentConfig": {
+        "kind": "reexport"
+      },
+      "safeParseAgentLifecycleEvent": {
+        "kind": "reexport"
+      },
+      "safeParseAgentRegistryEntry": {
+        "kind": "reexport"
+      },
+      "safeParseAgentVersion": {
+        "kind": "reexport"
+      },
+      "safeParseAgentsManifest": {
+        "kind": "reexport"
+      },
+      "safeParseAirGapPolicy": {
+        "kind": "reexport"
+      },
+      "safeParseAuditBatch": {
+        "kind": "reexport"
+      },
+      "safeParseAuthContext": {
+        "kind": "reexport"
+      },
+      "safeParseBrandKit": {
+        "kind": "reexport"
+      },
+      "safeParseBreakGlassActivation": {
+        "kind": "reexport"
+      },
+      "safeParseCapability": {
+        "kind": "reexport"
+      },
+      "safeParseCloudSyncConfig": {
+        "kind": "reexport"
+      },
+      "safeParseCodingTaskRequest": {
+        "kind": "reexport"
+      },
+      "safeParseCodingTaskResult": {
+        "kind": "reexport"
+      },
+      "safeParseConfigRoot": {
+        "kind": "reexport"
+      },
+      "safeParseConformanceReport": {
+        "kind": "reexport"
+      },
+      "safeParseConsentRef": {
+        "kind": "reexport"
+      },
+      "safeParseCostMeasurement": {
+        "kind": "reexport"
+      },
+      "safeParseDomainPack": {
+        "kind": "reexport"
+      },
+      "safeParseEgressPolicy": {
+        "kind": "reexport"
+      },
+      "safeParseEvalDef": {
+        "kind": "reexport"
+      },
+      "safeParseEvalSuite": {
+        "kind": "reexport"
+      },
+      "safeParseEvent": {
+        "kind": "reexport"
+      },
+      "safeParseFallbackEntry": {
+        "kind": "reexport"
+      },
+      "safeParseFlowConfig": {
+        "kind": "reexport"
+      },
+      "safeParseFlowEnvelope": {
+        "kind": "reexport"
+      },
+      "safeParseGenAiAttributes": {
+        "kind": "reexport"
+      },
+      "safeParseLockfile": {
+        "kind": "reexport"
+      },
+      "safeParseMemoryConfig": {
+        "kind": "reexport"
+      },
+      "safeParseModelPricing": {
+        "kind": "reexport"
+      },
+      "safeParseObservabilityConfig": {
+        "kind": "reexport"
+      },
+      "safeParseOsError": {
+        "kind": "reexport"
+      },
+      "safeParsePluginConfig": {
+        "kind": "reexport"
+      },
+      "safeParsePluginEntrypoint": {
+        "kind": "reexport"
+      },
+      "safeParsePrincipal": {
+        "kind": "reexport"
+      },
+      "safeParseProviderRequirement": {
+        "kind": "reexport"
+      },
+      "safeParseRagConfig": {
+        "kind": "reexport"
+      },
+      "safeParseRagPipeline": {
+        "kind": "reexport"
+      },
+      "safeParseRepoRef": {
+        "kind": "const"
+      },
+      "safeParseRunContext": {
+        "kind": "reexport"
+      },
+      "safeParseSecurityConfig": {
+        "kind": "reexport"
+      },
+      "safeParseTelemetryConfig": {
+        "kind": "reexport"
+      },
+      "safeParseTelemetryEvent": {
+        "kind": "reexport"
+      },
+      "safeParseThrottleConfig": {
+        "kind": "reexport"
+      },
+      "safeParseToolManifest": {
+        "kind": "reexport"
+      },
+      "safeParseTriggerConfig": {
+        "kind": "reexport"
+      },
+      "safeParseVaultConfig": {
+        "kind": "reexport"
+      },
+      "safeParseWorkspaceConfig": {
+        "kind": "reexport"
+      },
+      "safeParseWorkspaceLimits": {
+        "kind": "reexport"
+      },
+      "sha256OfCanonical": {
+        "kind": "reexport"
+      },
+      "signWebhookRequest": {
+        "kind": "const"
+      },
+      "spanName": {
+        "kind": "reexport"
+      },
+      "stabilityOf": {
+        "kind": "reexport"
+      },
+      "stageLabel": {
+        "kind": "reexport"
+      },
+      "suggestBump": {
+        "kind": "reexport"
+      },
+      "type ActivationFunnel": {
+        "kind": "reexport"
+      },
+      "type MarketplaceDecisionInputs": {
+        "kind": "reexport"
+      },
+      "type MarketplaceSourceDecision": {
+        "kind": "reexport"
+      },
+      "type RetentionInputs": {
+        "kind": "reexport"
+      },
+      "type WebhookHmacAlgorithm": {
+        "kind": "reexport"
+      },
+      "type WebhookSignature": {
+        "kind": "reexport"
+      },
+      "type WebhookSigningConfig": {
+        "kind": "reexport"
+      },
+      "type WebhookVerifyDecision": {
+        "kind": "reexport"
+      },
+      "validateAgainstBrandKit": {
+        "kind": "reexport"
+      },
+      "verifyCapability": {
+        "kind": "reexport"
+      },
+      "verifyChain": {
+        "kind": "reexport"
+      },
+      "verifyWebhookRequest": {
+        "kind": "const"
+      },
+      "visibleScreensForRole": {
+        "kind": "const"
+      }
+    },
+    "lockfile/lock.d.ts": {
+      "AgentLock": {
+        "kind": "const"
+      },
+      "DriftCheckInput": {
+        "kind": "type"
+      },
+      "FlowLock": {
+        "kind": "const"
+      },
+      "FlowNodeLock": {
+        "kind": "const"
+      },
+      "LOCKFILE_VERSION": {
+        "kind": "const"
+      },
+      "LockDriftIssue": {
+        "kind": "type"
+      },
+      "LockSignature": {
+        "kind": "const"
+      },
+      "Lockfile": {
+        "kind": "const"
+      },
+      "ModelLock": {
+        "kind": "const"
+      },
+      "PluginLock": {
+        "kind": "const"
+      },
+      "ProviderLock": {
+        "kind": "const"
+      },
+      "SchemaVersionsLock": {
+        "kind": "const"
+      },
+      "TemplateLock": {
+        "kind": "const"
+      },
+      "ToolLock": {
+        "kind": "const"
+      },
+      "canonicalJson": {
+        "kind": "const"
+      },
+      "detectLockDrift": {
+        "kind": "const"
+      },
+      "parseLockfile": {
+        "kind": "const"
+      },
+      "safeParseLockfile": {
+        "kind": "const"
+      },
+      "sha256OfCanonical": {
+        "kind": "const"
+      },
+      "type DriftCheckInput": {
+        "kind": "reexport"
+      },
+      "type LockDriftIssue": {
+        "kind": "reexport"
+      }
+    },
+    "obs/telemetry.d.ts": {
+      "TelemetryConfig": {
+        "kind": "const"
+      },
+      "TelemetryConsent": {
+        "kind": "const"
+      },
+      "TelemetryConsentState": {
+        "kind": "const"
+      },
+      "TelemetryEvent": {
+        "kind": "const"
+      },
+      "TelemetryEventKind": {
+        "kind": "const"
+      },
+      "TelemetrySink": {
+        "kind": "const"
+      },
+      "bucketDuration": {
+        "kind": "const"
+      },
+      "decideEmit": {
+        "kind": "const"
+      },
+      "parseTelemetryConfig": {
+        "kind": "const"
+      },
+      "parseTelemetryEvent": {
+        "kind": "const"
+      },
+      "safeParseTelemetryConfig": {
+        "kind": "const"
+      },
+      "safeParseTelemetryEvent": {
+        "kind": "const"
+      }
+    },
+    "plugins/catalog.d.ts": {
+      "EXTENSION_API_VERSION": {
+        "kind": "const"
+      },
+      "EXTENSION_POINTS": {
+        "kind": "const"
+      },
+      "ExtensionPoint": {
+        "kind": "const"
+      },
+      "ExtensionRegistration": {
+        "kind": "const"
+      },
+      "PluginEntrypoint": {
+        "kind": "const"
+      },
+      "PluginRegistry": {
+        "kind": "class"
+      },
+      "RegistryConflict": {
+        "kind": "type"
+      },
+      "StabilityTier": {
+        "kind": "const"
+      },
+      "isApiCompatible": {
+        "kind": "const"
+      },
+      "isHotReloadable": {
+        "kind": "const"
+      },
+      "parsePluginEntrypoint": {
+        "kind": "const"
+      },
+      "safeParsePluginEntrypoint": {
+        "kind": "const"
+      },
+      "stabilityOf": {
+        "kind": "const"
+      },
+      "type RegistryConflict": {
+        "kind": "reexport"
+      }
+    },
+    "runtime/coding-agent.d.ts": {
+      "CONFORMANCE_PROMPTS": {
+        "kind": "const"
+      },
+      "CodingAgentCapability": {
+        "kind": "const"
+      },
+      "CodingAgentInvocationModel": {
+        "kind": "const"
+      },
+      "CodingAgentProvider": {
+        "kind": "interface"
+      },
+      "CodingAgentProviderInfo": {
+        "kind": "const"
+      },
+      "CodingTaskKind": {
+        "kind": "const"
+      },
+      "CodingTaskRequest": {
+        "kind": "const"
+      },
+      "CodingTaskResult": {
+        "kind": "const"
+      },
+      "ConformanceCheck": {
+        "kind": "const"
+      },
+      "ConformanceCheckResult": {
+        "kind": "const"
+      },
+      "ConformanceReport": {
+        "kind": "const"
+      },
+      "FileEdit": {
+        "kind": "const"
+      },
+      "MarketplaceConformanceBadge": {
+        "kind": "const"
+      },
+      "ShellInvocation": {
+        "kind": "const"
+      },
+      "ToolUse": {
+        "kind": "const"
+      },
+      "parseCodingTaskRequest": {
+        "kind": "const"
+      },
+      "parseCodingTaskResult": {
+        "kind": "const"
+      },
+      "parseConformanceReport": {
+        "kind": "const"
+      },
+      "runConformance": {
+        "kind": "const"
+      },
+      "safeParseCodingTaskRequest": {
+        "kind": "const"
+      },
+      "safeParseCodingTaskResult": {
+        "kind": "const"
+      },
+      "safeParseConformanceReport": {
+        "kind": "const"
+      },
+      "type CodingAgentProvider": {
+        "kind": "reexport"
+      }
+    },
+    "runtime/run-mode.d.ts": {
+      "DeterminismCheckInput": {
+        "kind": "type"
+      },
+      "DeterminismCheckInputBase": {
+        "kind": "type"
+      },
+      "DeterminismIssue": {
+        "kind": "type"
+      },
+      "EscalationRule": {
+        "kind": "type"
+      },
+      "RUN_MODES": {
+        "kind": "const"
+      },
+      "RUN_MODE_POLICY": {
+        "kind": "const"
+      },
+      "RunContext": {
+        "kind": "const"
+      },
+      "RunMode": {
+        "kind": "const"
+      },
+      "RunModePolicy": {
+        "kind": "type"
+      },
+      "STUB_RUN_MODES": {
+        "kind": "const"
+      },
+      "StubRunMode": {
+        "kind": "type"
+      },
+      "checkDeterminism": {
+        "kind": "const"
+      },
+      "createDefaultRunId": {
+        "kind": "const"
+      },
+      "escalationRule": {
+        "kind": "const"
+      },
+      "isStubRunMode": {
+        "kind": "const"
+      },
+      "parseRunContext": {
+        "kind": "const"
+      },
+      "safeParseRunContext": {
+        "kind": "const"
+      },
+      "type DeterminismCheckInput": {
+        "kind": "reexport"
+      },
+      "type DeterminismIssue": {
+        "kind": "reexport"
+      },
+      "type EscalationRule": {
+        "kind": "reexport"
+      },
+      "type RunModePolicy": {
+        "kind": "reexport"
+      },
+      "type StubRunMode": {
+        "kind": "reexport"
+      }
+    },
+    "runtime/workspace-paths.d.ts": {
+      "ResolveWorkspacePathsOptions": {
+        "kind": "type"
+      },
+      "WorkspacePaths": {
+        "kind": "type"
+      },
+      "resolveWorkspacePaths": {
+        "kind": "const"
+      },
+      "type ResolveWorkspacePathsOptions": {
+        "kind": "reexport"
+      },
+      "type WorkspacePaths": {
+        "kind": "reexport"
+      }
+    },
+    "schema/agent-version.d.ts": {
+      "AgentVersion": {
+        "kind": "const"
+      },
+      "AgentVersionSnapshot": {
+        "kind": "const"
+      },
+      "AgentsManifest": {
+        "kind": "const"
+      },
+      "AgentsManifestVersion": {
+        "kind": "const"
+      },
+      "BumpKind": {
+        "kind": "type"
+      },
+      "Hasher": {
+        "kind": "type"
+      },
+      "SnapshotDiff": {
+        "kind": "type"
+      },
+      "applyBump": {
+        "kind": "const"
+      },
+      "diffSnapshots": {
+        "kind": "const"
+      },
+      "hashSnapshot": {
+        "kind": "const"
+      },
+      "parseAgentVersion": {
+        "kind": "const"
+      },
+      "parseAgentsManifest": {
+        "kind": "const"
+      },
+      "safeParseAgentVersion": {
+        "kind": "const"
+      },
+      "safeParseAgentsManifest": {
+        "kind": "const"
+      },
+      "suggestBump": {
+        "kind": "const"
+      },
+      "type BumpKind": {
+        "kind": "reexport"
+      },
+      "type Hasher": {
+        "kind": "reexport"
+      },
+      "type SnapshotDiff": {
+        "kind": "reexport"
+      }
+    },
+    "schema/agent.d.ts": {
+      "AgentConfig": {
+        "kind": "const"
+      },
+      "AgentMemoryRef": {
+        "kind": "const"
+      },
+      "AgentModelConfig": {
+        "kind": "const"
+      },
+      "ProviderRef": {
+        "kind": "const"
+      },
+      "SkillRef": {
+        "kind": "const"
+      },
+      "ToolRef": {
+        "kind": "const"
+      },
+      "parseAgentConfig": {
+        "kind": "const"
+      },
+      "safeParseAgentConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/cloud.d.ts": {
+      "CloudPlan": {
+        "kind": "const"
+      },
+      "CloudSyncConfig": {
+        "kind": "const"
+      },
+      "RbacRole": {
+        "kind": "const"
+      },
+      "SsoProvider": {
+        "kind": "const"
+      },
+      "SyncStrategy": {
+        "kind": "const"
+      },
+      "TeamSeat": {
+        "kind": "const"
+      },
+      "parseCloudSyncConfig": {
+        "kind": "const"
+      },
+      "safeParseCloudSyncConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/config-root.d.ts": {
+      "CONFIG_ROOT_VERSION": {
+        "kind": "const"
+      },
+      "ConfigRoot": {
+        "kind": "const"
+      },
+      "parseConfigRoot": {
+        "kind": "const"
+      },
+      "safeParseConfigRoot": {
+        "kind": "const"
+      }
+    },
+    "schema/eval.d.ts": {
+      "DomainPack": {
+        "kind": "const"
+      },
+      "EvalCriterion": {
+        "kind": "const"
+      },
+      "EvalDef": {
+        "kind": "const"
+      },
+      "EvalKind": {
+        "kind": "const"
+      },
+      "EvalResult": {
+        "kind": "const"
+      },
+      "EvalResultStatus": {
+        "kind": "const"
+      },
+      "EvalSuite": {
+        "kind": "const"
+      },
+      "EvalSuiteVersion": {
+        "kind": "const"
+      },
+      "parseDomainPack": {
+        "kind": "const"
+      },
+      "parseEvalDef": {
+        "kind": "const"
+      },
+      "parseEvalSuite": {
+        "kind": "const"
+      },
+      "passesThreshold": {
+        "kind": "const"
+      },
+      "safeParseDomainPack": {
+        "kind": "const"
+      },
+      "safeParseEvalDef": {
+        "kind": "const"
+      },
+      "safeParseEvalSuite": {
+        "kind": "const"
+      }
+    },
+    "schema/flow.d.ts": {
+      "AgentNode": {
+        "kind": "const"
+      },
+      "AuctionNode": {
+        "kind": "const"
+      },
+      "BlackboardNode": {
+        "kind": "const"
+      },
+      "BlackboardSchedule": {
+        "kind": "const"
+      },
+      "BlackboardScratchpad": {
+        "kind": "const"
+      },
+      "BlackboardTermination": {
+        "kind": "const"
+      },
+      "CompareNode": {
+        "kind": "const"
+      },
+      "ConditionNode": {
+        "kind": "const"
+      },
+      "DebateNode": {
+        "kind": "const"
+      },
+      "FlowConfig": {
+        "kind": "const"
+      },
+      "FlowEdge": {
+        "kind": "const"
+      },
+      "FlowNode": {
+        "kind": "const"
+      },
+      "HumanNode": {
+        "kind": "const"
+      },
+      "ParallelNode": {
+        "kind": "const"
+      },
+      "RetryPolicy": {
+        "kind": "const"
+      },
+      "ToolNode": {
+        "kind": "const"
+      },
+      "VoteNode": {
+        "kind": "const"
+      },
+      "parseFlowConfig": {
+        "kind": "const"
+      },
+      "safeParseFlowConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/memory.d.ts": {
+      "FileMemoryStore": {
+        "kind": "const"
+      },
+      "InMemoryStore": {
+        "kind": "const"
+      },
+      "LocalStorageMemoryStore": {
+        "kind": "const"
+      },
+      "MemoryConfig": {
+        "kind": "const"
+      },
+      "RedisMemoryStore": {
+        "kind": "const"
+      },
+      "SqliteMemoryStore": {
+        "kind": "const"
+      },
+      "VectorMemoryStore": {
+        "kind": "const"
+      },
+      "parseMemoryConfig": {
+        "kind": "const"
+      },
+      "safeParseMemoryConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/observability.d.ts": {
+      "AnomalyDetection": {
+        "kind": "const"
+      },
+      "CostQuota": {
+        "kind": "const"
+      },
+      "ObservabilityConfig": {
+        "kind": "const"
+      },
+      "TraceExporter": {
+        "kind": "const"
+      },
+      "parseObservabilityConfig": {
+        "kind": "const"
+      },
+      "safeParseObservabilityConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/plugin.d.ts": {
+      "PluginConfig": {
+        "kind": "const"
+      },
+      "PluginContribution": {
+        "kind": "const"
+      },
+      "PluginPermission": {
+        "kind": "const"
+      },
+      "PluginSignature": {
+        "kind": "const"
+      },
+      "parsePluginConfig": {
+        "kind": "const"
+      },
+      "safeParsePluginConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/rag.d.ts": {
+      "ChunkerConfig": {
+        "kind": "const"
+      },
+      "ChunkerStrategy": {
+        "kind": "const"
+      },
+      "CitationRequirement": {
+        "kind": "const"
+      },
+      "EmbedderConfig": {
+        "kind": "const"
+      },
+      "HybridSearchConfig": {
+        "kind": "const"
+      },
+      "KnowledgeFallbackBehavior": {
+        "kind": "const"
+      },
+      "KnowledgeGovernance": {
+        "kind": "const"
+      },
+      "KnowledgeSensitivity": {
+        "kind": "const"
+      },
+      "KnowledgeTrustLevel": {
+        "kind": "const"
+      },
+      "RagConfig": {
+        "kind": "const"
+      },
+      "RagLoader": {
+        "kind": "const"
+      },
+      "RagPipeline": {
+        "kind": "const"
+      },
+      "RagPipelineRef": {
+        "kind": "const"
+      },
+      "RerankerConfig": {
+        "kind": "const"
+      },
+      "RerankerKind": {
+        "kind": "const"
+      },
+      "VectorStoreConfig": {
+        "kind": "const"
+      },
+      "parseRagConfig": {
+        "kind": "const"
+      },
+      "parseRagPipeline": {
+        "kind": "const"
+      },
+      "safeParseRagConfig": {
+        "kind": "const"
+      },
+      "safeParseRagPipeline": {
+        "kind": "const"
+      }
+    },
+    "schema/security.d.ts": {
+      "AuditLogConfig": {
+        "kind": "const"
+      },
+      "PiiCategory": {
+        "kind": "const"
+      },
+      "PiiRedactionConfig": {
+        "kind": "const"
+      },
+      "PromptFirewallConfig": {
+        "kind": "const"
+      },
+      "SandboxConfig": {
+        "kind": "const"
+      },
+      "SecurityConfig": {
+        "kind": "const"
+      },
+      "WorkspacePolicyConfig": {
+        "kind": "const"
+      },
+      "parseSecurityConfig": {
+        "kind": "const"
+      },
+      "safeParseSecurityConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/trigger.d.ts": {
+      "CdcTrigger": {
+        "kind": "const"
+      },
+      "CronTrigger": {
+        "kind": "const"
+      },
+      "EmailTrigger": {
+        "kind": "const"
+      },
+      "FileWatchTrigger": {
+        "kind": "const"
+      },
+      "GitHubTrigger": {
+        "kind": "const"
+      },
+      "LinearTrigger": {
+        "kind": "const"
+      },
+      "SlackTrigger": {
+        "kind": "const"
+      },
+      "TriggerConfig": {
+        "kind": "const"
+      },
+      "WebhookTrigger": {
+        "kind": "const"
+      },
+      "effectiveLimitsFor": {
+        "kind": "const"
+      },
+      "parseTriggerConfig": {
+        "kind": "const"
+      },
+      "safeParseTriggerConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/vault.d.ts": {
+      "EnvVault": {
+        "kind": "const"
+      },
+      "ExternalVault": {
+        "kind": "const"
+      },
+      "FileVault": {
+        "kind": "const"
+      },
+      "OsKeychainVault": {
+        "kind": "const"
+      },
+      "VaultBackend": {
+        "kind": "const"
+      },
+      "VaultConfig": {
+        "kind": "const"
+      },
+      "parseVaultConfig": {
+        "kind": "const"
+      },
+      "safeParseVaultConfig": {
+        "kind": "const"
+      }
+    },
+    "schema/workspace.d.ts": {
+      "ClientRef": {
+        "kind": "const"
+      },
+      "DataResidencyConfig": {
+        "kind": "const"
+      },
+      "SCHEMA_VERSION": {
+        "kind": "const"
+      },
+      "WorkspaceConfig": {
+        "kind": "const"
+      },
+      "WorkspaceIsolation": {
+        "kind": "const"
+      },
+      "WorkspaceKind": {
+        "kind": "const"
+      },
+      "WorkspaceLimits": {
+        "kind": "const"
+      },
+      "parseWorkspaceConfig": {
+        "kind": "const"
+      },
+      "parseWorkspaceLimits": {
+        "kind": "const"
+      },
+      "safeParseWorkspaceConfig": {
+        "kind": "const"
+      },
+      "safeParseWorkspaceLimits": {
+        "kind": "const"
+      }
+    },
+    "secrets/providers.d.ts": {
+      "BUILTIN_PROVIDERS": {
+        "kind": "const"
+      },
+      "ProviderCheckResult": {
+        "kind": "const"
+      },
+      "ProviderCheckStatus": {
+        "kind": "type"
+      },
+      "ProviderFilterOptions": {
+        "kind": "type"
+      },
+      "ProviderKind": {
+        "kind": "const"
+      },
+      "ProviderRequirement": {
+        "kind": "const"
+      },
+      "checkProviderKeys": {
+        "kind": "const"
+      },
+      "filterProviders": {
+        "kind": "const"
+      },
+      "parseProviderRequirement": {
+        "kind": "const"
+      },
+      "safeParseProviderRequirement": {
+        "kind": "const"
+      },
+      "type ProviderCheckStatus": {
+        "kind": "reexport"
+      },
+      "type ProviderFilterOptions": {
+        "kind": "reexport"
+      }
+    },
+    "secrets/refs.d.ts": {
+      "ResolveResult": {
+        "kind": "type"
+      },
+      "VaultResolver": {
+        "kind": "type"
+      },
+      "findVaultRefs": {
+        "kind": "const"
+      },
+      "resolveVaultRefs": {
+        "kind": "const"
+      },
+      "type ResolveResult": {
+        "kind": "reexport"
+      },
+      "type VaultResolver": {
+        "kind": "reexport"
+      }
+    },
+    "security/airgap.d.ts": {
+      "AirGapDecision": {
+        "kind": "type"
+      },
+      "AirGapPolicy": {
+        "kind": "const"
+      },
+      "AirGapRequest": {
+        "kind": "type"
+      },
+      "airGapEnforce": {
+        "kind": "const"
+      },
+      "parseAirGapPolicy": {
+        "kind": "const"
+      },
+      "safeParseAirGapPolicy": {
+        "kind": "const"
+      },
+      "type AirGapDecision": {
+        "kind": "reexport"
+      },
+      "type AirGapRequest": {
+        "kind": "reexport"
+      }
+    },
+    "security/egress.d.ts": {
+      "EgressDecision": {
+        "kind": "type"
+      },
+      "EgressGrant": {
+        "kind": "const"
+      },
+      "EgressPolicy": {
+        "kind": "const"
+      },
+      "EgressProxy": {
+        "kind": "const"
+      },
+      "checkEgress": {
+        "kind": "const"
+      },
+      "parseEgressPolicy": {
+        "kind": "const"
+      },
+      "safeParseEgressPolicy": {
+        "kind": "const"
+      },
+      "type EgressDecision": {
+        "kind": "reexport"
+      }
+    },
+    "tools/sandbox.d.ts": {
+      "MIN_SANDBOX_FOR": {
+        "kind": "const"
+      },
+      "SANDBOX_LEVELS": {
+        "kind": "const"
+      },
+      "SandboxDecision": {
+        "kind": "type"
+      },
+      "SandboxLevel": {
+        "kind": "const"
+      },
+      "SandboxRuntime": {
+        "kind": "interface"
+      },
+      "ToolManifest": {
+        "kind": "const"
+      },
+      "decideSandbox": {
+        "kind": "const"
+      },
+      "parseToolManifest": {
+        "kind": "const"
+      },
+      "safeParseToolManifest": {
+        "kind": "const"
+      },
+      "type SandboxDecision": {
+        "kind": "reexport"
+      },
+      "type SandboxRuntime": {
+        "kind": "reexport"
+      }
+    },
+    "tools/side-effects.d.ts": {
+      "ModeAction": {
+        "kind": "type"
+      },
+      "SIDE_EFFECTS": {
+        "kind": "const"
+      },
+      "SideEffect": {
+        "kind": "const"
+      },
+      "SideEffectList": {
+        "kind": "const"
+      },
+      "decideToolAction": {
+        "kind": "const"
+      },
+      "maxSeverity": {
+        "kind": "const"
+      },
+      "type ModeAction": {
+        "kind": "reexport"
+      }
+    },
+    "trigger/presets.d.ts": {
+      "TRIGGER_PRESETS": {
+        "kind": "const"
+      },
+      "TriggerPreset": {
+        "kind": "type"
+      },
+      "getTriggerPreset": {
+        "kind": "const"
+      },
+      "listTriggerPresets": {
+        "kind": "const"
+      },
+      "type TriggerPreset": {
+        "kind": "reexport"
+      }
     }
   }
 }

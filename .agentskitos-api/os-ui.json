@@ -1,187 +1,189 @@
 {
-  "exports": {
-    "Badge": {
-      "kind": "const"
-    },
-    "BadgeProps": {
-      "kind": "interface"
-    },
-    "BadgeVariant": {
-      "kind": "type"
-    },
-    "Button": {
-      "kind": "const"
-    },
-    "ButtonProps": {
-      "kind": "interface"
-    },
-    "ButtonSize": {
-      "kind": "type"
-    },
-    "ButtonVariant": {
-      "kind": "type"
-    },
-    "Card": {
-      "kind": "const"
-    },
-    "CardContent": {
-      "kind": "const"
-    },
-    "CardDescription": {
-      "kind": "const"
-    },
-    "CardFooter": {
-      "kind": "const"
-    },
-    "CardHeader": {
-      "kind": "const"
-    },
-    "CardTitle": {
-      "kind": "const"
-    },
-    "GlassPanel": {
-      "kind": "const"
-    },
-    "GlassPanelProps": {
-      "kind": "interface"
-    },
-    "Kbd": {
-      "kind": "const"
-    },
-    "KbdProps": {
-      "kind": "interface"
-    },
-    "LiveRegion": {
-      "kind": "function"
-    },
-    "LiveRegionProps": {
-      "kind": "interface"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "SkipToContent": {
-      "kind": "function"
-    },
-    "SkipToContentProps": {
-      "kind": "interface"
-    },
-    "Theme": {
-      "kind": "type"
-    },
-    "ThemeContextValue": {
-      "kind": "interface"
-    },
-    "ThemeDefinition": {
-      "kind": "type"
-    },
-    "ThemeDefinitionSchema": {
-      "kind": "const"
-    },
-    "ThemeProvider": {
-      "kind": "function"
-    },
-    "ThemeProviderProps": {
-      "kind": "interface"
-    },
-    "ThemeRegistry": {
-      "kind": "type"
-    },
-    "ThemeRegistrySchema": {
-      "kind": "const"
-    },
-    "ThemeSwitcher": {
-      "kind": "function"
-    },
-    "ThemeSwitcherProps": {
-      "kind": "interface"
-    },
-    "Tooltip": {
-      "kind": "const"
-    },
-    "TooltipProps": {
-      "kind": "interface"
-    },
-    "TooltipTriggerProps": {
-      "kind": "interface"
-    },
-    "applyThemeToDocument": {
-      "kind": "function"
-    },
-    "badgeVariants": {
-      "kind": "const"
-    },
-    "buildThemeRegistry": {
-      "kind": "function"
-    },
-    "buttonVariants": {
-      "kind": "const"
-    },
-    "clearThemeOverrides": {
-      "kind": "function"
-    },
-    "cn": {
-      "kind": "function"
-    },
-    "defaultThemes": {
-      "kind": "const"
-    },
-    "type BadgeProps": {
-      "kind": "reexport"
-    },
-    "type BadgeVariant": {
-      "kind": "reexport"
-    },
-    "type ButtonProps": {
-      "kind": "reexport"
-    },
-    "type ButtonSize": {
-      "kind": "reexport"
-    },
-    "type ButtonVariant": {
-      "kind": "reexport"
-    },
-    "type GlassPanelProps": {
-      "kind": "reexport"
-    },
-    "type KbdProps": {
-      "kind": "reexport"
-    },
-    "type LiveRegionProps": {
-      "kind": "reexport"
-    },
-    "type SkipToContentProps": {
-      "kind": "reexport"
-    },
-    "type Theme": {
-      "kind": "reexport"
-    },
-    "type ThemeContextValue": {
-      "kind": "reexport"
-    },
-    "type ThemeDefinition": {
-      "kind": "reexport"
-    },
-    "type ThemeProviderProps": {
-      "kind": "reexport"
-    },
-    "type ThemeRegistry": {
-      "kind": "reexport"
-    },
-    "type ThemeSwitcherProps": {
-      "kind": "reexport"
-    },
-    "type TooltipProps": {
-      "kind": "reexport"
-    },
-    "type TooltipTriggerProps": {
-      "kind": "reexport"
-    },
-    "useTheme": {
-      "kind": "function"
+  "entries": {
+    "index.d.ts": {
+      "Badge": {
+        "kind": "const"
+      },
+      "BadgeProps": {
+        "kind": "interface"
+      },
+      "BadgeVariant": {
+        "kind": "type"
+      },
+      "Button": {
+        "kind": "const"
+      },
+      "ButtonProps": {
+        "kind": "interface"
+      },
+      "ButtonSize": {
+        "kind": "type"
+      },
+      "ButtonVariant": {
+        "kind": "type"
+      },
+      "Card": {
+        "kind": "const"
+      },
+      "CardContent": {
+        "kind": "const"
+      },
+      "CardDescription": {
+        "kind": "const"
+      },
+      "CardFooter": {
+        "kind": "const"
+      },
+      "CardHeader": {
+        "kind": "const"
+      },
+      "CardTitle": {
+        "kind": "const"
+      },
+      "GlassPanel": {
+        "kind": "const"
+      },
+      "GlassPanelProps": {
+        "kind": "interface"
+      },
+      "Kbd": {
+        "kind": "const"
+      },
+      "KbdProps": {
+        "kind": "interface"
+      },
+      "LiveRegion": {
+        "kind": "function"
+      },
+      "LiveRegionProps": {
+        "kind": "interface"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "SkipToContent": {
+        "kind": "function"
+      },
+      "SkipToContentProps": {
+        "kind": "interface"
+      },
+      "Theme": {
+        "kind": "type"
+      },
+      "ThemeContextValue": {
+        "kind": "interface"
+      },
+      "ThemeDefinition": {
+        "kind": "type"
+      },
+      "ThemeDefinitionSchema": {
+        "kind": "const"
+      },
+      "ThemeProvider": {
+        "kind": "function"
+      },
+      "ThemeProviderProps": {
+        "kind": "type"
+      },
+      "ThemeRegistry": {
+        "kind": "type"
+      },
+      "ThemeRegistrySchema": {
+        "kind": "const"
+      },
+      "ThemeSwitcher": {
+        "kind": "function"
+      },
+      "ThemeSwitcherProps": {
+        "kind": "interface"
+      },
+      "Tooltip": {
+        "kind": "const"
+      },
+      "TooltipProps": {
+        "kind": "interface"
+      },
+      "TooltipTriggerProps": {
+        "kind": "interface"
+      },
+      "applyThemeToDocument": {
+        "kind": "function"
+      },
+      "badgeVariants": {
+        "kind": "const"
+      },
+      "buildThemeRegistry": {
+        "kind": "function"
+      },
+      "buttonVariants": {
+        "kind": "const"
+      },
+      "clearThemeOverrides": {
+        "kind": "function"
+      },
+      "cn": {
+        "kind": "function"
+      },
+      "defaultThemes": {
+        "kind": "const"
+      },
+      "type BadgeProps": {
+        "kind": "reexport"
+      },
+      "type BadgeVariant": {
+        "kind": "reexport"
+      },
+      "type ButtonProps": {
+        "kind": "reexport"
+      },
+      "type ButtonSize": {
+        "kind": "reexport"
+      },
+      "type ButtonVariant": {
+        "kind": "reexport"
+      },
+      "type GlassPanelProps": {
+        "kind": "reexport"
+      },
+      "type KbdProps": {
+        "kind": "reexport"
+      },
+      "type LiveRegionProps": {
+        "kind": "reexport"
+      },
+      "type SkipToContentProps": {
+        "kind": "reexport"
+      },
+      "type Theme": {
+        "kind": "reexport"
+      },
+      "type ThemeContextValue": {
+        "kind": "reexport"
+      },
+      "type ThemeDefinition": {
+        "kind": "reexport"
+      },
+      "type ThemeProviderProps": {
+        "kind": "reexport"
+      },
+      "type ThemeRegistry": {
+        "kind": "reexport"
+      },
+      "type ThemeSwitcherProps": {
+        "kind": "reexport"
+      },
+      "type TooltipProps": {
+        "kind": "reexport"
+      },
+      "type TooltipTriggerProps": {
+        "kind": "reexport"
+      },
+      "useTheme": {
+        "kind": "function"
+      }
     }
   }
 }

@@ -23,7 +23,9 @@
     "check:adr-0014": "node scripts/check-distribution.mjs",
     "check:rfc-0007": "node scripts/check-public-api.mjs",
     "api:update": "pnpm build && node scripts/check-public-api.mjs --update",
-    "check:adr": "pnpm check:adr-0002 && pnpm check:adr-0004 && pnpm check:adr-0014",
+    "check:adr": "pnpm check:adr-0002 && pnpm check:adr-0004 && pnpm check:adr-0014 && pnpm check:rfc-0007",
+    "check:typecheck": "pnpm -r --workspace-concurrency=1 exec tsc --noEmit",
+    "check:all": "pnpm check:quality-gates && pnpm check:adr-0002 && pnpm check:adr-0004 && pnpm check:adr-0014 && pnpm build && pnpm check:rfc-0007 && pnpm check:typecheck",
     "release": "pnpm build && pnpm changeset publish"
   },
   "pnpm": {

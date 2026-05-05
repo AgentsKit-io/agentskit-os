@@ -13,3 +13,12 @@
 # Security-critical
 /packages/@agentskit/os-security/   @EmersonBraun
 /SECURITY.md                        @EmersonBraun
+
+# Guardrail scripts + CI workflows — weakening these requires explicit review
+/scripts/                           @EmersonBraun
+/.github/workflows/                 @EmersonBraun
+/.github/CODEOWNERS                 @EmersonBraun
+/.husky/                            @EmersonBraun
+/.agentskitos-quality-baseline.json @EmersonBraun
+/.agentskitos-ui-baseline.json      @EmersonBraun
+/.agentskitos-api/                  @EmersonBraun

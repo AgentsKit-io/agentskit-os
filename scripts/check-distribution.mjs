@@ -45,6 +45,9 @@ for (const dir of dirs) {
   if (dist === 'public' && pkg.private === true) {
     violations.push(`${pkg.name}: distribution="public" cannot be "private": true`)
   }
+  if (dist === 'public' && pkg.publishConfig?.access !== 'public') {
+    violations.push(`${pkg.name}: distribution="public" requires "publishConfig.access": "public"`)
+  }
 }
 
 if (violations.length > 0) {

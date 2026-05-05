@@ -8,21 +8,11 @@ import { join } from 'node:path'
 
 const ROOT = new URL('../packages', import.meta.url).pathname
 
-const AGENTSKIT_PACKAGES = [
-  '@agentskit/core',
-  '@agentskit/adapters',
-  '@agentskit/runtime',
-  '@agentskit/memory',
-  '@agentskit/tools',
-  '@agentskit/skills',
-  '@agentskit/observability',
-  '@agentskit/eval',
-  '@agentskit/rag',
-  '@agentskit/sandbox',
-  '@agentskit/react',
-  '@agentskit/ink',
-  '@agentskit/cli',
-]
+// Any @agentskit/* dep that is not an OS-tier package counts as an upstream AgentsKit
+// primitive and must be a peerDependency. Prefix-match catches new upstream packages
+// without requiring this list to be maintained.
+const isUpstreamAgentskit = (name) =>
+  name.startsWith('@agentskit/') && !name.startsWith('@agentskit/os-')
 
 const violations = []
 
@@ -46,9 +36,9 @@ for (const dir of pkgDirs) {
   if (!pkg.name?.startsWith('@agentskit/os-')) continue
 
   const deps = pkg.dependencies ?? {}
-  for (const ak of AGENTSKIT_PACKAGES) {
-    if (ak in deps) {
-      violations.push(`${pkg.name}: \`${ak}\` is in \`dependencies\` — must be \`peerDependencies\` per ADR-0002.`)
+  for (const dep of Object.keys(deps)) {
+    if (isUpstreamAgentskit(dep)) {
+      violations.push(`${pkg.name}: \`${dep}\` is in \`dependencies\` — must be \`peerDependencies\` per ADR-0002.`)
     }
   }
 }

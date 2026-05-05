@@ -1,136 +1,218 @@
 {
-  "exports": {
-    "Agg": {
-      "kind": "reexport"
+  "entries": {
+    "console-writer.d.ts": {
+      "ConsoleLogWriterOptions": {
+        "kind": "type"
+      },
+      "consoleLogWriter": {
+        "kind": "const"
+      },
+      "type ConsoleLogWriterOptions": {
+        "kind": "reexport"
+      }
     },
-    "ConsoleLogWriterOptions": {
-      "kind": "reexport"
+    "cost-bridge.d.ts": {
+      "CostBridgeLabels": {
+        "kind": "type"
+      },
+      "CostEntryShape": {
+        "kind": "type"
+      },
+      "CostMetricsRecorderOptions": {
+        "kind": "type"
+      },
+      "costEntryToMetricPoints": {
+        "kind": "const"
+      },
+      "createCostMetricsRecorder": {
+        "kind": "const"
+      },
+      "type CostBridgeLabels": {
+        "kind": "reexport"
+      },
+      "type CostEntryShape": {
+        "kind": "reexport"
+      },
+      "type CostMetricsRecorderOptions": {
+        "kind": "reexport"
+      }
     },
-    "CostBridgeLabels": {
-      "kind": "reexport"
+    "index.d.ts": {
+      "Agg": {
+        "kind": "reexport"
+      },
+      "ConsoleLogWriterOptions": {
+        "kind": "reexport"
+      },
+      "CostBridgeLabels": {
+        "kind": "reexport"
+      },
+      "CostEntryShape": {
+        "kind": "reexport"
+      },
+      "CostMetricsRecorderOptions": {
+        "kind": "reexport"
+      },
+      "CounterAgg": {
+        "kind": "reexport"
+      },
+      "DEFAULT_METRIC_RULES": {
+        "kind": "reexport"
+      },
+      "GaugeAgg": {
+        "kind": "reexport"
+      },
+      "HistogramAgg": {
+        "kind": "reexport"
+      },
+      "InMemoryMetricSink": {
+        "kind": "reexport"
+      },
+      "InMemorySpanExporter": {
+        "kind": "reexport"
+      },
+      "LogLevel": {
+        "kind": "reexport"
+      },
+      "LogLine": {
+        "kind": "reexport"
+      },
+      "LogSinkOptions": {
+        "kind": "reexport"
+      },
+      "LogWriter": {
+        "kind": "reexport"
+      },
+      "MetricKind": {
+        "kind": "reexport"
+      },
+      "MetricPoint": {
+        "kind": "reexport"
+      },
+      "MetricRule": {
+        "kind": "reexport"
+      },
+      "MetricSink": {
+        "kind": "reexport"
+      },
+      "MetricsRegistryOptions": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "Span": {
+        "kind": "reexport"
+      },
+      "SpanExporter": {
+        "kind": "reexport"
+      },
+      "SpanKind": {
+        "kind": "reexport"
+      },
+      "SpanLifecycle": {
+        "kind": "reexport"
+      },
+      "SpanStatus": {
+        "kind": "reexport"
+      },
+      "TraceCollectorOptions": {
+        "kind": "reexport"
+      },
+      "consoleLogWriter": {
+        "kind": "reexport"
+      },
+      "costEntryToMetricPoints": {
+        "kind": "reexport"
+      },
+      "costRule": {
+        "kind": "reexport"
+      },
+      "createCostMetricsRecorder": {
+        "kind": "reexport"
+      },
+      "createLogSink": {
+        "kind": "reexport"
+      },
+      "createMetricsRegistry": {
+        "kind": "reexport"
+      },
+      "createTraceCollector": {
+        "kind": "reexport"
+      },
+      "defaultClassify": {
+        "kind": "reexport"
+      },
+      "defaultClassifyLifecycle": {
+        "kind": "reexport"
+      },
+      "defaultExtract": {
+        "kind": "reexport"
+      },
+      "defaultFormat": {
+        "kind": "reexport"
+      },
+      "defaultKindOf": {
+        "kind": "reexport"
+      },
+      "defaultNameOf": {
+        "kind": "reexport"
+      },
+      "durationRule": {
+        "kind": "reexport"
+      },
+      "eventCountRule": {
+        "kind": "reexport"
+      },
+      "replayEvents": {
+        "kind": "reexport"
+      }
     },
-    "CostEntryShape": {
-      "kind": "reexport"
+    "log-sink.d.ts": {
+      "LogLevel": {
+        "kind": "type"
+      },
+      "LogLine": {
+        "kind": "type"
+      },
+      "LogSinkOptions": {
+        "kind": "type"
+      },
+      "LogWriter": {
+        "kind": "interface"
+      },
+      "createLogSink": {
+        "kind": "const"
+      },
+      "defaultClassify": {
+        "kind": "const"
+      },
+      "defaultExtract": {
+        "kind": "const"
+      },
+      "defaultFormat": {
+        "kind": "const"
+      },
+      "type LogLevel": {
+        "kind": "reexport"
+      },
+      "type LogLine": {
+        "kind": "reexport"
+      },
+      "type LogSinkOptions": {
+        "kind": "reexport"
+      },
+      "type LogWriter": {
+        "kind": "reexport"
+      }
     },
-    "CostMetricsRecorderOptions": {
-      "kind": "reexport"
-    },
-    "CounterAgg": {
-      "kind": "reexport"
-    },
-    "DEFAULT_METRIC_RULES": {
-      "kind": "reexport"
-    },
-    "GaugeAgg": {
-      "kind": "reexport"
-    },
-    "HistogramAgg": {
-      "kind": "reexport"
-    },
-    "InMemoryMetricSink": {
-      "kind": "reexport"
-    },
-    "InMemorySpanExporter": {
-      "kind": "reexport"
-    },
-    "LogLevel": {
-      "kind": "reexport"
-    },
-    "LogLine": {
-      "kind": "reexport"
-    },
-    "LogSinkOptions": {
-      "kind": "reexport"
-    },
-    "LogWriter": {
-      "kind": "reexport"
-    },
-    "MetricKind": {
-      "kind": "reexport"
-    },
-    "MetricPoint": {
-      "kind": "reexport"
-    },
-    "MetricRule": {
-      "kind": "reexport"
-    },
-    "MetricSink": {
-      "kind": "reexport"
-    },
-    "MetricsRegistryOptions": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "Span": {
-      "kind": "reexport"
-    },
-    "SpanExporter": {
-      "kind": "reexport"
-    },
-    "SpanKind": {
-      "kind": "reexport"
-    },
-    "SpanLifecycle": {
-      "kind": "reexport"
-    },
-    "SpanStatus": {
-      "kind": "reexport"
-    },
-    "TraceCollectorOptions": {
-      "kind": "reexport"
-    },
-    "consoleLogWriter": {
-      "kind": "reexport"
-    },
-    "costEntryToMetricPoints": {
-      "kind": "reexport"
-    },
-    "costRule": {
-      "kind": "reexport"
-    },
-    "createCostMetricsRecorder": {
-      "kind": "reexport"
-    },
-    "createLogSink": {
-      "kind": "reexport"
-    },
-    "createMetricsRegistry": {
-      "kind": "reexport"
-    },
-    "createTraceCollector": {
-      "kind": "reexport"
-    },
-    "defaultClassify": {
-      "kind": "reexport"
-    },
-    "defaultClassifyLifecycle": {
-      "kind": "reexport"
-    },
-    "defaultExtract": {
-      "kind": "reexport"
-    },
-    "defaultFormat": {
-      "kind": "reexport"
-    },
-    "defaultKindOf": {
-      "kind": "reexport"
-    },
-    "defaultNameOf": {
-      "kind": "reexport"
-    },
-    "durationRule": {
-      "kind": "reexport"
-    },
-    "eventCountRule": {
-      "kind": "reexport"
-    },
-    "replayEvents": {
-      "kind": "reexport"
+    "replay.d.ts": {
+      "replayEvents": {
+        "kind": "const"
+      }
     }
   }
 }

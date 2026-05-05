@@ -1,3 +1,8 @@
 #!/usr/bin/env sh
 
-pnpm check:quality-gates
+# Fast checks on every commit.
+# Heavier (build + public-API + typecheck) run in pre-push.
+pnpm check:quality-gates && \
+  pnpm check:adr-0002 && \
+  pnpm check:adr-0004 && \
+  pnpm check:adr-0014

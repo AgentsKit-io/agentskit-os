@@ -1,43 +1,79 @@
 {
-  "exports": {
-    "ImportResult": {
-      "kind": "reexport"
+  "entries": {
+    "importers/dify.d.ts": {
+      "difyImporter": {
+        "kind": "const"
+      }
     },
-    "ImportWarning": {
-      "kind": "reexport"
+    "importers/langflow.d.ts": {
+      "langflowImporter": {
+        "kind": "const"
+      }
     },
-    "Importer": {
-      "kind": "reexport"
+    "importers/langgraph.d.ts": {
+      "langgraphImporter": {
+        "kind": "const"
+      }
     },
-    "ImporterRegistry": {
-      "kind": "reexport"
+    "importers/n8n.d.ts": {
+      "n8nImporter": {
+        "kind": "const"
+      }
     },
-    "PACKAGE_NAME": {
-      "kind": "const"
+    "index.d.ts": {
+      "ImportResult": {
+        "kind": "reexport"
+      },
+      "ImportWarning": {
+        "kind": "reexport"
+      },
+      "Importer": {
+        "kind": "reexport"
+      },
+      "ImporterRegistry": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "builtInImporters": {
+        "kind": "const"
+      },
+      "detectImporter": {
+        "kind": "const"
+      },
+      "difyImporter": {
+        "kind": "reexport"
+      },
+      "importWorkflow": {
+        "kind": "const"
+      },
+      "langflowImporter": {
+        "kind": "reexport"
+      },
+      "langgraphImporter": {
+        "kind": "reexport"
+      },
+      "n8nImporter": {
+        "kind": "reexport"
+      }
     },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "builtInImporters": {
-      "kind": "const"
-    },
-    "detectImporter": {
-      "kind": "const"
-    },
-    "difyImporter": {
-      "kind": "reexport"
-    },
-    "importWorkflow": {
-      "kind": "const"
-    },
-    "langflowImporter": {
-      "kind": "reexport"
-    },
-    "langgraphImporter": {
-      "kind": "reexport"
-    },
-    "n8nImporter": {
-      "kind": "reexport"
+    "types.d.ts": {
+      "ImportResult": {
+        "kind": "type"
+      },
+      "ImportWarning": {
+        "kind": "type"
+      },
+      "Importer": {
+        "kind": "interface"
+      },
+      "ImporterRegistry": {
+        "kind": "type"
+      }
     }
   }
 }

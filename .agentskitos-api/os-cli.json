@@ -1,31 +1,34 @@
 {
-  "exports": {
-    "CLI_VERSION": {
-      "kind": "const"
-    },
-    "COMMANDS": {
-      "kind": "const"
-    },
-    "CliCommand": {
-      "kind": "type"
-    },
-    "CliExit": {
-      "kind": "type"
-    },
-    "CliIo": {
-      "kind": "type"
-    },
-    "route": {
-      "kind": "const"
-    },
-    "type CliCommand": {
-      "kind": "reexport"
-    },
-    "type CliExit": {
-      "kind": "reexport"
-    },
-    "type CliIo": {
-      "kind": "reexport"
+  "entries": {
+    "cli.d.ts": {},
+    "index.d.ts": {
+      "CLI_VERSION": {
+        "kind": "const"
+      },
+      "COMMANDS": {
+        "kind": "const"
+      },
+      "CliCommand": {
+        "kind": "type"
+      },
+      "CliExit": {
+        "kind": "type"
+      },
+      "CliIo": {
+        "kind": "type"
+      },
+      "route": {
+        "kind": "const"
+      },
+      "type CliCommand": {
+        "kind": "reexport"
+      },
+      "type CliExit": {
+        "kind": "reexport"
+      },
+      "type CliIo": {
+        "kind": "reexport"
+      }
     }
   }
 }

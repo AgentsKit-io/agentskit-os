@@ -1032,35 +1032,91 @@ export const templateSpecs = [
 
 const agentId = (id: string, suffix: string): string => `${id.slice(0, 46)}-${suffix}`.replace(/^-+|-+$/g, '')
 
-const makeAgent = (spec: TemplateSpec, suffix: 'lead' | 'reviewer' | 'judge') =>
+type AgentSuffix = 'lead' | 'reviewer' | 'judge' | 'reviewer-a' | 'reviewer-b' | 'reviewer-c'
+
+const agentNameFor = (spec: TemplateSpec, suffix: AgentSuffix): string => {
+  if (suffix === 'lead') return `${spec.name} Lead`
+  if (suffix === 'reviewer') return `${spec.name} Reviewer`
+  if (suffix === 'reviewer-a') return `${spec.name} Reviewer A`
+  if (suffix === 'reviewer-b') return `${spec.name} Reviewer B`
+  if (suffix === 'reviewer-c') return `${spec.name} Reviewer C`
+  return `${spec.name} Judge`
+}
+
+const modelFor = (spec: TemplateSpec, suffix: AgentSuffix): string => {
+  if (spec.id !== 'pr-review-3-way') return 'gpt-5.4-mini'
+  if (suffix === 'reviewer-a') return 'gpt-5.4-mini'
+  if (suffix === 'reviewer-b') return 'gpt-5.4'
+  if (suffix === 'reviewer-c') return 'gpt-5.4-nano'
+  return 'gpt-5.4-mini'
+}
+
+const makeAgent = (spec: TemplateSpec, suffix: AgentSuffix) =>
   parseAgentConfig({
     id: agentId(spec.id, suffix),
-    name: `${spec.name} ${suffix === 'lead' ? 'Lead' : suffix === 'reviewer' ? 'Reviewer' : 'Judge'}`,
+    name: agentNameFor(spec, suffix),
     systemPrompt: `${spec.description} Act as the ${suffix} agent. Keep outputs structured, concise, and auditable.`,
-    model: { provider: 'openai', model: 'gpt-5.4-mini', temperature: suffix === 'judge' ? 0.1 : 0.2 },
+    model: { provider: 'openai', model: modelFor(spec, suffix), temperature: suffix === 'judge' ? 0.1 : 0.2 },
     tools: [...spec.tools],
     tags: [spec.category, suffix],
   })
 
-const makeFlow = (spec: TemplateSpec) => {
+const makeCompareVoteFlow = (spec: TemplateSpec) => {
   const lead = agentId(spec.id, 'lead')
   const reviewer = agentId(spec.id, 'reviewer')
   const judge = agentId(spec.id, 'judge')
-  if (spec.category === 'compare-vote') {
-    if (spec.id.startsWith('debate')) {
-      return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'debate', nodes: [{ id: 'debate', kind: 'debate', proponent: lead, opponent: reviewer, judge, topic: spec.name, rounds: 2 }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'debate', to: 'report' }], tags: [spec.category] })
-    }
-    if (spec.id.startsWith('auction')) {
-      return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'auction', nodes: [{ id: 'auction', kind: 'auction', bidders: [lead, reviewer], task: spec.name, bidCriteria: 'highest-confidence' }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'auction', to: 'report' }], tags: [spec.category] })
-    }
-    if (spec.id.startsWith('vote')) {
-      return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'vote', nodes: [{ id: 'vote', kind: 'vote', agents: [lead, reviewer, judge], ballot: { mode: 'majority' }, outputType: 'classification' }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'vote', to: 'report' }], tags: [spec.category] })
-    }
-    if (spec.id.startsWith('blackboard')) {
-      return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'swarm', nodes: [{ id: 'swarm', kind: 'blackboard', agents: [lead, reviewer, judge], scratchpad: { kind: 'in-memory' }, schedule: { mode: 'round-robin' }, termination: { mode: 'rounds', n: 3 } }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'swarm', to: 'report' }], tags: [spec.category] })
-    }
-    return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'compare', nodes: [{ id: 'compare', kind: 'compare', agents: [lead, reviewer, judge], selection: { mode: 'judge', judgeAgent: judge, criteria: 'Completeness, correctness, and actionability.' } }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'compare', to: 'report' }], tags: [spec.category] })
+  if (spec.id.startsWith('debate')) {
+    return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'debate', nodes: [{ id: 'debate', kind: 'debate', proponent: lead, opponent: reviewer, judge, topic: spec.name, rounds: 2 }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'debate', to: 'report' }], tags: [spec.category] })
   }
+  if (spec.id.startsWith('auction')) {
+    return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'auction', nodes: [{ id: 'auction', kind: 'auction', bidders: [lead, reviewer], task: spec.name, bidCriteria: 'highest-confidence' }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'auction', to: 'report' }], tags: [spec.category] })
+  }
+  if (spec.id.startsWith('vote')) {
+    return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'vote', nodes: [{ id: 'vote', kind: 'vote', agents: [lead, reviewer, judge], ballot: { mode: 'majority' }, outputType: 'classification' }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'vote', to: 'report' }], tags: [spec.category] })
+  }
+  if (spec.id.startsWith('blackboard')) {
+    return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'swarm', nodes: [{ id: 'swarm', kind: 'blackboard', agents: [lead, reviewer, judge], scratchpad: { kind: 'in-memory' }, schedule: { mode: 'round-robin' }, termination: { mode: 'rounds', n: 3 } }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'swarm', to: 'report' }], tags: [spec.category] })
+  }
+  return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'compare', nodes: [{ id: 'compare', kind: 'compare', agents: [lead, reviewer, judge], selection: { mode: 'judge', judgeAgent: judge, criteria: 'Completeness, correctness, and actionability.' } }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'compare', to: 'report' }], tags: [spec.category] })
+}
+
+const makePrReview3WayFlow = (spec: TemplateSpec) => {
+  const judge = agentId(spec.id, 'judge')
+  const reviewerA = agentId(spec.id, 'reviewer-a')
+  const reviewerB = agentId(spec.id, 'reviewer-b')
+  const reviewerC = agentId(spec.id, 'reviewer-c')
+  let ingestTool = 'github.pr.read'
+  if (spec.tools[0] !== undefined) ingestTool = spec.tools[0]
+  const publishTool = 'github.pr.comment'
+
+  return parseFlowConfig({
+    id: `${spec.id}-flow`,
+    name: `${spec.name} Flow`,
+    entry: 'ingest',
+    nodes: [
+      { id: 'ingest', kind: 'tool', tool: ingestTool },
+      {
+        id: 'compare',
+        kind: 'compare',
+        agents: [reviewerA, reviewerB, reviewerC],
+        selection: {
+          mode: 'judge',
+          judgeAgent: judge,
+          criteria: 'Find correctness/security/perf issues, suggest fixes, and summarize risk. Prefer actionable PR comments.',
+        },
+        isolation: 'isolated',
+      },
+      { id: 'publish', kind: 'tool', tool: publishTool },
+    ],
+    edges: [{ from: 'ingest', to: 'compare' }, { from: 'compare', to: 'publish' }],
+    tags: [spec.category],
+  })
+}
+
+const makeGeneralFlow = (spec: TemplateSpec) => {
+  const lead = agentId(spec.id, 'lead')
+  const reviewer = agentId(spec.id, 'reviewer')
+
   const needsApproval =
     ['healthcare', 'finance'].includes(spec.category) ||
     spec.id.includes('approval') ||
@@ -1109,6 +1165,12 @@ const makeFlow = (spec: TemplateSpec) => {
   })
 }
 
+const makeFlow = (spec: TemplateSpec) => {
+  if (spec.category === 'compare-vote') return makeCompareVoteFlow(spec)
+  if (spec.id === 'pr-review-3-way') return makePrReview3WayFlow(spec)
+  return makeGeneralFlow(spec)
+}
+
 const metadataFor = (spec: TemplateSpec): TemplateMetadata => ({
   id: spec.id,
   name: spec.name,
@@ -1117,7 +1179,15 @@ const metadataFor = (spec: TemplateSpec): TemplateMetadata => ({
   tags: [...spec.tags],
   estimatedCostUsd: 0.25,
   estimatedTokens: 18000,
-  primaryAgents: [agentId(spec.id, 'lead'), agentId(spec.id, 'reviewer')],
+  primaryAgents:
+    spec.id === 'pr-review-3-way'
+      ? [
+          agentId(spec.id, 'reviewer-a'),
+          agentId(spec.id, 'reviewer-b'),
+          agentId(spec.id, 'reviewer-c'),
+          agentId(spec.id, 'judge'),
+        ]
+      : [agentId(spec.id, 'lead'), agentId(spec.id, 'reviewer')],
   primaryTools: [...spec.tools],
   runModesSupported: ['dry_run', 'preview'],
   triggerKind: spec.triggerKind,
@@ -1135,6 +1205,14 @@ export const builtInTemplates: readonly Template[] = templateSpecs.map((spec) =>
   difficulty: spec.category === 'compare-vote' ? 'advanced' : 'intermediate',
   version: '1.0.0',
   metadata: metadataFor(spec),
-  agents: [makeAgent(spec, 'lead'), makeAgent(spec, 'reviewer'), makeAgent(spec, 'judge')],
+  agents:
+    spec.id === 'pr-review-3-way'
+      ? [
+          makeAgent(spec, 'reviewer-a'),
+          makeAgent(spec, 'reviewer-b'),
+          makeAgent(spec, 'reviewer-c'),
+          makeAgent(spec, 'judge'),
+        ]
+      : [makeAgent(spec, 'lead'), makeAgent(spec, 'reviewer'), makeAgent(spec, 'judge')],
   flows: [makeFlow(spec)],
 }))

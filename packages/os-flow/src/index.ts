@@ -93,5 +93,9 @@ export type {
 export { createHumanHandler } from './human-handler.js'
 export type { ApproverGate, ApproverGateDecision, HumanHandlerOptions } from './human-handler.js'
 
+// #172 — semantic flow diff renderer
+export { diffFlowSemantics, renderFlowDiffMarkdown } from './flow-diff.js'
+export type { FlowSemanticDiff, FlowNodeChange, FlowEdgeChange } from './flow-diff.js'
+
 export const PACKAGE_NAME = '@agentskit/os-flow' as const
 export const PACKAGE_VERSION = '0.0.0' as const

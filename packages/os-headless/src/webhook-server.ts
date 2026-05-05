@@ -116,15 +116,19 @@ export const createWebhookServer = (opts: WebhookServerOptions): WebhookServer =
   })
 
   return {
-    listen: async ({ port = 0, host = '127.0.0.1' } = {}) =>
-      await new Promise((resolve, reject) => {
+    listen: async (opts) => {
+      const safe = opts !== undefined ? opts : { port: undefined, host: undefined }
+      const port = safe.port !== undefined ? safe.port : 0
+      const host = safe.host !== undefined ? safe.host : '127.0.0.1'
+      return await new Promise((resolve, reject) => {
         server.once('error', reject)
         server.listen(port, host, () => {
           const addr = server.address()
           if (!addr || typeof addr === 'string') return reject(new Error('unexpected_address'))
           resolve({ port: addr.port, host: addr.address })
         })
-      }),
+      })
+    },
     close: async () =>
       await new Promise((resolve, reject) => {
         server.close((err) => (err ? reject(err) : resolve(undefined)))

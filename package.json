@@ -13,6 +13,8 @@
     "test:coverage": "turbo run test:coverage",
     "lint": "turbo run lint",
     "dev": "turbo run dev --parallel",
+    "prepare": "husky",
+    "check:quality-gates": "node scripts/check-architecture-guardrails.mjs",
     "size": "pnpm --filter @agentskit/os-core build && size-limit",
     "size:why": "pnpm --filter @agentskit/os-core build && size-limit --why",
     "check:adr-0002": "node scripts/check-no-agentskit-deps.mjs",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "@agentskit/os-core": "workspace:*",
     "@changesets/cli": "2.31.0",
+    "husky": "^9.1.7",
     "@size-limit/file": "^12.1.0",
     "@types/node": "^25.6.0",
     "size-limit": "^12.1.0",

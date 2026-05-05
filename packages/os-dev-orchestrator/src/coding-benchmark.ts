@@ -70,6 +70,7 @@ const buildTask = (
   prompt: string,
   cwd: string,
   dryRun: boolean,
+  timeoutMs: number,
 ): CodingTaskRequest => ({
   kind,
   prompt,
@@ -77,7 +78,7 @@ const buildTask = (
   readScope: ['**/*'],
   writeScope: dryRun ? [] : ['**/*'],
   granted: ['edit_files', 'run_shell', 'run_tests'],
-  timeoutMs: 120_000,
+  timeoutMs,
   dryRun,
 })
 
@@ -93,6 +94,7 @@ export const runCodingAgentBenchmark = async (opts: {
   readonly prompt: string
   readonly dryRun: boolean
   readonly isolateWorktrees: boolean
+  readonly timeoutMs?: number
   readonly gitRunner?: GitRunner
 }): Promise<CodingBenchmarkReport> => {
   const rows: CodingBenchmarkRow[] = []
@@ -136,7 +138,7 @@ export const runCodingAgentBenchmark = async (opts: {
       worktreePath = created.meta.path
     }
 
-    const req = buildTask(opts.kind, opts.prompt, cwd, opts.dryRun)
+    const req = buildTask(opts.kind, opts.prompt, cwd, opts.dryRun, opts.timeoutMs ?? 120_000)
 
     try {
       const result = await p.runTask(req)

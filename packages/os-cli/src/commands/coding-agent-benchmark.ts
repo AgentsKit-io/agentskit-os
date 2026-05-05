@@ -1,3 +1,4 @@
+import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { Command } from 'commander'
 import { runCodingAgentBenchmark } from '@agentskit/os-dev-orchestrator'
@@ -32,6 +33,7 @@ type BenchmarkOpts = {
   apply: boolean
   isolateWorktrees: boolean
   json?: boolean
+  persist?: string
 }
 
 const parseProviders = (csv: string): string[] =>
@@ -68,6 +70,7 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       false,
     )
     .option('--json', 'print CodingBenchmarkReport as JSON', false)
+    .option('--persist <path>', 'write JSON report to file (same payload as --json)', undefined)
     .action(async (opts: BenchmarkOpts) => {
       const ids = parseProviders(opts.providers)
       const narrowed: BuiltinCodingAgentId[] = []
@@ -94,14 +97,18 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         isolateWorktrees: opts.isolateWorktrees === true,
       })
 
-      if (opts.json) {
-        const out = `${JSON.stringify(report, null, 2)}\n`
+      const jsonOut = `${JSON.stringify(report, null, 2)}\n`
+      if (opts.persist !== undefined && opts.persist !== '') {
+        await writeFile(resolve(opts.persist), jsonOut, 'utf8')
+      }
+
+      if (opts.json || (opts.persist !== undefined && opts.persist !== '')) {
         const ok = report.rows.every(
           (r: (typeof report.rows)[number]) => r.status === 'ok' || r.status === 'partial',
         )
         result.current = ok
-          ? { code: 0, stdout: out, stderr: '' }
-          : { code: 1, stdout: '', stderr: out }
+          ? { code: 0, stdout: jsonOut, stderr: '' }
+          : { code: 1, stdout: '', stderr: jsonOut }
         return
       }
 

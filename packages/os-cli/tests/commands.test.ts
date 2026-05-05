@@ -1,3 +1,6 @@
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import * as mcpBridge from '@agentskit/os-mcp-bridge'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { route } from '../src/router.js'
@@ -208,6 +211,54 @@ describe('dev worktree', () => {
   })
 })
 
+describe('dev issue-pr', () => {
+  it('prints help', async () => {
+    const r = await route(['dev', 'issue-pr', '--help'])
+    expect(r.code).toBe(2)
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('dev issue-pr')
+    expect(out).toMatch(/--issue/)
+  })
+
+  it('prints JSON dry-run report', async () => {
+    const r = await route([
+      'dev',
+      'issue-pr',
+      '--issue',
+      'https://github.com/org/repo/issues/1',
+      '--repo',
+      '/tmp/r',
+      '--json',
+    ])
+    expect(r.code).toBe(0)
+    const j = JSON.parse(r.stdout) as { templateId: string; dryRun: boolean }
+    expect(j.dryRun).toBe(true)
+    expect(j.templateId).toBe('dev-issue-to-pr')
+  })
+
+  it('writes --persist JSON file', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ak-issue-pr-'))
+    const outPath = join(dir, 'report.json')
+    try {
+      const r = await route([
+        'dev',
+        'issue-pr',
+        '--issue',
+        'org/repo#99',
+        '--repo',
+        '/repo',
+        '--persist',
+        outPath,
+      ])
+      expect(r.code).toBe(0)
+      const disk = JSON.parse(readFileSync(outPath, 'utf8')) as { issueRef: string }
+      expect(disk.issueRef).toBe('org/repo#99')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('coding-agent conformance', () => {
   it('prints help', async () => {
     const r = await route(['coding-agent', 'conformance', '--help'])
@@ -230,6 +281,7 @@ describe('coding-agent delegate', () => {
     const out = `${r.stdout}${r.stderr}`
     expect(out).toContain('--sub')
     expect(out).toContain('coordinator')
+    expect(out).toContain('--parallel')
   })
 })
 
@@ -240,6 +292,7 @@ describe('coding-agent benchmark', () => {
     const out = `${r.stdout}${r.stderr}`
     expect(out).toContain('--providers')
     expect(out).toContain('--prompt')
+    expect(out).toContain('--persist')
   })
 
   it('rejects unknown provider id in csv', async () => {
@@ -253,6 +306,32 @@ describe('coding-agent benchmark', () => {
     ])
     expect(r.code).toBe(2)
     expect(`${r.stdout}${r.stderr}`).toContain('unknown provider')
+  })
+
+  it('writes --persist JSON report', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ak-bench-'))
+    const outPath = join(dir, 'bench.json')
+    try {
+      const r = await route(
+        [
+          'coding-agent',
+          'benchmark',
+          '--providers',
+          'codex',
+          '--prompt',
+          'noop',
+          '--persist',
+          outPath,
+        ],
+        fakeIo({}),
+      )
+      expect([0, 1] as const).toContain(r.code)
+      const disk = JSON.parse(readFileSync(outPath, 'utf8')) as { repoRoot: string; rows: unknown[] }
+      expect(typeof disk.repoRoot).toBe('string')
+      expect(Array.isArray(disk.rows)).toBe(true)
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
 

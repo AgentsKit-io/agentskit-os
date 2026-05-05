@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react'
 import { sidecarRequest } from '../../lib/sidecar'
 
-export type HitlKind = 'code_change' | 'cost_exception' | 'deploy_gate' | 'data_access'
+export type HitlKind =
+  | 'code_change'
+  | 'cost_exception'
+  | 'deploy_gate'
+  | 'data_access'
+  /** Review queues called out in #337 (clinical / regulated workflows). */
+  | 'clinical_review'
+  /** External or customer sign-off before merge or release. */
+  | 'client_approval'
+  /** Failed automation run that needs retry, skip, or manual recovery. */
+  | 'failed_run'
 export type HitlStatus = 'pending' | 'approved' | 'denied' | 'expired'
 export type HitlRisk = 'low' | 'medium' | 'high'
 
@@ -90,6 +100,54 @@ export const MOCK_HITL_REQUESTS: readonly HitlRequest[] = [
     expiresAt: '2026-05-04T18:20:00.000Z',
     summary: 'A clinic workflow requested access to sensitive appointment context without a matching approved data route.',
     evidence: ['PHI policy matched', 'regional route missing', 'request denied by policy owner'],
+  },
+  {
+    id: 'hitl-approval-005',
+    title: 'Clinical protocol deviation — chart review',
+    kind: 'clinical_review',
+    status: 'pending',
+    risk: 'high',
+    requester: 'Clinical Safety Orchestrator',
+    runId: 'run-clin-220',
+    agent: 'claude',
+    createdAt: '2026-05-04T20:05:00.000Z',
+    expiresAt: '2026-05-04T21:30:00.000Z',
+    summary: 'Automated triage flagged a dosage suggestion outside the approved protocol branch; a licensed reviewer must confirm before the flow resumes.',
+    evidence: ['protocol v3.2 matched', 'deviation reason: renal adjustment edge case', 'HITL required by domain pack'],
+    traceUrl: '#/traces/run-clin-220',
+    policyRuleIds: ['domainPack.clinical.hitl', 'workspacePolicy.irreversibleToolTags'],
+  },
+  {
+    id: 'hitl-approval-006',
+    title: 'Client approval — public API scope change',
+    kind: 'client_approval',
+    status: 'pending',
+    risk: 'medium',
+    requester: 'Delivery PM (Acme Corp)',
+    runId: 'run-client-88',
+    agent: 'codex',
+    createdAt: '2026-05-04T20:10:00.000Z',
+    expiresAt: '2026-05-05T12:00:00.000Z',
+    summary: 'The generated implementation expands REST surface area beyond the signed SOW. Awaiting named client approver before merge.',
+    evidence: ['SOW §4.2 attachment hash verified', 'diff touches 6 public routes', 'legal template attached'],
+    traceUrl: '#/traces/run-client-88',
+    policyRuleIds: ['clientApproval.required'],
+  },
+  {
+    id: 'hitl-approval-007',
+    title: 'Failed run — staging deploy verification',
+    kind: 'failed_run',
+    status: 'pending',
+    risk: 'high',
+    requester: 'Release Flow (staging)',
+    runId: 'run-fail-901',
+    agent: 'gemini',
+    createdAt: '2026-05-04T19:55:00.000Z',
+    expiresAt: '2026-05-04T22:00:00.000Z',
+    summary: 'Post-deploy health checks failed twice; the run is paused until an operator retries, skips the gate, or rolls back.',
+    evidence: ['exit code 2 from smoke suite', 'last good deploy: build-4412', 'no automatic rollback policy in this workspace'],
+    traceUrl: '#/traces/run-fail-901',
+    policyRuleIds: ['flow.deploy_gate', 'observability.alert_hook'],
   },
 ]
 

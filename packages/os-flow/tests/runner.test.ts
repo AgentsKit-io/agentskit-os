@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { parseFlowConfig, parseRunContext } from '@agentskit/os-core'
+import { parseFlowConfig, parseRunContext, parseSecurityConfig } from '@agentskit/os-core'
 import { defaultStubHandlers, runFlow, type NodeHandlerMap } from '../src/index.js'
 
 const ctx = parseRunContext({
@@ -166,5 +166,50 @@ describe('runFlow', () => {
     // just verifies clean linear runs.
     const r = await runFlow(f, { handlers: okHandlers, ctx })
     expect(r.status).toBe('completed')
+  })
+
+  it('blocks run start when workspace policy rejects run mode (#336)', async () => {
+    const policy = parseSecurityConfig({
+      workspacePolicy: { runModesAllowed: ['dry_run', 'preview'] },
+    }).workspacePolicy
+    const r = await runFlow(linear, {
+      handlers: okHandlers,
+      ctx: parseRunContext({
+        runMode: 'real',
+        workspaceId: 'team-a',
+        runId: 'run_policy',
+        startedAt: '2026-05-02T00:00:00.000Z',
+      }),
+      workspacePolicyGate: { policy },
+    })
+    expect(r.status).toBe('failed')
+    expect(r.reason).toMatch(/policy\.workspace_blocked/)
+  })
+
+  it('denies tool when workspace policy toolsDeny matches (#336)', async () => {
+    const policy = parseSecurityConfig({
+      workspacePolicy: { toolsDeny: ['echo'] },
+    }).workspacePolicy
+    const r = await runFlow(linear, {
+      handlers: okHandlers,
+      ctx,
+      workspacePolicyGate: { policy },
+    })
+    expect(r.status).toBe('failed')
+    expect(r.stoppedAt).toBe('a')
+    expect(r.reason).toBe('policy.tool_denied')
+  })
+
+  it('pauses tool for HITL when tool tags match irreversible profile (#336)', async () => {
+    const policy = parseSecurityConfig({}).workspacePolicy
+    const toolTagsById = new Map<string, readonly string[]>([['echo', ['destructive']]])
+    const r = await runFlow(linear, {
+      handlers: okHandlers,
+      ctx,
+      workspacePolicyGate: { policy, toolTagsById },
+    })
+    expect(r.status).toBe('paused')
+    expect(r.stoppedAt).toBe('a')
+    expect(r.reason).toBe('hitl')
   })
 })

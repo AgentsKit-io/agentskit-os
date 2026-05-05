@@ -43,6 +43,7 @@ type DelegateOpts = {
   kind: string
   apply: boolean
   isolateWorktrees: boolean
+  parallel: boolean
   json?: boolean
 }
 
@@ -71,6 +72,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
     .option('--kind <kind>', `CodingTaskKind (${TASK_KINDS.join(', ')})`, 'free-form')
     .option('--apply', 'disable dry-run on shards', false)
     .option('--isolate-worktrees', 'one git worktree per shard', false)
+    .option(
+      '--parallel',
+      'run shard tasks concurrently after worktrees are ready (requires isolateWorktrees or all shards dry-run)',
+      false,
+    )
     .option('--json', 'print DelegationReport as JSON', false)
     .action(async (opts: DelegateOpts) => {
       if (opts.sub.length === 0) {
@@ -99,12 +105,20 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         })
       }
 
-      const report = await runDelegatedCodingTask({
-        repoRoot: resolve(opts.repoRoot),
-        coordinatorPrompt: opts.coordinatorPrompt,
-        shards,
-        isolateWorktrees: opts.isolateWorktrees === true,
-      })
+      let report: Awaited<ReturnType<typeof runDelegatedCodingTask>>
+      try {
+        report = await runDelegatedCodingTask({
+          repoRoot: resolve(opts.repoRoot),
+          coordinatorPrompt: opts.coordinatorPrompt,
+          shards,
+          isolateWorktrees: opts.isolateWorktrees === true,
+          parallel: opts.parallel === true,
+        })
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err)
+        result.current = { code: 2, stdout: '', stderr: `${msg}\n` }
+        return
+      }
 
       if (opts.json) {
         const out = `${JSON.stringify(report, null, 2)}\n`

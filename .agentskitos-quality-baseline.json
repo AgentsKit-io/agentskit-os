@@ -5,32 +5,8 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 475,
-    "issues": 3,
-    "byKind": {
-      "cyclomatic-complexity": 3
-    }
+    "issues": 0,
+    "byKind": {}
   },
-  "issues": [
-    {
-      "id": "cyclomatic-complexity:apps/desktop/sidecar/sidecar.mjs:db8d1b6d64e4ec90",
-      "kind": "cyclomatic-complexity",
-      "file": "apps/desktop/sidecar/sidecar.mjs",
-      "line": 211,
-      "detail": "dispatch complexity 53 exceeds max 14."
-    },
-    {
-      "id": "cyclomatic-complexity:apps/desktop/src/app.tsx:20df0d5eaedb3d6b",
-      "kind": "cyclomatic-complexity",
-      "file": "apps/desktop/src/app.tsx",
-      "line": 429,
-      "detail": "AppShell complexity 31 exceeds max 14."
-    },
-    {
-      "id": "cyclomatic-complexity:packages/os-flow/src/multi-agent-handlers.ts:018a9608725cb546",
-      "kind": "cyclomatic-complexity",
-      "file": "packages/os-flow/src/multi-agent-handlers.ts",
-      "line": 659,
-      "detail": "createBlackboardHandler complexity 30 exceeds max 14."
-    }
-  ]
+  "issues": []
 }

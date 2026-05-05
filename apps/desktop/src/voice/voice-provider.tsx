@@ -206,7 +206,7 @@ const wireRecognitionHandlers = (args: {
       if (!result || !item) continue
       next.push(buildTranscript({ idx: i, text: item.transcript, finalized: result.isFinal, startedAt }))
       if (result.isFinal) {
-        void handleFinalTranscript({ text: item.transcript, isListeningRef, setState, handleVoice })
+        void handleFinalTranscript({ text: item.transcript, isListeningRef, setState, handleVoice: args.handleVoice })
       }
     }
 

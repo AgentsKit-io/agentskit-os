@@ -36,7 +36,7 @@ function Toast({
         'fixed bottom-6 right-6 z-50 flex max-w-sm items-start gap-3 rounded-xl border p-4 shadow-lg',
         type === 'success'
           ? 'border-[var(--ag-accent)]/30 bg-[var(--ag-panel)] text-[var(--ag-ink)]'
-          : 'border-red-500/30 bg-[var(--ag-panel)] text-red-400',
+          : 'border-[var(--ag-danger)]/30 bg-[var(--ag-panel)] text-[var(--ag-danger)]',
       ].join(' ')}
     >
       <p className="flex-1 text-sm">{message}</p>

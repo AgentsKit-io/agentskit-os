@@ -221,7 +221,7 @@ export function AssistantOverlay(): React.JSX.Element | null {
 
         {/* Error */}
         {isError && (
-          <p role="alert" className="px-3 py-2 text-xs text-red-400">
+          <p role="alert" className="px-3 py-2 text-xs text-[var(--ag-danger)]">
             {currentSuggestion!.response}
           </p>
         )}

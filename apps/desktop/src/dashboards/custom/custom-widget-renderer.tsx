@@ -42,7 +42,7 @@ const WidgetBody = (args: {
   }
   if (errorMsg) {
     return (
-      <p className="text-xs text-red-500" role="alert" aria-live="polite">
+      <p className="text-xs text-[var(--ag-danger)]" role="alert" aria-live="polite">
         {errorMsg}
       </p>
     )

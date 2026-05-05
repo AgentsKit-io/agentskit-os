@@ -395,7 +395,7 @@ export const createVoteHandler = (opts: VoteHandlerOptions) => {
         if (isTie || topScore / total < ballot.threshold) {
           return handleTie()
         }
-        return resolveWinner(winner)
+        return resolveWinnerKey(winner)
       }
 
       default: {
@@ -656,108 +656,163 @@ const orderedAgents = (
   }
 }
 
+type BlackboardTotals = { totalTokens: number; totalUsd: number; totalSteps: number }
+
+const writeScratchpad = (store: ScratchpadStore, writes: Record<string, unknown>): void => {
+  for (const [k, v] of Object.entries(writes)) {
+    store.set(k, v)
+  }
+}
+
+const shouldStopForBudget = (args: {
+  totals: BlackboardTotals
+  limits: { tokensPerRun: number | undefined; usdPerRun: number | undefined; maxStepsPerRun: number | undefined }
+}): boolean => {
+  const { totals, limits } = args
+  if (limits.tokensPerRun !== undefined && totals.totalTokens >= limits.tokensPerRun) return true
+  if (limits.usdPerRun !== undefined && totals.totalUsd >= limits.usdPerRun) return true
+  if (limits.maxStepsPerRun !== undefined && totals.totalSteps >= limits.maxStepsPerRun) return true
+  return false
+}
+
+const updateConsensusValue = (args: {
+  store: ScratchpadStore
+  consensusValue: string | undefined
+}): string | undefined => {
+  const { store, consensusValue } = args
+  const c = store.get('consensus')
+  if (c === undefined) return consensusValue
+  const serialized = JSON.stringify(c)
+  if (consensusValue === undefined) return serialized
+  return consensusValue === serialized ? consensusValue : undefined
+}
+
+const shouldStopAfterRound = (args: {
+  term: BlackboardNode['termination']
+  consensusValue: string | undefined
+  scheduleMode: BlackboardNode['schedule']['mode']
+  allDone: boolean
+}): boolean => {
+  const { term, consensusValue, scheduleMode, allDone } = args
+  if (term.mode === 'consensus' && consensusValue !== undefined) return true
+  if (scheduleMode === 'volunteer' && allDone) return true
+  return false
+}
+
 export const createBlackboardHandler = (opts: BlackboardHandlerOptions) => {
-  return async (
-    node: BlackboardNode,
-    input: unknown,
-    ctx: RunContext,
-  ): Promise<NodeOutcome> => {
-    const store = opts.scratchpadStore ?? new InMemoryScratchpadStore()
-    const term = node.termination
+  return async (node: BlackboardNode, input: unknown, ctx: RunContext): Promise<NodeOutcome> => {
+    return await runBlackboardNode({ opts, node, input, ctx })
+  }
+}
 
-    let totalTokens = 0
-    let totalUsd = 0
-    let totalSteps = 0
-    let done = false
+const runBlackboardNode = async (args: {
+  opts: BlackboardHandlerOptions
+  node: BlackboardNode
+  input: unknown
+  ctx: RunContext
+}): Promise<NodeOutcome> => {
+  const { opts, node, input, ctx } = args
+  const store = opts.scratchpadStore ?? new InMemoryScratchpadStore()
+  const totals: BlackboardTotals = { totalTokens: 0, totalUsd: 0, totalSteps: 0 }
+  const done = await runBlackboardRounds({ opts, node, input, ctx, store, totals })
+  void done
+  return {
+    kind: 'ok',
+    value: {
+      scratchpad: Object.fromEntries(store.entries()),
+      totalTokens: totals.totalTokens,
+      totalUsd: totals.totalUsd,
+      totalSteps: totals.totalSteps,
+    },
+  }
+}
 
-    const maxRounds = term.mode === 'rounds' ? term.n : 1000
+const runBlackboardRounds = async (args: {
+  opts: BlackboardHandlerOptions
+  node: BlackboardNode
+  input: unknown
+  ctx: RunContext
+  store: ScratchpadStore
+  totals: BlackboardTotals
+}): Promise<boolean> => {
+  const { opts, node, input, ctx, store, totals } = args
+  const term = node.termination
+  const maxRounds = term.mode === 'rounds' ? term.n : 1000
+  let done = false
 
-    for (let round = 0; round < maxRounds && !done; round++) {
-      const agents = orderedAgents([...node.agents], node.schedule)
-      let allDone = true // track if all agents signal done (volunteer mode consensus)
-      let consensusValue: string | undefined
+  for (let round = 0; round < maxRounds && !done; round++) {
+    const agents = orderedAgents([...node.agents], node.schedule)
+    const step = await runBlackboardRound({ opts, node, input, ctx, store, totals, term, agents, round })
+    done = step.done
+  }
 
-      for (let stepIdx = 0; stepIdx < agents.length && !done; stepIdx++) {
-        const agentId = agents[stepIdx]!
-        const bbInput: BlackboardAgentInput = {
-          scratchpad: store.entries(),
-          agentId,
-          round,
-          stepInRound: stepIdx,
-          input,
-        }
+  return done
+}
 
-        const result = await opts.runAgent(agentId, bbInput, ctx)
-        totalSteps++
-        totalTokens += result.tokens ?? 0
-        totalUsd += result.usd ?? 0
+const runBlackboardRound = async (args: {
+  opts: BlackboardHandlerOptions
+  node: BlackboardNode
+  input: unknown
+  ctx: RunContext
+  store: ScratchpadStore
+  totals: BlackboardTotals
+  term: BlackboardNode['termination']
+  agents: string[]
+  round: number
+}): Promise<{ done: boolean }> => {
+  const { opts, node, input, ctx, store, totals, term, agents, round } = args
+  let done = false
+  let allDone = true
+  let consensusValue: string | undefined
 
-        const parsed = parseBbOutput(result.output)
+  for (let stepIdx = 0; stepIdx < agents.length && !done; stepIdx++) {
+    const agentId = agents[stepIdx]!
+    const bbInput: BlackboardAgentInput = { scratchpad: store.entries(), agentId, round, stepInRound: stepIdx, input }
 
-        if (parsed.writes) {
-          for (const [k, v] of Object.entries(parsed.writes)) {
-            store.set(k, v)
-          }
-        }
+    const result = await opts.runAgent(agentId, bbInput, ctx)
+    totals.totalSteps++
+    totals.totalTokens += result.tokens ?? 0
+    totals.totalUsd += result.usd ?? 0
 
-        if (!parsed.done) allDone = false
+    const parsed = parseBbOutput(result.output)
+    if (parsed.writes) writeScratchpad(store, parsed.writes)
+    if (!parsed.done) allDone = false
 
-        switch (term.mode) {
-          case 'agent-signal':
-            if (parsed.done) done = true
-            break
+    const stepResult = applyTerminationStep({ term, parsedDone: parsed.done === true, store, consensusValue, totals })
+    consensusValue = stepResult.consensusValue
+    done = stepResult.done
+  }
 
-          case 'consensus': {
-            const c = store.get('consensus')
-            if (c !== undefined) {
-              const serialized = JSON.stringify(c)
-              if (consensusValue === undefined) {
-                consensusValue = serialized
-              } else if (consensusValue !== serialized) {
-                consensusValue = undefined // agents disagree
-              }
-            }
-            break
-          }
+  if (done) return { done }
+  if (shouldStopAfterRound({ term, consensusValue, scheduleMode: node.schedule.mode, allDone })) return { done: true }
+  return { done: false }
+}
 
-          case 'budget': {
-            const limits = term.limits
-            if (limits.tokensPerRun !== undefined && totalTokens >= limits.tokensPerRun) done = true
-            if (limits.usdPerRun !== undefined && totalUsd >= limits.usdPerRun) done = true
-            if (limits.maxStepsPerRun !== undefined && totalSteps >= limits.maxStepsPerRun) done = true
-            break
-          }
+const applyTerminationStep = (args: {
+  term: BlackboardNode['termination']
+  parsedDone: boolean
+  store: ScratchpadStore
+  consensusValue: string | undefined
+  totals: BlackboardTotals
+}): { done: boolean; consensusValue: string | undefined } => {
+  const { term, parsedDone, store, consensusValue, totals } = args
+  if (term.mode === 'agent-signal') return { done: parsedDone, consensusValue }
+  if (term.mode === 'consensus') return { done: false, consensusValue: updateConsensusValue({ store, consensusValue }) }
+  if (term.mode === 'budget') {
+    const limits = normalizeBudgetLimits(term.limits)
+    return { done: shouldStopForBudget({ totals, limits }), consensusValue }
+  }
+  return { done: false, consensusValue }
+}
 
-          case 'rounds':
-            // Handled by outer loop bound
-            break
-
-          default: {
-            const _exhaustive: never = term
-            break
-          }
-        }
-      }
-
-      // After all agents in round have run, check consensus
-      if (term.mode === 'consensus' && consensusValue !== undefined) {
-        done = true
-      }
-
-      // Volunteer mode: if all agents signaled done, stop
-      if (node.schedule.mode === 'volunteer' && allDone) {
-        done = true
-      }
-    }
-
-    return {
-      kind: 'ok',
-      value: {
-        scratchpad: Object.fromEntries(store.entries()),
-        totalTokens,
-        totalUsd,
-        totalSteps,
-      },
-    }
+const normalizeBudgetLimits = (limits: {
+  tokensPerRun?: number | undefined
+  usdPerRun?: number | undefined
+  maxStepsPerRun?: number | undefined
+}): { tokensPerRun: number | undefined; usdPerRun: number | undefined; maxStepsPerRun: number | undefined } => {
+  return {
+    tokensPerRun: limits.tokensPerRun,
+    usdPerRun: limits.usdPerRun,
+    maxStepsPerRun: limits.maxStepsPerRun,
   }
 }

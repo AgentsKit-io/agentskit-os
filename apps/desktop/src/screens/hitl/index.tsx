@@ -47,16 +47,16 @@ const RISK_LABEL: Record<HitlRisk, string> = {
 }
 
 const STATUS_CLASSES: Record<HitlStatus, string> = {
-  pending: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  approved: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  denied: 'border-red-500/25 bg-red-500/10 text-red-300',
-  expired: 'border-zinc-500/25 bg-zinc-500/10 text-zinc-300',
+  pending: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  approved: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  denied: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
+  expired: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
 }
 
 const RISK_CLASSES: Record<HitlRisk, string> = {
-  low: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  medium: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  high: 'border-red-500/25 bg-red-500/10 text-red-300',
+  low: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  medium: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  high: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const FILTERS: Array<HitlStatus | 'all'> = ['all', 'pending', 'approved', 'denied', 'expired']
@@ -287,7 +287,7 @@ function RequestDetail({
       </div>
 
       {escalationNotes[request.id] !== undefined && (
-        <div className="border-b border-amber-500/20 bg-amber-500/10 px-4 py-2 text-sm text-amber-100">
+        <div className="border-b border-[var(--ag-warn)]/20 bg-[var(--ag-warn)]/10 px-4 py-2 text-sm text-[var(--ag-warn)]">
           {escalationNotes[request.id]}
         </div>
       )}
@@ -296,21 +296,21 @@ function RequestDetail({
         <div className="flex flex-wrap gap-2 border-b border-[var(--ag-line)] p-4">
           <button
             type="button"
-            className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25"
+            className="rounded-md border border-[var(--ag-success)]/40 bg-[var(--ag-success)]/15 px-3 py-1.5 text-sm font-medium text-[var(--ag-success)] hover:bg-[var(--ag-success)]/25"
             onClick={() => onApprove(request.id)}
           >
             Approve
           </button>
           <button
             type="button"
-            className="rounded-md border border-red-500/40 bg-red-500/15 px-3 py-1.5 text-sm font-medium text-red-200 hover:bg-red-500/25"
+            className="rounded-md border border-[var(--ag-danger)]/40 bg-[var(--ag-danger)]/15 px-3 py-1.5 text-sm font-medium text-[var(--ag-danger)] hover:bg-[var(--ag-danger)]/25"
             onClick={() => onReject(request.id)}
           >
             Reject
           </button>
           <button
             type="button"
-            className="rounded-md border border-amber-500/40 bg-amber-500/15 px-3 py-1.5 text-sm font-medium text-amber-200 hover:bg-amber-500/25"
+            className="rounded-md border border-[var(--ag-warn)]/40 bg-[var(--ag-warn)]/15 px-3 py-1.5 text-sm font-medium text-[var(--ag-warn)] hover:bg-[var(--ag-warn)]/25"
             onClick={() => onEscalate(request.id)}
           >
             Escalate
@@ -479,7 +479,7 @@ export function HitlScreen() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar approval queue unavailable. Showing local sample data.
           </div>
         )}

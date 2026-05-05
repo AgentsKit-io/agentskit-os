@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { FLOWS_FIXTURE, type FlowDefinition, type FlowStatus, type FlowTrigger, useFlows } from './use-flows'
-import { sidecarRequest } from '../../lib/sidecar'
 import { getRunMode } from '../../lib/run-mode-store'
 import { formatDate, formatDuration } from '../../lib/format'
 import { FilterPills } from '../../components/filter-pills'
+import { useRunFlow } from './use-run-flow'
 
 const STATUS_LABEL: Record<FlowStatus, string> = {
   active: 'Active',
@@ -14,10 +14,10 @@ const STATUS_LABEL: Record<FlowStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<FlowStatus, string> = {
-  active: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  draft: 'border-sky-500/25 bg-sky-500/10 text-sky-300',
-  paused: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  failing: 'border-red-500/25 bg-red-500/10 text-red-300',
+  active: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  draft: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  paused: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  failing: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const TRIGGER_LABEL: Record<FlowTrigger, string> = {
@@ -243,7 +243,7 @@ export function FlowsScreen() {
   const { flows, loading, error } = useFlows()
   const [filter, setFilter] = useState<FlowStatus | 'all'>('all')
   const [selectedId, setSelectedId] = useState<string | null>(FLOWS_FIXTURE[0]?.id ?? null)
-  const [running, setRunning] = useState(false)
+  const { runFlow, running } = useRunFlow()
 
   const filteredFlows = useMemo(() => {
     return filter === 'all' ? flows : flows.filter((flow) => flow.status === filter)
@@ -283,10 +283,7 @@ export function FlowsScreen() {
             className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)] disabled:opacity-50"
             onClick={() => {
               if (!selectedFlow) return
-              setRunning(true)
-              const mode = getRunMode()
-              void sidecarRequest('runner.runFlow', { flowId: selectedFlow.id, mode })
-                .finally(() => setRunning(false))
+              void runFlow({ flowId: selectedFlow.id, mode: getRunMode() })
             }}
           >
             {running ? 'Running…' : 'Run flow'}
@@ -298,7 +295,7 @@ export function FlowsScreen() {
         {error !== null && (
           <div
             role="status"
-            className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300"
+            className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]"
           >
             Sidecar flow provider unavailable. Showing local sample data.
           </div>

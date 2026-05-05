@@ -23,9 +23,9 @@ const STATUS_LABEL: Record<BenchmarkStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<BenchmarkStatus, string> = {
-  complete: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  running: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  failed: 'border-red-500/25 bg-red-500/10 text-red-300',
+  complete: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  failed: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const FILTERS: Array<BenchmarkProvider | 'all'> = ['all', 'codex', 'claude', 'cursor', 'gemini']

@@ -11,10 +11,10 @@ const STATUS_LABEL: Record<EvalStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<EvalStatus, string> = {
-  passing: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  regressed: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  running: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  failing: 'border-red-500/25 bg-red-500/10 text-red-300',
+  passing: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  regressed: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  failing: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const CADENCE_LABEL: Record<EvalCadence, string> = {

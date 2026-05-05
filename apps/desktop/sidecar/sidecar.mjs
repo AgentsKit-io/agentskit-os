@@ -211,251 +211,263 @@ const newTraceId = () => {
 const dispatch = async (req) => {
   const { id, method, params } = req
 
-  switch (method) {
-    case 'health.ping': {
-      respond(id, { pong: true, ts: Date.now() })
-      break
-    }
+  const handler = DISPATCH_HANDLERS[method]
+  if (!handler) {
+    respondError(id, -32601, `Method not found: ${method}`)
+    return
+  }
+  await handler({ id, params })
+}
 
-    case 'runner.runFlow': {
-      if (!runner || !createHeadlessRunnerFn || !baseRunnerOpts) {
-        respondError(id, -32001, 'runner not initialized')
-        break
-      }
-      try {
-        const p = /** @type {Record<string, unknown>} */ (params ?? {})
-        const traceId = newTraceId()
-        const startedAt = nowIso()
-        const flowId = /** @type {string} */ (p['flowId'])
-        const mode = /** @type {string | undefined} */ (p['mode']) ?? 'dry_run'
-        ensureFlowExists(flowId)
-        const flow = flowRegistry.get(flowId) ?? defaultDemoFlow(flowId)
-        const nodeKinds = indexNodeKinds(flow)
-        /** @type {Map<string, string>} */
-        const nodeStartIso = new Map()
+/**
+ * @typedef {{ id: number | string, params?: unknown }} DispatchCtx
+ * @typedef {(ctx: DispatchCtx) => Promise<void> | void} DispatchHandler
+ */
 
-        const rootSpanId = `${traceId}-span-root`
-        const rootSpan = {
-          traceId,
-          spanId: rootSpanId,
-          kind: 'flow',
-          name: 'flow.started',
-          workspaceId: 'desktop-default',
-          startedAt,
-          endedAt: startedAt,
-          durationMs: 0,
-          status: 'ok',
-          attributes: {
-            'agentskitos.flow_id': flowId,
-            'agentskitos.run_mode': mode,
-            'trace.source': 'desktop-sidecar',
-          },
-        }
-        traceSpans.set(traceId, [rootSpan])
-        traceRows.unshift({
-          traceId,
-          flowId,
-          runMode: mode,
-          startedAt,
-          durationMs: 0,
-          status: 'ok',
-        })
-        notify('event', { timestamp: startedAt, type: 'trace.started', data: { traceId, flowId, mode } })
+/** @type {Record<string, DispatchHandler>} */
+const DISPATCH_HANDLERS = {
+  'health.ping': ({ id }) => {
+    respond(id, { pong: true, ts: Date.now() })
+  },
+  'runner.runFlow': async ({ id, params }) => {
+    await handleRunnerRunFlow({ id, params })
+  },
+  'runner.runAgent': async ({ id, params }) => {
+    await handleRunnerRunAgent({ id, params })
+  },
+  'runner.dispose': async ({ id }) => {
+    await handleRunnerDispose({ id })
+  },
+  'traces.list': ({ id }) => {
+    respond(id, traceRows)
+  },
+  'traces.get': ({ id, params }) => {
+    const p = /** @type {Record<string, unknown>} */ (params ?? {})
+    const traceId = /** @type {string} */ (p['traceId'])
+    respond(id, traceSpans.get(traceId) ?? [])
+  },
+  'flows.list': ({ id }) => {
+    respond(id, [...flowMeta.values()])
+  },
+  'flows.get': ({ id, params }) => {
+    const p = /** @type {Record<string, unknown>} */ (params ?? {})
+    const flowId = /** @type {string} */ (p['flowId'])
+    ensureFlowExists(flowId)
+    respond(id, flowRegistry.get(flowId) ?? null)
+  },
+  'flows.create': ({ id, params }) => {
+    handleFlowsCreate({ id, params })
+  },
+  'cloud.deploy': ({ id }) => {
+    const startedAt = nowIso()
+    notify('event', { timestamp: startedAt, type: 'deploy.queued', data: { target: 'cloud' } })
+    respond(id, { status: 'queued', target: 'cloud', url: 'https://cloud.agentskit.io/' })
+  },
+}
 
-        const runRunner = createHeadlessRunnerFn({
-          ...baseRunnerOpts,
-          observability: (event) => {
-            notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
+/** @param {{ id: number | string }} args */
+const handleRunnerDispose = async ({ id }) => {
+  if (runner) {
+    await runner.dispose()
+    runner = null
+  }
+  respond(id, { disposed: true })
+}
 
-            const spans = traceSpans.get(traceId) ?? []
+/** @param {{ id: number | string, params?: unknown }} args */
+const handleRunnerRunAgent = async ({ id, params }) => {
+  if (!runner) {
+    respondError(id, -32001, 'runner not initialized')
+    return
+  }
+  try {
+    const p = /** @type {Record<string, unknown>} */ (params ?? {})
+    const result = await runner.runAgent(
+      /** @type {string} */ (p['agentId']),
+      p['input'],
+      { mode: /** @type {import('@agentskit/os-core').RunMode | undefined} */ (p['mode']) },
+    )
+    respond(id, result)
+  } catch (err) {
+    respondError(id, -32000, err instanceof Error ? err.message : String(err))
+  }
+}
 
-            if (event.kind === 'node:start') {
-              const nodeId = event.nodeId
-              nodeStartIso.set(nodeId, nowIso())
-              const started = nodeStartIso.get(nodeId) ?? nowIso()
-              const kind = spanKindForNodeKind(nodeKinds[nodeId] ?? 'unknown')
-              spans.push({
-                traceId,
-                spanId: `${traceId}-span-${nodeId}`,
-                parentSpanId: rootSpanId,
-                kind,
-                name: `node.start`,
-                workspaceId: 'desktop-default',
-                startedAt: started,
-                endedAt: started,
-                durationMs: 0,
-                status: 'ok',
-                attributes: {
-                  'agentskitos.node_id': nodeId,
-                  'agentskitos.node_kind': nodeKinds[nodeId] ?? 'unknown',
-                },
-              })
-              traceSpans.set(traceId, spans)
-            }
+/** @param {{ id: number | string, params?: unknown }} args */
+const handleRunnerRunFlow = async ({ id, params }) => {
+  if (!runner || !createHeadlessRunnerFn || !baseRunnerOpts) {
+    respondError(id, -32001, 'runner not initialized')
+    return
+  }
+  try {
+    const p = /** @type {Record<string, unknown>} */ (params ?? {})
+    const { traceId, startedAt, rootSpanId, flowId, flow, nodeKinds, nodeStartIso } = setupTraceRun(p)
+    const runRunner = createHeadlessRunnerFn({
+      ...baseRunnerOpts,
+      observability: (event) => handleObservabilityEvent({ traceId, rootSpanId, nodeKinds, nodeStartIso, event }),
+    })
+    const result = await runFlowAndDispose({ runRunner, flow, p })
+    finalizeTrace({ traceId, startedAt, result })
+    respond(id, result)
+  } catch (err) {
+    respondError(id, -32000, err instanceof Error ? err.message : String(err))
+  }
+}
 
-            if (event.kind === 'node:end') {
-              const nodeId = event.nodeId
-              const ended = nowIso()
-              const started = nodeStartIso.get(nodeId) ?? ended
-              const status =
-                event.outcome?.kind === 'failed'
-                  ? 'error'
-                  : event.outcome?.kind === 'paused'
-                    ? 'paused'
-                    : event.outcome?.kind === 'skipped'
-                      ? 'skipped'
-                      : 'ok'
+/** @param {Record<string, unknown>} p */
+const setupTraceRun = (p) => {
+  const traceId = newTraceId()
+  const startedAt = nowIso()
+  const flowId = /** @type {string} */ (p['flowId'])
+  const mode = /** @type {string | undefined} */ (p['mode']) ?? 'dry_run'
+  ensureFlowExists(flowId)
+  const flow = flowRegistry.get(flowId) ?? defaultDemoFlow(flowId)
+  const nodeKinds = indexNodeKinds(flow)
+  /** @type {Map<string, string>} */
+  const nodeStartIso = new Map()
 
-              const spanId = `${traceId}-span-${nodeId}`
-              const span = spans.find((s) => s.spanId === spanId)
-              if (span) {
-                span.endedAt = ended
-                span.durationMs = Math.max(0, Date.parse(ended) - Date.parse(started))
-                span.status = status
-                if (event.outcome?.kind === 'failed') {
-                  span.errorCode = event.outcome.error?.code
-                  span.errorMessage = event.outcome.error?.message
-                }
-              }
-              traceSpans.set(traceId, spans)
-            }
-          },
-        })
+  const rootSpanId = `${traceId}-span-root`
+  traceSpans.set(traceId, [
+    {
+      traceId,
+      spanId: rootSpanId,
+      kind: 'flow',
+      name: 'flow.started',
+      workspaceId: 'desktop-default',
+      startedAt,
+      endedAt: startedAt,
+      durationMs: 0,
+      status: 'ok',
+      attributes: {
+        'agentskitos.flow_id': flowId,
+        'agentskitos.run_mode': mode,
+        'trace.source': 'desktop-sidecar',
+      },
+    },
+  ])
+  traceRows.unshift({ traceId, flowId, runMode: mode, startedAt, durationMs: 0, status: 'ok' })
+  notify('event', { timestamp: startedAt, type: 'trace.started', data: { traceId, flowId, mode } })
 
-        const result = await runRunner.runFlow(
-          flow,
-          {
-            input: p['input'],
-            mode: /** @type {import('@agentskit/os-core').RunMode | undefined} */ (p['mode']),
-          },
-        )
-        await runRunner.dispose()
-        const endedAt = nowIso()
-        const spans = traceSpans.get(traceId) ?? []
-        const root = spans[0]
-        if (root) {
-          root.endedAt = endedAt
-          root.durationMs = Math.max(0, Date.parse(endedAt) - Date.parse(startedAt))
-          root.status = result.status === 'succeeded' ? 'ok' : 'error'
-        }
-        const row = traceRows.find((t) => t.traceId === traceId)
-        if (row) {
-          row.durationMs = root?.durationMs ?? 0
-          row.status = root?.status ?? 'ok'
-        }
+  return { traceId, startedAt, rootSpanId, flowId, flow, nodeKinds, nodeStartIso }
+}
 
-        notify('event', { timestamp: endedAt, type: 'trace.completed', data: { traceId, status: root?.status ?? 'ok' } })
-        notify('event', { timestamp: endedAt, type: 'flow.complete', data: { runId: result.runId, status: result.status } })
-        respond(id, result)
-      } catch (err) {
-        respondError(id, -32000, err instanceof Error ? err.message : String(err))
-      }
-      break
-    }
+const handleObservabilityEvent = ({ traceId, rootSpanId, nodeKinds, nodeStartIso, event }) => {
+  notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
+  const spans = traceSpans.get(traceId) ?? []
+  if (event.kind === 'node:start') return recordNodeStart({ traceId, rootSpanId, nodeKinds, nodeStartIso, spans, event })
+  if (event.kind === 'node:end') return recordNodeEnd({ traceId, nodeStartIso, spans, event })
+}
 
-    case 'runner.runAgent': {
-      if (!runner) {
-        respondError(id, -32001, 'runner not initialized')
-        break
-      }
-      try {
-        const p = /** @type {Record<string, unknown>} */ (params ?? {})
-        const result = await runner.runAgent(
-          /** @type {string} */ (p['agentId']),
-          p['input'],
-          { mode: /** @type {import('@agentskit/os-core').RunMode | undefined} */ (p['mode']) },
-        )
-        respond(id, result)
-      } catch (err) {
-        respondError(id, -32000, err instanceof Error ? err.message : String(err))
-      }
-      break
-    }
+const recordNodeStart = ({ traceId, rootSpanId, nodeKinds, nodeStartIso, spans, event }) => {
+  const nodeId = event.nodeId
+  nodeStartIso.set(nodeId, nowIso())
+  const started = nodeStartIso.get(nodeId) ?? nowIso()
+  const kind = spanKindForNodeKind(nodeKinds[nodeId] ?? 'unknown')
+  spans.push({
+    traceId,
+    spanId: `${traceId}-span-${nodeId}`,
+    parentSpanId: rootSpanId,
+    kind,
+    name: `node.start`,
+    workspaceId: 'desktop-default',
+    startedAt: started,
+    endedAt: started,
+    durationMs: 0,
+    status: 'ok',
+    attributes: { 'agentskitos.node_id': nodeId, 'agentskitos.node_kind': nodeKinds[nodeId] ?? 'unknown' },
+  })
+  traceSpans.set(traceId, spans)
+}
 
-    case 'runner.dispose': {
-      if (runner) {
-        await runner.dispose()
-        runner = null
-      }
-      respond(id, { disposed: true })
-      break
-    }
-
-    // ---------------------------------------------------------------------
-    // Desktop UI compatibility shims (until os-headless exposes these)
-    // ---------------------------------------------------------------------
-
-    case 'traces.list': {
-      respond(id, traceRows)
-      break
-    }
-
-    case 'traces.get': {
-      const p = /** @type {Record<string, unknown>} */ (params ?? {})
-      const traceId = /** @type {string} */ (p['traceId'])
-      respond(id, traceSpans.get(traceId) ?? [])
-      break
-    }
-
-    case 'flows.list': {
-      // Return flow meta objects expected by the desktop UI.
-      const items = [...flowMeta.values()]
-      respond(id, items)
-      break
-    }
-
-    case 'flows.get': {
-      const p = /** @type {Record<string, unknown>} */ (params ?? {})
-      const flowId = /** @type {string} */ (p['flowId'])
-      ensureFlowExists(flowId)
-      respond(id, flowRegistry.get(flowId) ?? null)
-      break
-    }
-
-    case 'flows.create': {
-      const p = /** @type {Record<string, unknown>} */ (params ?? {})
-      const draft = p['draft']
-      const draftRecord =
-        draft && typeof draft === 'object'
-          ? /** @type {Record<string, unknown>} */ (draft)
-          : {}
-      const draftName = draftRecord['name']
-      const baseName =
-        typeof draftName === 'string' && draftName.trim().length > 0 ? draftName.trim() : 'flow'
-      const newId = `flow-${Date.now()}`
-      const flow = forkDraftToFlow(newId, draft)
-      flowRegistry.set(newId, flow)
-      flowMeta.set(newId, {
-        id: newId,
-        name: flow.name ?? baseName,
-        status: 'draft',
-        trigger: 'manual',
-        version: 'v0.0.0',
-        owner: 'Fork',
-        runs24h: 0,
-        successRatePct: 0,
-        avgDurationMs: 0,
-        lastRunAt: nowIso(),
-        nodes: flow.nodes.map((n) => n.id),
-        edges: flow.edges.map((e) => `${e.from} -> ${e.to}`),
-        notes: ['Created from fork draft'],
-      })
-      notify('event', { timestamp: nowIso(), type: 'flows.created', data: { flowId: newId, name: flow.name } })
-      respond(id, { flowId: newId })
-      break
-    }
-
-    case 'cloud.deploy': {
-      const startedAt = nowIso()
-      notify('event', { timestamp: startedAt, type: 'deploy.queued', data: { target: 'cloud' } })
-      respond(id, { status: 'queued', target: 'cloud', url: 'https://cloud.agentskit.io/' })
-      break
-    }
-
-    default: {
-      respondError(id, -32601, `Method not found: ${method}`)
+const recordNodeEnd = ({ traceId, nodeStartIso, spans, event }) => {
+  const nodeId = event.nodeId
+  const ended = nowIso()
+  const started = nodeStartIso.get(nodeId) ?? ended
+  const status = outcomeStatus(event.outcome)
+  const spanId = `${traceId}-span-${nodeId}`
+  const span = spans.find((s) => s.spanId === spanId)
+  if (span) {
+    span.endedAt = ended
+    span.durationMs = Math.max(0, Date.parse(ended) - Date.parse(started))
+    span.status = status
+    if (event.outcome?.kind === 'failed') {
+      span.errorCode = event.outcome.error?.code
+      span.errorMessage = event.outcome.error?.message
     }
   }
+  traceSpans.set(traceId, spans)
+}
+
+const runFlowAndDispose = async ({ runRunner, flow, p }) => {
+  const result = await runRunner.runFlow(flow, {
+    input: p['input'],
+    mode: /** @type {import('@agentskit/os-core').RunMode | undefined} */ (p['mode']),
+  })
+  await runRunner.dispose()
+  return result
+}
+
+const outcomeStatus = (outcome) => {
+  if (outcome?.kind === 'failed') return 'error'
+  if (outcome?.kind === 'paused') return 'paused'
+  if (outcome?.kind === 'skipped') return 'skipped'
+  return 'ok'
+}
+
+/** @param {{ traceId: string, startedAt: string, result: unknown }} args */
+const finalizeTrace = ({ traceId, startedAt, result }) => {
+  const resultRecord = /** @type {Record<string, unknown>} */ (
+    typeof result === 'object' && result !== null ? result : {}
+  )
+  const statusRaw = resultRecord['status']
+  const runIdRaw = resultRecord['runId']
+  const statusStr = typeof statusRaw === 'string' ? statusRaw : 'unknown'
+  const runId = typeof runIdRaw === 'string' ? runIdRaw : ''
+  const endedAt = nowIso()
+  const spans = traceSpans.get(traceId) ?? []
+  const root = spans[0]
+  if (root) {
+    root.endedAt = endedAt
+    root.durationMs = Math.max(0, Date.parse(endedAt) - Date.parse(startedAt))
+    root.status = statusStr === 'succeeded' ? 'ok' : 'error'
+  }
+  const row = traceRows.find((t) => t.traceId === traceId)
+  if (row) {
+    row.durationMs = root?.durationMs ?? 0
+    row.status = root?.status ?? 'ok'
+  }
+
+  notify('event', { timestamp: endedAt, type: 'trace.completed', data: { traceId, status: root?.status ?? 'ok' } })
+  notify('event', { timestamp: endedAt, type: 'flow.complete', data: { runId, status: statusStr } })
+}
+
+/** @param {{ id: number | string, params?: unknown }} args */
+const handleFlowsCreate = ({ id, params }) => {
+  const p = /** @type {Record<string, unknown>} */ (params ?? {})
+  const draft = p['draft']
+  const draftRecord = draft && typeof draft === 'object' ? /** @type {Record<string, unknown>} */ (draft) : {}
+  const draftName = draftRecord['name']
+  const baseName = typeof draftName === 'string' && draftName.trim().length > 0 ? draftName.trim() : 'flow'
+  const newId = `flow-${Date.now()}`
+  const flow = forkDraftToFlow(newId, draft)
+  flowRegistry.set(newId, flow)
+  flowMeta.set(newId, {
+    id: newId,
+    name: flow.name ?? baseName,
+    status: 'draft',
+    trigger: 'manual',
+    version: 'v0.0.0',
+    owner: 'Fork',
+    runs24h: 0,
+    successRatePct: 0,
+    avgDurationMs: 0,
+    lastRunAt: nowIso(),
+    nodes: flow.nodes.map((n) => n.id),
+    edges: flow.edges.map((e) => `${e.from} -> ${e.to}`),
+    notes: ['Created from fork draft'],
+  })
+  notify('event', { timestamp: nowIso(), type: 'flows.created', data: { flowId: newId, name: flow.name } })
+  respond(id, { flowId: newId })
 }
 
 // ---------------------------------------------------------------------------

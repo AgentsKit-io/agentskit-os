@@ -14,16 +14,16 @@ import { ArtifactContent } from './artifact-content'
 // ---------------------------------------------------------------------------
 
 const KIND_COLORS: Record<ArtifactKind, string> = {
-  code: 'bg-violet-500/15 text-violet-400',
-  json: 'bg-amber-500/15 text-amber-400',
-  yaml: 'bg-orange-500/15 text-orange-400',
-  csv: 'bg-green-500/15 text-green-400',
-  svg: 'bg-pink-500/15 text-pink-400',
-  mermaid: 'bg-blue-500/15 text-blue-400',
-  html: 'bg-red-500/15 text-red-400',
-  markdown: 'bg-sky-500/15 text-sky-400',
-  image: 'bg-purple-500/15 text-purple-400',
-  unknown: 'bg-zinc-500/15 text-zinc-400',
+  code: 'bg-[var(--ag-accent)]/15 text-[var(--ag-accent)]',
+  json: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)]',
+  yaml: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)]',
+  csv: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)]',
+  svg: 'bg-[var(--ag-accent)]/15 text-[var(--ag-accent)]',
+  mermaid: 'bg-[var(--ag-accent)]/15 text-[var(--ag-accent)]',
+  html: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)]',
+  markdown: 'bg-[var(--ag-accent)]/15 text-[var(--ag-accent)]',
+  image: 'bg-[var(--ag-accent)]/15 text-[var(--ag-accent)]',
+  unknown: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)]',
 }
 
 type KindBadgeProps = { kind: ArtifactKind }

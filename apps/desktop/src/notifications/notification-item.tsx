@@ -7,7 +7,7 @@
 
 import { Button } from '@agentskit/os-ui'
 import type { Notification, NotificationSeverity } from './types'
-
+import { formatRelativeTimeFromNow } from '../lib/relative-time'
 // ---------------------------------------------------------------------------
 // Severity icon
 // ---------------------------------------------------------------------------
@@ -20,26 +20,10 @@ const SEVERITY_ICON: Record<NotificationSeverity, string> = {
 }
 
 const SEVERITY_COLOR: Record<NotificationSeverity, string> = {
-  info: 'text-blue-400',
-  warning: 'text-yellow-400',
-  error: 'text-red-400',
-  success: 'text-green-400',
-}
-
-// ---------------------------------------------------------------------------
-// Relative time helper
-// ---------------------------------------------------------------------------
-
-function formatRelativeTime(iso: string): string {
-  const now = Date.now()
-  const then = new Date(iso).getTime()
-  const diffMs = now - then
-
-  if (diffMs < 0) return 'just now'
-  if (diffMs < 60_000) return 'just now'
-  if (diffMs < 3_600_000) return `${Math.floor(diffMs / 60_000)}m ago`
-  if (diffMs < 86_400_000) return `${Math.floor(diffMs / 3_600_000)}h ago`
-  return `${Math.floor(diffMs / 86_400_000)}d ago`
+  info: 'text-[var(--ag-accent)]',
+  warning: 'text-[var(--ag-warn)]',
+  error: 'text-[var(--ag-danger)]',
+  success: 'text-[var(--ag-success)]',
 }
 
 // ---------------------------------------------------------------------------
@@ -53,6 +37,7 @@ export type NotificationItemProps = {
 
 export function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
   const { id, severity, title, message, timestamp, read, action } = notification
+  const label = formatRelativeTimeFromNow(timestamp)
 
   return (
     <div
@@ -87,7 +72,7 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
             dateTime={timestamp}
             className="shrink-0 text-[11px] text-[var(--ag-ink-subtle)]"
           >
-            {formatRelativeTime(timestamp)}
+            {label}
           </time>
         </div>
 

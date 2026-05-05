@@ -12,10 +12,10 @@ const STATUS_LABEL: Record<AgentStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<AgentStatus, string> = {
-  ready: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  busy: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  offline: 'border-zinc-500/25 bg-zinc-500/10 text-zinc-300',
-  needs_auth: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+  ready: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  busy: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  offline: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
+  needs_auth: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
 }
 
 const PROVIDER_LABEL: Record<AgentProvider, string> = {

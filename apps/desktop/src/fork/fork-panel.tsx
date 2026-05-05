@@ -149,9 +149,9 @@ function ForkSuccess({ flowId, onClose }: { readonly flowId: string; readonly on
       data-testid="fork-success"
       role="status"
       aria-live="polite"
-      className="rounded-md border border-emerald-500/25 bg-emerald-500/10 px-3 py-2.5 text-sm"
+      className="rounded-md border border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 px-3 py-2.5 text-sm"
     >
-      <p className="font-medium text-emerald-400">Flow created!</p>
+      <p className="font-medium text-[var(--ag-success)]">Flow created!</p>
       <p className="mt-0.5 text-xs text-[var(--ag-ink-muted)]">
         New flow id: <span className="font-mono text-[var(--ag-ink)]">{flowId}</span>
       </p>

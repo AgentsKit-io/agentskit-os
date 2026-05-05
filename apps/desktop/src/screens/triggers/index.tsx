@@ -21,10 +21,10 @@ const STATUS_LABEL: Record<TriggerStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<TriggerStatus, string> = {
-  active: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  paused: 'border-zinc-500/25 bg-zinc-500/10 text-zinc-300',
-  failing: 'border-red-500/25 bg-red-500/10 text-red-300',
-  needs_auth: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+  active: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  paused: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
+  failing: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
+  needs_auth: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
 }
 
 const FILTERS: Array<TriggerProvider | 'all'> = ['all', 'slack', 'discord', 'teams', 'cron', 'github_pr', 'webhook']

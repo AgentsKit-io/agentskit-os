@@ -23,9 +23,9 @@ const STATUS_LABEL: Record<BudgetStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<BudgetStatus, string> = {
-  healthy: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  watch: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  exceeded: 'border-red-500/25 bg-red-500/10 text-red-300',
+  healthy: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  watch: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  exceeded: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const FILTERS: Array<CostProvider | 'all'> = ['all', 'openai', 'anthropic', 'google', 'cursor']

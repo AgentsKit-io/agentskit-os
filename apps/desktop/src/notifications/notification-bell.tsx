@@ -39,7 +39,7 @@ export function NotificationBell() {
       {unread > 0 && (
         <span
           aria-hidden
-          className="absolute -right-1 -top-1 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-red-500 px-0.5 text-[9px] font-bold leading-none text-white"
+          className="absolute -right-1 -top-1 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-[var(--ag-danger)] px-0.5 text-[9px] font-bold leading-none text-white"
           data-testid="notification-badge"
         >
           {badgeCount}

@@ -87,7 +87,7 @@ export const getSecurityConfigSchema = (registry?: PluginRegistry) => {
   return SecurityConfig.superRefine((data, ctx) => {
     for (let i = 0; i < data.piiRedaction.categories.length; i++) {
       const cat = data.piiRedaction.categories[i]
-      if (DEFAULT_PII_CATEGORIES.includes(cat as any)) continue
+      if (cat && DEFAULT_PII_CATEGORIES.includes(cat as typeof DEFAULT_PII_CATEGORIES[number])) continue
       if (cat && registry && registry.get('pii-category', cat)) continue
 
       ctx.addIssue({

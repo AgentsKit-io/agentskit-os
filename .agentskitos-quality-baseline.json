@@ -5,11 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 465,
-    "issues": 166,
+    "issues": 162,
     "byKind": {
       "cyclomatic-complexity": 18,
       "duplicate-block": 88,
-      "nested-ternary": 60
+      "nested-ternary": 56
     }
   },
   "issues": [
@@ -802,34 +802,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-cli/src/commands/creds.ts",
       "line": 228,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-coding-agents/src/json-result.ts:2c5da43db84d885b",
-      "kind": "nested-ternary",
-      "file": "packages/os-coding-agents/src/json-result.ts",
-      "line": 86,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-coding-agents/src/json-result.ts:38bdff669dff5dc9",
-      "kind": "nested-ternary",
-      "file": "packages/os-coding-agents/src/json-result.ts",
-      "line": 41,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-coding-agents/src/json-result.ts:4bd89932e49ddec6",
-      "kind": "nested-ternary",
-      "file": "packages/os-coding-agents/src/json-result.ts",
-      "line": 57,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-coding-agents/src/json-result.ts:a30773d33a8e291f",
-      "kind": "nested-ternary",
-      "file": "packages/os-coding-agents/src/json-result.ts",
-      "line": 37,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

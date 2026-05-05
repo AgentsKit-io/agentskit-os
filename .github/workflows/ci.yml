@@ -107,4 +107,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Build first so workspace packages emit .d.ts and downstream
+      # packages can resolve @agentskit/os-* type declarations.
+      - run: pnpm --filter "./packages/*" build
       - run: pnpm check:typecheck

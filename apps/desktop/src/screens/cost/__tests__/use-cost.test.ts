@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_COST_BUDGETS, useCostBudgets } from '../use-cost'
+import { COST_BUDGETS_FIXTURE, useCostBudgets } from '../use-cost'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useCostBudgets', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.budgets).toEqual(MOCK_COST_BUDGETS)
+    expect(result.current.budgets).toEqual(COST_BUDGETS_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 
@@ -31,7 +31,7 @@ describe('useCostBudgets', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.budgets).toEqual(MOCK_COST_BUDGETS)
+    expect(result.current.budgets).toEqual(COST_BUDGETS_FIXTURE)
     expect(result.current.error).toBe('sidecar unavailable')
   })
 })

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
-  MOCK_SECURITY_CONTROLS,
+  SECURITY_CONTROLS_FIXTURE,
   type SecurityArea,
   type SecurityControl,
   type SecurityStatus,
@@ -238,14 +238,16 @@ function ControlDetail({ control }: { readonly control: SecurityControl | null }
 export function SecurityScreen() {
   const { controls, loading, error } = useSecurityControls()
   const [filter, setFilter] = useState<SecurityArea | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_SECURITY_CONTROLS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(SECURITY_CONTROLS_FIXTURE[0]?.id ?? null)
 
   const filteredControls = useMemo(() => {
     return filter === 'all' ? controls : controls.filter((control) => control.area === filter)
   }, [controls, filter])
 
   const selectedControl = useMemo(() => {
-    return controls.find((control) => control.id === selectedId) ?? filteredControls[0] ?? null
+    const match = controls.find((control) => control.id === selectedId)
+    if (match) return match
+    return filteredControls[0] ?? null
   }, [controls, filteredControls, selectedId])
 
   if (loading) {
@@ -268,7 +270,7 @@ export function SecurityScreen() {
             Monitor audit evidence, vault hygiene, policy coverage, and privacy routing controls.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

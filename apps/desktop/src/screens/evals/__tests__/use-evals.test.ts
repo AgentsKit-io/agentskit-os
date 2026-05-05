@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_EVAL_SUITES, useEvals } from '../use-evals'
+import { EVAL_SUITES_FIXTURE, useEvals } from '../use-evals'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useEvals', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.suites).toEqual(MOCK_EVAL_SUITES)
+    expect(result.current.suites).toEqual(EVAL_SUITES_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 
@@ -31,7 +31,7 @@ describe('useEvals', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.suites).toEqual(MOCK_EVAL_SUITES)
+    expect(result.current.suites).toEqual(EVAL_SUITES_FIXTURE)
     expect(result.current.error).toBe('sidecar unavailable')
   })
 })

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_FLOWS, useFlows } from '../use-flows'
+import { FLOWS_FIXTURE, useFlows } from '../use-flows'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useFlows', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.flows).toEqual(MOCK_FLOWS)
+    expect(result.current.flows).toEqual(FLOWS_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 
@@ -31,7 +31,7 @@ describe('useFlows', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.flows).toEqual(MOCK_FLOWS)
+    expect(result.current.flows).toEqual(FLOWS_FIXTURE)
     expect(result.current.error).toBe('sidecar unavailable')
   })
 })

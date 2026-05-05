@@ -28,7 +28,7 @@ Closes #
 ## Checklist
 
 - [ ] **`Closes #NNN` (or `Refs #NNN`) line above for every related issue**
-- [ ] `pnpm check:quality-gates` passes; no new architecture debt baseline entries
+- [ ] `pnpm check:quality-gates` passes; no new architecture or UI debt baseline entries
 - [ ] New user-facing surface is backed by a typed contract/headless behavior, not production mocks
 - [ ] Types added/updated, no `any`
 - [ ] Zod schemas at all new boundaries

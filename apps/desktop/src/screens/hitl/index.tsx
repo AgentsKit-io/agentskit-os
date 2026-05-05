@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
-  MOCK_HITL_REQUESTS,
+  HITL_REQUESTS_FIXTURE,
   type HitlKind,
   type HitlRequest,
   type HitlRisk,
@@ -195,7 +195,10 @@ function RequestTable({
               </td>
               <td className="max-w-[140px] px-3 py-3 font-mono text-[10px] text-[var(--ag-ink-muted)]">
                 <span className="line-clamp-2" title={(request.policyRuleIds ?? []).join(', ')}>
-                  {(request.policyRuleIds ?? []).length > 0 ? `${request.policyRuleIds!.length} rules` : '—'}
+                  {(() => {
+                    const count = request.policyRuleIds?.length ?? 0
+                    return count > 0 ? `${count} rules` : '—'
+                  })()}
                 </span>
               </td>
               <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">{request.agent}</td>
@@ -392,7 +395,7 @@ export function HitlScreen() {
   const [kindFilter, setKindFilter] = useState<'all' | HitlKind>('all')
   const [query, setQuery] = useState('')
   const [sortDue, setSortDue] = useState<'soonest' | 'newest'>('soonest')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_HITL_REQUESTS[1]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(HITL_REQUESTS_FIXTURE[1]?.id ?? null)
   const [localStatus, setLocalStatus] = useState<Partial<Record<string, HitlStatus>>>({})
   const [escalationNotes, setEscalationNotes] = useState<Partial<Record<string, string>>>({})
 
@@ -424,7 +427,9 @@ export function HitlScreen() {
   }, [filter, kindFilter, query, requests, localStatus, sortDue])
 
   const selectedRequest = useMemo(() => {
-    return requests.find((request) => request.id === selectedId) ?? filteredRequests[0] ?? null
+    const match = requests.find((request) => request.id === selectedId)
+    if (match) return match
+    return filteredRequests[0] ?? null
   }, [filteredRequests, requests, selectedId])
 
   useEffect(() => {
@@ -456,7 +461,7 @@ export function HitlScreen() {
             escalations — each linked to traces, policy context, requester, and due time (#337).
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

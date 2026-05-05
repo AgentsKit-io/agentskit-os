@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import type { AgentProfile, AgentProvider, AgentStatus } from './use-agents'
-import { MOCK_AGENTS, useAgents } from './use-agents'
+import { AGENTS_FIXTURE, useAgents } from './use-agents'
 
 const STATUS_LABEL: Record<AgentStatus, string> = {
   ready: 'Ready',
@@ -225,14 +225,16 @@ function DetailMetric({ label, value }: { readonly label: string; readonly value
 export function AgentsScreen() {
   const { agents, loading, error } = useAgents()
   const [filter, setFilter] = useState<AgentProvider | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_AGENTS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(AGENTS_FIXTURE[0]?.id ?? null)
 
   const filteredAgents = useMemo(() => {
     return filter === 'all' ? agents : agents.filter((agent) => agent.provider === filter)
   }, [agents, filter])
 
   const selectedAgent = useMemo(() => {
-    return agents.find((agent) => agent.id === selectedId) ?? filteredAgents[0] ?? null
+    const match = agents.find((agent) => agent.id === selectedId)
+    if (match) return match
+    return filteredAgents[0] ?? null
   }, [agents, filteredAgents, selectedId])
 
   if (loading) {
@@ -252,7 +254,7 @@ export function AgentsScreen() {
             Manage CLI-backed providers available to the development orchestrator.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

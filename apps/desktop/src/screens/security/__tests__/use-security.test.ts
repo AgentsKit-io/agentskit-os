@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_SECURITY_CONTROLS, useSecurityControls } from '../use-security'
+import { SECURITY_CONTROLS_FIXTURE, useSecurityControls } from '../use-security'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useSecurityControls', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.controls).toEqual(MOCK_SECURITY_CONTROLS)
+    expect(result.current.controls).toEqual(SECURITY_CONTROLS_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 
@@ -31,7 +31,7 @@ describe('useSecurityControls', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.controls).toEqual(MOCK_SECURITY_CONTROLS)
+    expect(result.current.controls).toEqual(SECURITY_CONTROLS_FIXTURE)
     expect(result.current.error).toBe('sidecar unavailable')
   })
 })

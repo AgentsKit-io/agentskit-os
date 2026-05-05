@@ -43,10 +43,10 @@ export type TraceRow = {
 }
 
 // ---------------------------------------------------------------------------
-// Mock data (used when sidecar method not implemented)
+// Fixture data (used when sidecar method not implemented)
 // ---------------------------------------------------------------------------
 
-export const MOCK_TRACES: readonly TraceRow[] = [
+export const TRACES_FIXTURE: readonly TraceRow[] = [
   {
     traceId: 'trace-001',
     flowId: 'onboarding-flow',
@@ -73,7 +73,7 @@ export const MOCK_TRACES: readonly TraceRow[] = [
   },
 ]
 
-export const MOCK_SPANS: Record<string, readonly Span[]> = {
+export const SPANS_FIXTURE: Record<string, readonly Span[]> = {
   'trace-001': [
     {
       traceId: 'trace-001',
@@ -213,11 +213,12 @@ type SpansState = {
 }
 
 const normalizeTraceRows = (value: unknown): readonly TraceRow[] => {
-  return Array.isArray(value) ? (value as readonly TraceRow[]) : MOCK_TRACES
+  return Array.isArray(value) ? (value as readonly TraceRow[]) : TRACES_FIXTURE
 }
 
 const normalizeSpans = (traceId: string, value: unknown): readonly Span[] => {
-  return Array.isArray(value) ? (value as readonly Span[]) : (MOCK_SPANS[traceId] ?? [])
+  if (Array.isArray(value)) return value as readonly Span[]
+  return SPANS_FIXTURE[traceId] ?? []
 }
 
 export const useTraces = (): TracesState => {
@@ -234,14 +235,14 @@ export const useTraces = (): TracesState => {
       try {
         // TODO: sidecar `traces.list` method not yet implemented.
         // Attempt real call; on MethodNotFound fall back to mock data.
-        const result = await sidecarRequest<unknown>('traces.list')
+        const result = await sidecarRequest<readonly TraceRow[]>('traces.list')
         if (!cancelled) {
           setState({ traces: normalizeTraceRows(result), loading: false, error: null })
         }
       } catch {
         // Sidecar method not implemented yet — use mock data.
         if (!cancelled) {
-          setState({ traces: MOCK_TRACES, loading: false, error: null })
+          setState({ traces: TRACES_FIXTURE, loading: false, error: null })
         }
       }
     }
@@ -268,14 +269,14 @@ export const useTraceSpans = (traceId: string | null): SpansState => {
       setState((prev) => ({ ...prev, loading: true, error: null }))
       try {
         // TODO: sidecar `traces.get` method not yet implemented.
-        const result = await sidecarRequest<unknown>('traces.get', {
+        const result = await sidecarRequest<readonly Span[]>('traces.get', {
           traceId: id,
         })
         setState({ spans: normalizeSpans(id, result), loading: false, error: null })
       } catch {
         // Fallback to mock data.
-        const mockSpans = MOCK_SPANS[id] ?? []
-        setState({ spans: mockSpans, loading: false, error: null })
+        const fixtureSpans = SPANS_FIXTURE[id] ?? []
+        setState({ spans: fixtureSpans, loading: false, error: null })
       }
     },
     [],

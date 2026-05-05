@@ -5,15 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 464,
-    "issues": 281,
+    "issues": 182,
     "byKind": {
       "cyclomatic-complexity": 18,
       "duplicate-block": 88,
-      "explicit-any": 3,
-      "mock-runtime-debt": 60,
-      "nested-ternary": 93,
-      "preview-data-ui": 8,
-      "untyped-sidecar": 11
+      "nested-ternary": 76
     }
   },
   "issues": [
@@ -22,7 +18,7 @@
       "kind": "cyclomatic-complexity",
       "file": "apps/desktop/sidecar/sidecar.mjs",
       "line": 211,
-      "detail": "dispatch complexity 51 exceeds max 14."
+      "detail": "dispatch complexity 53 exceeds max 14."
     },
     {
       "id": "cyclomatic-complexity:apps/desktop/src/app.tsx:20df0d5eaedb3d6b",
@@ -70,7 +66,7 @@
       "id": "cyclomatic-complexity:apps/desktop/src/screens/hitl/index.tsx:dc1b5d26fbbe894f",
       "kind": "cyclomatic-complexity",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 389,
+      "line": 392,
       "detail": "HitlScreen complexity 26 exceeds max 14."
     },
     {
@@ -224,106 +220,106 @@
       "id": "duplicate-block:apps/desktop/src/screens/benchmark/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 289,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "line": 291,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/benchmark/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 288,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
+      "line": 290,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/benchmark/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 287,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
+      "line": 289,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:32c5154d7fb8dfac",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/cost/index.tsx",
+      "line": 316,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+    },
+    {
+      "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:40d03977db302db5",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/cost/index.tsx",
+      "line": 315,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+    },
+    {
+      "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/cost/index.tsx",
       "line": 314,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
-      "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:40d03977db302db5",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 313,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:b2584cac9c67fd62",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 312,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
-    },
-    {
       "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:32c5154d7fb8dfac",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/evals/index.tsx",
+      "line": 301,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+    },
+    {
+      "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:40d03977db302db5",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/evals/index.tsx",
+      "line": 300,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+    },
+    {
+      "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/evals/index.tsx",
       "line": 299,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
-      "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:40d03977db302db5",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 298,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:b2584cac9c67fd62",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 297,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
-    },
-    {
       "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:32c5154d7fb8dfac",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/flows/index.tsx",
+      "line": 334,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+    },
+    {
+      "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:40d03977db302db5",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/flows/index.tsx",
+      "line": 333,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+    },
+    {
+      "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/flows/index.tsx",
       "line": 332,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
-      "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:40d03977db302db5",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 331,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:b2584cac9c67fd62",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 330,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
-    },
-    {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 523,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "line": 528,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 522,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
+      "line": 527,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 521,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
+      "line": 526,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:cd912f6732149508",
@@ -336,22 +332,22 @@
       "id": "duplicate-block:apps/desktop/src/screens/runs/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 278,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "line": 280,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/runs/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 277,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
+      "line": 279,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/runs/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 276,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
+      "line": 278,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/runs/use-runs.ts:d9231c7f9886379c",
@@ -364,15 +360,15 @@
       "id": "duplicate-block:apps/desktop/src/screens/security/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/security/index.tsx",
-      "line": 291,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "line": 293,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/security/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/security/index.tsx",
-      "line": 290,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
+      "line": 292,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/security/index.tsx:aa266e42c63273bb",
@@ -385,8 +381,8 @@
       "id": "duplicate-block:apps/desktop/src/screens/security/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/security/index.tsx",
-      "line": 289,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
+      "line": 291,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:127fac146fa185fc",
@@ -448,22 +444,22 @@
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/triggers/index.tsx",
-      "line": 279,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "line": 281,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/triggers/index.tsx",
-      "line": 278,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:271."
+      "line": 280,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/triggers/index.tsx",
-      "line": 277,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:270."
+      "line": 279,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:cd912f6732149508",
@@ -760,447 +756,6 @@
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:21."
     },
     {
-      "id": "explicit-any:apps/desktop/sidecar/sidecar.mjs:fa71abe6a6f68980",
-      "kind": "explicit-any",
-      "file": "apps/desktop/sidecar/sidecar.mjs",
-      "line": 34,
-      "detail": "Use unknown plus narrowing or a named DTO; ADR-0001 forbids any."
-    },
-    {
-      "id": "explicit-any:apps/desktop/src/test-setup.ts:f85c49e7636de062",
-      "kind": "explicit-any",
-      "file": "apps/desktop/src/test-setup.ts",
-      "line": 6,
-      "detail": "Use unknown plus narrowing or a named DTO; ADR-0001 forbids any."
-    },
-    {
-      "id": "explicit-any:packages/os-core/src/runtime/agent-lifecycle.ts:beddfcce0f158d76",
-      "kind": "explicit-any",
-      "file": "packages/os-core/src/runtime/agent-lifecycle.ts",
-      "line": 64,
-      "detail": "Use unknown plus narrowing or a named DTO; ADR-0001 forbids any."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/assistant/use-assist-stream.ts:365ee29edd16e5ed",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/assistant/use-assist-stream.ts",
-      "line": 48,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/assistant/use-assist-stream.ts:bf7cc5621f5c604a",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/assistant/use-assist-stream.ts",
-      "line": 19,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/assistant/use-assist-stream.ts:c1bb20bc0477c8f2",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/assistant/use-assist-stream.ts",
-      "line": 53,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/multi-monitor/use-monitors.ts:d818a47f876e8a43",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/multi-monitor/use-monitors.ts",
-      "line": 18,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/multi-monitor/use-monitors.ts:d9e476c43985599d",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/multi-monitor/use-monitors.ts",
-      "line": 57,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/multi-monitor/use-monitors.ts:d9e476c43985599d",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/multi-monitor/use-monitors.ts",
-      "line": 64,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/agents/index.tsx:51048627d645c92c",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 228,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/agents/index.tsx:9646fa3a9c39ed11",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 4,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/agents/use-agents.ts:2baac882dec555ea",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/agents/use-agents.ts",
-      "line": 28,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/agents/use-agents.ts:77ff2dab7be168b7",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/agents/use-agents.ts",
-      "line": 110,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/agents/use-agents.ts:cfb71bb4964040e6",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/agents/use-agents.ts",
-      "line": 88,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/benchmark/index.tsx:57d42728d63f444a",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 245,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/benchmark/index.tsx:8286dba9c50147bd",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 4,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/benchmark/use-benchmarks.ts:099f63e41056d58d",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/benchmark/use-benchmarks.ts",
-      "line": 30,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/benchmark/use-benchmarks.ts:6568dd2adf25b5ff",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/benchmark/use-benchmarks.ts",
-      "line": 98,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/benchmark/use-benchmarks.ts:b8856ecda05cc305",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/benchmark/use-benchmarks.ts",
-      "line": 120,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/cost/index.tsx:09fafeca06f48fdb",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 264,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/cost/index.tsx:65f625a34c5b4f13",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 4,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/cost/use-cost.ts:3599b0c4ab2b3684",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/cost/use-cost.ts",
-      "line": 28,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/cost/use-cost.ts:77a7d3b7f61c1ff2",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/cost/use-cost.ts",
-      "line": 110,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/cost/use-cost.ts:ee01d7be0bb7703e",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/cost/use-cost.ts",
-      "line": 88,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/evals/index.tsx:273ee9e3ead08282",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 3,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/evals/index.tsx:fc4e707b7838ad91",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 255,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/evals/use-evals.ts:396d59bf14a50c80",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/evals/use-evals.ts",
-      "line": 29,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/evals/use-evals.ts:9f3278355a634c87",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/evals/use-evals.ts",
-      "line": 93,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/evals/use-evals.ts:b37e402610d391d4",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/evals/use-evals.ts",
-      "line": 115,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/flows/index.tsx:0c5318313878e561",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 3,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/flows/index.tsx:a4647fb7d29581c3",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 265,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/flows/use-flows.ts:1d58afb55309b44e",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/flows/use-flows.ts",
-      "line": 115,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/flows/use-flows.ts:b1f978fff648d3d6",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/flows/use-flows.ts",
-      "line": 93,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/flows/use-flows.ts:df078d1e7adea0a8",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/flows/use-flows.ts",
-      "line": 29,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/hitl/index.tsx:01a20ac7d04e2699",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 395,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/hitl/index.tsx:5889c183bdedbb11",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 4,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/hitl/use-hitl.ts:1e378d9cf9398933",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/hitl/use-hitl.ts",
-      "line": 155,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/hitl/use-hitl.ts:9bb8e8a4322ca925",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/hitl/use-hitl.ts",
-      "line": 43,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/hitl/use-hitl.ts:ad1b27e6ec59cb1b",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/hitl/use-hitl.ts",
-      "line": 177,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/runs/index.tsx:91bbc43c31f4fe39",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 233,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/runs/index.tsx:a401f8eb3e20770e",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 3,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/runs/use-runs.ts:58a5e5059adadc13",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/runs/use-runs.ts",
-      "line": 94,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/runs/use-runs.ts:854d6f5d2152ab8e",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/runs/use-runs.ts",
-      "line": 35,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/runs/use-runs.ts:89d97bfa358f1fb9",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/runs/use-runs.ts",
-      "line": 116,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/security/index.tsx:752a9e31a83370e1",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/security/index.tsx",
-      "line": 4,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/security/index.tsx:c85e8d551b12bca3",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/security/index.tsx",
-      "line": 241,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/security/use-security.ts:4c8fd4472e177fff",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/security/use-security.ts",
-      "line": 78,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/security/use-security.ts:b0a99ed40b7a0169",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/security/use-security.ts",
-      "line": 26,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/security/use-security.ts:f3fdce567e63762e",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/security/use-security.ts",
-      "line": 100,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/traces/use-traces.ts:41a0f224496f36eb",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 220,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/traces/use-traces.ts:658da9be388db7f0",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 76,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/traces/use-traces.ts:8bbba19a69f256d9",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 244,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/traces/use-traces.ts:b41a7aadb0e90121",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 49,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/traces/use-traces.ts:bbbbad93453413ef",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 216,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/traces/use-traces.ts:c74a3abc2189bf78",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 277,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/triggers/index.tsx:e4c58f3143d574d4",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/triggers/index.tsx",
-      "line": 235,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/triggers/index.tsx:eaa82b01db9bcb72",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/triggers/index.tsx",
-      "line": 3,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/triggers/use-triggers.ts:2707814fd2dadff2",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/triggers/use-triggers.ts",
-      "line": 118,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/triggers/use-triggers.ts:920e8c7e5d7b5ed1",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/triggers/use-triggers.ts",
-      "line": 27,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/screens/triggers/use-triggers.ts:bb84c6237e87495b",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/screens/triggers/use-triggers.ts",
-      "line": 96,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/workspaces/workspaces-provider.tsx:82ff2413c333a444",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/workspaces/workspaces-provider.tsx",
-      "line": 103,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/workspaces/workspaces-provider.tsx:b0b1f222d2538492",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/workspaces/workspaces-provider.tsx",
-      "line": 29,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
-      "id": "mock-runtime-debt:apps/desktop/src/workspaces/workspaces-provider.tsx:ec22bf2cd194f7cb",
-      "kind": "mock-runtime-debt",
-      "file": "apps/desktop/src/workspaces/workspaces-provider.tsx",
-      "line": 97,
-      "detail": "Runtime mock data in production source must move behind fixtures/contracts."
-    },
-    {
       "id": "nested-ternary:apps/desktop/src/__tests__/a11y-landmarks.test.tsx:7c729c549bc645cd",
       "kind": "nested-ternary",
       "file": "apps/desktop/src/__tests__/a11y-landmarks.test.tsx",
@@ -1215,20 +770,6 @@
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
-      "id": "nested-ternary:apps/desktop/src/artifacts/detect.ts:d431d1fabcda3529",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/artifacts/detect.ts",
-      "line": 136,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/artifacts/renderers/markdown-renderer.tsx:4851ffe7f92dc362",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/artifacts/renderers/markdown-renderer.tsx",
-      "line": 45,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
       "id": "nested-ternary:apps/desktop/src/command-palette/__tests__/command-palette.test.tsx:14e414a43d6465ea",
       "kind": "nested-ternary",
       "file": "apps/desktop/src/command-palette/__tests__/command-palette.test.tsx",
@@ -1236,108 +777,10 @@
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
-      "id": "nested-ternary:apps/desktop/src/dashboards/use-dashboards-store.ts:affa9e839e88ad21",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/dashboards/use-dashboards-store.ts",
-      "line": 176,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
       "id": "nested-ternary:apps/desktop/src/keyboard/__tests__/shortcut-provider.test.tsx:cee2ed829e715f06",
       "kind": "nested-ternary",
       "file": "apps/desktop/src/keyboard/__tests__/shortcut-provider.test.tsx",
       "line": 16,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/notifications/preferences/preferences-panel.tsx:095db69fc58d249f",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/notifications/preferences/preferences-panel.tsx",
-      "line": 50,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/plugins/contribution-types.ts:369ac201b78eebaa",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/plugins/contribution-types.ts",
-      "line": 25,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/agents/index.tsx:66182deef4d27021",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 235,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/benchmark/index.tsx:47ea932b1178e869",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 252,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/cost/index.tsx:ca1f783bc28dec87",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 271,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/evals/index.tsx:8964366a2646846b",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 262,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/flows/index.tsx:daa93040a4d408bd",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 273,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/hitl/index.tsx:155dedcd7ab6fe1c",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 427,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/hitl/index.tsx:b58842e7faf5027a",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 198,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/runs/index.tsx:3526a1d1dc188609",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 241,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/security/index.tsx:12d711a6db369392",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/security/index.tsx",
-      "line": 248,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/traces/use-traces.ts:41a0f224496f36eb",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 220,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/screens/triggers/index.tsx:868504f157da0878",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/screens/triggers/index.tsx",
-      "line": 242,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
@@ -1352,13 +795,6 @@
       "kind": "nested-ternary",
       "file": "apps/desktop/src/theme-editor/__tests__/theme-editor-panel.test.tsx",
       "line": 72,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:apps/desktop/src/theme-editor/theme-editor-panel.tsx:0a6d3d2bd2004fad",
-      "kind": "nested-ternary",
-      "file": "apps/desktop/src/theme-editor/theme-editor-panel.tsx",
-      "line": 377,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
@@ -1850,139 +1286,6 @@
       "file": "packages/os-ui/src/theme/theme-provider.tsx",
       "line": 58,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/agents/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/agents/index.tsx",
-      "line": 255,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/benchmark/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 272,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/cost/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 294,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/evals/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 282,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/hitl/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 459,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/runs/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/runs/index.tsx",
-      "line": 261,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/security/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/security/index.tsx",
-      "line": 271,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "preview-data-ui:apps/desktop/src/screens/triggers/index.tsx:0f84868b8d8e62b2",
-      "kind": "preview-data-ui",
-      "file": "apps/desktop/src/screens/triggers/index.tsx",
-      "line": 262,
-      "detail": "Production navigation should not present preview data as a shipped surface."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/agents/use-agents.ts:851c5c30b1146f3d",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/agents/use-agents.ts",
-      "line": 101,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/benchmark/use-benchmarks.ts:98e733e79a5d404d",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/benchmark/use-benchmarks.ts",
-      "line": 111,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/cost/use-cost.ts:8752e1a52cc514e2",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/cost/use-cost.ts",
-      "line": 101,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/evals/use-evals.ts:d62e3dd2e37643e3",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/evals/use-evals.ts",
-      "line": 106,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/flows/use-flows.ts:d62e3dd2e37643e3",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/flows/use-flows.ts",
-      "line": 106,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/hitl/use-hitl.ts:5921678cc78adc27",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/hitl/use-hitl.ts",
-      "line": 168,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/runs/use-runs.ts:5921678cc78adc27",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/runs/use-runs.ts",
-      "line": 107,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/security/use-security.ts:6225177feef815cb",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/security/use-security.ts",
-      "line": 91,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/traces/use-traces.ts:02315b1b98b2991b",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 271,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/traces/use-traces.ts:3f7f0664356aabd1",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 237,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
-    },
-    {
-      "id": "untyped-sidecar:apps/desktop/src/screens/triggers/use-triggers.ts:297a39229c85ded2",
-      "kind": "untyped-sidecar",
-      "file": "apps/desktop/src/screens/triggers/use-triggers.ts",
-      "line": 109,
-      "detail": "sidecarRequest<unknown> hides the IPC contract; define a typed DTO/schema."
     }
   ]
 }

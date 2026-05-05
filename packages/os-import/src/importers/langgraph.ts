@@ -8,27 +8,33 @@ import { parseFlowConfig } from '@agentskit/os-core'
 import type { Importer, ImportResult, ImportWarning } from '../types.js'
 
 type LgNode = {
-  id?: string
-  type?: string
-  data?: {
-    label?: string
-    runnable?: { name?: string; provider?: string; model?: string; system?: string }
-  }
+  id: string | undefined
+  type: string | undefined
+  data:
+    | {
+        label: string | undefined
+        runnable:
+          | { name: string | undefined; provider: string | undefined; model: string | undefined; system: string | undefined }
+          | undefined
+      }
+    | undefined
 }
 
 type LgEdge = {
-  source?: string
-  target?: string
-  conditional?: { predicate?: string; description?: string }
+  source: string | undefined
+  target: string | undefined
+  conditional:
+    | { predicate: string | undefined; description: string | undefined }
+    | undefined
 }
 
 type LgGraph = {
-  name?: string
-  description?: string
-  nodes?: readonly LgNode[]
-  edges?: readonly LgEdge[]
-  entry?: string
-  exit?: readonly string[]
+  name: string | undefined
+  description: string | undefined
+  nodes: readonly LgNode[] | undefined
+  edges: readonly LgEdge[] | undefined
+  entry: string | undefined
+  exit: readonly string[] | undefined
 }
 
 const slug = (s: string): string => {

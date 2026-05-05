@@ -6,41 +6,51 @@ import type { Importer, ImportResult, ImportWarning } from '../types.js'
 
 type DifyNode = {
   id: string
-  data?: {
-    type?: string
-    title?: string
-    desc?: string
-    model?: {
-      provider?: string
-      name?: string
-      mode?: string
-    }
-    prompt_template?: ReadonlyArray<{ role?: string; text?: string }>
-    inputs?: Record<string, unknown>
-  }
+  data:
+    | {
+        type: string | undefined
+        title: string | undefined
+        desc: string | undefined
+        model:
+          | {
+              provider: string | undefined
+              name: string | undefined
+              mode: string | undefined
+            }
+          | undefined
+        prompt_template: ReadonlyArray<{ role: string | undefined; text: string | undefined }> | undefined
+        inputs: Record<string, unknown> | undefined
+      }
+    | undefined
 }
 
 type DifyEdge = {
-  id?: string
+  id: string | undefined
   source: string
   target: string
-  sourceHandle?: string
-  targetHandle?: string
+  sourceHandle: string | undefined
+  targetHandle: string | undefined
 }
 
 type DifyWorkflow = {
-  app?: {
-    name?: string
-    mode?: string
-    description?: string
-  }
-  workflow?: {
-    graph?: {
-      nodes?: readonly DifyNode[]
-      edges?: readonly DifyEdge[]
-    }
-    features?: Record<string, unknown>
-  }
+  app:
+    | {
+        name: string | undefined
+        mode: string | undefined
+        description: string | undefined
+      }
+    | undefined
+  workflow:
+    | {
+        graph:
+          | {
+              nodes: readonly DifyNode[] | undefined
+              edges: readonly DifyEdge[] | undefined
+            }
+          | undefined
+        features: Record<string, unknown> | undefined
+      }
+    | undefined
 }
 
 const slugify = (input: string): string => {

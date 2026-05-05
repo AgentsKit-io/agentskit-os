@@ -25,7 +25,14 @@ export type WebhookServerOptions = {
 }
 
 export type WebhookServer = {
-  listen(opts?: { port?: number; host?: string }): Promise<{ port: number; host: string }>
+  listen(
+    opts:
+      | {
+          port: number | undefined
+          host: string | undefined
+        }
+      | undefined,
+  ): Promise<{ port: number; host: string }>
   close(): Promise<void>
 }
 

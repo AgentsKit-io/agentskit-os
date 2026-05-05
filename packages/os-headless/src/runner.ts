@@ -74,13 +74,22 @@ export type HeadlessRunner = {
    * a FlowConfig directly. Uses live handlers for real/deterministic modes;
    * falls back to stub handlers for dry_run/simulate/replay/preview.
    */
-  runFlow(flow: string | FlowConfig, opts?: FlowRunOpts): Promise<WorkspaceRunResult>
+  runFlow(flow: string | FlowConfig, opts: FlowRunOpts | undefined): Promise<WorkspaceRunResult>
 
   /**
    * Convenience: run a single agent node as a minimal 1-node flow.
    * Returns the raw output value from the agent handler (or throws on failure).
    */
-  runAgent(agentId: string, input: unknown, opts?: { mode?: RunMode; signal?: AbortSignal }): Promise<unknown>
+  runAgent(
+    agentId: string,
+    input: unknown,
+    opts:
+      | {
+          mode: RunMode | undefined
+          signal: AbortSignal | undefined
+        }
+      | undefined,
+  ): Promise<unknown>
 
   /**
    * Flush audit batches and release any sandbox handles.

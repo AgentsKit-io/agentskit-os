@@ -6,37 +6,48 @@ import type { Importer, ImportResult, ImportWarning } from '../types.js'
 
 type LangflowNode = {
   id: string
-  type?: string
-  position?: { x?: number; y?: number }
-  data?: {
-    id?: string
-    type?: string
-    display_name?: string
-    node?: {
-      template?: Record<string, unknown>
-      base_classes?: readonly string[]
-      description?: string
-    }
-  }
+  type: string | undefined
+  position:
+    | {
+        x: number | undefined
+        y: number | undefined
+      }
+    | undefined
+  data:
+    | {
+        id: string | undefined
+        type: string | undefined
+        display_name: string | undefined
+        node:
+          | {
+              template: Record<string, unknown> | undefined
+              base_classes: readonly string[] | undefined
+              description: string | undefined
+            }
+          | undefined
+      }
+    | undefined
 }
 
 type LangflowEdge = {
-  id?: string
+  id: string | undefined
   source: string
   target: string
-  sourceHandle?: string
-  targetHandle?: string
+  sourceHandle: string | undefined
+  targetHandle: string | undefined
 }
 
 type LangflowFlow = {
-  id?: string
-  name?: string
-  flow_name?: string
-  description?: string
-  data?: {
-    nodes?: readonly LangflowNode[]
-    edges?: readonly LangflowEdge[]
-  }
+  id: string | undefined
+  name: string | undefined
+  flow_name: string | undefined
+  description: string | undefined
+  data:
+    | {
+        nodes: readonly LangflowNode[] | undefined
+        edges: readonly LangflowEdge[] | undefined
+      }
+    | undefined
 }
 
 const slugify = (input: string): string => {

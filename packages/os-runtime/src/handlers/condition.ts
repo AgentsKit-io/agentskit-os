@@ -28,7 +28,7 @@ export const safeBooleanEval: ConditionEvaluator = (expression, scope) => {
     }
     if (rhsRaw === 'true') return lhs === true
     if (rhsRaw === 'false') return lhs === false
-    if (/^-?\d+(\.\d+)?$/.test(rhsRaw)) return lhs === Number(rhsRaw)
+    if (/^-?\d+(\.\d+){0,1}$/.test(rhsRaw)) return lhs === Number(rhsRaw)
     return false
   }
   return false

@@ -18,12 +18,20 @@ import {
 } from '@agentskit/os-core'
 
 export type EgressDecisionEvent =
-  | { kind: 'allowed'; pluginId?: string; grant: EgressGrant; url: string; method: string }
-  | { kind: 'denied'; pluginId?: string; reason: string; url: string; method: string }
+  | { kind: 'allowed'; pluginId: string | undefined; grant: EgressGrant; url: string; method: string }
+  | { kind: 'denied'; pluginId: string | undefined; reason: string; url: string; method: string }
 
 export interface EgressEnforcer {
   /** Decide whether an outbound URL is permitted. */
-  decide(url: string, opts?: { method?: string; pluginId?: string }): EgressDecision
+  decide(
+    url: string,
+    opts:
+      | {
+          method: string | undefined
+          pluginId: string | undefined
+        }
+      | undefined,
+  ): EgressDecision
 }
 
 const requestFromUrl = (
@@ -50,7 +58,15 @@ const requestFromUrl = (
 export class PolicyEgressEnforcer implements EgressEnforcer {
   constructor(private readonly policy: EgressPolicy) {}
 
-  decide(url: string, opts?: { method?: string; pluginId?: string }): EgressDecision {
+  decide(
+    url: string,
+    opts:
+      | {
+          method: string | undefined
+          pluginId: string | undefined
+        }
+      | undefined,
+  ): EgressDecision {
     let method: string | undefined
     let pluginId: string | undefined
     if (opts) {
@@ -65,11 +81,11 @@ export class PolicyEgressEnforcer implements EgressEnforcer {
 export interface CreateFetchGuardOptions {
   readonly enforcer: EgressEnforcer
   /** Fetch implementation to wrap. Defaults to `globalThis.fetch`. */
-  readonly fetch?: typeof fetch
+  readonly fetch: typeof fetch | undefined
   /** Identifier for plugin-scoped overrides in `EgressPolicy.pluginOverrides`. */
-  readonly pluginId?: string
+  readonly pluginId: string | undefined
   /** Decision callback for audit emitters (`net.fetch.allowed/denied`). */
-  readonly onDecision?: (event: EgressDecisionEvent) => void
+  readonly onDecision: ((event: EgressDecisionEvent) => void) | undefined
 }
 
 /**
@@ -97,29 +113,28 @@ export const createFetchGuard = (
     else rawMethod = 'GET'
     const method = rawMethod.toUpperCase()
 
-    const decideOpts: { method: string; pluginId?: string } = { method }
-    if (opts.pluginId !== undefined) decideOpts.pluginId = opts.pluginId
+    const decideOpts: { method: string; pluginId: string | undefined } = { method, pluginId: opts.pluginId }
     const decision = opts.enforcer.decide(url, decideOpts)
 
     if (decision.kind === 'deny') {
       const event: EgressDecisionEvent = {
         kind: 'denied',
+        pluginId: opts.pluginId,
         reason: decision.reason,
         url,
         method,
       }
-      if (opts.pluginId !== undefined) event.pluginId = opts.pluginId
       if (opts.onDecision) opts.onDecision(event)
       throw new TypeError(`egress denied: ${decision.reason}`)
     }
 
     const event: EgressDecisionEvent = {
       kind: 'allowed',
+      pluginId: opts.pluginId,
       grant: decision.grant,
       url,
       method,
     }
-    if (opts.pluginId !== undefined) event.pluginId = opts.pluginId
     if (opts.onDecision) opts.onDecision(event)
     return realFetch(input, init)
   }

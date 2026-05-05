@@ -13,17 +13,20 @@ type N8nNode = {
   position?: readonly [number, number]
 }
 
-type N8nConnections = {
-  [fromNodeName: string]: {
-    main?: ReadonlyArray<ReadonlyArray<{ node: string; type?: string; index?: number }>>
+type N8nConnections = Record<
+  string,
+  {
+    main:
+      | ReadonlyArray<ReadonlyArray<{ node: string; type: string | undefined; index: number | undefined }>>
+      | undefined
   }
-}
+>
 
 type N8nWorkflow = {
-  name?: string
-  id?: string
-  nodes?: readonly N8nNode[]
-  connections?: N8nConnections
+  name: string | undefined
+  id: string | undefined
+  nodes: readonly N8nNode[] | undefined
+  connections: N8nConnections | undefined
 }
 
 const slugify = (input: string): string => {

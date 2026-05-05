@@ -15,6 +15,15 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(move |app| {
+            // Sidecar bridge (JSON-RPC over stdio).
+            // This is managed as application state so Tauri commands can access it.
+            let sidecar = sidecar::SidecarManager::new(app.handle().clone());
+            // Best-effort: start early so the UI has a fast "connected" path.
+            // If it fails (e.g. no sidecar binary bundled yet), the first invoke
+            // will surface the error to the UI.
+            let _ = sidecar.ensure_started();
+            app.manage(sidecar);
+
             // Register the system tray unless opted out.
             if !no_tray {
                 let _tray = tray::build_tray(app.handle())

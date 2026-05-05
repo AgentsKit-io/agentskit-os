@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { getSidecarStatus, type RunMode, type SidecarStatus } from '../../lib/sidecar'
+import { getSidecarStatus, sidecarRequest, type RunMode, type SidecarStatus } from '../../lib/sidecar'
+import { getRunMode, setRunMode } from '../../lib/run-mode-store'
 import { useDashboardStats } from './use-dashboard-stats'
 import { useEventFeed } from './use-event-feed'
 import { StatsGrid } from './stats-grid'
@@ -15,6 +16,8 @@ type HeaderProps = {
   workspaceName: string
   runMode: RunMode
   status: SidecarStatus
+  onChangeRunMode: (mode: RunMode) => void
+  onDeploy: () => void
 }
 
 const RUN_MODE_LABEL: Record<RunMode, string> = {
@@ -24,13 +27,16 @@ const RUN_MODE_LABEL: Record<RunMode, string> = {
   sandbox: 'sandbox',
 }
 
-function Header({ workspaceName, runMode, status }: HeaderProps) {
+function Header({ workspaceName, runMode, status, onChangeRunMode, onDeploy }: HeaderProps) {
   const connected = status === 'connected'
+  const modeLabel = RUN_MODE_LABEL[runMode]
+  const isProd = runMode === 'real'
   return (
-    <div className="flex flex-wrap items-center gap-3 border-b border-[var(--ag-line)] px-6 py-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--ag-line)] px-6 py-4">
+      <div className="flex flex-wrap items-center gap-3">
       <h1 className="text-base font-semibold text-[var(--ag-ink)]">{workspaceName}</h1>
 
-      <Badge variant="outline">{RUN_MODE_LABEL[runMode]}</Badge>
+      <Badge variant="outline">{modeLabel}</Badge>
 
       <span
         className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
@@ -46,6 +52,31 @@ function Header({ workspaceName, runMode, status }: HeaderProps) {
         />
         {connected ? 'Connected' : 'Disconnected'}
       </span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className={[
+            'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+            isProd
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500/60'
+              : 'border-[var(--ag-line)] bg-[var(--ag-panel-alt)] text-[var(--ag-ink)] hover:border-[var(--ag-accent)]/60',
+          ].join(' ')}
+          onClick={() => onChangeRunMode(isProd ? 'preview' : 'real')}
+          title="Toggle between preview (dev-safe) and real (prod) execution."
+        >
+          {isProd ? 'Prod: real' : 'Dev: preview'}
+        </button>
+        <button
+          type="button"
+          className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
+          onClick={onDeploy}
+          title="Deploy the current workspace to AgentsKitOS Cloud."
+        >
+          Deploy to Cloud
+        </button>
+      </div>
     </div>
   )
 }
@@ -64,8 +95,10 @@ type DashboardProps = {
 
 export function Dashboard({ onRegisterClear }: DashboardProps) {
   const [sidecarStatus, setSidecarStatus] = useState<SidecarStatus>('disconnected')
+  const [runMode, setRunModeState] = useState<RunMode>(() => getRunMode())
   const { stats, isLoading } = useDashboardStats()
   const { events, isPaused, toggle, clear } = useEventFeed()
+  const deployLabel = useMemo(() => (runMode === 'real' ? 'prod' : 'dev'), [runMode])
 
   // Expose `clear` to the parent once it stabilises.
   const registeredRef = useRef(false)
@@ -86,8 +119,15 @@ export function Dashboard({ onRegisterClear }: DashboardProps) {
     <section aria-label="Dashboard" className="flex flex-col">
       <Header
         workspaceName="My Workspace"
-        runMode="preview"
+        runMode={runMode}
         status={sidecarStatus}
+        onChangeRunMode={(mode) => {
+          setRunMode(mode)
+          setRunModeState(mode)
+        }}
+        onDeploy={() => {
+          void sidecarRequest('cloud.deploy', { mode: runMode, label: deployLabel })
+        }}
       />
 
       <div className="flex flex-col gap-6 px-6 py-6">

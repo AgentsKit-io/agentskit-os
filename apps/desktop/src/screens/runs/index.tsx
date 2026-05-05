@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { MOCK_RUNS, type RunQueueItem, type RunStatus, useRuns } from './use-runs'
+import { useSelection } from '../../lib/selection-store'
 
 const STATUS_LABEL: Record<RunStatus, string> = {
   queued: 'Queued',
@@ -230,6 +231,7 @@ export function RunsScreen() {
   const { runs, loading, error } = useRuns()
   const [filter, setFilter] = useState<RunStatus | 'all'>('all')
   const [selectedId, setSelectedId] = useState<string | null>(MOCK_RUNS[0]?.id ?? null)
+  const { setSelectedRunId } = useSelection()
 
   const filteredRuns = useMemo(() => {
     return filter === 'all' ? runs : runs.filter((run) => run.status === filter)
@@ -293,7 +295,14 @@ export function RunsScreen() {
           </div>
         ) : (
           <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <RunTable runs={filteredRuns} selectedId={selectedRun?.id ?? null} onSelect={setSelectedId} />
+            <RunTable
+              runs={filteredRuns}
+              selectedId={selectedRun?.id ?? null}
+              onSelect={(id) => {
+                setSelectedId(id)
+                setSelectedRunId(id)
+              }}
+            />
             <RunDetail run={selectedRun} />
           </div>
         )}

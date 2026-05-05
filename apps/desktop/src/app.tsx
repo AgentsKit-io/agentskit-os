@@ -64,6 +64,10 @@ import { VoiceProvider, useVoice } from './voice/voice-provider'
 import { VoiceToggle } from './voice/voice-toggle'
 import { VoiceOverlay } from './voice/voice-overlay'
 import { PluginContributionsProvider } from './plugins/plugin-contributions-provider'
+import { SelectionProvider } from './lib/selection-store'
+import { getRunMode, setRunMode } from './lib/run-mode-store'
+import { sidecarRequest } from './lib/sidecar'
+import { SplitViewProvider, useSplitView, type SplitScreenId } from './lib/split-view-store'
 
 const hasTauriRuntime = (): boolean =>
   typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
@@ -210,6 +214,24 @@ function isActiveScreen(screen: string): screen is ActiveScreen {
 
 function labelForScreen(screen: ActiveScreen): string {
   return NAV_ITEMS.find((item) => item.id === screen)?.label ?? screen
+}
+
+const SPLITTABLE_SCREENS: readonly ActiveScreen[] = [
+  'dashboard',
+  'flows',
+  'runs',
+  'traces',
+  'agents',
+  'hitl',
+  'triggers',
+  'evals',
+  'benchmark',
+  'cost',
+  'security',
+] as const
+
+function isSplittableScreen(screen: string): screen is ActiveScreen {
+  return SPLITTABLE_SCREENS.includes(screen as ActiveScreen)
 }
 
 /** Syncs theme changes to the persistent store. Must be inside ThemeProvider. */
@@ -418,6 +440,8 @@ function AppShell({
   announcement: string
 }) {
   const { active: focusActive, disable: disableFocus } = useFocus()
+  const split = useSplitView()
+  const secondaryScreen = split.secondary as ActiveScreen
 
   const navigateWithTransition = useCallback(
     (screen: ActiveScreen) => {
@@ -460,10 +484,72 @@ function AppShell({
         {!focusActive && (
           <Sidebar activeScreen={activeScreen} onNavigate={navigateWithTransition} />
         )}
-        <main id="main-content" aria-label="Main content" className="flex min-w-0 flex-1 flex-col overflow-auto">
-          <div key={activeScreen} className="app-screen flex min-h-full flex-1 flex-col">
-            {renderActiveScreen()}
-          </div>
+        <main
+          id="main-content"
+          aria-label="Main content"
+          className="flex min-w-0 flex-1 flex-col overflow-hidden"
+        >
+          {!split.open ? (
+            <div key={activeScreen} className="app-screen flex min-h-0 flex-1 flex-col overflow-auto">
+              {renderActiveScreen()}
+            </div>
+          ) : (
+            <div className="flex min-h-0 flex-1">
+              <div className="flex min-w-0 flex-1 flex-col overflow-auto">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-surface)] px-4 py-2 text-xs text-[var(--ag-ink-subtle)]">
+                  <span>Primary: {labelForScreen(activeScreen)}</span>
+                  <button
+                    type="button"
+                    className="rounded border border-[var(--ag-line)] px-2 py-1 text-[11px] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
+                    onClick={split.close}
+                  >
+                    Close split
+                  </button>
+                </div>
+                <div className="app-screen flex min-h-0 flex-1 flex-col">{renderActiveScreen()}</div>
+              </div>
+              <div aria-hidden className="w-px bg-[var(--ag-line)]" />
+              <div className="flex min-w-0 flex-1 flex-col overflow-auto bg-[var(--ag-surface)]/50">
+                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-surface)] px-4 py-2 text-xs text-[var(--ag-ink-subtle)]">
+                  <span>Secondary: {labelForScreen(secondaryScreen)}</span>
+                  <div className="flex items-center gap-2">
+                    <select
+                      className="rounded border border-[var(--ag-line)] bg-[var(--ag-panel)] px-2 py-1 text-[11px] text-[var(--ag-ink)]"
+                      value={secondaryScreen}
+                      onChange={(e) => {
+                        const next = e.target.value
+                        if (isSplittableScreen(next)) split.setSecondary(next as unknown as SplitScreenId)
+                      }}
+                    >
+                      {SPLITTABLE_SCREENS.map((s) => (
+                        <option key={s} value={s}>
+                          {labelForScreen(s)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div key={secondaryScreen} className="app-screen flex min-h-0 flex-1 flex-col">
+                  {/* Reuse the same renderer by temporarily switching on value */}
+                  {(() => {
+                    const screen = secondaryScreen
+                    if (screen === 'dashboard') return <Dashboard />
+                    if (screen === 'flows') return <FlowsScreen />
+                    if (screen === 'runs') return <RunsScreen />
+                    if (screen === 'traces') return <TracesScreen />
+                    if (screen === 'agents') return <AgentsScreen />
+                    if (screen === 'hitl') return <HitlScreen />
+                    if (screen === 'triggers') return <TriggersScreen />
+                    if (screen === 'evals') return <EvalsScreen />
+                    if (screen === 'benchmark') return <BenchmarkScreen />
+                    if (screen === 'cost') return <CostScreen />
+                    if (screen === 'security') return <SecurityScreen />
+                    return <PreviewSurface screen={screen} />
+                  })()}
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
       {focusActive && (
@@ -541,6 +627,8 @@ export function App() {
             <PluginContributionsProvider>
             <NotificationPreferencesProvider>
               <NotificationsProvider>
+                <SelectionProvider>
+                <SplitViewProvider>
                 <OnboardingProvider>
                   <CommandPaletteProvider
                     onNavigate={handleNavigate}
@@ -557,6 +645,7 @@ export function App() {
                           <ExamplesWirer onNavigate={handleNavigate} />
                           <ShortcutWirer />
                           <PreferencesWirer />
+                          <SplitViewWirer onAnnounce={setAnnouncement} />
                           <ThemeEditorWirer />
                           <SnapshotWirer />
                           <NotificationPrefsWirer />
@@ -588,6 +677,8 @@ export function App() {
                   </CommandPaletteProvider>
                   <OnboardingTour />
                 </OnboardingProvider>
+                </SplitViewProvider>
+                </SelectionProvider>
               </NotificationsProvider>
             </NotificationPreferencesProvider>
             </PluginContributionsProvider>
@@ -600,6 +691,41 @@ export function App() {
       </VoiceProvider>
     </ThemeProvider>
   )
+}
+
+function SplitViewWirer({ onAnnounce }: { readonly onAnnounce: (msg: string) => void }): null {
+  const { registerCommand, closePalette } = useCommandPalette()
+  const split = useSplitView()
+
+  useEffect(() => {
+    registerCommand({
+      id: 'view.split.toggle',
+      label: split.open ? 'Close split view' : 'Open split view',
+      keywords: ['split', 'pane', 'multi', 'view', 'dual'],
+      category: 'View',
+      run: () => {
+        split.toggle()
+        closePalette()
+        onAnnounce(split.open ? 'Split view closed' : 'Split view opened')
+      },
+    })
+
+    for (const screen of SPLITTABLE_SCREENS) {
+      registerCommand({
+        id: `view.split.open.${screen}`,
+        label: `Open in split: ${labelForScreen(screen)}`,
+        keywords: ['split', 'open', screen, labelForScreen(screen).toLowerCase()],
+        category: 'View',
+        run: () => {
+          split.openWithSecondary(screen as unknown as SplitScreenId)
+          closePalette()
+          onAnnounce(`Split view opened with ${labelForScreen(screen)} on the right`)
+        },
+      })
+    }
+  }, [registerCommand, split, closePalette, onAnnounce])
+
+  return null
 }
 
 /** Wires the "preferences.open" palette command + modal render. */

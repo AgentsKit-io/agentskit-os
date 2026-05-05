@@ -67,9 +67,9 @@
    -------------------------------------------------------------------------- */
 
 .ag-glass {
-  background: rgba(8, 9, 12, 0.65);
-  backdrop-filter: saturate(180%) blur(18px);
-  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  background: var(--ag-panel);
+  backdrop-filter: saturate(140%) blur(8px);
+  -webkit-backdrop-filter: saturate(140%) blur(8px);
   border: 1px solid var(--ag-line);
   border-radius: 0.75rem;
 }

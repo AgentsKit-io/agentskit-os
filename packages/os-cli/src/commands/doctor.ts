@@ -79,14 +79,18 @@ const presentEnvKeys = (envPrefix: string, env: NodeJS.ProcessEnv): Set<string> 
   return present
 }
 
-const runCredChecks = (opts: DoctorCredOpts = {}): readonly ProviderCheckResult[] => {
-  const present = presentEnvKeys(opts.envPrefix ?? 'AGENTSKITOS_', process.env)
-  for (const k of opts.extraPresentKeys ?? []) {
+const runCredChecks = (opts: DoctorCredOpts | undefined): readonly ProviderCheckResult[] => {
+  let envPrefix = 'AGENTSKITOS_'
+  if (opts && opts.envPrefix) envPrefix = opts.envPrefix
+  const present = presentEnvKeys(envPrefix, process.env)
+  const extraPresentKeys = opts ? opts.extraPresentKeys : undefined
+  for (const k of extraPresentKeys ?? []) {
     if (k) present.add(k)
   }
-  const ids = opts.providers
+  const ids = opts ? opts.providers : undefined
   const pool = ids ? BUILTIN_PROVIDERS.filter((p) => ids.includes(p.id)) : BUILTIN_PROVIDERS
-  const checkOpts = opts.airGapped !== undefined ? { airGapped: opts.airGapped } : {}
+  const airGapped = opts ? opts.airGapped : undefined
+  const checkOpts = airGapped !== undefined ? { airGapped } : {}
   return pool.map((p) => checkProviderKeys(p, present, checkOpts))
 }
 
@@ -180,8 +184,8 @@ const probeSandbox = async (
   }
 }
 
-const runLiveChecks = async (opts: DoctorLiveOpts): Promise<LiveChecks> => {
-  const timeouts = opts.timeoutMs
+const runLiveChecks = async (opts: DoctorLiveOpts | undefined): Promise<LiveChecks> => {
+  const timeouts = opts ? opts.timeoutMs : undefined
   let llmTimeout = 10_000
   let sandboxTimeout = 5_000
   if (timeouts) {
@@ -190,10 +194,10 @@ const runLiveChecks = async (opts: DoctorLiveOpts): Promise<LiveChecks> => {
   }
 
   const [llmResult, sandboxResult] = await Promise.all([
-    opts.llmAdapter
+    opts && opts.llmAdapter
       ? probeLlm(opts.llmAdapter, llmTimeout)
       : Promise.resolve({ status: 'skipped' as const, detail: 'no LLM adapter injected' }),
-    opts.sandboxSpawner
+    opts && opts.sandboxSpawner
       ? probeSandbox(opts.sandboxSpawner, sandboxTimeout)
       : Promise.resolve({ status: 'skipped' as const, detail: 'no sandbox spawner injected' }),
   ])
@@ -220,14 +224,14 @@ export const runDoctor = async (
   const failed = checks.filter((c) => !c.ok).length
 
   let credChecks: readonly ProviderCheckResult[] | undefined
-  if (credOpts !== false) credChecks = runCredChecks(credOpts ?? {})
+  if (credOpts !== false) credChecks = runCredChecks(credOpts)
 
   if (!live) {
     if (credChecks) return { checks, failed, credChecks }
     return { checks, failed }
   }
 
-  const liveChecks = await runLiveChecks(liveOpts ?? {})
+  const liveChecks = await runLiveChecks(liveOpts)
   if (credChecks) return { checks, failed, liveChecks, credChecks }
   return { checks, failed, liveChecks }
 }
@@ -254,7 +258,7 @@ const formatReport = (report: DoctorReport): CliExit => {
       let icon = '[FAIL]'
       if (cr.status === 'ok') icon = '[ok]'
       else if (cr.status === 'skipped') icon = '[skip]'
-      let detail = cr.status
+      let detail: string = cr.status
       if (cr.status === 'missing') {
         let hint = ''
         if (cr.remediation !== undefined) hint = cr.remediation
@@ -332,14 +336,14 @@ const buildDoctorProgram = (
           return
         }
       }
-      const credOpts: DoctorCredOpts | false = opts.creds
-        ? {
-            ...(opts.airGap === true ? { airGapped: true } : {}),
-            ...(providers.length > 0 ? { providers } : {}),
-            ...(opts.envPrefix ? { envPrefix: opts.envPrefix } : {}),
-            ...(extraKeys ? { extraPresentKeys: extraKeys } : {}),
-          }
-        : false
+      let credOpts: DoctorCredOpts | false = false
+      if (opts.creds) {
+        const airGapped = opts.airGap === true ? true : undefined
+        const providerIds = providers.length > 0 ? providers : undefined
+        const envPrefix = opts.envPrefix !== undefined ? opts.envPrefix : undefined
+        const extraPresentKeys = extraKeys !== undefined ? extraKeys : undefined
+        credOpts = { airGapped, envPrefix, providers: providerIds, extraPresentKeys }
+      }
       const report = await runDoctor(live, live ? liveOpts : undefined, credOpts)
       result.current = formatReport(report)
     })

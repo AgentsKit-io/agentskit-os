@@ -154,7 +154,7 @@ export const createTraceCollector = (opts: TraceCollectorOptions): EventHandler 
       durationMs = Math.max(0, endedMs - startedMs)
     }
 
-    const span: Span = {
+    let span: Span = {
       traceId: existing.traceId,
       spanId: existing.spanId,
       kind: existing.kind,
@@ -166,12 +166,14 @@ export const createTraceCollector = (opts: TraceCollectorOptions): EventHandler 
       status,
       attributes: { ...existing.attributes, ...dataAttrs(event) },
     }
-    if (existing.parentSpanId !== undefined) span.parentSpanId = existing.parentSpanId
+    if (existing.parentSpanId !== undefined) {
+      span = { ...span, parentSpanId: existing.parentSpanId }
+    }
 
     if (status === 'error') {
       const err = errorPair(event)
-      if (err.code !== undefined) span.errorCode = err.code
-      if (err.message !== undefined) span.errorMessage = err.message
+      if (err.code !== undefined) span = { ...span, errorCode: err.code }
+      if (err.message !== undefined) span = { ...span, errorMessage: err.message }
     }
 
     try {

@@ -23,18 +23,17 @@ export interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
-export interface ThemeProviderProps {
-  children: React.ReactNode
-  defaultTheme: Theme | undefined
-  /** Optional additional theme definitions to merge into the registry. */
-  themes: ThemeRegistry | undefined
-}
+export type ThemeProviderProps =
+  | { children: React.ReactNode }
+  | { children: React.ReactNode; defaultTheme: Theme | undefined }
+  | { children: React.ReactNode; themes: ThemeRegistry | undefined }
+  | { children: React.ReactNode; defaultTheme: Theme | undefined; themes: ThemeRegistry | undefined }
 
-export function ThemeProvider({
-  children,
-  defaultTheme = 'dark',
-  themes,
-}: ThemeProviderProps): React.JSX.Element {
+export function ThemeProvider(props: ThemeProviderProps): React.JSX.Element {
+  const children = props.children
+  let defaultTheme: Theme = 'dark'
+  if ('defaultTheme' in props && props.defaultTheme !== undefined) defaultTheme = props.defaultTheme
+  const themes = 'themes' in props ? props.themes : undefined
   const [theme, setThemeState] = useState<Theme>(defaultTheme)
 
   const registry = useMemo(

@@ -11,6 +11,8 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Span, SpanKind, SpanStatus } from '@agentskit/os-observability'
 import { sidecarRequest } from '../../lib/sidecar'
 
+export type { Span, SpanKind, SpanStatus } from '@agentskit/os-observability'
+
 export type TraceRow = {
   readonly traceId: string
   readonly flowId: string

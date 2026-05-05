@@ -79,7 +79,7 @@ const buildConfig = (
 
 const executeNew = async (args: Args, io: CliIo): Promise<CliExit> => {
   if (args.list || (!args.templateId && !args.dir)) {
-    const lines = listTemplates({}).map(formatTemplateRow)
+    const lines = listTemplates(undefined).map(formatTemplateRow)
     return {
       code: args.list ? 0 : 2,
       stdout: args.list

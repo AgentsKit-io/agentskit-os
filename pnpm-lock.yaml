@@ -47,6 +47,9 @@ importers:
       '@agentskit/os-headless':
         specifier: workspace:*
         version: link:../../packages/os-headless
+      '@agentskit/os-observability':
+        specifier: workspace:*
+        version: link:../../packages/os-observability
       '@agentskit/os-ui':
         specifier: workspace:^
         version: link:../../packages/os-ui

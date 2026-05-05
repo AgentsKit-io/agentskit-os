@@ -19,7 +19,8 @@ import {
   useState,
   useMemo,
 } from 'react'
-import { sidecarRequest } from '../lib/sidecar'
+import { nowIso } from '../lib/date'
+import { useHandleVoice } from './use-handle-voice'
 import type { VoiceState, VoiceTranscript } from './voice-types'
 import { getVoiceEnabled, setVoiceEnabled } from './use-voice-store'
 
@@ -117,7 +118,196 @@ export type VoiceProviderProps = {
   children: React.ReactNode
 }
 
-export function VoiceProvider({ children }: VoiceProviderProps) {
+const getSpeechRecognitionCtor = (): (new () => SpeechRecognitionInstance) | null => {
+  const ctor = window.SpeechRecognition ?? window.webkitSpeechRecognition
+  if (!ctor) return null
+  return ctor
+}
+
+const createRecognition = (Ctor: new () => SpeechRecognitionInstance): SpeechRecognitionInstance => {
+  const recognition = new Ctor()
+  recognition.continuous = true
+  recognition.interimResults = true
+  recognition.lang = 'en-US'
+  return recognition
+}
+
+const buildTranscript = (args: {
+  idx: number
+  text: string
+  finalized: boolean
+  startedAt: string
+}): VoiceTranscript => {
+  const { idx, text, finalized, startedAt } = args
+  return { id: `voice-${Date.now()}-${idx}`, text, finalized, startedAt }
+}
+
+const mergeTranscripts = (prev: VoiceTranscript[], next: VoiceTranscript[]): VoiceTranscript[] => {
+  if (next.length === 0) return prev
+  const updated = [...prev]
+  for (const t of next) {
+    const existingIdx = updated.findIndex(
+      (e) => !e.finalized && e.id.startsWith(`voice-${t.startedAt.slice(0, 10)}`),
+    )
+    if (existingIdx !== -1 && !t.finalized) updated[existingIdx] = t
+    else updated.push(t)
+  }
+  return updated
+}
+
+const handleFinalTranscript = async (args: {
+  text: string
+  isListeningRef: React.MutableRefObject<boolean>
+  setState: React.Dispatch<React.SetStateAction<VoiceState>>
+  handleVoice: (text: string) => Promise<void>
+}): Promise<void> => {
+  const { text, isListeningRef, setState, handleVoice } = args
+  setState('processing')
+  try {
+    await handleVoice(text)
+  } catch {
+    // ignore sidecar failure; continue listening UI flow
+  } finally {
+    if (isListeningRef.current) setState('listening')
+  }
+}
+
+const wireRecognitionHandlers = (args: {
+  recognition: SpeechRecognitionInstance
+  isListeningRef: React.MutableRefObject<boolean>
+  setState: React.Dispatch<React.SetStateAction<VoiceState>>
+  setErrorReason: React.Dispatch<React.SetStateAction<string>>
+  setTranscripts: React.Dispatch<React.SetStateAction<VoiceTranscript[]>>
+  clearSilenceTimer: () => void
+  resetSilenceTimer: (onTimeout: () => void) => void
+  stop: () => void
+  setVoiceEnabled: (enabled: boolean) => void
+  handleVoice: (text: string) => Promise<void>
+}): void => {
+  const {
+    recognition,
+    isListeningRef,
+    setState,
+    setErrorReason,
+    setTranscripts,
+    clearSilenceTimer,
+    resetSilenceTimer,
+    stop,
+    setVoiceEnabled,
+  } = args
+
+  recognition.onresult = (event: SpeechRecognitionEvent) => {
+    const startedAt = nowIso()
+    const next: VoiceTranscript[] = []
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i]
+      const item = result?.[0]
+      if (!result || !item) continue
+      next.push(buildTranscript({ idx: i, text: item.transcript, finalized: result.isFinal, startedAt }))
+      if (result.isFinal) {
+        void handleFinalTranscript({ text: item.transcript, isListeningRef, setState, handleVoice })
+      }
+    }
+
+    if (next.length === 0) return
+    setTranscripts((prev) => mergeTranscripts(prev, next))
+    resetSilenceTimer(stop)
+  }
+
+  recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    const ignoredErrors = ['no-speech', 'aborted']
+    if (ignoredErrors.includes(event.error)) return
+    isListeningRef.current = false
+    clearSilenceTimer()
+    setState('error')
+    setErrorReason(event.message ?? event.error)
+    setVoiceEnabled(false)
+  }
+
+  recognition.onend = () => {
+    if (!isListeningRef.current) return
+    try {
+      recognition.start()
+    } catch {
+      // Recognition may have already been stopped.
+    }
+  }
+}
+
+const startVoiceRecognition = (args: {
+  isListeningRef: React.MutableRefObject<boolean>
+  recognitionRef: React.MutableRefObject<SpeechRecognitionInstance | null>
+  setState: React.Dispatch<React.SetStateAction<VoiceState>>
+  setErrorReason: React.Dispatch<React.SetStateAction<string>>
+  setTranscripts: React.Dispatch<React.SetStateAction<VoiceTranscript[]>>
+  clearSilenceTimer: () => void
+  resetSilenceTimer: (onTimeout: () => void) => void
+  stop: () => void
+  handleVoice: (text: string) => Promise<void>
+}): void => {
+  const {
+    isListeningRef,
+    recognitionRef,
+    setState,
+    setErrorReason,
+    setTranscripts,
+    clearSilenceTimer,
+    resetSilenceTimer,
+    stop,
+  handleVoice,
+  } = args
+
+  if (isListeningRef.current) return
+
+  const Ctor = getSpeechRecognitionCtor()
+  if (!Ctor) {
+    setState('error')
+    setErrorReason('Speech recognition not supported')
+    return
+  }
+
+  const recognition = createRecognition(Ctor)
+  recognitionRef.current = recognition
+
+  setTranscripts([])
+  setState('listening')
+  isListeningRef.current = true
+  setVoiceEnabled(true)
+
+  wireRecognitionHandlers({
+    recognition,
+    isListeningRef,
+    setState,
+    setErrorReason,
+    setTranscripts,
+    clearSilenceTimer,
+    resetSilenceTimer,
+    stop,
+    setVoiceEnabled,
+    handleVoice,
+  })
+
+  recognition.start()
+  resetSilenceTimer(stop)
+}
+
+const stopVoiceRecognition = (args: {
+  isListeningRef: React.MutableRefObject<boolean>
+  recognitionRef: React.MutableRefObject<SpeechRecognitionInstance | null>
+  clearSilenceTimer: () => void
+  setState: React.Dispatch<React.SetStateAction<VoiceState>>
+}): void => {
+  const { isListeningRef, recognitionRef, clearSilenceTimer, setState } = args
+  if (!isListeningRef.current) return
+  isListeningRef.current = false
+  clearSilenceTimer()
+  recognitionRef.current?.stop()
+  setState('idle')
+  setVoiceEnabled(false)
+}
+
+function useVoiceController(): VoiceContextValue {
   const [state, setState] = useState<VoiceState>('idle')
   const [errorReason, setErrorReason] = useState('')
   const [transcripts, setTranscripts] = useState<VoiceTranscript[]>([])
@@ -125,6 +315,7 @@ export function VoiceProvider({ children }: VoiceProviderProps) {
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isListeningRef = useRef(false)
+  const handleVoice = useHandleVoice()
 
   // Restore persisted pref — used by the toggle to decide initial voice state
   const _persistedEnabled = getVoiceEnabled()
@@ -154,12 +345,7 @@ export function VoiceProvider({ children }: VoiceProviderProps) {
   // ---------------------------------------------------------------------------
 
   const stop = useCallback(() => {
-    if (!isListeningRef.current) return
-    isListeningRef.current = false
-    clearSilenceTimer()
-    recognitionRef.current?.stop()
-    setState('idle')
-    setVoiceEnabled(false)
+    stopVoiceRecognition({ isListeningRef, recognitionRef, clearSilenceTimer, setState })
   }, [clearSilenceTimer])
 
   // ---------------------------------------------------------------------------
@@ -167,117 +353,24 @@ export function VoiceProvider({ children }: VoiceProviderProps) {
   // ---------------------------------------------------------------------------
 
   const start = useCallback(() => {
-    if (isListeningRef.current) return
-
-    const SpeechRecognitionCtor =
-      window.SpeechRecognition ?? window.webkitSpeechRecognition
-
-    if (!SpeechRecognitionCtor) {
-      setState('error')
-      setErrorReason('Speech recognition not supported')
-      return
-    }
-
-    const recognition = new SpeechRecognitionCtor()
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.lang = 'en-US'
-    recognitionRef.current = recognition
-
-    setTranscripts([])
-    setState('listening')
-    isListeningRef.current = true
-    setVoiceEnabled(true)
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const newTranscripts: VoiceTranscript[] = []
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i]
-        if (!result) continue
-        const item = result[0]
-        if (!item) continue
-
-        const transcript: VoiceTranscript = {
-          id: `voice-${Date.now()}-${i}`,
-          text: item.transcript,
-          finalized: result.isFinal,
-          startedAt: new Date().toISOString(),
-        }
-
-        newTranscripts.push(transcript)
-
-        if (result.isFinal) {
-          setState('processing')
-          void sidecarRequest('voice.handle', {
-            text: item.transcript,
-            // TODO(Refs #100): sidecar routes to correct action
-          }).then(() => {
-            if (isListeningRef.current) setState('listening')
-          }).catch(() => {
-            if (isListeningRef.current) setState('listening')
-          })
-        }
-      }
-
-      if (newTranscripts.length > 0) {
-        setTranscripts((prev) => {
-          // Replace interim results from the same result index
-          const updated = [...prev]
-          for (const t of newTranscripts) {
-            const existingIdx = updated.findIndex(
-              (e) => !e.finalized && e.id.startsWith(`voice-${t.startedAt.slice(0, 10)}`),
-            )
-            if (existingIdx !== -1 && !t.finalized) {
-              updated[existingIdx] = t
-            } else {
-              updated.push(t)
-            }
-          }
-          return updated
-        })
-
-        resetSilenceTimer(stop)
-      }
-    }
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      const ignoredErrors = ['no-speech', 'aborted']
-      if (ignoredErrors.includes(event.error)) return
-      isListeningRef.current = false
-      clearSilenceTimer()
-      setState('error')
-      setErrorReason(event.message ?? event.error)
-      setVoiceEnabled(false)
-    }
-
-    recognition.onend = () => {
-      // If we are still supposed to be listening, restart (continuous mode
-      // can end unexpectedly in some browsers).
-      if (isListeningRef.current) {
-        try {
-          recognition.start()
-        } catch {
-          // Recognition may have already been stopped.
-        }
-      }
-    }
-
-    recognition.start()
-    resetSilenceTimer(stop)
-  }, [stop, clearSilenceTimer, resetSilenceTimer])
+    startVoiceRecognition({
+      isListeningRef,
+      recognitionRef,
+      setState,
+      setErrorReason,
+      setTranscripts,
+      clearSilenceTimer,
+      resetSilenceTimer,
+      stop,
+      handleVoice,
+    })
+  }, [stop, clearSilenceTimer, resetSilenceTimer, handleVoice])
 
   // ---------------------------------------------------------------------------
   // toggle
   // ---------------------------------------------------------------------------
 
-  const toggle = useCallback(() => {
-    if (isListeningRef.current) {
-      stop()
-    } else {
-      start()
-    }
-  }, [start, stop])
+  const toggle = useCallback(() => (isListeningRef.current ? stop() : start()), [start, stop])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -293,5 +386,10 @@ export function VoiceProvider({ children }: VoiceProviderProps) {
     [state, errorReason, transcripts, start, stop, toggle],
   )
 
+  return value
+}
+
+export function VoiceProvider({ children }: VoiceProviderProps) {
+  const value = useVoiceController()
   return <VoiceContext.Provider value={value}>{children}</VoiceContext.Provider>
 }

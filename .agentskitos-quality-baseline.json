@@ -4,10 +4,10 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 474,
-    "issues": 7,
+    "filesScanned": 475,
+    "issues": 5,
     "byKind": {
-      "cyclomatic-complexity": 7
+      "cyclomatic-complexity": 5
     }
   },
   "issues": [
@@ -24,20 +24,6 @@
       "file": "apps/desktop/src/app.tsx",
       "line": 429,
       "detail": "AppShell complexity 31 exceeds max 14."
-    },
-    {
-      "id": "cyclomatic-complexity:apps/desktop/src/screens/hitl/index.tsx:dc1b5d26fbbe894f",
-      "kind": "cyclomatic-complexity",
-      "file": "apps/desktop/src/screens/hitl/index.tsx",
-      "line": 408,
-      "detail": "HitlScreen complexity 16 exceeds max 14."
-    },
-    {
-      "id": "cyclomatic-complexity:apps/desktop/src/voice/voice-provider.tsx:c08a40c59ea559da",
-      "kind": "cyclomatic-complexity",
-      "file": "apps/desktop/src/voice/voice-provider.tsx",
-      "line": 120,
-      "detail": "VoiceProvider complexity 23 exceeds max 14."
     },
     {
       "id": "cyclomatic-complexity:packages/os-flow/src/multi-agent-handlers.ts:018a9608725cb546",

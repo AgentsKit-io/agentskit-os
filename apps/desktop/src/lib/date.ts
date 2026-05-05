@@ -12,3 +12,5 @@ export const compareIsoDesc = (aIso: string, bIso: string): number => {
   return new Date(bIso).getTime() - new Date(aIso).getTime()
 }
 
+export const nowIso = (): string => new Date().toISOString()
+

@@ -405,21 +405,23 @@ function DetailBlock({
   )
 }
 
-export function HitlScreen() {
-  const { requests, loading, error } = useHitlRequests()
-  const [filter, setFilter] = useState<HitlStatus | 'all'>('all')
-  const [kindFilter, setKindFilter] = useState<'all' | HitlKind>('all')
-  const [query, setQuery] = useState('')
-  const [sortDue, setSortDue] = useState<'soonest' | 'newest'>('soonest')
+function HitlLoading(): React.JSX.Element {
+  return (
+    <section
+      aria-label="HITL Inbox"
+      className="flex h-full items-center justify-center text-sm text-[var(--ag-ink-muted)]"
+    >
+      Loading approvals...
+    </section>
+  )
+}
+
+function useHitlSelection(args: {
+  requests: readonly HitlRequest[]
+  filteredRequests: readonly HitlRequest[]
+}) {
+  const { requests, filteredRequests } = args
   const [selectedId, setSelectedId] = useState<string | null>(HITL_REQUESTS_FIXTURE[1]?.id ?? null)
-  const [localStatus, setLocalStatus] = useState<Partial<Record<string, HitlStatus>>>({})
-  const [escalationNotes, setEscalationNotes] = useState<Partial<Record<string, string>>>({})
-
-  const statusOf = (r: HitlRequest): HitlStatus => localStatus[r.id] ?? r.status
-
-  const filteredRequests = useMemo(() => {
-    return filterAndSortRequests({ requests, filter, kindFilter, query, sortDue, localStatus })
-  }, [filter, kindFilter, query, requests, localStatus, sortDue])
 
   const selectedRequest = useMemo(() => {
     const match = requests.find((request) => request.id === selectedId)
@@ -435,12 +437,28 @@ export function HitlScreen() {
     }
   }, [filteredRequests, selectedId])
 
+  return { selectedId, setSelectedId, selectedRequest }
+}
+
+export function HitlScreen() {
+  const { requests, loading, error } = useHitlRequests()
+  const [filter, setFilter] = useState<HitlStatus | 'all'>('all')
+  const [kindFilter, setKindFilter] = useState<'all' | HitlKind>('all')
+  const [query, setQuery] = useState('')
+  const [sortDue, setSortDue] = useState<'soonest' | 'newest'>('soonest')
+  const [localStatus, setLocalStatus] = useState<Partial<Record<string, HitlStatus>>>({})
+  const [escalationNotes, setEscalationNotes] = useState<Partial<Record<string, string>>>({})
+
+  const statusOf = (r: HitlRequest): HitlStatus => localStatus[r.id] ?? r.status
+
+  const filteredRequests = useMemo(() => {
+    return filterAndSortRequests({ requests, filter, kindFilter, query, sortDue, localStatus })
+  }, [filter, kindFilter, query, requests, localStatus, sortDue])
+
+  const { selectedId, setSelectedId, selectedRequest } = useHitlSelection({ requests, filteredRequests })
+
   if (loading) {
-    return (
-      <section aria-label="HITL Inbox" className="flex h-full items-center justify-center text-sm text-[var(--ag-ink-muted)]">
-        Loading approvals...
-      </section>
-    )
+    return <HitlLoading />
   }
 
   return (

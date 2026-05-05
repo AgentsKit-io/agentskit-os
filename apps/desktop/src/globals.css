@@ -12,10 +12,10 @@ body,
   background-color: var(--ag-surface);
   color: var(--ag-ink);
   font-family:
-    'Inter',
     -apple-system,
     BlinkMacSystemFont,
-    'SF Pro Display',
+    'SF Pro Text',
+    'Segoe UI',
     system-ui,
     sans-serif;
 }
@@ -86,11 +86,13 @@ a:active,
 
 .driver-popover.agentskitos-driver {
   max-width: min(360px, calc(100vw - 2rem));
-  border: 1px solid var(--ag-line);
-  border-radius: 8px;
-  background: var(--ag-panel);
+  border: 1px solid var(--ag-glass-border);
+  border-radius: 12px;
+  background: var(--ag-glass-strong-bg);
   color: var(--ag-ink);
-  box-shadow: 0 24px 80px rgb(0 0 0 / 0.28);
+  backdrop-filter: var(--ag-glass-blur);
+  -webkit-backdrop-filter: var(--ag-glass-blur);
+  box-shadow: var(--ag-glass-shadow);
 }
 
 .driver-popover.agentskitos-driver .driver-popover-title {

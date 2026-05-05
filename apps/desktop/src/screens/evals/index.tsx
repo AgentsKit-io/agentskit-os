@@ -2,15 +2,17 @@ import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { EVAL_SUITES_FIXTURE, type EvalCadence, type EvalStatus, type EvalSuite, useEvals } from './use-evals'
 import { formatTime } from '../../lib/format'
+import { EvalTable } from './eval-table'
+import { EvalSummary } from './eval-summary'
 
-const STATUS_LABEL: Record<EvalStatus, string> = {
+const statusLabelByStatus: Record<EvalStatus, string> = {
   passing: 'Passing',
   regressed: 'Regressed',
   running: 'Running',
   failing: 'Failing',
 }
 
-const STATUS_CLASSES: Record<EvalStatus, string> = {
+const statusClassByStatus: Record<EvalStatus, string> = {
   passing: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   regressed: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
   running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
@@ -27,111 +29,9 @@ const FILTERS: Array<EvalStatus | 'all'> = ['all', 'passing', 'regressed', 'runn
 
 function StatusPill({ status }: { readonly status: EvalStatus }) {
   return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${statusClassByStatus[status]}`}>
+      {statusLabelByStatus[status]}
     </span>
-  )
-}
-
-function EvalsSummary({ suites }: { readonly suites: readonly EvalSuite[] }) {
-  const passing = suites.filter((suite) => suite.status === 'passing').length
-  const regressed = suites.filter((suite) => suite.status === 'regressed').length
-  const cases = suites.reduce((total, suite) => total + suite.cases, 0)
-  const avgPass = suites.length === 0
-    ? 0
-    : suites.reduce((total, suite) => total + suite.passRatePct, 0) / suites.length
-
-  const items = [
-    { label: 'Passing', value: passing.toString() },
-    { label: 'Regressed', value: regressed.toString() },
-    { label: 'Cases', value: cases.toString() },
-    { label: 'Avg pass', value: `${avgPass.toFixed(0)}%` },
-  ]
-
-  return (
-    <div className="grid gap-3 md:grid-cols-4">
-      {items.map((item) => (
-        <div key={item.label} className="rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-3">
-          <div className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            {item.label}
-          </div>
-          <div className="mt-1 text-xl font-semibold text-[var(--ag-ink)] tabular-nums">
-            {item.value}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function EvalTable({
-  suites,
-  selectedId,
-  onSelect,
-}: {
-  readonly suites: readonly EvalSuite[]
-  readonly selectedId: string | null
-  readonly onSelect: (id: string) => void
-}) {
-  return (
-    <div className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <table className="w-full border-collapse text-sm" aria-label="Evaluation suites">
-        <thead>
-          <tr className="border-b border-[var(--ag-line)] text-left text-[0.65rem] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            <th className="px-4 py-2 font-medium">Suite</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Cadence</th>
-            <th className="px-3 py-2 font-medium">Cases</th>
-            <th className="px-3 py-2 font-medium">Pass</th>
-            <th className="px-3 py-2 font-medium">Regressions</th>
-            <th className="px-4 py-2 font-medium">Last run</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[var(--ag-line-soft)]">
-          {suites.map((suite) => (
-            <tr
-              key={suite.id}
-              tabIndex={0}
-              aria-selected={selectedId === suite.id}
-              onClick={() => onSelect(suite.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onSelect(suite.id)
-                }
-              }}
-              className={[
-                'cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ag-accent)]',
-                selectedId === suite.id
-                  ? 'bg-[var(--ag-accent)]/10'
-                  : 'hover:bg-[var(--ag-panel-alt)]',
-              ].join(' ')}
-            >
-              <td className="max-w-[320px] px-4 py-3">
-                <div className="truncate font-medium text-[var(--ag-ink)]" title={suite.name}>
-                  {suite.name}
-                </div>
-                <div className="mt-0.5 truncate font-mono text-xs text-[var(--ag-ink-subtle)]" title={suite.targetFlow}>
-                  {suite.targetFlow}
-                </div>
-              </td>
-              <td className="px-3 py-3">
-                <StatusPill status={suite.status} />
-              </td>
-              <td className="px-3 py-3 text-xs text-[var(--ag-ink-muted)]">
-                {CADENCE_LABEL[suite.cadence]}
-              </td>
-              <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{suite.cases}</td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink)]">{suite.passRatePct}%</td>
-              <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{suite.regressionCount}</td>
-              <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatTime(suite.lastRunAt)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   )
 }
 
@@ -274,12 +174,12 @@ export function EvalsScreen() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar eval registry unavailable. Showing local sample data.
           </div>
         )}
 
-        <EvalsSummary suites={suites} />
+        <EvalSummary suites={suites} />
 
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filter evals by status">
           {FILTERS.map((item) => (
@@ -295,7 +195,7 @@ export function EvalsScreen() {
                   : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
               ].join(' ')}
             >
-              {item === 'all' ? 'All' : STATUS_LABEL[item]}
+              {item === 'all' ? 'All' : statusLabelByStatus[item]}
             </button>
           ))}
         </div>

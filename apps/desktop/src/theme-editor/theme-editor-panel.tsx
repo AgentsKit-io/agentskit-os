@@ -239,6 +239,198 @@ export interface ThemeEditorPanelProps {
   readonly onClose: () => void
 }
 
+function ThemeEditorBackdrop({ onClose }: { readonly onClose: () => void }) {
+  return <div aria-hidden className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+}
+
+type ThemeEditorHeaderProps = {
+  readonly baseTheme: BaseTheme
+  readonly setBaseTheme: (t: BaseTheme) => void
+  readonly importRef: React.RefObject<HTMLInputElement | null>
+  readonly onImportChange: (e: ChangeEvent<HTMLInputElement>) => void
+  readonly onClose: () => void
+}
+
+function ThemeEditorHeader({
+  baseTheme,
+  setBaseTheme,
+  importRef,
+  onImportChange,
+  onClose,
+}: ThemeEditorHeaderProps) {
+  return (
+    <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-5 py-3">
+      <div className="flex items-center gap-4">
+        <h2 className="text-[15px] font-semibold text-[var(--ag-ink)]">Theme Editor</h2>
+        <BaseThemeSelector value={baseTheme} onChange={setBaseTheme} />
+      </div>
+      <div className="flex items-center gap-2">
+        <input
+          ref={importRef}
+          type="file"
+          accept=".json"
+          className="hidden"
+          aria-label="Import theme JSON file"
+          data-testid="import-file-input"
+          onChange={onImportChange}
+        />
+        <button
+          type="button"
+          aria-label="Close theme editor"
+          data-testid="close-theme-editor"
+          onClick={onClose}
+          className="flex h-7 w-7 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  )
+}
+
+type ThemeEditorBodyProps = {
+  readonly themeName: string
+  readonly setThemeName: (name: string) => void
+  readonly setToken: (varName: string, value: string) => void
+  readonly resolveTokenValue: (varName: string) => string
+  readonly savedThemes: CustomTheme[]
+  readonly loadTheme: (t: CustomTheme) => void
+  readonly resolvedTokens: Record<string, string>
+  readonly previewOverrides: (o: Record<string, string>) => void
+}
+
+function ThemeEditorBody({
+  themeName,
+  setThemeName,
+  setToken,
+  resolveTokenValue,
+  savedThemes,
+  loadTheme,
+  resolvedTokens,
+  previewOverrides,
+}: ThemeEditorBodyProps) {
+  return (
+    <div className="flex min-h-0 flex-1 overflow-hidden">
+      <div className="flex w-72 shrink-0 flex-col gap-4 overflow-y-auto border-r border-[var(--ag-line)] px-4 py-4">
+        <div>
+          <label
+            htmlFor="theme-name-input"
+            className="mb-1 block text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]"
+          >
+            Theme name
+          </label>
+          <input
+            id="theme-name-input"
+            type="text"
+            data-testid="theme-name-input"
+            value={themeName}
+            onChange={(e) => setThemeName(e.target.value)}
+            className="w-full rounded border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-2 py-1.5 text-[13px] text-[var(--ag-ink)] focus:outline-none focus:ring-1 focus:ring-[var(--ag-accent)]"
+          />
+        </div>
+
+        {TOKEN_SECTIONS.map((section) => (
+          <div key={section}>
+            <p className="mb-1.5 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">{section}</p>
+            {getTokensBySection(section).map((token) => (
+              <TokenRow
+                key={token.varName}
+                varName={token.varName}
+                label={token.label}
+                kind={token.kind}
+                value={resolveTokenValue(token.varName)}
+                onChange={(v) => setToken(token.varName, v)}
+              />
+            ))}
+          </div>
+        ))}
+
+        <SavedThemeList themes={savedThemes} onLoad={loadTheme} />
+      </div>
+
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
+        <LivePreview resolvedTokens={resolvedTokens} />
+        <MarketplaceStub onPreview={previewOverrides} />
+      </div>
+    </div>
+  )
+}
+
+type ThemeEditorFooterProps = {
+  readonly importRef: React.RefObject<HTMLInputElement | null>
+  readonly onExport: () => void
+  readonly onReset: () => void
+  readonly onClose: () => void
+  readonly onSaveAsNew: () => void
+  readonly onSave: () => void
+}
+
+function ThemeEditorFooter({
+  importRef,
+  onExport,
+  onReset,
+  onClose,
+  onSaveAsNew,
+  onSave,
+}: ThemeEditorFooterProps) {
+  return (
+    <div className="flex items-center justify-between border-t border-[var(--ag-line)] px-5 py-3">
+      <div className="flex gap-2">
+        <button
+          type="button"
+          data-testid="import-theme-btn"
+          onClick={() => importRef.current?.click()}
+          className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+        >
+          Import
+        </button>
+        <button
+          type="button"
+          data-testid="export-theme-btn"
+          onClick={onExport}
+          className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+        >
+          Export
+        </button>
+        <button
+          type="button"
+          data-testid="reset-theme-btn"
+          onClick={onReset}
+          className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+        >
+          Reset
+        </button>
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          data-testid="cancel-theme-editor"
+          onClick={onClose}
+          className="rounded-md border border-[var(--ag-line)] px-4 py-1.5 text-sm text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          data-testid="save-as-new-theme-btn"
+          onClick={onSaveAsNew}
+          className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-1.5 text-sm text-[var(--ag-ink)] transition-colors hover:bg-[var(--ag-panel-alt)]"
+        >
+          Save As New
+        </button>
+        <button
+          type="button"
+          data-testid="save-theme-btn"
+          onClick={onSave}
+          className="rounded-md bg-[var(--ag-accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function ThemeEditorPanel({ isOpen, onClose }: ThemeEditorPanelProps) {
   const {
     baseTheme,
@@ -302,14 +494,8 @@ export function ThemeEditorPanel({ isOpen, onClose }: ThemeEditorPanelProps) {
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        aria-hidden
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <ThemeEditorBackdrop onClose={onClose} />
 
-      {/* Modal */}
       <div
         role="dialog"
         aria-label="Theme editor"
@@ -318,141 +504,31 @@ export function ThemeEditorPanel({ isOpen, onClose }: ThemeEditorPanelProps) {
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
         <GlassPanel className="flex w-full max-w-4xl flex-col overflow-hidden rounded-xl shadow-2xl">
-          {/* ---- Header ---- */}
-          <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-5 py-3">
-            <div className="flex items-center gap-4">
-              <h2 className="text-[15px] font-semibold text-[var(--ag-ink)]">Theme Editor</h2>
-              <BaseThemeSelector value={baseTheme} onChange={setBaseTheme} />
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                ref={importRef}
-                type="file"
-                accept=".json"
-                className="hidden"
-                aria-label="Import theme JSON file"
-                data-testid="import-file-input"
-                onChange={handleImport}
-              />
-              <button
-                type="button"
-                aria-label="Close theme editor"
-                data-testid="close-theme-editor"
-                onClick={onClose}
-                className="flex h-7 w-7 items-center justify-center rounded text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-
-          {/* ---- Body ---- */}
-          <div className="flex min-h-0 flex-1 overflow-hidden">
-            {/* Left: token editor + saved themes */}
-            <div className="flex w-72 shrink-0 flex-col gap-4 overflow-y-auto border-r border-[var(--ag-line)] px-4 py-4">
-              {/* Theme name input */}
-              <div>
-                <label
-                  htmlFor="theme-name-input"
-                  className="mb-1 block text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]"
-                >
-                  Theme name
-                </label>
-                <input
-                  id="theme-name-input"
-                  type="text"
-                  data-testid="theme-name-input"
-                  value={themeName}
-                  onChange={(e) => setThemeName(e.target.value)}
-                  className="w-full rounded border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-2 py-1.5 text-[13px] text-[var(--ag-ink)] focus:outline-none focus:ring-1 focus:ring-[var(--ag-accent)]"
-                />
-              </div>
-
-              {/* Token sections */}
-              {TOKEN_SECTIONS.map((section) => (
-                <div key={section}>
-                  <p className="mb-1.5 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-                    {section}
-                  </p>
-                  {getTokensBySection(section).map((token) => (
-                    <TokenRow
-                      key={token.varName}
-                      varName={token.varName}
-                      label={token.label}
-                      kind={token.kind}
-                      value={resolveTokenValue(token.varName)}
-                      onChange={(v) => setToken(token.varName, v)}
-                    />
-                  ))}
-                </div>
-              ))}
-
-              {/* Saved themes */}
-              <SavedThemeList themes={savedThemes} onLoad={loadTheme} />
-            </div>
-
-            {/* Right: live preview + marketplace */}
-            <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-              <LivePreview resolvedTokens={resolvedTokens} />
-              <MarketplaceStub onPreview={previewOverrides} />
-            </div>
-          </div>
-
-          {/* ---- Footer ---- */}
-          <div className="flex items-center justify-between border-t border-[var(--ag-line)] px-5 py-3">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                data-testid="import-theme-btn"
-                onClick={() => importRef.current?.click()}
-                className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-              >
-                Import
-              </button>
-              <button
-                type="button"
-                data-testid="export-theme-btn"
-                onClick={handleExport}
-                className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-              >
-                Export
-              </button>
-              <button
-                type="button"
-                data-testid="reset-theme-btn"
-                onClick={reset}
-                className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-              >
-                Reset
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                data-testid="cancel-theme-editor"
-                onClick={onClose}
-                className="rounded-md border border-[var(--ag-line)] px-4 py-1.5 text-sm text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                data-testid="save-as-new-theme-btn"
-                onClick={() => saveAsNew()}
-                className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-1.5 text-sm text-[var(--ag-ink)] transition-colors hover:bg-[var(--ag-panel-alt)]"
-              >
-                Save As New
-              </button>
-              <button
-                type="button"
-                data-testid="save-theme-btn"
-                onClick={() => save()}
-                className="rounded-md bg-[var(--ag-accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
-              >
-                Save
-              </button>
-            </div>
-          </div>
+          <ThemeEditorHeader
+            baseTheme={baseTheme}
+            setBaseTheme={setBaseTheme}
+            importRef={importRef}
+            onImportChange={handleImport}
+            onClose={onClose}
+          />
+          <ThemeEditorBody
+            themeName={themeName}
+            setThemeName={setThemeName}
+            setToken={setToken}
+            resolveTokenValue={resolveTokenValue}
+            savedThemes={savedThemes}
+            loadTheme={loadTheme}
+            resolvedTokens={resolvedTokens}
+            previewOverrides={previewOverrides}
+          />
+          <ThemeEditorFooter
+            importRef={importRef}
+            onExport={handleExport}
+            onReset={reset}
+            onClose={onClose}
+            onSaveAsNew={() => saveAsNew()}
+            onSave={() => save()}
+          />
         </GlassPanel>
       </div>
     </>

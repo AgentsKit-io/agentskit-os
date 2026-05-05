@@ -3,6 +3,8 @@ import { Badge } from '@agentskit/os-ui'
 import { TRIGGERS_FIXTURE, type TriggerProvider, type TriggerRule, type TriggerStatus, useTriggers } from './use-triggers'
 import { FilterPills } from '../../components/filter-pills'
 import { formatTime } from '../../lib/format'
+import { TriggerTable } from './trigger-table'
+import { TriggerSummary } from './trigger-summary'
 
 const PROVIDER_LABEL: Record<TriggerProvider, string> = {
   slack: 'Slack',
@@ -13,14 +15,14 @@ const PROVIDER_LABEL: Record<TriggerProvider, string> = {
   webhook: 'Webhook',
 }
 
-const STATUS_LABEL: Record<TriggerStatus, string> = {
+const statusLabelByStatus: Record<TriggerStatus, string> = {
   active: 'Active',
   paused: 'Paused',
   failing: 'Failing',
   needs_auth: 'Needs auth',
 }
 
-const STATUS_CLASSES: Record<TriggerStatus, string> = {
+const statusClassByStatus: Record<TriggerStatus, string> = {
   active: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   paused: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
   failing: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
@@ -31,109 +33,9 @@ const FILTERS: Array<TriggerProvider | 'all'> = ['all', 'slack', 'discord', 'tea
 
 function StatusPill({ status }: { readonly status: TriggerStatus }) {
   return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${statusClassByStatus[status]}`}>
+      {statusLabelByStatus[status]}
     </span>
-  )
-}
-
-function TriggerSummary({ triggers }: { readonly triggers: readonly TriggerRule[] }) {
-  const active = triggers.filter((trigger) => trigger.status === 'active').length
-  const failing = triggers.filter((trigger) => trigger.status === 'failing').length
-  const runs24h = triggers.reduce((total, trigger) => total + trigger.runs24h, 0)
-  const cost24h = triggers.reduce((total, trigger) => total + trigger.cost24hUsd, 0)
-
-  const items = [
-    { label: 'Active', value: active.toString() },
-    { label: 'Failing', value: failing.toString() },
-    { label: 'Runs 24h', value: runs24h.toString() },
-    { label: 'Spend 24h', value: `$${cost24h.toFixed(2)}` },
-  ]
-
-  return (
-    <div className="grid gap-3 md:grid-cols-4">
-      {items.map((item) => (
-        <div key={item.label} className="rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-3">
-          <div className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            {item.label}
-          </div>
-          <div className="mt-1 text-xl font-semibold text-[var(--ag-ink)] tabular-nums">
-            {item.value}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function TriggerTable({
-  triggers,
-  selectedId,
-  onSelect,
-}: {
-  readonly triggers: readonly TriggerRule[]
-  readonly selectedId: string | null
-  readonly onSelect: (id: string) => void
-}) {
-  return (
-    <div className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <table className="w-full border-collapse text-sm" aria-label="Trigger rules">
-        <thead>
-          <tr className="border-b border-[var(--ag-line)] text-left text-[0.65rem] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            <th className="px-4 py-2 font-medium">Trigger</th>
-            <th className="px-3 py-2 font-medium">Provider</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Runs 24h</th>
-            <th className="px-3 py-2 font-medium">Success</th>
-            <th className="px-4 py-2 font-medium">Last fired</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[var(--ag-line-soft)]">
-          {triggers.map((trigger) => (
-            <tr
-              key={trigger.id}
-              tabIndex={0}
-              aria-selected={selectedId === trigger.id}
-              onClick={() => onSelect(trigger.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onSelect(trigger.id)
-                }
-              }}
-              className={[
-                'cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ag-accent)]',
-                selectedId === trigger.id
-                  ? 'bg-[var(--ag-accent)]/10'
-                  : 'hover:bg-[var(--ag-panel-alt)]',
-              ].join(' ')}
-            >
-              <td className="max-w-[320px] px-4 py-3">
-                <div className="truncate font-medium text-[var(--ag-ink)]" title={trigger.name}>
-                  {trigger.name}
-                </div>
-                <div className="mt-0.5 truncate font-mono text-xs text-[var(--ag-ink-subtle)]" title={trigger.targetFlow}>
-                  {trigger.targetFlow}
-                </div>
-              </td>
-              <td className="px-3 py-3 text-xs text-[var(--ag-ink-muted)]">
-                {PROVIDER_LABEL[trigger.provider]}
-              </td>
-              <td className="px-3 py-3">
-                <StatusPill status={trigger.status} />
-              </td>
-              <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{trigger.runs24h}</td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">
-                {trigger.successRatePct}%
-              </td>
-              <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatTime(trigger.lastFiredAt)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   )
 }
 
@@ -255,7 +157,7 @@ export function TriggersScreen() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar trigger registry unavailable. Showing local sample data.
           </div>
         )}

@@ -23,6 +23,26 @@ export type StatusLineConfigPanelProps = {
   readonly onClose: () => void
 }
 
+function moveIdUp(ids: readonly string[], id: string): string[] | null {
+  const idx = ids.indexOf(id)
+  if (idx <= 0) return null
+  const next = [...ids]
+  const [item] = next.splice(idx, 1)
+  if (item === undefined) return null
+  next.splice(idx - 1, 0, item)
+  return next
+}
+
+function moveIdDown(ids: readonly string[], id: string): string[] | null {
+  const idx = ids.indexOf(id)
+  if (idx < 0 || idx >= ids.length - 1) return null
+  const next = [...ids]
+  const [item] = next.splice(idx, 1)
+  if (item === undefined) return null
+  next.splice(idx + 1, 0, item)
+  return next
+}
+
 // ---------------------------------------------------------------------------
 // Row
 // ---------------------------------------------------------------------------
@@ -114,26 +134,14 @@ export function StatusLineConfigPanel({ isOpen, onClose }: StatusLineConfigPanel
 
   const hiddenRows = BUILT_IN_SEGMENTS.filter((s) => !visibleIds.includes(s.id))
 
-  function handleMoveUp(id: string) {
-    const idx = visibleIds.indexOf(id)
-    if (idx <= 0) return
-    const next = [...visibleIds]
-    const [item] = next.splice(idx, 1)
-    if (item !== undefined) {
-      next.splice(idx - 1, 0, item)
-      reorder(next)
-    }
+  const handleMoveUp = (id: string) => {
+    const next = moveIdUp(visibleIds, id)
+    if (next) reorder(next)
   }
 
-  function handleMoveDown(id: string) {
-    const idx = visibleIds.indexOf(id)
-    if (idx < 0 || idx >= visibleIds.length - 1) return
-    const next = [...visibleIds]
-    const [item] = next.splice(idx, 1)
-    if (item !== undefined) {
-      next.splice(idx + 1, 0, item)
-      reorder(next)
-    }
+  const handleMoveDown = (id: string) => {
+    const next = moveIdDown(visibleIds, id)
+    if (next) reorder(next)
   }
 
   return (

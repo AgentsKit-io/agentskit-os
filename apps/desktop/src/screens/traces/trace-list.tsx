@@ -11,6 +11,7 @@
 import type { TraceRow } from './use-traces'
 import { useTraces } from './use-traces'
 import { formatMdHms } from '../../lib/time'
+import { formatShortDuration } from '../../lib/format'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -26,21 +27,14 @@ export type TraceListProps = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const formatDuration = (ms: number): string => {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(2)}s`
-}
-
-const formatStarted = (iso: string): string => formatMdHms(iso)
-
-const STATUS_CLASSES: Record<string, string> = {
+const statusClassByStatus: Record<string, string> = {
   ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',
   error: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)] border-[var(--ag-danger)]/25',
   skipped: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/25',
   paused: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)] border-[var(--ag-warn)]/25',
 }
 
-const MODE_CLASSES: Record<string, string> = {
+const modeClassByMode: Record<string, string> = {
   real: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
   preview: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
   dry_run: 'bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/20',
@@ -64,8 +58,8 @@ const TraceRowItem = ({
   selected,
   onSelect,
 }: TraceRowItemProps): React.JSX.Element => {
-  const statusClass = STATUS_CLASSES[row.status] ?? STATUS_CLASSES['ok']
-  const modeClass = MODE_CLASSES[row.runMode] ?? MODE_CLASSES['real']
+  const statusClass = statusClassByStatus[row.status] ?? statusClassByStatus['ok']
+  const modeClass = modeClassByMode[row.runMode] ?? modeClassByMode['real']
 
   return (
     <tr
@@ -110,12 +104,12 @@ const TraceRowItem = ({
 
       {/* Started */}
       <td className="py-2 px-3 text-xs font-mono text-ink-subtle whitespace-nowrap">
-        {formatStarted(row.startedAt)}
+        {formatMdHms(row.startedAt)}
       </td>
 
       {/* Duration */}
       <td className="py-2 px-3 text-xs font-mono text-ink-muted tabular-nums whitespace-nowrap">
-        {formatDuration(row.durationMs)}
+        {formatShortDuration(row.durationMs)}
       </td>
 
       {/* Status */}

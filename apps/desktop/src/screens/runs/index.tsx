@@ -4,8 +4,12 @@ import { RUNS_FIXTURE, type RunQueueItem, type RunStatus, useRuns } from './use-
 import { useSelection } from '../../lib/selection-store'
 import { FilterPills } from '../../components/filter-pills'
 import { formatHms } from '../../lib/time'
+import { RunTable } from './run-table'
+import { RunSummary } from './run-summary'
+import { formatShortDuration } from '../../lib/format'
+import { formatRunsTokens } from './run-format'
 
-const STATUS_LABEL: Record<RunStatus, string> = {
+const statusLabelByStatus: Record<RunStatus, string> = {
   queued: 'Queued',
   running: 'Running',
   blocked: 'Blocked',
@@ -13,7 +17,7 @@ const STATUS_LABEL: Record<RunStatus, string> = {
   failed: 'Failed',
 }
 
-const STATUS_CLASSES: Record<RunStatus, string> = {
+const statusClassByStatus: Record<RunStatus, string> = {
   queued: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
   running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
   blocked: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
@@ -23,126 +27,11 @@ const STATUS_CLASSES: Record<RunStatus, string> = {
 
 const FILTERS: Array<RunStatus | 'all'> = ['all', 'running', 'blocked', 'queued', 'succeeded', 'failed']
 
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
-  const minutes = Math.floor(ms / 60_000)
-  const seconds = Math.floor((ms % 60_000) / 1000)
-  return `${minutes}m ${seconds}s`
-}
-
-function formatTokens(run: RunQueueItem): string {
-  const total = run.inputTokens + run.outputTokens
-  return new Intl.NumberFormat(undefined, { notation: 'compact' }).format(total)
-}
-
 function StatusPill({ status }: { readonly status: RunStatus }) {
   return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${statusClassByStatus[status]}`}>
+      {statusLabelByStatus[status]}
     </span>
-  )
-}
-
-function RunsSummary({ runs }: { readonly runs: readonly RunQueueItem[] }) {
-  const running = runs.filter((run) => run.status === 'running').length
-  const blocked = runs.filter((run) => run.status === 'blocked').length
-  const cost = runs.reduce((total, run) => total + run.costUsd, 0)
-  const tokens = runs.reduce((total, run) => total + run.inputTokens + run.outputTokens, 0)
-
-  const items = [
-    { label: 'Active runs', value: running.toString() },
-    { label: 'Blocked', value: blocked.toString() },
-    { label: 'Spend', value: `$${cost.toFixed(2)}` },
-    { label: 'Tokens', value: new Intl.NumberFormat(undefined, { notation: 'compact' }).format(tokens) },
-  ]
-
-  return (
-    <div className="grid gap-3 md:grid-cols-4">
-      {items.map((item) => (
-        <div key={item.label} className="rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-3">
-          <div className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            {item.label}
-          </div>
-          <div className="mt-1 text-xl font-semibold text-[var(--ag-ink)] tabular-nums">
-            {item.value}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function RunTable({
-  runs,
-  selectedId,
-  onSelect,
-}: {
-  readonly runs: readonly RunQueueItem[]
-  readonly selectedId: string | null
-  readonly onSelect: (id: string) => void
-}) {
-  return (
-    <div className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <table className="w-full border-collapse text-sm" aria-label="Run queue">
-        <thead>
-          <tr className="border-b border-[var(--ag-line)] text-left text-[0.65rem] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            <th className="px-4 py-2 font-medium">Task</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Trigger</th>
-            <th className="px-3 py-2 font-medium">Agents</th>
-            <th className="px-3 py-2 font-medium">Duration</th>
-            <th className="px-3 py-2 font-medium">Cost</th>
-            <th className="px-4 py-2 font-medium">Updated</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[var(--ag-line-soft)]">
-          {runs.map((run) => (
-            <tr
-              key={run.id}
-              tabIndex={0}
-              aria-selected={selectedId === run.id}
-              onClick={() => onSelect(run.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onSelect(run.id)
-                }
-              }}
-              className={[
-                'cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ag-accent)]',
-                selectedId === run.id
-                  ? 'bg-[var(--ag-accent)]/10'
-                  : 'hover:bg-[var(--ag-panel-alt)]',
-              ].join(' ')}
-            >
-              <td className="max-w-[300px] px-4 py-3">
-                <div className="truncate font-medium text-[var(--ag-ink)]" title={run.task}>
-                  {run.task}
-                </div>
-                <div className="mt-0.5 truncate font-mono text-xs text-[var(--ag-ink-subtle)]" title={run.branch}>
-                  {run.branch}
-                </div>
-              </td>
-              <td className="px-3 py-3">
-                <StatusPill status={run.status} />
-              </td>
-              <td className="px-3 py-3 text-xs text-[var(--ag-ink-muted)]">{run.trigger}</td>
-              <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{run.agents.length}</td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">
-                {formatDuration(run.durationMs)}
-              </td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">
-                ${run.costUsd.toFixed(2)}
-              </td>
-              <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatHms(run.updatedAt)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   )
 }
 
@@ -175,9 +64,9 @@ function RunDetail({ run }: { readonly run: RunQueueItem | null }) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 border-b border-[var(--ag-line)] p-4">
-        <DetailMetric label="Duration" value={formatDuration(run.durationMs)} />
+        <DetailMetric label="Duration" value={formatShortDuration(run.durationMs)} />
         <DetailMetric label="Cost" value={`$${run.costUsd.toFixed(2)}`} />
-        <DetailMetric label="Tokens" value={formatTokens(run)} />
+        <DetailMetric label="Tokens" value={formatRunsTokens([run])} />
         <DetailMetric label="Trigger" value={run.trigger} />
       </div>
 
@@ -260,14 +149,14 @@ export function RunsScreen() {
           </div>
         )}
 
-        <RunsSummary runs={runs} />
+        <RunSummary runs={runs} />
 
         <FilterPills
           items={FILTERS}
           active={filter}
           onChange={setFilter}
           ariaLabel="Filter runs by status"
-          labelFor={(item) => (item === 'all' ? 'All' : STATUS_LABEL[item])}
+          labelFor={(item) => (item === 'all' ? 'All' : statusLabelByStatus[item])}
         />
 
         {filteredRuns.length === 0 ? (

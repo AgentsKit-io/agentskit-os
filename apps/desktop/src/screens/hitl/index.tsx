@@ -33,7 +33,7 @@ const KIND_FILTERS: Array<'all' | HitlKind> = [
   'failed_run',
 ]
 
-const STATUS_LABEL: Record<HitlStatus, string> = {
+const statusLabelByStatus: Record<HitlStatus, string> = {
   pending: 'Pending',
   approved: 'Approved',
   denied: 'Denied',
@@ -46,7 +46,7 @@ const RISK_LABEL: Record<HitlRisk, string> = {
   high: 'High',
 }
 
-const STATUS_CLASSES: Record<HitlStatus, string> = {
+const statusClassByStatus: Record<HitlStatus, string> = {
   pending: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
   approved: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   denied: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
@@ -204,7 +204,7 @@ function RequestTable({
                 {KIND_LABEL[request.kind]}
               </td>
               <td className="px-3 py-3">
-                <Pill label={STATUS_LABEL[statusOf(request)]} className={STATUS_CLASSES[statusOf(request)]} />
+                <Pill label={statusLabelByStatus[statusOf(request)]} className={statusClassByStatus[statusOf(request)]} />
               </td>
               <td className="px-3 py-3">
                 <Pill label={RISK_LABEL[request.risk]} className={RISK_CLASSES[request.risk]} />
@@ -275,7 +275,7 @@ function RequestDetail({
               {request.id}
             </p>
           </div>
-          <Pill label={STATUS_LABEL[statusOf(request)]} className={STATUS_CLASSES[statusOf(request)]} />
+          <Pill label={statusLabelByStatus[statusOf(request)]} className={statusClassByStatus[statusOf(request)]} />
         </div>
       </div>
 
@@ -538,7 +538,7 @@ export function HitlScreen() {
             active={filter}
             onChange={setFilter}
             ariaLabel="Filter human tasks by status"
-            labelFor={(item) => (item === 'all' ? 'All statuses' : STATUS_LABEL[item])}
+            labelFor={(item) => (item === 'all' ? 'All statuses' : statusLabelByStatus[item])}
           />
 
           <FilterPills

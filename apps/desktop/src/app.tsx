@@ -8,6 +8,22 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
+import {
+  Activity,
+  Blocks,
+  Bot,
+  Boxes,
+  ChartSpline,
+  ClipboardCheck,
+  GitBranch,
+  Home,
+  Play,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Workflow,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { AgentsScreen } from './screens/agents'
 import { BenchmarkScreen } from './screens/benchmark'
 import { CostScreen } from './screens/cost'
@@ -111,9 +127,10 @@ type ActiveScreen =
 type NavItem = {
   readonly id: ActiveScreen
   readonly label: string
-  readonly icon: string
+  readonly icon: LucideIcon
   readonly status: 'supported' | 'preview'
   readonly description?: string
+  readonly keywords?: readonly string[]
 }
 
 const NAV_GROUPS: ReadonlyArray<{
@@ -121,92 +138,60 @@ const NAV_GROUPS: ReadonlyArray<{
   readonly items: readonly NavItem[]
 }> = [
   {
-    label: 'Workspace',
+    label: 'Work modes',
     items: [
-      { id: 'dashboard', label: 'Dashboard', icon: '▤', status: 'supported' },
+      { id: 'dashboard', label: 'Home', icon: Home, status: 'supported', keywords: ['dashboard', 'overview'] },
       {
         id: 'flows',
-        label: 'Flows',
-        icon: '◇',
+        label: 'Build',
+        icon: Workflow,
         status: 'supported',
+        keywords: ['flows', 'agents', 'skills', 'templates', 'rag'],
       },
       {
         id: 'runs',
-        label: 'Runs',
-        icon: '◷',
+        label: 'Operate',
+        icon: Activity,
         status: 'supported',
-      },
-      { id: 'traces', label: 'Traces', icon: '◈', status: 'supported' },
-    ],
-  },
-  {
-    label: 'Orchestration',
-    items: [
-      {
-        id: 'agents',
-        label: 'Agents',
-        icon: '◎',
-        status: 'supported',
-      },
-      {
-        id: 'hitl',
-        label: 'HITL Inbox',
-        icon: '◉',
-        status: 'supported',
-      },
-      {
-        id: 'triggers',
-        label: 'Triggers',
-        icon: '▶',
-        status: 'supported',
-      },
-    ],
-  },
-  {
-    label: 'Quality',
-    items: [
-      {
-        id: 'evals',
-        label: 'Evals',
-        icon: '✓',
-        status: 'supported',
+        keywords: ['runs', 'triggers', 'hitl', 'monitor'],
       },
       {
         id: 'benchmark',
-        label: 'Benchmark',
-        icon: '✦',
+        label: 'Evaluate',
+        icon: ChartSpline,
         status: 'supported',
-      },
-    ],
-  },
-  {
-    label: 'Control',
-    items: [
-      {
-        id: 'cost',
-        label: 'Cost & Quotas',
-        icon: '$',
-        status: 'supported',
+        keywords: ['benchmark', 'evals', 'models', 'quality'],
       },
       {
         id: 'security',
-        label: 'Security',
-        icon: '◇',
+        label: 'Govern',
+        icon: ShieldCheck,
         status: 'supported',
+        keywords: ['security', 'cost', 'policy', 'audit'],
+      },
+      {
+        id: 'examples',
+        label: 'Marketplace',
+        icon: Blocks,
+        status: 'supported',
+        keywords: ['templates', 'examples', 'integrations', 'skills'],
       },
     ],
   },
 ]
 
 const SECONDARY_NAV_ITEMS: readonly NavItem[] = [
-  { id: 'examples', label: 'Examples', icon: '✦', status: 'supported' },
+  { id: 'agents', label: 'Agents', icon: Bot, status: 'supported', keywords: ['workers', 'providers'] },
+  { id: 'triggers', label: 'Triggers', icon: Play, status: 'supported', keywords: ['cron', 'slack', 'webhook'] },
+  { id: 'traces', label: 'Traces', icon: GitBranch, status: 'supported', keywords: ['spans', 'observability'] },
+  { id: 'evals', label: 'Evals', icon: ClipboardCheck, status: 'supported', keywords: ['quality'] },
+  { id: 'cost', label: 'Cost', icon: Boxes, status: 'supported', keywords: ['quotas', 'budget'] },
+  { id: 'hitl', label: 'Approvals', icon: Sparkles, status: 'supported', keywords: ['human', 'inbox'] },
 ]
 
 const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), ...SECONDARY_NAV_ITEMS] as const
 
-const PREVIEW_NAV_COMMAND_ITEMS = NAV_GROUPS
-  .flatMap((group) => group.items)
-  .filter((item) => item.status === 'preview')
+const COMMAND_NAV_ITEMS = NAV_ITEMS
 
 function isActiveScreen(screen: string): screen is ActiveScreen {
   return NAV_ITEMS.some((item) => item.id === screen)
@@ -274,16 +259,19 @@ type SidebarProps = {
   readonly onNavigate: (screen: ActiveScreen) => void
 }
 
+const SIDEBAR_CLASSNAME =
+  'flex max-h-[46vh] w-full shrink-0 flex-col overflow-y-auto border-b border-[var(--ag-line)] bg-[var(--ag-surface-alt)]/95 supports-[backdrop-filter]:backdrop-blur-xl md:max-h-none md:w-64 md:border-b-0 md:border-r'
+
 function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
   return (
     <aside
       aria-label="Application sidebar"
       data-onboarding-target="sidebar"
-      className="flex max-h-[46vh] w-full shrink-0 flex-col overflow-y-auto border-b border-[var(--ag-line)] bg-[var(--ag-surface-alt)] md:max-h-none md:w-60 md:border-b-0 md:border-r"
+      className={SIDEBAR_CLASSNAME}
     >
       <WorkspaceSwitcher />
-      <div className="flex items-center justify-between gap-3 px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-        <span aria-hidden>Navigation</span>
+      <div className="flex items-center justify-between gap-3 px-3 pt-3 text-[11px] uppercase text-[var(--ag-ink-subtle)]">
+        <span aria-hidden className="tracking-[0.16em]">AgentsKitOS</span>
         <span
           className="flex shrink-0 items-center gap-1 normal-case tracking-normal"
           data-onboarding-target="command-palette"
@@ -295,10 +283,10 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
         </span>
       </div>
       <nav aria-label="Main navigation">
-        <div className="grid gap-3 px-3 pt-2 sm:grid-cols-2 md:flex md:flex-col">
+        <div className="grid gap-3 px-3 pt-3 sm:grid-cols-2 md:flex md:flex-col">
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="flex flex-col gap-1">
-              <div className="px-2 pt-1 text-[10px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+              <div className="px-2 pt-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
                 {group.label}
               </div>
               {group.items.map((item) => (
@@ -314,15 +302,16 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
         </div>
       </nav>
       <div className="mt-auto border-t border-[var(--ag-line)] px-3 py-3">
-        <div className="mb-3 flex flex-col gap-1">
-          {SECONDARY_NAV_ITEMS.map((item) => (
-            <SidebarNavButton
-              key={item.id}
-              item={item}
-              active={activeScreen === item.id}
-              onNavigate={onNavigate}
-            />
-          ))}
+        <div className="mb-3 rounded-xl border border-[var(--ag-line)] bg-[var(--ag-panel)]/70 p-3">
+          <div className="flex items-start gap-2">
+            <Search aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ag-accent)]" />
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-[var(--ag-ink)]">Everything else lives in search.</p>
+              <p className="mt-1 text-xs leading-5 text-[var(--ag-ink-muted)]">
+                Agents, traces, triggers, cost, evals, and approvals stay one command away.
+              </p>
+            </div>
+          </div>
         </div>
         <ThemeSwitcher />
       </div>
@@ -376,9 +365,7 @@ function SidebarNavButton({
           : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
       ].join(' ')}
     >
-      <span aria-hidden className="h-4 w-4 shrink-0 text-center text-[12px]">
-        {item.icon}
-      </span>
+      <item.icon aria-hidden className="h-4 w-4 shrink-0" />
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       {item.status === 'preview' && (
         <span className="rounded-full border border-[var(--ag-line)] px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-[var(--ag-ink-subtle)]">
@@ -548,7 +535,11 @@ function AppShell({
       {focusActive && (
         <button
           type="button"
-          className="fixed right-4 top-4 z-[60] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] shadow-2xl hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
+          className={[
+            'fixed right-4 top-4 z-[60] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5',
+            'text-sm font-medium text-[var(--ag-ink)] shadow-2xl',
+            'hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]',
+          ].join(' ')}
           onClick={disableFocus}
         >
           Exit focus mode
@@ -763,7 +754,7 @@ function OnboardingCommandWirer({
   return null
 }
 
-/** Registers keyboard-first navigation commands for preview roadmap surfaces. */
+/** Registers keyboard-first navigation commands for every surface. */
 function PreviewNavigationCommandWirer({
   onNavigate,
 }: {
@@ -772,11 +763,11 @@ function PreviewNavigationCommandWirer({
   const { registerCommand, closePalette } = useCommandPalette()
 
   useEffect(() => {
-    for (const item of PREVIEW_NAV_COMMAND_ITEMS) {
+    for (const item of COMMAND_NAV_ITEMS) {
       registerCommand({
-        id: `nav.${item.id}`,
+        id: `nav.surface.${item.id}`,
         label: `Go to ${item.label}`,
-        keywords: [item.id, item.label.toLowerCase(), 'preview', 'roadmap'],
+        keywords: [item.id, item.label.toLowerCase(), ...(item.keywords ?? [])],
         category: 'Navigation',
         run: () => {
           onNavigate(item.id)

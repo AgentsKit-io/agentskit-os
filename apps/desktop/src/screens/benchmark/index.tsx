@@ -8,6 +8,9 @@ import {
   useBenchmarks,
 } from './use-benchmarks'
 import { FilterPills } from '../../components/filter-pills'
+import { BenchmarkTable } from './benchmark-table'
+import { BenchmarkSummary } from './benchmark-summary'
+import { formatShortDuration } from './benchmark-format'
 
 const PROVIDER_LABEL: Record<BenchmarkProvider, string> = {
   codex: 'Codex',
@@ -16,13 +19,13 @@ const PROVIDER_LABEL: Record<BenchmarkProvider, string> = {
   gemini: 'Gemini',
 }
 
-const STATUS_LABEL: Record<BenchmarkStatus, string> = {
+const statusLabelByStatus: Record<BenchmarkStatus, string> = {
   complete: 'Complete',
   running: 'Running',
   failed: 'Failed',
 }
 
-const STATUS_CLASSES: Record<BenchmarkStatus, string> = {
+const statusClassByStatus: Record<BenchmarkStatus, string> = {
   complete: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
   failed: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
@@ -32,122 +35,9 @@ const FILTERS: Array<BenchmarkProvider | 'all'> = ['all', 'codex', 'claude', 'cu
 
 function StatusPill({ status }: { readonly status: BenchmarkStatus }) {
   return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
+    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${statusClassByStatus[status]}`}>
+      {statusLabelByStatus[status]}
     </span>
-  )
-}
-
-function formatDuration(ms: number): string {
-  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`
-  return `${Math.floor(ms / 60_000)}m ${Math.floor((ms % 60_000) / 1000)}s`
-}
-
-function formatTokens(tokens: number): string {
-  return new Intl.NumberFormat(undefined, { notation: 'compact' }).format(tokens)
-}
-
-function BenchmarkSummary({ results }: { readonly results: readonly BenchmarkResult[] }) {
-  const best = results.reduce<BenchmarkResult | null>((winner, result) => {
-    if (winner === null) return result
-    return result.completenessPct > winner.completenessPct ? result : winner
-  }, null)
-  const avgCompleteness = results.length === 0
-    ? 0
-    : results.reduce((total, result) => total + result.completenessPct, 0) / results.length
-  const spend = results.reduce((total, result) => total + result.costUsd, 0)
-  const running = results.filter((result) => result.status === 'running').length
-
-  const items = [
-    { label: 'Best provider', value: best ? PROVIDER_LABEL[best.provider] : 'None' },
-    { label: 'Avg complete', value: `${avgCompleteness.toFixed(0)}%` },
-    { label: 'Spend', value: `$${spend.toFixed(2)}` },
-    { label: 'Running', value: running.toString() },
-  ]
-
-  return (
-    <div className="grid gap-3 md:grid-cols-4">
-      {items.map((item) => (
-        <div key={item.label} className="rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-3">
-          <div className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            {item.label}
-          </div>
-          <div className="mt-1 truncate text-xl font-semibold text-[var(--ag-ink)] tabular-nums">
-            {item.value}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function BenchmarkTable({
-  results,
-  selectedId,
-  onSelect,
-}: {
-  readonly results: readonly BenchmarkResult[]
-  readonly selectedId: string | null
-  readonly onSelect: (id: string) => void
-}) {
-  const ranked = [...results].sort((a, b) => b.completenessPct - a.completenessPct)
-
-  return (
-    <div className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <table className="w-full border-collapse text-sm" aria-label="Benchmark results">
-        <thead>
-          <tr className="border-b border-[var(--ag-line)] text-left text-[0.65rem] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            <th className="px-4 py-2 font-medium">Provider</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Completeness</th>
-            <th className="px-3 py-2 font-medium">Tests</th>
-            <th className="px-3 py-2 font-medium">Duration</th>
-            <th className="px-3 py-2 font-medium">Cost</th>
-            <th className="px-4 py-2 font-medium">Tokens</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[var(--ag-line-soft)]">
-          {ranked.map((result, index) => (
-            <tr
-              key={result.id}
-              tabIndex={0}
-              aria-selected={selectedId === result.id}
-              onClick={() => onSelect(result.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onSelect(result.id)
-                }
-              }}
-              className={[
-                'cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ag-accent)]',
-                selectedId === result.id
-                  ? 'bg-[var(--ag-accent)]/10'
-                  : 'hover:bg-[var(--ag-panel-alt)]',
-              ].join(' ')}
-            >
-              <td className="max-w-[260px] px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-[var(--ag-ink-subtle)]">#{index + 1}</span>
-                  <span className="font-medium text-[var(--ag-ink)]">{PROVIDER_LABEL[result.provider]}</span>
-                </div>
-                <div className="mt-0.5 truncate font-mono text-xs text-[var(--ag-ink-subtle)]" title={result.model}>
-                  {result.model}
-                </div>
-              </td>
-              <td className="px-3 py-3">
-                <StatusPill status={result.status} />
-              </td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink)]">{result.completenessPct}%</td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">{result.testsPassedPct}%</td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">{formatDuration(result.durationMs)}</td>
-              <td className="px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]">${result.costUsd.toFixed(2)}</td>
-              <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">{formatTokens(result.tokens)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   )
 }
 
@@ -182,7 +72,7 @@ function BenchmarkDetail({ result }: { readonly result: BenchmarkResult | null }
       <div className="grid grid-cols-2 gap-3 border-b border-[var(--ag-line)] p-4">
         <DetailMetric label="Complete" value={`${result.completenessPct}%`} />
         <DetailMetric label="Tests" value={`${result.testsPassedPct}%`} />
-        <DetailMetric label="Duration" value={formatDuration(result.durationMs)} />
+        <DetailMetric label="Duration" value={formatShortDuration(result.durationMs)} />
         <DetailMetric label="Cost" value={`$${result.costUsd.toFixed(2)}`} />
       </div>
 

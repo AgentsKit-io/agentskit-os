@@ -3,17 +3,17 @@ import { Badge } from '@agentskit/os-ui'
 import { FLOWS_FIXTURE, type FlowDefinition, type FlowStatus, type FlowTrigger, useFlows } from './use-flows'
 import { getRunMode } from '../../lib/run-mode-store'
 import { formatDate, formatDuration } from '../../lib/format'
-import { FilterPills } from '../../components/filter-pills'
 import { useRunFlow } from './use-run-flow'
+import { FLOW_FILTERS, FlowRegistryPanel, FlowSummary } from './flow-registry-panel'
 
-const STATUS_LABEL: Record<FlowStatus, string> = {
+const statusLabelByStatus: Record<FlowStatus, string> = {
   active: 'Active',
   draft: 'Draft',
   paused: 'Paused',
   failing: 'Failing',
 }
 
-const STATUS_CLASSES: Record<FlowStatus, string> = {
+const statusClassByStatus: Record<FlowStatus, string> = {
   active: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
   draft: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
   paused: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
@@ -28,124 +28,15 @@ const TRIGGER_LABEL: Record<FlowTrigger, string> = {
   webhook: 'Webhook',
 }
 
-const FILTERS: Array<FlowStatus | 'all'> = ['all', 'active', 'draft', 'paused', 'failing']
+const FILTERS: Array<FlowStatus | 'all'> = FLOW_FILTERS
 
 function StatusPill({ status }: { readonly status: FlowStatus }) {
   return (
     <span
-      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${STATUS_CLASSES[status]}`}
+      className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.65rem] font-medium ${statusClassByStatus[status]}`}
     >
-      {STATUS_LABEL[status]}
+      {statusLabelByStatus[status]}
     </span>
-  )
-}
-
-function FlowSummary({ flows }: { readonly flows: readonly FlowDefinition[] }) {
-  const active = flows.filter((flow) => flow.status === 'active').length
-  const draft = flows.filter((flow) => flow.status === 'draft').length
-  const paused = flows.filter((flow) => flow.status === 'paused').length
-  const runs = flows.reduce((total, flow) => total + flow.runs24h, 0)
-
-  const items = [
-    { label: 'Active', value: active.toString() },
-    { label: 'Draft', value: draft.toString() },
-    { label: 'Paused', value: paused.toString() },
-    { label: 'Runs 24h', value: runs.toString() },
-  ]
-
-  return (
-    <div className="grid gap-3 md:grid-cols-4">
-      {items.map((item) => (
-        <div
-          key={item.label}
-          className="rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-3"
-        >
-          <div className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            {item.label}
-          </div>
-          <div className="mt-1 truncate text-xl font-semibold text-[var(--ag-ink)] tabular-nums">
-            {item.value}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function FlowsTable({
-  flows,
-  selectedId,
-  onSelect,
-}: {
-  readonly flows: readonly FlowDefinition[]
-  readonly selectedId: string | null
-  readonly onSelect: (id: string) => void
-}) {
-  return (
-    <div className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <table className="w-full border-collapse text-sm" aria-label="Flow registry">
-        <thead>
-          <tr className="border-b border-[var(--ag-line)] text-left text-[0.65rem] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            <th className="px-4 py-2 font-medium">Flow</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Trigger</th>
-            <th className="px-3 py-2 font-medium">Success</th>
-            <th className="px-3 py-2 font-medium">Runs</th>
-            <th className="px-4 py-2 font-medium">Last run</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[var(--ag-line-soft)]">
-          {flows.map((flow) => (
-            <tr
-              key={flow.id}
-              tabIndex={0}
-              aria-selected={selectedId === flow.id}
-              onClick={() => onSelect(flow.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onSelect(flow.id)
-                }
-              }}
-              className={[
-                'cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ag-accent)]',
-                selectedId === flow.id ? 'bg-[var(--ag-accent)]/10' : 'hover:bg-[var(--ag-panel-alt)]',
-              ].join(' ')}
-            >
-              <td className="max-w-[360px] px-4 py-3">
-                <div className="truncate font-medium text-[var(--ag-ink)]" title={flow.name}>
-                  {flow.name}
-                </div>
-                <div className="mt-0.5 truncate font-mono text-xs text-[var(--ag-ink-subtle)]">
-                  {flow.version} - {flow.owner}
-                </div>
-              </td>
-              <td className="px-3 py-3">
-                <StatusPill status={flow.status} />
-              </td>
-              <td className="px-3 py-3 text-[var(--ag-ink-muted)]">{TRIGGER_LABEL[flow.trigger]}</td>
-              <td className="px-3 py-3">
-                <div className="w-28">
-                  <div className="h-1.5 overflow-hidden rounded-full bg-[var(--ag-line)]">
-                    <div
-                      className="h-full rounded-full bg-[var(--ag-accent)]"
-                      style={{ width: `${Math.min(100, flow.successRatePct)}%` }}
-                    />
-                  </div>
-                  <div className="mt-1 font-mono text-[0.65rem] text-[var(--ag-ink-subtle)]">
-                    {flow.successRatePct}%
-                  </div>
-                </div>
-              </td>
-              <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{flow.runs24h}</td>
-              <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatDate(flow.lastRunAt)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   )
 }
 
@@ -270,7 +161,9 @@ export function FlowsScreen() {
     <section aria-label="Flows" className="flex h-full min-h-0 flex-col bg-[var(--ag-surface)]">
       <div className="flex shrink-0 items-center justify-between gap-4 border-b border-[var(--ag-line)] px-6 py-4">
         <div>
-          <h1 className="text-lg font-semibold tracking-tight text-[var(--ag-ink)]">Flows</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-[var(--ag-ink)]">
+            Flows, agents, skills, and templates
+          </h1>
           <p className="mt-1 text-sm text-[var(--ag-ink-muted)]">
             Review orchestration definitions, triggers, topology, and run health before the visual editor lands.
           </p>
@@ -280,7 +173,12 @@ export function FlowsScreen() {
           <button
             type="button"
             disabled={running || selectedFlow === null}
-            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)] disabled:opacity-50"
+            className={[
+              'rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5',
+              'text-sm font-medium text-[var(--ag-ink)]',
+              'hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]',
+              'disabled:opacity-50',
+            ].join(' ')}
             onClick={() => {
               if (!selectedFlow) return
               void runFlow({ flowId: selectedFlow.id, mode: getRunMode() })
@@ -303,21 +201,19 @@ export function FlowsScreen() {
 
         <FlowSummary flows={flows} />
 
-        <FilterPills
-          items={FILTERS}
-          active={filter}
-          onChange={setFilter}
-          ariaLabel="Filter flows by status"
-          labelFor={(item) => (item === 'all' ? 'All' : STATUS_LABEL[item])}
-        />
-
         {filteredFlows.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">
             <p className="text-sm text-[var(--ag-ink-muted)]">No flows match this status.</p>
           </div>
         ) : (
           <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <FlowsTable flows={filteredFlows} selectedId={selectedFlow?.id ?? null} onSelect={setSelectedId} />
+            <FlowRegistryPanel
+              flows={filteredFlows}
+              filter={filter}
+              selectedId={selectedFlow?.id ?? null}
+              onFilter={setFilter}
+              onSelect={setSelectedId}
+            />
             <FlowDetail flow={selectedFlow} />
           </div>
         )}

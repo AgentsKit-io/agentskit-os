@@ -1,40 +1,15 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import type { AgentProfile, AgentProvider, AgentStatus } from './use-agents'
+import type { AgentProfile, AgentProvider } from './use-agents'
 import { AGENTS_FIXTURE, useAgents } from './use-agents'
 import { FilterPills } from '../../components/filter-pills'
-import { formatHms } from '../../lib/time'
+import { AgentList } from './agent-list'
+import { AGENT_PROVIDER_LABEL } from './agent-labels'
+import { AgentStatusPill } from './agent-status-pill'
 
-const STATUS_LABEL: Record<AgentStatus, string> = {
-  ready: 'Ready',
-  busy: 'Busy',
-  offline: 'Offline',
-  needs_auth: 'Needs auth',
-}
-
-const STATUS_CLASSES: Record<AgentStatus, string> = {
-  ready: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
-  busy: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
-  offline: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
-  needs_auth: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
-}
-
-const PROVIDER_LABEL: Record<AgentProvider, string> = {
-  codex: 'Codex',
-  claude: 'Claude',
-  cursor: 'Cursor',
-  gemini: 'Gemini',
-}
+const PROVIDER_LABEL: Record<AgentProvider, string> = AGENT_PROVIDER_LABEL
 
 const FILTERS: Array<AgentProvider | 'all'> = ['all', 'codex', 'claude', 'cursor', 'gemini']
-
-function StatusPill({ status }: { readonly status: AgentStatus }) {
-  return (
-    <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[0.65rem] font-medium border ${STATUS_CLASSES[status]}`}>
-      {STATUS_LABEL[status]}
-    </span>
-  )
-}
 
 function AgentsSummary({ agents }: { readonly agents: readonly AgentProfile[] }) {
   const ready = agents.filter((agent) => agent.status === 'ready').length
@@ -65,77 +40,6 @@ function AgentsSummary({ agents }: { readonly agents: readonly AgentProfile[] })
   )
 }
 
-function AgentList({
-  agents,
-  selectedId,
-  onSelect,
-}: {
-  readonly agents: readonly AgentProfile[]
-  readonly selectedId: string | null
-  readonly onSelect: (id: string) => void
-}) {
-  return (
-    <div className="min-h-0 overflow-auto rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)]">
-      <table className="w-full border-collapse text-sm" aria-label="Agent registry">
-        <thead>
-          <tr className="border-b border-[var(--ag-line)] text-left text-[0.65rem] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-            <th className="px-4 py-2 font-medium">Agent</th>
-            <th className="px-3 py-2 font-medium">Provider</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Model</th>
-            <th className="px-3 py-2 font-medium">Active</th>
-            <th className="px-4 py-2 font-medium">Last run</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-[var(--ag-line-soft)]">
-          {agents.map((agent) => (
-            <tr
-              key={agent.id}
-              tabIndex={0}
-              aria-selected={selectedId === agent.id}
-              onClick={() => onSelect(agent.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  onSelect(agent.id)
-                }
-              }}
-              className={[
-                'cursor-pointer transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--ag-accent)]',
-                selectedId === agent.id
-                  ? 'bg-[var(--ag-accent)]/10'
-                  : 'hover:bg-[var(--ag-panel-alt)]',
-              ].join(' ')}
-            >
-              <td className="max-w-[280px] px-4 py-3">
-                <div className="truncate font-medium text-[var(--ag-ink)]" title={agent.name}>
-                  {agent.name}
-                </div>
-                <div className="mt-0.5 truncate font-mono text-xs text-[var(--ag-ink-subtle)]">
-                  {agent.cliCommand}
-                </div>
-              </td>
-              <td className="px-3 py-3 text-xs text-[var(--ag-ink-muted)]">
-                {PROVIDER_LABEL[agent.provider]}
-              </td>
-              <td className="px-3 py-3">
-                <StatusPill status={agent.status} />
-              </td>
-              <td className="max-w-[180px] truncate px-3 py-3 font-mono text-xs text-[var(--ag-ink-muted)]" title={agent.model}>
-                {agent.model}
-              </td>
-              <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{agent.activeRuns}</td>
-              <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatHms(agent.lastRunAt)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 function AgentDetail({ agent }: { readonly agent: AgentProfile | null }) {
   if (agent === null) {
     return (
@@ -160,7 +64,7 @@ function AgentDetail({ agent }: { readonly agent: AgentProfile | null }) {
               {agent.id}
             </p>
           </div>
-          <StatusPill status={agent.status} />
+          <AgentStatusPill status={agent.status} />
         </div>
       </div>
 

@@ -19,15 +19,11 @@ import { ReplayButton } from './replay-button'
 import { useTraceSpans } from './use-traces'
 import { ForkButton } from '../../fork/fork-button'
 import { useSelection } from '../../lib/selection-store'
+import { formatShortDuration } from '../../lib/format'
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-const formatDuration = (ms: number): string => {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(2)}s`
-}
 
 // ---------------------------------------------------------------------------
 // Detail panel (right side)
@@ -50,13 +46,13 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
   const rootSpan = spans.find((s) => s.parentSpanId === undefined)
   const status = rootSpan?.status ?? 'ok'
 
-  const STATUS_COLORS: Record<string, string> = {
+  const statusClassByStatus: Record<string, string> = {
     ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',
     error: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)] border-[var(--ag-danger)]/25',
     skipped: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/25',
     paused: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)] border-[var(--ag-warn)]/25',
   }
-  const statusClass = STATUS_COLORS[status] ?? STATUS_COLORS['ok']
+  const statusClass = statusClassByStatus[status] ?? statusClassByStatus['ok']
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -85,7 +81,7 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
           {/* Duration */}
           {totalDuration > 0 && (
             <span className="text-xs font-mono text-ink-muted tabular-nums">
-              {formatDuration(totalDuration)}
+              {formatShortDuration(totalDuration)}
             </span>
           )}
 

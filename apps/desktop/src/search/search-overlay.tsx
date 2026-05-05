@@ -139,6 +139,116 @@ const useOverlayKeyboardNav = (args: {
   )
 }
 
+type SearchOverlayModalProps = {
+  readonly close: () => void
+  readonly handleKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void
+  readonly inputRef: React.RefObject<HTMLInputElement | null>
+  readonly shortcutHint: string
+  readonly query: string
+  readonly setQuery: (q: string) => void
+  readonly results: SearchEntity[]
+  readonly grouped: Array<{ kind: SearchEntityKind; entities: SearchEntity[] }>
+  readonly flatResults: SearchEntity[]
+  readonly selectedIndex: number
+  readonly setSelectedIndex: (idx: number) => void
+}
+
+function SearchOverlayModal({
+  close,
+  handleKeyDown,
+  inputRef,
+  shortcutHint,
+  query,
+  setQuery,
+  results,
+  grouped,
+  flatResults,
+  selectedIndex,
+  setSelectedIndex,
+}: SearchOverlayModalProps): React.JSX.Element {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search everything"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4"
+      style={{ paddingTop: '15vh' }}
+      onKeyDown={handleKeyDown}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) close()
+      }}
+    >
+      <GlassPanel
+        blur="lg"
+        className="w-full max-w-[640px] overflow-hidden shadow-2xl flex flex-col"
+        style={{ maxHeight: '70vh' }}
+        onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-4 pt-3 pb-0 shrink-0">
+          <span className="text-[11px] font-medium text-[var(--ag-ink-subtle)]">Search Everything</span>
+          <ShortcutHints shortcutHint={shortcutHint} enterVerb="open" />
+        </div>
+
+        <div className="px-4 py-3 border-b border-[var(--ag-line)] shrink-0">
+          <input
+            ref={inputRef}
+            type="search"
+            role="searchbox"
+            aria-label="Search query"
+            aria-autocomplete="list"
+            aria-controls="search-results-list"
+            placeholder="Search workspaces, flows, traces, commands…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full bg-transparent text-[var(--ag-ink)] placeholder:text-[var(--ag-ink-muted)] outline-none text-sm"
+          />
+        </div>
+
+        <div id="search-results-list" role="listbox" aria-label="Search results" className="overflow-y-auto flex-1">
+          {results.length === 0 && query.trim().length > 0 && (
+            <p className="px-4 py-6 text-center text-sm text-[var(--ag-ink-muted)]">
+              No results for <strong className="text-[var(--ag-ink)]">"{query}"</strong>
+            </p>
+          )}
+
+          {results.length === 0 && query.trim().length === 0 && (
+            <p className="px-4 py-6 text-center text-sm text-[var(--ag-ink-muted)]">
+              Start typing to search across workspaces, flows, traces, commands, and docs.
+            </p>
+          )}
+
+          {grouped.map((group) => (
+            <div key={group.kind} role="group" aria-label={KIND_LABELS[group.kind]}>
+              <GroupHeading kind={group.kind} />
+              {group.entities.map((entity) => {
+                const flatIdx = flatResults.indexOf(entity)
+                return (
+                  <ResultItem
+                    key={entity.id}
+                    entity={entity}
+                    isSelected={flatIdx === selectedIndex}
+                    onSelect={() => setSelectedIndex(flatIdx)}
+                    onRun={() => {
+                      entity.run()
+                      close()
+                    }}
+                  />
+                )
+              })}
+            </div>
+          ))}
+        </div>
+
+        {results.length > 0 && (
+          <div className="shrink-0 border-t border-[var(--ag-line)] px-4 py-2 text-[10px] text-[var(--ag-ink-subtle)]">
+            {results.length} result{results.length !== 1 ? 's' : ''}
+          </div>
+        )}
+      </GlassPanel>
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // SearchOverlay
 // ---------------------------------------------------------------------------
@@ -217,95 +327,18 @@ export function SearchOverlay(): React.JSX.Element | null {
   const shortcutHint = isMac ? '⌘/' : 'Ctrl+/'
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Search everything"
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4"
-      style={{ paddingTop: '15vh' }}
-      onKeyDown={handleKeyDown}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) close()
-      }}
-    >
-      <GlassPanel
-        blur="lg"
-        className="w-full max-w-[640px] overflow-hidden shadow-2xl flex flex-col"
-        style={{ maxHeight: '70vh' }}
-        onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-3 pb-0 shrink-0">
-          <span className="text-[11px] font-medium text-[var(--ag-ink-subtle)]">
-            Search Everything
-          </span>
-          <ShortcutHints shortcutHint={shortcutHint} enterVerb="open" />
-        </div>
-
-        {/* Search input */}
-        <div className="px-4 py-3 border-b border-[var(--ag-line)] shrink-0">
-          <input
-            ref={inputRef}
-            type="search"
-            role="searchbox"
-            aria-label="Search query"
-            aria-autocomplete="list"
-            aria-controls="search-results-list"
-            placeholder="Search workspaces, flows, traces, commands…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-transparent text-[var(--ag-ink)] placeholder:text-[var(--ag-ink-muted)] outline-none text-sm"
-          />
-        </div>
-
-        {/* Results */}
-        <div
-          id="search-results-list"
-          role="listbox"
-          aria-label="Search results"
-          className="overflow-y-auto flex-1"
-        >
-          {results.length === 0 && query.trim().length > 0 && (
-            <p className="px-4 py-6 text-center text-sm text-[var(--ag-ink-muted)]">
-              No results for <strong className="text-[var(--ag-ink)]">"{query}"</strong>
-            </p>
-          )}
-
-          {results.length === 0 && query.trim().length === 0 && (
-            <p className="px-4 py-6 text-center text-sm text-[var(--ag-ink-muted)]">
-              Start typing to search across workspaces, flows, traces, commands, and docs.
-            </p>
-          )}
-
-          {grouped.map((group) => (
-            <div key={group.kind} role="group" aria-label={KIND_LABELS[group.kind]}>
-              <GroupHeading kind={group.kind} />
-              {group.entities.map((entity) => {
-                const flatIdx = flatResults.indexOf(entity)
-                return (
-                  <ResultItem
-                    key={entity.id}
-                    entity={entity}
-                    isSelected={flatIdx === selectedIndex}
-                    onSelect={() => setSelectedIndex(flatIdx)}
-                    onRun={() => {
-                      entity.run()
-                      close()
-                    }}
-                  />
-                )
-              })}
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        {results.length > 0 && (
-          <div className="shrink-0 border-t border-[var(--ag-line)] px-4 py-2 text-[10px] text-[var(--ag-ink-subtle)]">
-            {results.length} result{results.length !== 1 ? 's' : ''}
-          </div>
-        )}
-      </GlassPanel>
-    </div>
+    <SearchOverlayModal
+      close={close}
+      handleKeyDown={handleKeyDown}
+      inputRef={inputRef}
+      shortcutHint={shortcutHint}
+      query={query}
+      setQuery={setQuery}
+      results={results}
+      grouped={grouped}
+      flatResults={flatResults}
+      selectedIndex={selectedIndex}
+      setSelectedIndex={setSelectedIndex}
+    />
   )
 }

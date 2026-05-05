@@ -12,7 +12,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { GlassPanel, Kbd } from '@agentskit/os-ui'
+import { GlassPanel } from '@agentskit/os-ui'
 import { useSearch } from './search-provider'
 import { useCommandPalette } from '../command-palette/command-palette-provider'
 import { useWorkspaces } from '../workspaces/workspaces-provider'
@@ -23,6 +23,7 @@ import { BUILT_IN_DOC_LINKS } from './search-providers'
 import { KIND_LABELS, KIND_ORDER } from './search-types'
 import { FindSimilarButton } from './find-similar-button'
 import type { SearchEntity, SearchEntityKind } from './search-types'
+import { ShortcutHints } from '../components/shortcut-hints'
 
 // ---------------------------------------------------------------------------
 // Result item
@@ -93,6 +94,51 @@ function GroupHeading({ kind }: { kind: SearchEntityKind }): React.JSX.Element {
   )
 }
 
+const groupByKind = (results: SearchEntity[]): Array<{ kind: SearchEntityKind; entities: SearchEntity[] }> => {
+  const byKind = new Map<SearchEntityKind, SearchEntity[]>()
+  for (const entity of results) {
+    const list = byKind.get(entity.kind) ?? []
+    list.push(entity)
+    byKind.set(entity.kind, list)
+  }
+  return KIND_ORDER
+    .filter((k) => byKind.has(k))
+    .map((k) => ({ kind: k, entities: byKind.get(k)! }))
+}
+
+const useOverlayKeyboardNav = (args: {
+  close: () => void
+  resultsLength: number
+  runSelected: () => void
+  setSelectedIndex: React.Dispatch<React.SetStateAction<number>>
+}): ((e: React.KeyboardEvent<HTMLDivElement>) => void) => {
+  const { close, resultsLength, runSelected, setSelectedIndex } = args
+  return useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>): void => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        close()
+        return
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedIndex((i) => Math.min(i + 1, resultsLength - 1))
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedIndex((i) => Math.max(i - 1, 0))
+        return
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        runSelected()
+      }
+    },
+    [close, resultsLength, runSelected, setSelectedIndex],
+  )
+}
+
 // ---------------------------------------------------------------------------
 // SearchOverlay
 // ---------------------------------------------------------------------------
@@ -149,38 +195,15 @@ export function SearchOverlay(): React.JSX.Element | null {
     }
   }, [results, selectedIndex, close])
 
-  // Keyboard navigation
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>): void => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        close()
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        setSelectedIndex((i) => Math.min(i + 1, results.length - 1))
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        setSelectedIndex((i) => Math.max(i - 1, 0))
-      } else if (e.key === 'Enter') {
-        e.preventDefault()
-        runSelected()
-      }
-    },
-    [close, results.length, runSelected],
-  )
+  const handleKeyDown = useOverlayKeyboardNav({
+    close,
+    resultsLength: results.length,
+    runSelected,
+    setSelectedIndex,
+  })
 
   // Group results by kind, preserving KIND_ORDER
-  const grouped = useMemo((): Array<{ kind: SearchEntityKind; entities: SearchEntity[] }> => {
-    const byKind = new Map<SearchEntityKind, SearchEntity[]>()
-    for (const entity of results) {
-      const list = byKind.get(entity.kind) ?? []
-      list.push(entity)
-      byKind.set(entity.kind, list)
-    }
-    return KIND_ORDER
-      .filter((k) => byKind.has(k))
-      .map((k) => ({ kind: k, entities: byKind.get(k)! }))
-  }, [results])
+  const grouped = useMemo(() => groupByKind(results), [results])
 
   // Flat index → result mapping for keyboard selection
   const flatResults = useMemo(
@@ -216,19 +239,7 @@ export function SearchOverlay(): React.JSX.Element | null {
           <span className="text-[11px] font-medium text-[var(--ag-ink-subtle)]">
             Search Everything
           </span>
-          <div className="flex items-center gap-1 text-[11px] text-[var(--ag-ink-subtle)]">
-            <Kbd>{shortcutHint}</Kbd>
-            <span>to toggle</span>
-            <span className="mx-1">·</span>
-            <Kbd>↑↓</Kbd>
-            <span>navigate</span>
-            <span className="mx-1">·</span>
-            <Kbd>↵</Kbd>
-            <span>open</span>
-            <span className="mx-1">·</span>
-            <Kbd>Esc</Kbd>
-            <span>close</span>
-          </div>
+          <ShortcutHints shortcutHint={shortcutHint} enterVerb="open" />
         </div>
 
         {/* Search input */}

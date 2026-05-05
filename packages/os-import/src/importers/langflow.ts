@@ -6,37 +6,48 @@ import type { Importer, ImportResult, ImportWarning } from '../types.js'
 
 type LangflowNode = {
   id: string
-  type?: string
-  position?: { x?: number; y?: number }
-  data?: {
-    id?: string
-    type?: string
-    display_name?: string
-    node?: {
-      template?: Record<string, unknown>
-      base_classes?: readonly string[]
-      description?: string
-    }
-  }
+  type: string | undefined
+  position:
+    | {
+        x: number | undefined
+        y: number | undefined
+      }
+    | undefined
+  data:
+    | {
+        id: string | undefined
+        type: string | undefined
+        display_name: string | undefined
+        node:
+          | {
+              template: Record<string, unknown> | undefined
+              base_classes: readonly string[] | undefined
+              description: string | undefined
+            }
+          | undefined
+      }
+    | undefined
 }
 
 type LangflowEdge = {
-  id?: string
+  id: string | undefined
   source: string
   target: string
-  sourceHandle?: string
-  targetHandle?: string
+  sourceHandle: string | undefined
+  targetHandle: string | undefined
 }
 
 type LangflowFlow = {
-  id?: string
-  name?: string
-  flow_name?: string
-  description?: string
-  data?: {
-    nodes?: readonly LangflowNode[]
-    edges?: readonly LangflowEdge[]
-  }
+  id: string | undefined
+  name: string | undefined
+  flow_name: string | undefined
+  description: string | undefined
+  data:
+    | {
+        nodes: readonly LangflowNode[] | undefined
+        edges: readonly LangflowEdge[] | undefined
+      }
+    | undefined
 }
 
 const slugify = (input: string): string => {
@@ -85,20 +96,112 @@ const extractModel = (
   template: Record<string, unknown> | undefined,
 ): { provider: string; model: string } => {
   if (!template) return { provider: 'openai', model: 'gpt-4o' }
-  const candidate = template['model_name'] ?? template['model'] ?? template['model_id']
-  const value =
-    typeof candidate === 'object' && candidate !== null
-      ? (candidate as Record<string, unknown>)['value']
-      : candidate
-  const model = typeof value === 'string' && value.length > 0 ? value : 'gpt-4o'
-  const provider = /^claude/i.test(model)
-    ? 'anthropic'
-    : /^gemini/i.test(model)
-      ? 'gemini'
-      : /^command/i.test(model)
-        ? 'cohere'
-        : 'openai'
+  let candidate: unknown = template['model_name']
+  if (candidate === undefined) candidate = template['model']
+  if (candidate === undefined) candidate = template['model_id']
+  let value: unknown = candidate
+  if (typeof candidate === 'object' && candidate !== null) {
+    value = (candidate as Record<string, unknown>)['value']
+  }
+  let model = 'gpt-4o'
+  if (typeof value === 'string' && value.length > 0) model = value
+  let provider = 'openai'
+  if (/^claude/i.test(model)) provider = 'anthropic'
+  else if (/^gemini/i.test(model)) provider = 'gemini'
+  else if (/^command/i.test(model)) provider = 'cohere'
   return { provider, model }
+}
+
+const getLangflowName = (input: LangflowFlow): string => {
+  if (input.flow_name !== undefined) return input.flow_name
+  if (input.name !== undefined) return input.name
+  return 'imported-langflow'
+}
+
+const readComponentType = (n: LangflowNode): string => {
+  if (n.data !== undefined && n.data.type !== undefined) return n.data.type
+  if (n.type !== undefined) return n.type
+  return 'unknown'
+}
+
+const readDisplayName = (n: LangflowNode, componentType: string): string => {
+  if (n.data !== undefined && n.data.display_name !== undefined) return n.data.display_name
+  return componentType
+}
+
+const isKnownLangflowType = (componentType: string): boolean => {
+  return (
+    LLM_TYPES.test(componentType) ||
+    TOOL_TYPES.test(componentType) ||
+    HUMAN_TYPES.test(componentType) ||
+    RAG_TYPES.test(componentType)
+  )
+}
+
+const buildLangflowNodes = (args: {
+  nodes: readonly LangflowNode[]
+  warnings: ImportWarning[]
+}): {
+  agents: ReturnType<typeof parseAgentConfig>[]
+  flowNodes: Array<Record<string, unknown>>
+  idMap: Map<string, string>
+} => {
+  const { nodes, warnings } = args
+  const takenNodeIds = new Set<string>()
+  const takenAgentIds = new Set<string>()
+  const idMap = new Map<string, string>()
+  const agents: ReturnType<typeof parseAgentConfig>[] = []
+  const flowNodes: Array<Record<string, unknown>> = []
+
+  for (const n of nodes) {
+    const componentType = readComponentType(n)
+    const displayName = readDisplayName(n, componentType)
+    const kind = inferKind(componentType)
+    const baseId = ensureUnique(slugify(displayName), takenNodeIds)
+    idMap.set(n.id, baseId)
+
+    if (kind === 'agent') {
+      const agentId = ensureUnique(slugify(`${displayName}-agent`), takenAgentIds)
+      const model = extractModel(n.data?.node?.template)
+      try {
+        agents.push(parseAgentConfig({ id: agentId, name: displayName, model }))
+      } catch (err) {
+        warnings.push({
+          code: 'lossy_conversion',
+          path: ['nodes', n.id, 'agent'],
+          message: `agent parse failed: ${(err as Error).message}`,
+        })
+      }
+      flowNodes.push({ id: baseId, kind: 'agent', agent: agentId })
+      continue
+    }
+
+    if (kind === 'human') {
+      flowNodes.push({ id: baseId, kind: 'human', prompt: `Langflow ${componentType} (${displayName})` })
+      continue
+    }
+
+    flowNodes.push({ id: baseId, kind: 'tool', tool: `langflow.${slugify(componentType)}`.slice(0, 128) })
+    if (!isKnownLangflowType(componentType)) {
+      warnings.push({
+        code: 'unknown_node_type',
+        path: ['nodes', n.id],
+        message: `unfamiliar Langflow component "${componentType}" — emitted as generic tool`,
+      })
+    }
+  }
+
+  return { agents, flowNodes, idMap }
+}
+
+const buildLangflowEdges = (edges: readonly LangflowEdge[], idMap: Map<string, string>): Array<{ from: string; to: string }> => {
+  const flowEdges: Array<{ from: string; to: string }> = []
+  for (const e of edges) {
+    const from = idMap.get(e.source)
+    const to = idMap.get(e.target)
+    if (from && to) flowEdges.push({ from, to })
+  }
+  return flowEdges
 }
 
 export const langflowImporter: Importer = {
@@ -110,90 +213,28 @@ export const langflowImporter: Importer = {
       throw new Error('langflowImporter: input is not a Langflow flow')
     }
     const warnings: ImportWarning[] = []
-    const flowName = input.flow_name ?? input.name ?? 'imported-langflow'
+    const flowName = getLangflowName(input)
     const workspaceId = slugify(input.id ?? flowName)
     const flowId = slugify(flowName)
 
     const nodes = input.data?.nodes ?? []
+    const built = buildLangflowNodes({ nodes, warnings })
+    if (built.flowNodes.length === 0) throw new Error('langflowImporter: flow has no nodes')
     const edges = input.data?.edges ?? []
-
-    const takenNodeIds = new Set<string>()
-    const takenAgentIds = new Set<string>()
-    const idMap = new Map<string, string>()
-    const agents: ReturnType<typeof parseAgentConfig>[] = []
-    const flowNodes: Array<Record<string, unknown>> = []
-
-    for (const n of nodes) {
-      const componentType = n.data?.type ?? n.type ?? 'unknown'
-      const displayName = n.data?.display_name ?? componentType
-      const kind = inferKind(componentType)
-      const baseId = ensureUnique(slugify(displayName), takenNodeIds)
-      idMap.set(n.id, baseId)
-
-      if (kind === 'agent') {
-        const agentId = ensureUnique(slugify(`${displayName}-agent`), takenAgentIds)
-        const model = extractModel(n.data?.node?.template)
-        try {
-          agents.push(parseAgentConfig({ id: agentId, name: displayName, model }))
-        } catch (err) {
-          warnings.push({
-            code: 'lossy_conversion',
-            path: ['nodes', n.id, 'agent'],
-            message: `agent parse failed: ${(err as Error).message}`,
-          })
-        }
-        flowNodes.push({ id: baseId, kind: 'agent', agent: agentId })
-      } else if (kind === 'human') {
-        flowNodes.push({
-          id: baseId,
-          kind: 'human',
-          prompt: `Langflow ${componentType} (${displayName})`,
-        })
-      } else {
-        flowNodes.push({
-          id: baseId,
-          kind: 'tool',
-          tool: `langflow.${slugify(componentType)}`.slice(0, 128),
-        })
-        const known =
-          LLM_TYPES.test(componentType) ||
-          TOOL_TYPES.test(componentType) ||
-          HUMAN_TYPES.test(componentType) ||
-          RAG_TYPES.test(componentType)
-        if (!known) {
-          warnings.push({
-            code: 'unknown_node_type',
-            path: ['nodes', n.id],
-            message: `unfamiliar Langflow component "${componentType}" — emitted as generic tool`,
-          })
-        }
-      }
-    }
-
-    const flowEdges: Array<{ from: string; to: string }> = []
-    for (const e of edges) {
-      const from = idMap.get(e.source)
-      const to = idMap.get(e.target)
-      if (from && to) flowEdges.push({ from, to })
-    }
-
-    if (flowNodes.length === 0) {
-      throw new Error('langflowImporter: flow has no nodes')
-    }
-
-    const entryId = (flowNodes[0]?.id as string | undefined) ?? 'entry'
+    const flowEdges = buildLangflowEdges(edges, built.idMap)
+    const entryId = (built.flowNodes[0]?.id as string | undefined) ?? 'entry'
     const flow = parseFlowConfig({
       id: flowId,
       name: flowName,
       entry: entryId,
-      nodes: flowNodes as never,
+      nodes: built.flowNodes as never,
       edges: flowEdges,
     })
 
     return {
       source: 'langflow',
       workspace: { id: workspaceId, name: flowName },
-      agents,
+      agents: built.agents,
       flows: [flow],
       warnings,
     } satisfies ImportResult

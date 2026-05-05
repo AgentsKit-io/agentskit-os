@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import type { AgentProfile, AgentProvider, AgentStatus } from './use-agents'
-import { MOCK_AGENTS, useAgents } from './use-agents'
+import { AGENTS_FIXTURE, useAgents } from './use-agents'
+import { FilterPills } from '../../components/filter-pills'
+import { formatHms } from '../../lib/time'
 
 const STATUS_LABEL: Record<AgentStatus, string> = {
   ready: 'Ready',
@@ -11,10 +13,10 @@ const STATUS_LABEL: Record<AgentStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<AgentStatus, string> = {
-  ready: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  busy: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  offline: 'border-zinc-500/25 bg-zinc-500/10 text-zinc-300',
-  needs_auth: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+  ready: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  busy: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  offline: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
+  needs_auth: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
 }
 
 const PROVIDER_LABEL: Record<AgentProvider, string> = {
@@ -32,18 +34,6 @@ function StatusPill({ status }: { readonly status: AgentStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function AgentsSummary({ agents }: { readonly agents: readonly AgentProfile[] }) {
@@ -136,7 +126,7 @@ function AgentList({
               </td>
               <td className="px-3 py-3 tabular-nums text-[var(--ag-ink-muted)]">{agent.activeRuns}</td>
               <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatTime(agent.lastRunAt)}
+                {formatHms(agent.lastRunAt)}
               </td>
             </tr>
           ))}
@@ -225,14 +215,16 @@ function DetailMetric({ label, value }: { readonly label: string; readonly value
 export function AgentsScreen() {
   const { agents, loading, error } = useAgents()
   const [filter, setFilter] = useState<AgentProvider | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_AGENTS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(AGENTS_FIXTURE[0]?.id ?? null)
 
   const filteredAgents = useMemo(() => {
     return filter === 'all' ? agents : agents.filter((agent) => agent.provider === filter)
   }, [agents, filter])
 
   const selectedAgent = useMemo(() => {
-    return agents.find((agent) => agent.id === selectedId) ?? filteredAgents[0] ?? null
+    const match = agents.find((agent) => agent.id === selectedId)
+    if (match) return match
+    return filteredAgents[0] ?? null
   }, [agents, filteredAgents, selectedId])
 
   if (loading) {
@@ -252,36 +244,25 @@ export function AgentsScreen() {
             Manage CLI-backed providers available to the development orchestrator.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar agent registry unavailable. Showing local sample data.
           </div>
         )}
 
         <AgentsSummary agents={agents} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter agents by provider">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : PROVIDER_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter agents by provider"
+          labelFor={(item) => (item === 'all' ? 'All' : PROVIDER_LABEL[item])}
+        />
 
         {filteredAgents.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

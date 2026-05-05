@@ -35,8 +35,13 @@ export class InMemoryEventBus implements EventBus {
   private closed = false
   private readonly errorSink: (err: unknown, event: AnyEvent, pattern: string) => void
 
-  constructor(opts?: { onHandlerError?: (err: unknown, event: AnyEvent, pattern: string) => void }) {
-    this.errorSink = opts?.onHandlerError ?? (() => undefined)
+  constructor(
+    opts:
+      | { onHandlerError: ((err: unknown, event: AnyEvent, pattern: string) => void) | undefined }
+      | undefined,
+  ) {
+    const handler = opts ? opts.onHandlerError : undefined
+    this.errorSink = handler ?? (() => undefined)
   }
 
   async publish(event: AnyEvent): Promise<void> {

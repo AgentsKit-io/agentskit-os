@@ -17,12 +17,14 @@ export const createAgentHandler = (
       }
     }
 
-    const userContent =
-      typeof input === 'string'
-        ? input
-        : input === undefined
-          ? JSON.stringify(node.input ?? {})
-          : JSON.stringify(input)
+    let userContent = ''
+    if (typeof input === 'string') userContent = input
+    else if (input === undefined) {
+      const fallback = node.input !== undefined ? node.input : {}
+      userContent = JSON.stringify(fallback)
+    } else {
+      userContent = JSON.stringify(input)
+    }
 
     const messages: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string }> = []
     if (agent.systemPrompt) {
@@ -45,11 +47,12 @@ export const createAgentHandler = (
       const result = await llm.invoke(llmCall, ctx)
       return { kind: 'ok', value: result.text }
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
       return {
         kind: 'failed',
         error: {
           code: 'agent.llm_failed',
-          message: (err as Error).message ?? String(err),
+          message,
         },
       }
     }

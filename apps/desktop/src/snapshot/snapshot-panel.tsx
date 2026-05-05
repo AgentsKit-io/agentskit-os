@@ -11,6 +11,7 @@
 import { useRef, useState } from 'react'
 import { GlassPanel } from '@agentskit/os-ui'
 import { captureSnapshot, exportSnapshotJson, importSnapshotJson, applySnapshot } from './snapshot-store'
+import { nowIso } from '../lib/date'
 
 // ---------------------------------------------------------------------------
 // Props
@@ -43,7 +44,7 @@ export function SnapshotPanel({ isOpen, onClose }: SnapshotPanelProps) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `agentskitos-snapshot-${new Date().toISOString().slice(0, 10)}.json`
+    a.download = `agentskitos-snapshot-${nowIso().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -171,7 +172,7 @@ export function SnapshotPanel({ isOpen, onClose }: SnapshotPanelProps) {
                 <p
                   role="alert"
                   data-testid="import-error"
-                  className="text-[12px] text-red-500"
+                  className="text-[12px] text-[var(--ag-danger)]"
                 >
                   {importError}
                 </p>
@@ -180,7 +181,7 @@ export function SnapshotPanel({ isOpen, onClose }: SnapshotPanelProps) {
                 <p
                   role="status"
                   data-testid="import-success"
-                  className="text-[12px] text-green-500"
+                  className="text-[12px] text-[var(--ag-success)]"
                 >
                   Snapshot applied — reloading…
                 </p>

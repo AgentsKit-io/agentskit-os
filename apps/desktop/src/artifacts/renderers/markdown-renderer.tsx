@@ -38,11 +38,12 @@ function escapeHtml(text: string): string {
 
 /** Apply inline transforms on already-escaped text. */
 function inlineTransform(escaped: string): string {
+  const italicRegex = new RegExp('(?<!\\\\*)\\\\*([^*]+)\\\\*(?!\\\\*)', 'g')
   return escaped
     // Bold: **text**
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     // Italic: *text* (not **bold**)
-    .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>')
+    .replace(italicRegex, '<em>$1</em>')
     // Inline code
     .replace(
       /`([^`]+)`/g,

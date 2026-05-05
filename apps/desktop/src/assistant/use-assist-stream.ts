@@ -13,10 +13,10 @@ import { useAssistant } from './assistant-provider'
 import type { AssistantTarget, AssistantSuggestion } from './assistant-types'
 
 // ---------------------------------------------------------------------------
-// Mock streaming implementation (stub until sidecar lands #92)
+// Fixture streaming implementation (stub until sidecar lands #92)
 // ---------------------------------------------------------------------------
 
-const MOCK_RESPONSE_WORDS = [
+const ASSIST_STREAM_FIXTURE_WORDS = [
   'Here',
   'is',
   'a',
@@ -45,12 +45,12 @@ function mockStream(
   let index = 0
   let accumulated = ''
   const timer = setInterval(() => {
-    if (index >= MOCK_RESPONSE_WORDS.length) {
+    if (index >= ASSIST_STREAM_FIXTURE_WORDS.length) {
       clearInterval(timer)
       onChunk(accumulated, true)
       return
     }
-    accumulated += (index === 0 ? '' : ' ') + MOCK_RESPONSE_WORDS[index]!
+    accumulated += (index === 0 ? '' : ' ') + ASSIST_STREAM_FIXTURE_WORDS[index]!
     index++
     onChunk(accumulated, false)
   }, 60)

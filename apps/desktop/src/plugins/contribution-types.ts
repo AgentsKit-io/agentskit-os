@@ -22,7 +22,11 @@ export const PluginContribution = z.object({
   /** SemVer of the plugin that registered this contribution. */
   version: z
     .string()
-    .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/),
+    .regex(
+      new RegExp(
+        '^\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$',
+      ),
+    ),
 })
 export type PluginContribution = z.infer<typeof PluginContribution>
 

@@ -12,10 +12,88 @@
  * avoids any external lodash dependency.
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-ui'
-import { sidecarRequest } from '../../lib/sidecar'
 import type { CustomWidget } from './custom-widget-types'
+import { useCustomWidgetMethod } from './use-custom-widget-method'
+
+const toGaugeValue = (rawValue: unknown): number => {
+  if (typeof rawValue === 'number') return rawValue
+  const parsed = parseFloat(String(rawValue))
+  return isNaN(parsed) ? 0 : parsed
+}
+
+const WidgetBody = (args: {
+  kind: CustomWidget['kind']
+  rawValue: unknown
+  format: CustomWidget['format']
+  sparkValues: number[]
+  isLoading: boolean
+  errorMsg: string | undefined
+}): React.JSX.Element | null => {
+  const { kind, rawValue, format, sparkValues, isLoading, errorMsg } = args
+
+  if (isLoading) {
+    return (
+      <p className="text-sm text-[var(--ag-ink-subtle)]" aria-live="polite">
+        Loading…
+      </p>
+    )
+  }
+  if (errorMsg) {
+    return (
+      <p className="text-xs text-[var(--ag-danger)]" role="alert" aria-live="polite">
+        {errorMsg}
+      </p>
+    )
+  }
+
+  switch (kind) {
+    case 'number':
+      return (
+        <p
+          data-testid="custom-widget-value"
+          className="text-3xl font-semibold tabular-nums text-[var(--ag-ink)]"
+        >
+          {formatValue(rawValue, format)}
+        </p>
+      )
+    case 'sparkline':
+      return (
+        <div className="flex flex-col gap-2">
+          <p
+            data-testid="custom-widget-value"
+            className="text-sm font-semibold tabular-nums text-[var(--ag-ink)]"
+          >
+            {formatValue(rawValue, format)}
+          </p>
+          <Sparkline values={sparkValues.length > 0 ? sparkValues : [0]} />
+        </div>
+      )
+    case 'gauge': {
+      const numVal = toGaugeValue(rawValue)
+      return (
+        <div className="flex flex-col gap-2">
+          <p
+            data-testid="custom-widget-value"
+            className="text-sm font-semibold tabular-nums text-[var(--ag-ink)]"
+          >
+            {formatValue(rawValue, format)}
+          </p>
+          <Gauge value={numVal} />
+        </div>
+      )
+    }
+    case 'text':
+      return (
+        <p data-testid="custom-widget-value" className="text-sm text-[var(--ag-ink)]">
+          {formatValue(rawValue, format)}
+        </p>
+      )
+    default:
+      return null
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Path resolution helper
@@ -125,6 +203,7 @@ export function CustomWidgetRenderer({ widget }: Props) {
   const [isLoading, setIsLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState<string | undefined>(undefined)
 
+  const callMethod = useCustomWidgetMethod()
   const isMounted = useRef(true)
   useEffect(() => {
     isMounted.current = true
@@ -133,22 +212,24 @@ export function CustomWidgetRenderer({ widget }: Props) {
     }
   }, [])
 
-  // Fetch + update state
-  const fetchValue = useRef(async () => {
+  const pushSparkValue = useCallback((value: number) => {
+    setSparkValues((prev) => {
+      const next = [...prev, value]
+      if (next.length > SPARKLINE_CAPACITY) return next.slice(next.length - SPARKLINE_CAPACITY)
+      return next
+    })
+  }, [])
+
+  const fetchValue = useCallback(async () => {
     try {
-      const response = await sidecarRequest(source.method)
+      const response = await callMethod(source.method)
       if (!isMounted.current) return
       const resolved = getPath(response, source.pathExpr ?? '')
       setRawValue(resolved)
       setErrorMsg(undefined)
 
       if (kind === 'sparkline' && typeof resolved === 'number') {
-        setSparkValues((prev) => {
-          const next = [...prev, resolved]
-          return next.length > SPARKLINE_CAPACITY
-            ? next.slice(next.length - SPARKLINE_CAPACITY)
-            : next
-        })
+        pushSparkValue(resolved)
       }
     } catch (err) {
       if (!isMounted.current) return
@@ -156,114 +237,13 @@ export function CustomWidgetRenderer({ widget }: Props) {
     } finally {
       if (isMounted.current) setIsLoading(false)
     }
-  })
-
-  // Re-bind fetchValue when dependencies change
-  useEffect(() => {
-    fetchValue.current = async () => {
-      try {
-        const response = await sidecarRequest(source.method)
-        if (!isMounted.current) return
-        const resolved = getPath(response, source.pathExpr ?? '')
-        setRawValue(resolved)
-        setErrorMsg(undefined)
-
-        if (kind === 'sparkline' && typeof resolved === 'number') {
-          setSparkValues((prev) => {
-            const next = [...prev, resolved]
-            return next.length > SPARKLINE_CAPACITY
-              ? next.slice(next.length - SPARKLINE_CAPACITY)
-              : next
-          })
-        }
-      } catch (err) {
-        if (!isMounted.current) return
-        setErrorMsg(err instanceof Error ? err.message : 'Error fetching data')
-      } finally {
-        if (isMounted.current) setIsLoading(false)
-      }
-    }
-  }, [source.method, source.pathExpr, kind])
+  }, [callMethod, source.method, source.pathExpr, kind, pushSparkValue])
 
   useEffect(() => {
-    void fetchValue.current()
-    const interval = setInterval(() => void fetchValue.current(), pollMs)
+    void fetchValue()
+    const interval = setInterval(() => void fetchValue(), pollMs)
     return () => clearInterval(interval)
-  }, [pollMs])
-
-  // Render body
-  const renderBody = () => {
-    if (isLoading) {
-      return (
-        <p className="text-sm text-[var(--ag-ink-subtle)]" aria-live="polite">
-          Loading…
-        </p>
-      )
-    }
-    if (errorMsg) {
-      return (
-        <p className="text-xs text-red-500" role="alert" aria-live="polite">
-          {errorMsg}
-        </p>
-      )
-    }
-
-    switch (kind) {
-      case 'number':
-        return (
-          <p
-            data-testid="custom-widget-value"
-            className="text-3xl font-semibold tabular-nums text-[var(--ag-ink)]"
-          >
-            {formatValue(rawValue, format)}
-          </p>
-        )
-
-      case 'sparkline':
-        return (
-          <div className="flex flex-col gap-2">
-            <p
-              data-testid="custom-widget-value"
-              className="text-sm font-semibold tabular-nums text-[var(--ag-ink)]"
-            >
-              {formatValue(rawValue, format)}
-            </p>
-            <Sparkline values={sparkValues.length > 0 ? sparkValues : [0]} />
-          </div>
-        )
-
-      case 'gauge': {
-        const numVal =
-          typeof rawValue === 'number'
-            ? rawValue
-            : parseFloat(String(rawValue))
-        return (
-          <div className="flex flex-col gap-2">
-            <p
-              data-testid="custom-widget-value"
-              className="text-sm font-semibold tabular-nums text-[var(--ag-ink)]"
-            >
-              {formatValue(rawValue, format)}
-            </p>
-            <Gauge value={isNaN(numVal) ? 0 : numVal} />
-          </div>
-        )
-      }
-
-      case 'text':
-        return (
-          <p
-            data-testid="custom-widget-value"
-            className="text-sm text-[var(--ag-ink)]"
-          >
-            {formatValue(rawValue, format)}
-          </p>
-        )
-
-      default:
-        return null
-    }
-  }
+  }, [pollMs, fetchValue])
 
   return (
     <Card className="h-full" data-testid={`custom-widget-${widget.id}`}>
@@ -272,7 +252,16 @@ export function CustomWidgetRenderer({ widget }: Props) {
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent>{renderBody()}</CardContent>
+      <CardContent>
+        <WidgetBody
+          kind={kind}
+          rawValue={rawValue}
+          format={format}
+          sparkValues={sparkValues}
+          isLoading={isLoading}
+          errorMsg={errorMsg}
+        />
+      </CardContent>
     </Card>
   )
 }

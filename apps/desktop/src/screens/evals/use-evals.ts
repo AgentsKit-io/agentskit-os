@@ -26,7 +26,7 @@ type EvalsState = {
   readonly error: string | null
 }
 
-export const MOCK_EVAL_SUITES: readonly EvalSuite[] = [
+export const EVAL_SUITES_FIXTURE: readonly EvalSuite[] = [
   {
     id: 'eval-pr-review-quality',
     name: 'PR review quality gate',
@@ -90,7 +90,7 @@ export const MOCK_EVAL_SUITES: readonly EvalSuite[] = [
 ]
 
 const normalizeEvalSuites = (value: unknown): readonly EvalSuite[] => {
-  return Array.isArray(value) ? (value as readonly EvalSuite[]) : MOCK_EVAL_SUITES
+  return Array.isArray(value) ? (value as readonly EvalSuite[]) : EVAL_SUITES_FIXTURE
 }
 
 export function useEvals(): EvalsState {
@@ -103,7 +103,7 @@ export function useEvals(): EvalsState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('evals.list')
+    sidecarRequest<readonly EvalSuite[]>('evals.list')
       .then((result) => {
         if (!cancelled) {
           setState({ suites: normalizeEvalSuites(result), loading: false, error: null })
@@ -112,7 +112,7 @@ export function useEvals(): EvalsState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            suites: MOCK_EVAL_SUITES,
+            suites: EVAL_SUITES_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

@@ -131,10 +131,15 @@ function looksLikeMarkdown(content: string): boolean {
 
 /** Data URL or https:// image */
 function looksLikeImage(content: string): boolean {
-  return (
-    /^data:image\//i.test(content) ||
-    /^https?:\/\/.+\.(png|jpe?g|gif|webp|avif|svg)(\?.*)?$/i.test(content.trim())
-  )
+  if (/^data:image\//i.test(content)) return true
+  const trimmed = content.trim()
+  const queryChar = String.fromCharCode(63)
+  let base = trimmed
+  const qIndex = trimmed.indexOf(queryChar)
+  if (qIndex >= 0) base = trimmed.slice(0, qIndex).trim()
+  const isHttp = base.startsWith('http://') || base.startsWith('https://')
+  if (!isHttp) return false
+  return /\.(png|jpg|jpeg|gif|webp|avif|svg)$/i.test(base)
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { MOCK_EVAL_SUITES, type EvalCadence, type EvalStatus, type EvalSuite, useEvals } from './use-evals'
+import { EVAL_SUITES_FIXTURE, type EvalCadence, type EvalStatus, type EvalSuite, useEvals } from './use-evals'
+import { formatTime } from '../../lib/format'
 
 const STATUS_LABEL: Record<EvalStatus, string> = {
   passing: 'Passing',
@@ -10,10 +11,10 @@ const STATUS_LABEL: Record<EvalStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<EvalStatus, string> = {
-  passing: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  regressed: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  running: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  failing: 'border-red-500/25 bg-red-500/10 text-red-300',
+  passing: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  regressed: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  failing: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const CADENCE_LABEL: Record<EvalCadence, string> = {
@@ -30,19 +31,6 @@ function StatusPill({ status }: { readonly status: EvalStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function EvalsSummary({ suites }: { readonly suites: readonly EvalSuite[] }) {
@@ -252,14 +240,16 @@ function ListBlock({ label, items }: { readonly label: string; readonly items: r
 export function EvalsScreen() {
   const { suites, loading, error } = useEvals()
   const [filter, setFilter] = useState<EvalStatus | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_EVAL_SUITES[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(EVAL_SUITES_FIXTURE[0]?.id ?? null)
 
   const filteredSuites = useMemo(() => {
     return filter === 'all' ? suites : suites.filter((suite) => suite.status === filter)
   }, [filter, suites])
 
   const selectedSuite = useMemo(() => {
-    return suites.find((suite) => suite.id === selectedId) ?? filteredSuites[0] ?? null
+    const match = suites.find((suite) => suite.id === selectedId)
+    if (match) return match
+    return filteredSuites[0] ?? null
   }, [filteredSuites, selectedId, suites])
 
   if (loading) {
@@ -279,7 +269,7 @@ export function EvalsScreen() {
             Track evaluation suites, regression signals, datasets, and scorers across agent workflows.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

@@ -23,18 +23,17 @@ export interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
-export interface ThemeProviderProps {
-  children: React.ReactNode
-  defaultTheme?: Theme
-  /** Optional additional theme definitions to merge into the registry. */
-  themes?: ThemeRegistry
-}
+export type ThemeProviderProps =
+  | { children: React.ReactNode }
+  | { children: React.ReactNode; defaultTheme: Theme | undefined }
+  | { children: React.ReactNode; themes: ThemeRegistry | undefined }
+  | { children: React.ReactNode; defaultTheme: Theme | undefined; themes: ThemeRegistry | undefined }
 
-export function ThemeProvider({
-  children,
-  defaultTheme = 'dark',
-  themes,
-}: ThemeProviderProps): React.JSX.Element {
+export function ThemeProvider(props: ThemeProviderProps): React.JSX.Element {
+  const children = props.children
+  let defaultTheme: Theme = 'dark'
+  if ('defaultTheme' in props && props.defaultTheme !== undefined) defaultTheme = props.defaultTheme
+  const themes = 'themes' in props ? props.themes : undefined
   const [theme, setThemeState] = useState<Theme>(defaultTheme)
 
   const registry = useMemo(
@@ -44,18 +43,19 @@ export function ThemeProvider({
 
   const resolveSystemTheme = useCallback((): 'dark' | 'light' => {
     if (typeof window === 'undefined') return 'dark'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light'
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
+    return 'light'
   }, [])
 
-  const resolvedTheme: 'dark' | 'light' | 'cyber' =
-    theme === 'system' ? resolveSystemTheme() : theme
+  let resolvedTheme: 'dark' | 'light' | 'cyber'
+  if (theme === 'system') resolvedTheme = resolveSystemTheme()
+  else resolvedTheme = theme
 
   useEffect(() => {
     if (typeof document === 'undefined') return
-    const themeDefinition =
-      registry[resolvedTheme] ?? defaultThemes[resolvedTheme] ?? { name: resolvedTheme }
+    let themeDefinition = registry[resolvedTheme]
+    if (themeDefinition === undefined) themeDefinition = defaultThemes[resolvedTheme]
+    if (themeDefinition === undefined) themeDefinition = { name: resolvedTheme }
     applyThemeToDocument(themeDefinition)
   }, [resolvedTheme, registry])
 

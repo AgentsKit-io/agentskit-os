@@ -40,7 +40,7 @@ type HitlState = {
   readonly error: string | null
 }
 
-export const MOCK_HITL_REQUESTS: readonly HitlRequest[] = [
+export const HITL_REQUESTS_FIXTURE: readonly HitlRequest[] = [
   {
     id: 'hitl-approval-001',
     title: 'Approve driver.js dependency addition',
@@ -152,7 +152,7 @@ export const MOCK_HITL_REQUESTS: readonly HitlRequest[] = [
 ]
 
 const normalizeHitlRequests = (value: unknown): readonly HitlRequest[] => {
-  return Array.isArray(value) ? (value as readonly HitlRequest[]) : MOCK_HITL_REQUESTS
+  return Array.isArray(value) ? (value as readonly HitlRequest[]) : HITL_REQUESTS_FIXTURE
 }
 
 export function useHitlRequests(): HitlState {
@@ -165,7 +165,7 @@ export function useHitlRequests(): HitlState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('hitl.list')
+    sidecarRequest<readonly HitlRequest[]>('hitl.list')
       .then((result) => {
         if (!cancelled) {
           setState({ requests: normalizeHitlRequests(result), loading: false, error: null })
@@ -174,7 +174,7 @@ export function useHitlRequests(): HitlState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            requests: MOCK_HITL_REQUESTS,
+            requests: HITL_REQUESTS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

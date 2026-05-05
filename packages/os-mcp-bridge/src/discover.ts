@@ -148,10 +148,12 @@ export const defaultMcpDiscoveryPaths = (opts: McpDiscoveryOptions = {}): string
 }
 
 export const discoverMcpServers = async (opts: McpDiscoveryOptions = {}): Promise<readonly McpServerDefinition[]> => {
-  const paths =
-    opts.includeDefaultPaths === false
-      ? [...(opts.extraConfigPaths ?? [])]
-      : defaultMcpDiscoveryPaths(opts)
+  let paths: string[] = []
+  if (opts.includeDefaultPaths === false) {
+    paths = [...(opts.extraConfigPaths ?? [])]
+  } else {
+    paths = defaultMcpDiscoveryPaths(opts)
+  }
   const merged: McpServerDefinition[] = []
 
   for (const p of paths) {

@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
-import { MOCK_RUNS, type RunQueueItem, type RunStatus, useRuns } from './use-runs'
+import { RUNS_FIXTURE, type RunQueueItem, type RunStatus, useRuns } from './use-runs'
 import { useSelection } from '../../lib/selection-store'
+import { FilterPills } from '../../components/filter-pills'
+import { formatHms } from '../../lib/time'
 
 const STATUS_LABEL: Record<RunStatus, string> = {
   queued: 'Queued',
@@ -12,11 +14,11 @@ const STATUS_LABEL: Record<RunStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<RunStatus, string> = {
-  queued: 'border-zinc-500/25 bg-zinc-500/10 text-zinc-300',
-  running: 'border-cyan-500/25 bg-cyan-500/10 text-cyan-300',
-  blocked: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  succeeded: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  failed: 'border-red-500/25 bg-red-500/10 text-red-300',
+  queued: 'border-[var(--ag-ink-muted)]/25 bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)]',
+  running: 'border-[var(--ag-accent)]/25 bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]',
+  blocked: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  succeeded: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  failed: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const FILTERS: Array<RunStatus | 'all'> = ['all', 'running', 'blocked', 'queued', 'succeeded', 'failed']
@@ -27,18 +29,6 @@ function formatDuration(ms: number): string {
   const minutes = Math.floor(ms / 60_000)
   const seconds = Math.floor((ms % 60_000) / 1000)
   return `${minutes}m ${seconds}s`
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function formatTokens(run: RunQueueItem): string {
@@ -146,7 +136,7 @@ function RunTable({
                 ${run.costUsd.toFixed(2)}
               </td>
               <td className="px-4 py-3 font-mono text-xs text-[var(--ag-ink-subtle)]">
-                {formatTime(run.updatedAt)}
+                {formatHms(run.updatedAt)}
               </td>
             </tr>
           ))}
@@ -230,7 +220,7 @@ function DetailMetric({ label, value }: { readonly label: string; readonly value
 export function RunsScreen() {
   const { runs, loading, error } = useRuns()
   const [filter, setFilter] = useState<RunStatus | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_RUNS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(RUNS_FIXTURE[0]?.id ?? null)
   const { setSelectedRunId } = useSelection()
 
   const filteredRuns = useMemo(() => {
@@ -238,7 +228,9 @@ export function RunsScreen() {
   }, [filter, runs])
 
   const selectedRun = useMemo(() => {
-    return runs.find((run) => run.id === selectedId) ?? filteredRuns[0] ?? null
+    const match = runs.find((run) => run.id === selectedId)
+    if (match) return match
+    return filteredRuns[0] ?? null
   }, [filteredRuns, runs, selectedId])
 
   if (loading) {
@@ -258,36 +250,25 @@ export function RunsScreen() {
             Monitor delegated agent tasks across providers, triggers, and cost.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
         {error !== null && (
-          <div role="status" className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          <div role="status" className="rounded-md border border-[var(--ag-warn)]/25 bg-[var(--ag-warn)]/10 px-3 py-2 text-sm text-[var(--ag-warn)]">
             Sidecar runs provider unavailable. Showing local sample data.
           </div>
         )}
 
         <RunsSummary runs={runs} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter runs by status">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : STATUS_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter runs by status"
+          labelFor={(item) => (item === 'all' ? 'All' : STATUS_LABEL[item])}
+        />
 
         {filteredRuns.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

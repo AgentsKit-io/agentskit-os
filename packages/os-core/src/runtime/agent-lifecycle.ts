@@ -61,7 +61,7 @@ const REQ_BY_EDGE: Record<string, readonly TransitionCheck[]> = {
 }
 
 /**
- * Risk-tier escalations: any edge into production for medium+ tiers requires
+ * Risk-tier escalations. Edges into production for medium+ tiers require
  * security audit; critical also requires risk-committee signoff.
  */
 const RISK_ESCALATION: Record<AgentRiskTier, readonly TransitionCheck[]> = {

@@ -1,5 +1,6 @@
 import { Badge, Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-ui'
 import type { RunMode } from '../../lib/sidecar'
+import { formatHms } from '../../lib/time'
 
 export type RunRecord = {
   readonly id: string
@@ -29,15 +30,7 @@ function formatDuration(ms: number): string {
 }
 
 function formatStarted(iso: string): string {
-  try {
-    return new Date(iso).toLocaleTimeString(undefined, {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    })
-  } catch {
-    return iso
-  }
+  return formatHms(iso)
 }
 
 export function RecentRuns({ runs }: RecentRunsProps) {

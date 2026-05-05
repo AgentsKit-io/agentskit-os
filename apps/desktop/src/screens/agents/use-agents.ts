@@ -25,7 +25,7 @@ type AgentsState = {
   readonly error: string | null
 }
 
-export const MOCK_AGENTS: readonly AgentProfile[] = [
+export const AGENTS_FIXTURE: readonly AgentProfile[] = [
   {
     id: 'agent-codex-dev',
     name: 'Codex Development Orchestrator',
@@ -85,7 +85,7 @@ export const MOCK_AGENTS: readonly AgentProfile[] = [
 ]
 
 const normalizeAgents = (value: unknown): readonly AgentProfile[] => {
-  return Array.isArray(value) ? (value as readonly AgentProfile[]) : MOCK_AGENTS
+  return Array.isArray(value) ? (value as readonly AgentProfile[]) : AGENTS_FIXTURE
 }
 
 export function useAgents(): AgentsState {
@@ -98,7 +98,7 @@ export function useAgents(): AgentsState {
   useEffect(() => {
     let cancelled = false
 
-    sidecarRequest<unknown>('agents.list')
+    sidecarRequest<readonly AgentProfile[]>('agents.list')
       .then((result) => {
         if (!cancelled) {
           setState({ agents: normalizeAgents(result), loading: false, error: null })
@@ -107,7 +107,7 @@ export function useAgents(): AgentsState {
       .catch((error: unknown) => {
         if (!cancelled) {
           setState({
-            agents: MOCK_AGENTS,
+            agents: AGENTS_FIXTURE,
             loading: false,
             error: error instanceof Error ? error.message : null,
           })

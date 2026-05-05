@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_HITL_REQUESTS, useHitlRequests } from '../use-hitl'
+import { HITL_REQUESTS_FIXTURE, useHitlRequests } from '../use-hitl'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useHitlRequests', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.requests).toEqual(MOCK_HITL_REQUESTS)
+    expect(result.current.requests).toEqual(HITL_REQUESTS_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 
@@ -31,7 +31,7 @@ describe('useHitlRequests', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.requests).toEqual(MOCK_HITL_REQUESTS)
+    expect(result.current.requests).toEqual(HITL_REQUESTS_FIXTURE)
     expect(result.current.error).toBe('sidecar unavailable')
   })
 })

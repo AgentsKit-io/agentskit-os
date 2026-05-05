@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, waitFor } from '@testing-library/react'
-import { MOCK_BENCHMARK_RESULTS, useBenchmarks } from '../use-benchmarks'
+import { BENCHMARK_RESULTS_FIXTURE, useBenchmarks } from '../use-benchmarks'
 
 const mockSidecarRequest = vi.fn()
 
@@ -20,7 +20,7 @@ describe('useBenchmarks', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.results).toEqual(MOCK_BENCHMARK_RESULTS)
+    expect(result.current.results).toEqual(BENCHMARK_RESULTS_FIXTURE)
     expect(result.current.error).toBeNull()
   })
 
@@ -31,7 +31,7 @@ describe('useBenchmarks', () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
-    expect(result.current.results).toEqual(MOCK_BENCHMARK_RESULTS)
+    expect(result.current.results).toEqual(BENCHMARK_RESULTS_FIXTURE)
     expect(result.current.error).toBe('sidecar unavailable')
   })
 })

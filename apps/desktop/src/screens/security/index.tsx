@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
-  MOCK_SECURITY_CONTROLS,
+  SECURITY_CONTROLS_FIXTURE,
   type SecurityArea,
   type SecurityControl,
   type SecurityStatus,
   useSecurityControls,
 } from './use-security'
+import { FilterPills } from '../../components/filter-pills'
+import { formatDate } from '../../lib/format'
 
 const AREA_LABEL: Record<SecurityArea, string> = {
   audit: 'Audit',
@@ -22,9 +24,9 @@ const STATUS_LABEL: Record<SecurityStatus, string> = {
 }
 
 const STATUS_CLASSES: Record<SecurityStatus, string> = {
-  healthy: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300',
-  watch: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-  blocked: 'border-red-500/25 bg-red-500/10 text-red-300',
+  healthy: 'border-[var(--ag-success)]/25 bg-[var(--ag-success)]/10 text-[var(--ag-success)]',
+  watch: 'border-[var(--ag-warn)]/30 bg-[var(--ag-warn)]/10 text-[var(--ag-warn)]',
+  blocked: 'border-[var(--ag-danger)]/25 bg-[var(--ag-danger)]/10 text-[var(--ag-danger)]',
 }
 
 const FILTERS: Array<SecurityArea | 'all'> = ['all', 'audit', 'vault', 'policy', 'privacy']
@@ -37,19 +39,6 @@ function StatusPill({ status }: { readonly status: SecurityStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      month: 'short',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function SecuritySummary({ controls }: { readonly controls: readonly SecurityControl[] }) {
@@ -238,14 +227,16 @@ function ControlDetail({ control }: { readonly control: SecurityControl | null }
 export function SecurityScreen() {
   const { controls, loading, error } = useSecurityControls()
   const [filter, setFilter] = useState<SecurityArea | 'all'>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_SECURITY_CONTROLS[0]?.id ?? null)
+  const [selectedId, setSelectedId] = useState<string | null>(SECURITY_CONTROLS_FIXTURE[0]?.id ?? null)
 
   const filteredControls = useMemo(() => {
     return filter === 'all' ? controls : controls.filter((control) => control.area === filter)
   }, [controls, filter])
 
   const selectedControl = useMemo(() => {
-    return controls.find((control) => control.id === selectedId) ?? filteredControls[0] ?? null
+    const match = controls.find((control) => control.id === selectedId)
+    if (match) return match
+    return filteredControls[0] ?? null
   }, [controls, filteredControls, selectedId])
 
   if (loading) {
@@ -268,7 +259,7 @@ export function SecurityScreen() {
             Monitor audit evidence, vault hygiene, policy coverage, and privacy routing controls.
           </p>
         </div>
-        <Badge variant="outline">Preview data</Badge>
+        <Badge variant="outline">Preview mode</Badge>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">
@@ -283,24 +274,13 @@ export function SecurityScreen() {
 
         <SecuritySummary controls={controls} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter controls by area">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : AREA_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter controls by area"
+          labelFor={(item) => (item === 'all' ? 'All' : AREA_LABEL[item])}
+        />
 
         {filteredControls.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

@@ -10,7 +10,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { TraceList } from '../trace-list'
-import { MOCK_TRACES } from '../use-traces'
+import { TRACES_FIXTURE } from '../use-traces'
 
 // ---------------------------------------------------------------------------
 // Mock the useTraces hook to return deterministic mock data
@@ -21,7 +21,7 @@ vi.mock('../use-traces', async (importOriginal) => {
   return {
     ...actual,
     useTraces: () => ({
-      traces: actual.MOCK_TRACES,
+      traces: actual.TRACES_FIXTURE,
       loading: false,
       error: null,
     }),
@@ -42,7 +42,7 @@ describe('TraceList', () => {
     render(<TraceList selectedTraceId={null} onSelect={onSelect} />)
 
     const rows = screen.getAllByTestId('trace-row')
-    expect(rows).toHaveLength(MOCK_TRACES.length)
+    expect(rows).toHaveLength(TRACES_FIXTURE.length)
   })
 
   it('renders the table container', () => {
@@ -63,7 +63,7 @@ describe('TraceList', () => {
   })
 
   it('marks the correct row as selected when selectedTraceId is set', () => {
-    const firstTrace = MOCK_TRACES[0]
+    const firstTrace = TRACES_FIXTURE[0]
     if (firstTrace === undefined) throw new Error('No mock traces')
 
     const onSelect = vi.fn()
@@ -80,7 +80,7 @@ describe('TraceList', () => {
   })
 
   it('calls onSelect with the correct traceId when a row is clicked', () => {
-    const secondTrace = MOCK_TRACES[1]
+    const secondTrace = TRACES_FIXTURE[1]
     if (secondTrace === undefined) throw new Error('Need at least 2 mock traces')
 
     const onSelect = vi.fn()
@@ -97,8 +97,8 @@ describe('TraceList', () => {
   })
 
   it('updates selection after clicking a different row', () => {
-    const firstTrace = MOCK_TRACES[0]
-    const secondTrace = MOCK_TRACES[1]
+    const firstTrace = TRACES_FIXTURE[0]
+    const secondTrace = TRACES_FIXTURE[1]
     if (firstTrace === undefined || secondTrace === undefined) {
       throw new Error('Need at least 2 mock traces')
     }
@@ -141,7 +141,7 @@ describe('TraceList', () => {
     const onSelect = vi.fn()
     render(<TraceList selectedTraceId={null} onSelect={onSelect} />)
 
-    for (const trace of MOCK_TRACES) {
+    for (const trace of TRACES_FIXTURE) {
       expect(screen.getByText(trace.flowId)).toBeInTheDocument()
     }
   })

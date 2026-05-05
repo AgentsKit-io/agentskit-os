@@ -44,12 +44,12 @@ export const PluginConfig = z.object({
   name: z.string().min(1).max(128),
   version: z
     .string()
-    .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/, {
+    .regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+){0,1}(\+[0-9A-Za-z.-]+){0,1}$/, {
       message: 'must be a SemVer string',
     }),
   source: z.union([
     z.string().regex(/^npm:[@a-z0-9/_.-]+$/, { message: 'must be npm:<package>' }),
-    z.string().regex(/^github:[\w.-]+\/[\w.-]+(?:#[\w./-]+)?$/, {
+    z.string().regex(/^github:[\w.-]+\/[\w.-]+(#[\w./-]+){0,1}$/, {
       message: 'must be github:owner/repo[#ref]',
     }),
     z.string().regex(/^marketplace:[a-z0-9-]+$/, { message: 'must be marketplace:<id>' }),

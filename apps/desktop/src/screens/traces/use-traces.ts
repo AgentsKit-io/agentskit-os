@@ -8,30 +8,10 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
+import type { Span, SpanKind, SpanStatus } from '@agentskit/os-observability'
 import { sidecarRequest } from '../../lib/sidecar'
 
-// ---------------------------------------------------------------------------
-// Types (mirroring @agentskit/os-observability Span shape)
-// ---------------------------------------------------------------------------
-
-export type SpanKind = 'flow' | 'agent' | 'tool' | 'human' | 'unknown'
-export type SpanStatus = 'ok' | 'error' | 'skipped' | 'paused'
-
-export type Span = {
-  readonly traceId: string
-  readonly spanId: string
-  readonly parentSpanId?: string
-  readonly kind: SpanKind
-  readonly name: string
-  readonly workspaceId: string
-  readonly startedAt: string
-  readonly endedAt: string
-  readonly durationMs: number
-  readonly status: SpanStatus
-  readonly errorCode?: string
-  readonly errorMessage?: string
-  readonly attributes: Record<string, unknown>
-}
+export type { Span, SpanKind, SpanStatus } from '@agentskit/os-observability'
 
 export type TraceRow = {
   readonly traceId: string
@@ -43,10 +23,10 @@ export type TraceRow = {
 }
 
 // ---------------------------------------------------------------------------
-// Mock data (used when sidecar method not implemented)
+// Fixture data (used when sidecar method not implemented)
 // ---------------------------------------------------------------------------
 
-export const MOCK_TRACES: readonly TraceRow[] = [
+export const TRACES_FIXTURE: readonly TraceRow[] = [
   {
     traceId: 'trace-001',
     flowId: 'onboarding-flow',
@@ -73,126 +53,21 @@ export const MOCK_TRACES: readonly TraceRow[] = [
   },
 ]
 
-export const MOCK_SPANS: Record<string, readonly Span[]> = {
+const makeSpan = (value: unknown): Span => value as Span
+
+export const SPANS_FIXTURE: Record<string, readonly Span[]> = {
   'trace-001': [
-    {
-      traceId: 'trace-001',
-      spanId: 'span-001-root',
-      kind: 'flow',
-      name: 'flow.started',
-      workspaceId: 'ws-default',
-      startedAt: '2026-05-02T10:00:00.000Z',
-      endedAt: '2026-05-02T10:00:04.320Z',
-      durationMs: 4320,
-      status: 'ok',
-      attributes: {
-        'agentskitos.flow_id': 'onboarding-flow',
-        'agentskitos.run_mode': 'real',
-        'agentskitos.workspace_id': 'ws-default',
-      },
-    },
-    {
-      traceId: 'trace-001',
-      spanId: 'span-001-agent',
-      parentSpanId: 'span-001-root',
-      kind: 'agent',
-      name: 'agent.started',
-      workspaceId: 'ws-default',
-      startedAt: '2026-05-02T10:00:00.200Z',
-      endedAt: '2026-05-02T10:00:03.500Z',
-      durationMs: 3300,
-      status: 'ok',
-      attributes: {
-        'agentskitos.agent_id': 'onboarding-agent',
-        'gen_ai.system': 'anthropic',
-        'gen_ai.request.model': 'claude-sonnet-4-6',
-        'gen_ai.usage.input_tokens': 512,
-        'gen_ai.usage.output_tokens': 128,
-      },
-    },
-    {
-      traceId: 'trace-001',
-      spanId: 'span-001-tool',
-      parentSpanId: 'span-001-agent',
-      kind: 'tool',
-      name: 'tool.started',
-      workspaceId: 'ws-default',
-      startedAt: '2026-05-02T10:00:01.000Z',
-      endedAt: '2026-05-02T10:00:02.800Z',
-      durationMs: 1800,
-      status: 'ok',
-      attributes: {
-        'agentskitos.node_id': 'fetch-user-data',
-      },
-    },
+    makeSpan({ traceId: 'trace-001', spanId: 'span-001-root', kind: 'flow', name: 'flow.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:00:00.000Z', endedAt: '2026-05-02T10:00:04.320Z', durationMs: 4320, status: 'ok', attributes: { 'agentskitos.flow_id': 'onboarding-flow', 'agentskitos.run_mode': 'real', 'agentskitos.workspace_id': 'ws-default' } }),
+    makeSpan({ traceId: 'trace-001', spanId: 'span-001-agent', parentSpanId: 'span-001-root', kind: 'agent', name: 'agent.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:00:00.200Z', endedAt: '2026-05-02T10:00:03.500Z', durationMs: 3300, status: 'ok', attributes: { 'agentskitos.agent_id': 'onboarding-agent', 'gen_ai.system': 'anthropic', 'gen_ai.request.model': 'claude-sonnet-4-6', 'gen_ai.usage.input_tokens': 512, 'gen_ai.usage.output_tokens': 128 } }),
+    makeSpan({ traceId: 'trace-001', spanId: 'span-001-tool', parentSpanId: 'span-001-agent', kind: 'tool', name: 'tool.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:00:01.000Z', endedAt: '2026-05-02T10:00:02.800Z', durationMs: 1800, status: 'ok', attributes: { 'agentskitos.node_id': 'fetch-user-data' } }),
   ],
   'trace-002': [
-    {
-      traceId: 'trace-002',
-      spanId: 'span-002-root',
-      kind: 'flow',
-      name: 'flow.started',
-      workspaceId: 'ws-default',
-      startedAt: '2026-05-02T10:05:00.000Z',
-      endedAt: '2026-05-02T10:05:01.850Z',
-      durationMs: 1850,
-      status: 'error',
-      attributes: {
-        'agentskitos.flow_id': 'data-pipeline',
-        'agentskitos.run_mode': 'preview',
-      },
-    },
-    {
-      traceId: 'trace-002',
-      spanId: 'span-002-agent',
-      parentSpanId: 'span-002-root',
-      kind: 'agent',
-      name: 'agent.started',
-      workspaceId: 'ws-default',
-      startedAt: '2026-05-02T10:05:00.300Z',
-      endedAt: '2026-05-02T10:05:01.850Z',
-      durationMs: 1550,
-      status: 'error',
-      errorCode: 'RATE_LIMIT',
-      errorMessage: 'API rate limit exceeded',
-      attributes: {
-        'gen_ai.system': 'openai',
-        'gen_ai.request.model': 'gpt-4o',
-        'error.type': 'rate_limit',
-      },
-    },
+    makeSpan({ traceId: 'trace-002', spanId: 'span-002-root', kind: 'flow', name: 'flow.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:05:00.000Z', endedAt: '2026-05-02T10:05:01.850Z', durationMs: 1850, status: 'error', attributes: { 'agentskitos.flow_id': 'data-pipeline', 'agentskitos.run_mode': 'preview' } }),
+    makeSpan({ traceId: 'trace-002', spanId: 'span-002-agent', parentSpanId: 'span-002-root', kind: 'agent', name: 'agent.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:05:00.300Z', endedAt: '2026-05-02T10:05:01.850Z', durationMs: 1550, status: 'error', errorCode: 'RATE_LIMIT', errorMessage: 'API rate limit exceeded', attributes: { 'gen_ai.system': 'openai', 'gen_ai.request.model': 'gpt-4o', 'error.type': 'rate_limit' } }),
   ],
   'trace-003': [
-    {
-      traceId: 'trace-003',
-      spanId: 'span-003-root',
-      kind: 'flow',
-      name: 'flow.started',
-      workspaceId: 'ws-default',
-      startedAt: '2026-05-02T10:12:00.000Z',
-      endedAt: '2026-05-02T10:12:00.990Z',
-      durationMs: 990,
-      status: 'ok',
-      attributes: {
-        'agentskitos.flow_id': 'report-generator',
-        'agentskitos.run_mode': 'dry_run',
-      },
-    },
-    {
-      traceId: 'trace-003',
-      spanId: 'span-003-tool',
-      parentSpanId: 'span-003-root',
-      kind: 'tool',
-      name: 'tool.started',
-      workspaceId: 'ws-default',
-      startedAt: '2026-05-02T10:12:00.100Z',
-      endedAt: '2026-05-02T10:12:00.800Z',
-      durationMs: 700,
-      status: 'skipped',
-      attributes: {
-        'agentskitos.node_id': 'generate-pdf',
-      },
-    },
+    makeSpan({ traceId: 'trace-003', spanId: 'span-003-root', kind: 'flow', name: 'flow.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:12:00.000Z', endedAt: '2026-05-02T10:12:00.990Z', durationMs: 990, status: 'ok', attributes: { 'agentskitos.flow_id': 'report-generator', 'agentskitos.run_mode': 'dry_run' } }),
+    makeSpan({ traceId: 'trace-003', spanId: 'span-003-tool', parentSpanId: 'span-003-root', kind: 'tool', name: 'tool.started', workspaceId: 'ws-default', startedAt: '2026-05-02T10:12:00.100Z', endedAt: '2026-05-02T10:12:00.800Z', durationMs: 700, status: 'skipped', attributes: { 'agentskitos.node_id': 'generate-pdf' } }),
   ],
 }
 
@@ -213,11 +88,12 @@ type SpansState = {
 }
 
 const normalizeTraceRows = (value: unknown): readonly TraceRow[] => {
-  return Array.isArray(value) ? (value as readonly TraceRow[]) : MOCK_TRACES
+  return Array.isArray(value) ? (value as readonly TraceRow[]) : TRACES_FIXTURE
 }
 
 const normalizeSpans = (traceId: string, value: unknown): readonly Span[] => {
-  return Array.isArray(value) ? (value as readonly Span[]) : (MOCK_SPANS[traceId] ?? [])
+  if (Array.isArray(value)) return value as readonly Span[]
+  return SPANS_FIXTURE[traceId] ?? []
 }
 
 export const useTraces = (): TracesState => {
@@ -234,14 +110,14 @@ export const useTraces = (): TracesState => {
       try {
         // TODO: sidecar `traces.list` method not yet implemented.
         // Attempt real call; on MethodNotFound fall back to mock data.
-        const result = await sidecarRequest<unknown>('traces.list')
+        const result = await sidecarRequest<readonly TraceRow[]>('traces.list')
         if (!cancelled) {
           setState({ traces: normalizeTraceRows(result), loading: false, error: null })
         }
       } catch {
         // Sidecar method not implemented yet — use mock data.
         if (!cancelled) {
-          setState({ traces: MOCK_TRACES, loading: false, error: null })
+          setState({ traces: TRACES_FIXTURE, loading: false, error: null })
         }
       }
     }
@@ -268,14 +144,14 @@ export const useTraceSpans = (traceId: string | null): SpansState => {
       setState((prev) => ({ ...prev, loading: true, error: null }))
       try {
         // TODO: sidecar `traces.get` method not yet implemented.
-        const result = await sidecarRequest<unknown>('traces.get', {
+        const result = await sidecarRequest<readonly Span[]>('traces.get', {
           traceId: id,
         })
         setState({ spans: normalizeSpans(id, result), loading: false, error: null })
       } catch {
         // Fallback to mock data.
-        const mockSpans = MOCK_SPANS[id] ?? []
-        setState({ spans: mockSpans, loading: false, error: null })
+        const fixtureSpans = SPANS_FIXTURE[id] ?? []
+        setState({ spans: fixtureSpans, loading: false, error: null })
       }
     },
     [],

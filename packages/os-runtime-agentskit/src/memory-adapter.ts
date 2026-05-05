@@ -6,24 +6,30 @@ import type { MemoryAdapter } from '@agentskit/os-runtime'
 import type { RunContext } from '@agentskit/os-core'
 
 export interface AgentskitMemoryStore {
-  readonly id?: string
+  readonly id: string | undefined
   get(key: string): Promise<unknown>
   set(key: string, value: unknown): Promise<void>
 }
 
 export type AgentskitMemoryAdapterOptions = {
-  readonly id?: string
-  readonly keyResolver?: (ref: string, ctx: RunContext) => string
+  readonly id: string | undefined
+  readonly keyResolver: ((ref: string, ctx: RunContext) => string) | undefined
 }
 
 const DEFAULT_ID = 'agentskit-memory'
 
 export const createAgentskitMemoryAdapter = (
   store: AgentskitMemoryStore,
-  opts: AgentskitMemoryAdapterOptions = {},
+  opts: AgentskitMemoryAdapterOptions | undefined = undefined,
 ): MemoryAdapter => {
-  const id = opts.id ?? store.id ?? DEFAULT_ID
-  const resolveKey = opts.keyResolver ?? ((ref) => ref)
+  const optId = opts ? opts.id : undefined
+  const storeId = store.id
+  let id = DEFAULT_ID
+  if (storeId !== undefined) id = storeId
+  if (optId !== undefined) id = optId
+
+  let resolveKey: (ref: string, ctx: RunContext) => string = (ref) => ref
+  if (opts && opts.keyResolver) resolveKey = opts.keyResolver
   return {
     id,
     read: async (ref, ctx) => store.get(resolveKey(ref, ctx)),

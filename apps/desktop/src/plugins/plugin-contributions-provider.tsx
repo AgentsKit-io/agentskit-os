@@ -20,21 +20,16 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { sidecarRequest } from '../lib/sidecar'
 import {
   PluginDashboardContribution,
   PluginWidgetContribution,
 } from './contribution-types'
 import type { z } from 'zod'
+import { usePluginContributionsFetch } from './use-plugin-contributions'
 
 // ---------------------------------------------------------------------------
 // Sidecar response shape
 // ---------------------------------------------------------------------------
-
-type ContributionsResponse = {
-  dashboards?: unknown[]
-  widgets?: unknown[]
-}
 
 // ---------------------------------------------------------------------------
 // Stub fallback (TODO #91/M5 — remove once plugin host ships)
@@ -102,24 +97,6 @@ export type PluginContributionsProviderProps = {
   children: React.ReactNode
 }
 
-function parseDashboards(raw: unknown[]): PluginDashboardContribution[] {
-  const results: PluginDashboardContribution[] = []
-  for (const item of raw) {
-    const parsed = PluginDashboardContribution.safeParse(item)
-    if (parsed.success) results.push(parsed.data)
-  }
-  return results
-}
-
-function parseWidgets(raw: unknown[]): PluginWidgetContribution[] {
-  const results: PluginWidgetContribution[] = []
-  for (const item of raw) {
-    const parsed = PluginWidgetContribution.safeParse(item)
-    if (parsed.success) results.push(parsed.data)
-  }
-  return results
-}
-
 export function PluginContributionsProvider({
   children,
 }: PluginContributionsProviderProps) {
@@ -129,14 +106,12 @@ export function PluginContributionsProvider({
   const [widgets, setWidgets] = useState<PluginWidgetContribution[]>([
     STUB_WIDGET,
   ])
+  const fetchFromSidecar = usePluginContributionsFetch()
 
   const fetchContributions = useCallback(async () => {
     try {
       // TODO #91/M5 — sidecar plugin host: implement `plugins.list-contributions`
-      const response = await sidecarRequest<ContributionsResponse>(
-        'plugins.list-contributions',
-        { kinds: ['dashboard-template', 'widget'] },
-      )
+      const response = await fetchFromSidecar()
 
       // When Tauri is not available (dev/web), sidecarRequest returns {} and
       // we keep the stubs. When the plugin host ships, it returns real data.
@@ -145,18 +120,14 @@ export function PluginContributionsProvider({
         typeof response === 'object' &&
         ('dashboards' in response || 'widgets' in response)
       ) {
-        if (Array.isArray(response.dashboards)) {
-          setDashboards(parseDashboards(response.dashboards))
-        }
-        if (Array.isArray(response.widgets)) {
-          setWidgets(parseWidgets(response.widgets))
-        }
+        if (Array.isArray(response.dashboards)) setDashboards(response.dashboards)
+        if (Array.isArray(response.widgets)) setWidgets(response.widgets)
       }
       // else: no real response — stubs remain
     } catch {
       // Non-fatal: stubs remain
     }
-  }, [])
+  }, [fetchFromSidecar])
 
   useEffect(() => {
     void fetchContributions()

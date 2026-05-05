@@ -89,35 +89,48 @@ export const toOtelSpan = (
   }
   if (span.errorCode) attributes['agentskitos.error.code'] = span.errorCode
   if (span.errorMessage) attributes['agentskitos.error.message'] = span.errorMessage
-  return {
+  const resourceAttrs: Record<string, unknown> = {
+    'service.name': service.name,
+  }
+  if (service.version !== undefined) resourceAttrs['service.version'] = service.version
+
+  const instrumentationScope: { name: string; version?: string } = {
+    name: '@agentskit/os-observability',
+  }
+  if (service.version !== undefined) instrumentationScope.version = service.version
+
+  const out: OtelReadableSpan = {
     name: span.name,
     kind: OTEL_SPAN_KIND_INTERNAL,
     spanContext: () => ctx,
-    ...(span.parentSpanId !== undefined ? { parentSpanId: span.parentSpanId } : {}),
     startTime: isoToHrTime(span.startedAt),
     endTime: isoToHrTime(span.endedAt),
     status: statusOf(span.status),
     attributes,
     resource: {
-      attributes: {
-        'service.name': service.name,
-        ...(service.version !== undefined ? { 'service.version': service.version } : {}),
-      },
+      attributes: resourceAttrs,
     },
-    instrumentationScope: {
-      name: '@agentskit/os-observability',
-      ...(service.version !== undefined ? { version: service.version } : {}),
-    },
+    instrumentationScope,
   }
+  if (span.parentSpanId !== undefined) {
+    ;(out as { parentSpanId?: string }).parentSpanId = span.parentSpanId
+  }
+  return out
 }
 
 export const createOtelSpanExporter = (
   opts: OtelSpanExporterAdapterOptions,
 ): SpanExporter & { flush: () => Promise<void>; shutdown: () => Promise<void> } => {
   const buf: OtelReadableSpan[] = []
-  const limit = opts.batchSize ?? DEFAULT_BATCH
-  const onError = opts.onError ?? (() => undefined)
-  const service = { name: opts.serviceName ?? DEFAULT_SERVICE, ...(opts.serviceVersion !== undefined ? { version: opts.serviceVersion } : {}) }
+  let limit = DEFAULT_BATCH
+  if (opts.batchSize !== undefined) limit = opts.batchSize
+
+  const onError = opts.onError !== undefined ? opts.onError : () => undefined
+
+  let serviceName = DEFAULT_SERVICE
+  if (opts.serviceName !== undefined) serviceName = opts.serviceName
+  const service: { name: string; version?: string } = { name: serviceName }
+  if (opts.serviceVersion !== undefined) service.version = opts.serviceVersion
 
   const flush = async (): Promise<void> => {
     if (buf.length === 0) return

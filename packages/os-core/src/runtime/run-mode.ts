@@ -45,25 +45,38 @@ export type DeterminismIssue = {
   readonly message: string
 }
 
-export type DeterminismCheckInput = {
-  readonly agents?: ReadonlyArray<{
+type DeterminismCheckInputBase = {
+  readonly agents: ReadonlyArray<{
     id: string
-    model: { provider: string; model: string; temperature?: number }
-  }>
-  readonly tools?: ReadonlyArray<{ id: string; deterministicStub?: boolean }>
-  readonly randomnessSources?: ReadonlyArray<string>
+    model:
+      | { provider: string; model: string; temperature: number | undefined }
+      | { provider: string; model: string }
+  }> | undefined
+  readonly tools:
+    | ReadonlyArray<{ id: string; deterministicStub: boolean | undefined } | { id: string }>
+    | undefined
 }
+
+export type DeterminismCheckInput =
+  | DeterminismCheckInputBase
+  | (DeterminismCheckInputBase & { readonly randomnessSources: ReadonlyArray<string> | undefined })
 
 const DETERMINISTIC_PINNED = /[-@](\d+(\.\d+)+|\d{4}-\d{2}-\d{2}|v\d+)/
 
 export const checkDeterminism = (input: DeterminismCheckInput): readonly DeterminismIssue[] => {
   const issues: DeterminismIssue[] = []
-  const agents = input.agents ?? []
-  const tools = input.tools ?? []
-  const randomness = input.randomnessSources ?? []
+  const agents = input.agents !== undefined ? input.agents : []
+  const tools = input.tools !== undefined ? input.tools : []
+  const randomness =
+    'randomnessSources' in input && input.randomnessSources !== undefined ? input.randomnessSources : []
 
   agents.forEach((a, i) => {
-    const t = a.model.temperature ?? 0
+    let temp = 0
+    if ('temperature' in a.model) {
+      const t = a.model.temperature
+      if (t !== undefined) temp = t
+    }
+    const t = temp
     if (t !== 0) {
       issues.push({
         path: ['agents', i, 'model', 'temperature'],
@@ -81,7 +94,7 @@ export const checkDeterminism = (input: DeterminismCheckInput): readonly Determi
   })
 
   tools.forEach((t, i) => {
-    if (t.deterministicStub === false) {
+    if ('deterministicStub' in t && t.deterministicStub === false) {
       issues.push({
         path: ['tools', i],
         code: 'missing_stub',

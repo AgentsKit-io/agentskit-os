@@ -223,10 +223,14 @@ const executeRun = async (args: Args, io: CliIo): Promise<CliExit> => {
     store = new FileCheckpointStore({ dir })
   }
 
-  const resultStatus: { status: string; stoppedAt?: string; reason?: string; executedOrder: readonly string[] } =
-    durable
-      ? await resumeFlow(flow, { handlers, ctx, store: store! as CheckpointStore, onEvent })
-      : await runFlow(flow, { handlers, ctx, onEvent })
+  const resultStatus: {
+    status: string
+    stoppedAt?: string
+    reason?: string
+    executedOrder: readonly string[]
+  } = durable
+    ? await resumeFlow(flow, { handlers, ctx, store: store! as CheckpointStore, onEvent })
+    : await runFlow(flow, { handlers, ctx, onEvent })
 
   const header = `run ${ctx.runId} flow=${flow.id} mode=${args.mode} workspace=${ctx.workspaceId}${durable ? ' (durable)' : ''}`
   const trace = events.length > 0 ? `\n${events.join('\n')}\n` : ''

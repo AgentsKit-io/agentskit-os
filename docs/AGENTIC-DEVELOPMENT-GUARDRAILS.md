@@ -46,8 +46,12 @@ No PR should add a primary user-facing screen that only talks to mock data.
 - Start from an issue with acceptance criteria and a test plan.
 - Check AgentsKit docs before creating primitives that may already exist.
 - Keep package ownership narrow; do not add orchestration logic inside UI.
+- Follow [UI-VISUAL-SYSTEM.md](./UI-VISUAL-SYSTEM.md) for colors, typography,
+  glass, motion, and interaction styling.
+- Follow [UI-FRONTEND-GUARDRAILS.md](./UI-FRONTEND-GUARDRAILS.md) for component
+  size, hook boundaries, shared primitives, and standard library usage.
 - Do not add `any`, nested ternaries, or untyped sidecar calls.
-- Do not increase the architecture baseline.
+- Do not increase the architecture or UI baselines.
 - Update docs and contracts in the same PR as behavior.
 
 ## Local Checks
@@ -64,6 +68,7 @@ When intentionally paying down debt:
 
 ```bash
 node scripts/check-architecture-guardrails.mjs --update-baseline
+node scripts/check-ui-guardrails.mjs --update-baseline
 ```
 
 Baseline updates should reduce or explain debt. They are not a shortcut for

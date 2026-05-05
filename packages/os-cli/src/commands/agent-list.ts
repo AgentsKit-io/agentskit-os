@@ -5,8 +5,10 @@ import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 
-const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
-  const result: { current?: CliExit } = {}
+type CmdResult = { current: CliExit | undefined }
+
+const buildProgram = (io: CliIo): { program: Command; result: CmdResult } => {
+  const result: CmdResult = { current: undefined }
   const program = new Command()
   program
     .name('agent list')
@@ -21,8 +23,9 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
       '.agentskitos/workspaces/default',
     )
     .option('--json', 'emit JSON', false)
-    .action(async (opts: { workspaceRoot?: string; json?: boolean }) => {
-      const root = opts.workspaceRoot ?? '.agentskitos/workspaces/default'
+    .action(async (opts: { workspaceRoot: string; json: boolean }) => {
+      let root = '.agentskitos/workspaces/default'
+      if (opts.workspaceRoot) root = opts.workspaceRoot
       const dir = resolve(io.cwd(), root, 'registry')
       const store = await FileRegistryStore.create({ dir })
       const entries = await store.list()
@@ -53,6 +56,7 @@ export const agentList: CliCommand = {
     if (parsed.code !== 0) {
       return parsed
     }
-    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
+    if (result.current) return result.current
+    return { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

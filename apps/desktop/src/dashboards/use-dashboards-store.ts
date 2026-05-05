@@ -172,8 +172,10 @@ export function useDashboardsStore(): DashboardsStore {
       mutate((prev) => {
         if (prev.dashboards.length <= 1) return prev
         const dashboards = prev.dashboards.filter((d) => d.id !== id)
-        const activeId =
-          prev.activeId === id ? (dashboards[0]?.id ?? prev.activeId) : prev.activeId
+        let activeId = prev.activeId
+        if (prev.activeId === id) {
+          activeId = dashboards[0]?.id ?? prev.activeId
+        }
         return { dashboards, activeId }
       })
     },

@@ -10,6 +10,7 @@
 
 import type { TraceRow } from './use-traces'
 import { useTraces } from './use-traces'
+import { formatMdHms } from '../../lib/time'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -30,35 +31,22 @@ const formatDuration = (ms: number): string => {
   return `${(ms / 1000).toFixed(2)}s`
 }
 
-const formatStarted = (iso: string): string => {
-  try {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
+const formatStarted = (iso: string): string => formatMdHms(iso)
 
 const STATUS_CLASSES: Record<string, string> = {
-  ok: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
-  error: 'bg-red-500/15 text-red-400 border-red-500/25',
-  skipped: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/25',
-  paused: 'bg-amber-500/15 text-amber-400 border-amber-500/25',
+  ok: 'bg-[var(--ag-success)]/15 text-[var(--ag-success)] border-[var(--ag-success)]/25',
+  error: 'bg-[var(--ag-danger)]/15 text-[var(--ag-danger)] border-[var(--ag-danger)]/25',
+  skipped: 'bg-[var(--ag-ink-muted)]/15 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/25',
+  paused: 'bg-[var(--ag-warn)]/15 text-[var(--ag-warn)] border-[var(--ag-warn)]/25',
 }
 
 const MODE_CLASSES: Record<string, string> = {
-  real: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
-  preview: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-  dry_run: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
-  replay: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  simulate: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  deterministic: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+  real: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
+  preview: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
+  dry_run: 'bg-[var(--ag-ink-muted)]/10 text-[var(--ag-ink-muted)] border-[var(--ag-ink-muted)]/20',
+  replay: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
+  simulate: 'bg-[var(--ag-warn)]/10 text-[var(--ag-warn)] border-[var(--ag-warn)]/20',
+  deterministic: 'bg-[var(--ag-accent)]/10 text-[var(--ag-accent)] border-[var(--ag-accent)]/20',
 }
 
 // ---------------------------------------------------------------------------
@@ -163,7 +151,7 @@ export const TraceList = ({
 
   if (error !== null) {
     return (
-      <div className={`flex items-center justify-center p-6 text-sm text-red-400 ${className ?? ''}`}>
+      <div className={`flex items-center justify-center p-6 text-sm text-[var(--ag-danger)] ${className ?? ''}`}>
         Error: {error}
       </div>
     )

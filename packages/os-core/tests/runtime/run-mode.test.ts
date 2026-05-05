@@ -7,6 +7,8 @@ import {
   checkDeterminism,
   parseRunContext,
   safeParseRunContext,
+  createDefaultRunId,
+  isStubRunMode,
 } from '../../src/runtime/run-mode.js'
 
 describe('RUN_MODES', () => {
@@ -163,5 +165,26 @@ describe('RunContext', () => {
 
   it('throws on parseRunContext with invalid input', () => {
     expect(() => parseRunContext({})).toThrow()
+  })
+})
+
+describe('createDefaultRunId', () => {
+  it('returns distinct run_* ids', () => {
+    const a = createDefaultRunId()
+    const b = createDefaultRunId()
+    expect(a).toMatch(/^run_[a-z0-9]+_[a-z0-9]+$/)
+    expect(b).toMatch(/^run_[a-z0-9]+_[a-z0-9]+$/)
+    expect(a).not.toBe(b)
+  })
+})
+
+describe('isStubRunMode', () => {
+  it('is true for stub modes only', () => {
+    expect(isStubRunMode('dry_run')).toBe(true)
+    expect(isStubRunMode('preview')).toBe(true)
+    expect(isStubRunMode('replay')).toBe(true)
+    expect(isStubRunMode('simulate')).toBe(true)
+    expect(isStubRunMode('real')).toBe(false)
+    expect(isStubRunMode('deterministic')).toBe(false)
   })
 })

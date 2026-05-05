@@ -2,6 +2,8 @@ import { resolve } from 'node:path'
 import { Command } from 'commander'
 import { safeParseConfigRoot } from '@agentskit/os-core/schema/config-root'
 import {
+  createDefaultRunId,
+  isStubRunMode,
   parseRunContext,
   RUN_MODES,
   type RunMode,
@@ -63,12 +65,6 @@ type Args = {
   quiet: boolean
   estimate: boolean
   force: boolean
-}
-
-const newRunId = (): string => {
-  const t = Date.now().toString(36)
-  const r = Math.random().toString(36).slice(2, 8)
-  return `run_${t}_${r}`
 }
 
 const USD_DECIMALS = 6
@@ -198,7 +194,7 @@ const executeRun = async (args: Args, io: CliIo): Promise<CliExit> => {
     }
   }
 
-  const runId = args.resume ?? newRunId()
+  const runId = args.resume ?? createDefaultRunId()
   const ctx = parseRunContext({
     runMode: args.mode,
     workspaceId: args.workspace ?? parsed.data.workspace.id,
@@ -206,10 +202,7 @@ const executeRun = async (args: Args, io: CliIo): Promise<CliExit> => {
     startedAt: new Date().toISOString(),
   })
 
-  const stubReason: 'preview' | 'replay' | 'dry_run' | 'simulate' =
-    args.mode === 'dry_run' || args.mode === 'preview' || args.mode === 'replay' || args.mode === 'simulate'
-      ? args.mode
-      : 'dry_run'
+  const stubReason = isStubRunMode(args.mode) ? args.mode : 'dry_run'
   const handlers = defaultStubHandlers(stubReason)
 
   const events: string[] = []

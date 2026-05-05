@@ -1,4 +1,14 @@
+import type { AgentNode } from '@agentskit/os-core'
 import type { NodeHandlerMap } from '@agentskit/os-flow'
+import {
+  composeHandlers,
+  createAuctionHandler,
+  createBlackboardHandler,
+  createCompareHandler,
+  createDebateHandler,
+  createVoteHandler,
+  type RunAgentFn,
+} from '@agentskit/os-flow'
 import type { AgentLookup } from './handlers/agent.js'
 import type { AdapterRegistry } from './adapters.js'
 import { createAgentHandler } from './handlers/agent.js'
@@ -10,6 +20,29 @@ import { createParallelHandler } from './handlers/parallel.js'
 export type LiveHandlerOptions = {
   readonly adapters: AdapterRegistry
   readonly lookupAgent: AgentLookup
+}
+
+const fanoutAgentNode = (agentId: string): AgentNode => ({
+  kind: 'agent',
+  id: 'fanout',
+  agent: agentId as AgentNode['agent'],
+})
+
+const makeRunAgentFn = (
+  lookupAgent: AgentLookup,
+  llm: NonNullable<AdapterRegistry['llm']>,
+): RunAgentFn => {
+  const handler = createAgentHandler(lookupAgent, llm)
+  return async (agentId, input, ctx) => {
+    const outcome = await handler(fanoutAgentNode(agentId), input, ctx)
+    if (outcome.kind === 'ok') {
+      return { output: outcome.value }
+    }
+    if (outcome.kind === 'failed') {
+      throw new Error(outcome.error.message)
+    }
+    throw new Error(`fanout agent run ended as ${outcome.kind}`)
+  }
 }
 
 export const buildLiveHandlers = (opts: LiveHandlerOptions): NodeHandlerMap => {
@@ -25,5 +58,18 @@ export const buildLiveHandlers = (opts: LiveHandlerOptions): NodeHandlerMap => {
   }
   ;(out as Record<string, unknown>).condition = createConditionHandler()
   ;(out as Record<string, unknown>).parallel = createParallelHandler()
-  return out
+
+  if (!opts.adapters.llm) {
+    return out
+  }
+
+  const runAgent = makeRunAgentFn(opts.lookupAgent, opts.adapters.llm)
+  const multi: NodeHandlerMap = {
+    compare: createCompareHandler({ runAgent }),
+    vote: createVoteHandler({ runAgent }),
+    debate: createDebateHandler({ runAgent }),
+    auction: createAuctionHandler({ runAgent }),
+    blackboard: createBlackboardHandler({ runAgent }),
+  }
+  return composeHandlers(out, multi)
 }

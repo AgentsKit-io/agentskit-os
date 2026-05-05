@@ -1,5 +1,8 @@
 // Two-person HITL approval for irreversibility:high nodes (#188).
 // Host injects the approverGate; this file is pure async logic.
+//
+// Distinct from `@agentskit/os-runtime` `createHumanHandler`, which wraps a
+// `HumanReviewer` adapter (prompt + approvers list, no quorum gate).
 
 import type { HumanNode, RunContext } from '@agentskit/os-core'
 import type { NodeOutcome } from './handlers.js'

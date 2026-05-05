@@ -112,3 +112,17 @@ export type RunContext = z.infer<typeof RunContext>
 
 export const parseRunContext = (input: unknown): RunContext => RunContext.parse(input)
 export const safeParseRunContext = (input: unknown) => RunContext.safeParse(input)
+
+/** Run modes where hosts use stub/skipped handlers instead of live I/O (ADR-0009). */
+export const STUB_RUN_MODES = ['dry_run', 'simulate', 'replay', 'preview'] as const
+export type StubRunMode = (typeof STUB_RUN_MODES)[number]
+
+export const isStubRunMode = (mode: RunMode): mode is StubRunMode =>
+  (STUB_RUN_MODES as readonly string[]).includes(mode)
+
+/** Default `run_*` id generator shared by CLI and headless runners. */
+export const createDefaultRunId = (): string => {
+  const t = Date.now().toString(36)
+  const r = Math.random().toString(36).slice(2, 8)
+  return `run_${t}_${r}`
+}

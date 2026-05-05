@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
-import { WebhookTrigger, parseWorkspaceConfig, signWebhookRequest } from '@agentskit/os-core'
+import { parseFlowConfig, WebhookTrigger, parseWorkspaceConfig, signWebhookRequest } from '@agentskit/os-core'
+import type { AdapterRegistry } from '@agentskit/os-runtime'
 
+import { createHeadlessRunner } from '../src/runner.js'
 import { createWebhookServer } from '../src/webhook-server.js'
 
 const workspace = parseWorkspaceConfig({ schemaVersion: 1, id: 'ws', name: 'WS' })
@@ -78,6 +80,64 @@ describe('createWebhookServer', () => {
     expect(res.status).toBe(200)
     expect(runFlow).toHaveBeenCalledOnce()
     await server.close()
+  })
+
+  it('runs a workspace flow through createHeadlessRunner after verified POST', async () => {
+    const ws = parseWorkspaceConfig({
+      schemaVersion: 1,
+      id: 'ws-hook',
+      name: 'WS',
+    })
+    const tinyFlow = parseFlowConfig({
+      id: 'tiny-hook',
+      name: 'Tiny',
+      entry: 'cond',
+      nodes: [
+        { id: 'cond', kind: 'condition', expression: 'true' },
+        { id: 'noop', kind: 'tool', tool: 'noop' },
+      ],
+      edges: [{ from: 'cond', to: 'noop', on: 'true' }],
+    })
+    const adapters: AdapterRegistry = {
+      tool: {
+        knows: (id) => id === 'noop',
+        invoke: async () => ({ kind: 'ok', value: null }),
+      },
+    }
+    const runner = createHeadlessRunner({
+      config: ws,
+      flows: new Map([['tiny-hook', tinyFlow]]),
+      adapters,
+    })
+
+    const trigger = WebhookTrigger.parse({
+      id: 't1',
+      name: 't1',
+      enabled: true,
+      flow: 'tiny-hook',
+      tags: [],
+      kind: 'webhook',
+      path: '/hook',
+      method: 'POST',
+      secret: 's',
+      signing: { toleranceSeconds: 0 },
+    })
+
+    const server = createWebhookServer({ triggers: [trigger], runner })
+    const addr = await server.listen()
+    const body = '{}'
+    const signed = signWebhookRequest({ secret: 's', body, timestamp: '20', config: trigger.signing })
+    const res = await fetch(`http://${addr.host}:${addr.port}/hook`, {
+      method: 'POST',
+      body,
+      headers: signed.headers,
+    })
+    expect(res.status).toBe(200)
+    const jsonBody = (await res.json()) as { status: string; runId: string; flowId: string }
+    expect(jsonBody.flowId).toBe('tiny-hook')
+    expect(['completed', 'skipped']).toContain(jsonBody.status)
+    await server.close()
+    await runner.dispose()
   })
 })
 

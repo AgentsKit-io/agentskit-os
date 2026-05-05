@@ -61,7 +61,7 @@ function Header({ workspaceName, runMode, status, onChangeRunMode, onDeploy }: H
           className={[
             'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
             isProd
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:border-emerald-500/60'
+              ? 'border-[var(--ag-success)]/30 bg-[var(--ag-success)]/10 text-[var(--ag-success)] hover:border-[var(--ag-success)]/60'
               : 'border-[var(--ag-line)] bg-[var(--ag-panel-alt)] text-[var(--ag-ink)] hover:border-[var(--ag-accent)]/60',
           ].join(' ')}
           onClick={() => onChangeRunMode(isProd ? 'preview' : 'real')}

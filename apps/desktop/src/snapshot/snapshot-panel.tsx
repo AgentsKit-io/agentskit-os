@@ -172,7 +172,7 @@ export function SnapshotPanel({ isOpen, onClose }: SnapshotPanelProps) {
                 <p
                   role="alert"
                   data-testid="import-error"
-                  className="text-[12px] text-red-500"
+                  className="text-[12px] text-[var(--ag-danger)]"
                 >
                   {importError}
                 </p>
@@ -181,7 +181,7 @@ export function SnapshotPanel({ isOpen, onClose }: SnapshotPanelProps) {
                 <p
                   role="status"
                   data-testid="import-success"
-                  className="text-[12px] text-green-500"
+                  className="text-[12px] text-[var(--ag-success)]"
                 >
                   Snapshot applied — reloading…
                 </p>

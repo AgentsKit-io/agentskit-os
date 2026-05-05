@@ -102,7 +102,7 @@ export const ReplayButton = ({
 
       {/* Inline error feedback */}
       {error !== null && (
-        <span className="ml-2 text-xs text-red-400" aria-live="polite">
+        <span className="ml-2 text-xs text-[var(--ag-danger)]" aria-live="polite">
           {error}
         </span>
       )}

@@ -6,10 +6,10 @@
   "maxHookLines": 180,
   "totals": {
     "filesScanned": 178,
-    "issues": 57,
+    "issues": 53,
     "byKind": {
       "giant-inline-classname": 7,
-      "hardcoded-color-class": 14,
+      "hardcoded-color-class": 10,
       "oversized-ui-unit": 10,
       "screen-format-helper": 9,
       "screen-status-map": 17
@@ -101,13 +101,6 @@
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
-      "id": "hardcoded-color-class:apps/desktop/src/screens/dashboard/index.tsx:2c9cf46bf0e9515b",
-      "kind": "hardcoded-color-class",
-      "file": "apps/desktop/src/screens/dashboard/index.tsx",
-      "line": 64,
-      "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
       "id": "hardcoded-color-class:apps/desktop/src/screens/evals/index.tsx:44c10f91b894abbe",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/evals/index.tsx",
@@ -122,31 +115,10 @@
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
-      "id": "hardcoded-color-class:apps/desktop/src/screens/traces/replay-button.tsx:21d14f5dd19d942a",
-      "kind": "hardcoded-color-class",
-      "file": "apps/desktop/src/screens/traces/replay-button.tsx",
-      "line": 105,
-      "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
       "id": "hardcoded-color-class:apps/desktop/src/screens/triggers/index.tsx:44c10f91b894abbe",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/triggers/index.tsx",
       "line": 258,
-      "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
-      "id": "hardcoded-color-class:apps/desktop/src/snapshot/snapshot-panel.tsx:2a030bfa4c84a7e6",
-      "kind": "hardcoded-color-class",
-      "file": "apps/desktop/src/snapshot/snapshot-panel.tsx",
-      "line": 184,
-      "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
-    },
-    {
-      "id": "hardcoded-color-class:apps/desktop/src/snapshot/snapshot-panel.tsx:70a95091a6d048ae",
-      "kind": "hardcoded-color-class",
-      "file": "apps/desktop/src/snapshot/snapshot-panel.tsx",
-      "line": 175,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {

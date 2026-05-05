@@ -245,22 +245,30 @@ export const runCodingAgentBenchmark = async (opts: {
       headBefore = await resolveHeadOidSafe(cwd)
     }
 
+    const persistProviderRunBundle = async (
+      phase: 'provider_completed' | 'provider_threw',
+      taskResult: CodingTaskResult,
+    ): Promise<void> => {
+      if (opts.artifacts === undefined) {
+        return
+      }
+      const git = await gitSnapshotAfterRun(cwd, headBefore)
+      await persistArtifact({
+        index: i,
+        providerId: pid,
+        worktreePath,
+        cwdForWorktreeId: cwd,
+        taskId,
+        phase,
+        taskRequest: req,
+        taskResult,
+        ...(git !== undefined ? { git } : {}),
+      })
+    }
+
     try {
       const result = await p.runTask(req)
-      if (opts.artifacts !== undefined) {
-        const git = await gitSnapshotAfterRun(cwd, headBefore)
-        await persistArtifact({
-          index: i,
-          providerId: pid,
-          worktreePath,
-          cwdForWorktreeId: cwd,
-          taskId,
-          phase: 'provider_completed',
-          taskRequest: req,
-          taskResult: result,
-          ...(git !== undefined ? { git } : {}),
-        })
-      }
+      await persistProviderRunBundle('provider_completed', result)
       rows.push(rowFromResult(result, worktreePath))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -273,20 +281,7 @@ export const runCodingAgentBenchmark = async (opts: {
         summary: msg,
         errorCode: 'benchmark.run_threw',
       }
-      if (opts.artifacts !== undefined) {
-        const git = await gitSnapshotAfterRun(cwd, headBefore)
-        await persistArtifact({
-          index: i,
-          providerId: pid,
-          worktreePath,
-          cwdForWorktreeId: cwd,
-          taskId,
-          phase: 'provider_threw',
-          taskRequest: req,
-          taskResult: synthetic,
-          ...(git !== undefined ? { git } : {}),
-        })
-      }
+      await persistProviderRunBundle('provider_threw', synthetic)
       rows.push({
         providerId: pid,
         status: 'fail',

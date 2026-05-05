@@ -69,11 +69,17 @@ export function FocusProvider({ children }: FocusProviderProps) {
       if (modKey && e.shiftKey && e.key === '.') {
         e.preventDefault()
         toggle()
+        return
+      }
+
+      if (active && e.key === 'Escape') {
+        e.preventDefault()
+        disable()
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [toggle])
+  }, [active, disable, toggle])
 
   // Register "Toggle focus mode" command in the command palette
   useEffect(() => {

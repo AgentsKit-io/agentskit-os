@@ -45,7 +45,7 @@ export function NotificationPanel() {
       {/* Backdrop — click outside closes panel */}
       <div
         aria-hidden
-        className="fixed inset-0 z-40"
+        className="fixed inset-0 z-40 bg-black/60"
         onClick={close}
       />
 
@@ -54,7 +54,7 @@ export function NotificationPanel() {
         role="complementary"
         aria-label="Notification center"
         data-testid="notification-panel"
-        className="fixed right-0 top-0 z-50 flex h-screen w-96 flex-col overflow-hidden rounded-none rounded-l-xl border-r-0 shadow-2xl"
+        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[88vh] flex-col overflow-hidden rounded-none rounded-t-xl border-b-0 bg-[var(--ag-panel)] shadow-2xl sm:inset-x-auto sm:right-0 sm:top-0 sm:h-screen sm:max-h-none sm:w-96 sm:rounded-l-xl sm:rounded-tr-none sm:border-r-0"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-4 py-3">

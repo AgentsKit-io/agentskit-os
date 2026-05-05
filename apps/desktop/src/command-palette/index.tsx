@@ -62,15 +62,15 @@ export function CommandPalette() {
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4"
-      style={{ paddingTop: '20vh' }}
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 px-3"
+      style={{ paddingTop: 'min(20vh, 7rem)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) closePalette()
       }}
     >
       <GlassPanel
         blur="lg"
-        className="w-full max-w-[640px] overflow-hidden shadow-2xl"
+        className="w-full max-w-[640px] overflow-hidden bg-[var(--ag-panel)] shadow-2xl"
         onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
       >
         {/* Header bar */}

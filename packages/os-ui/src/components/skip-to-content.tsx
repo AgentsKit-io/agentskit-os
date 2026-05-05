@@ -34,27 +34,39 @@ export function SkipToContent({
       data-testid="skip-to-content"
       style={{
         position: 'absolute',
-        top: 0,
-        left: 0,
+        top: '0.5rem',
+        left: '0.5rem',
         padding: '0.5rem 1rem',
         background: 'var(--ag-surface, #08090c)',
         color: 'var(--ag-accent, #22d3ee)',
         fontWeight: 600,
         fontSize: '0.875rem',
         zIndex: 9999,
-        // Visually hidden until focused
-        transform: 'translateY(-100%)',
-        transition: 'transform 0.1s ease',
-        outline: '2px solid var(--ag-accent, #22d3ee)',
-        outlineOffset: '2px',
+        opacity: 0,
+        pointerEvents: 'none',
+        transform: 'translateY(-0.5rem)',
+        transition: 'opacity 0.12s ease, transform 0.12s ease',
+        outline: 'none',
+        outlineOffset: 0,
         textDecoration: 'none',
-        borderRadius: '0 0 0.25rem 0.25rem',
+        border: '1px solid var(--ag-line, #1f2025)',
+        borderRadius: '0.375rem',
       }}
       onFocus={(e) => {
-        ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(0)'
+        const el = e.currentTarget as HTMLAnchorElement
+        el.style.opacity = '1'
+        el.style.pointerEvents = 'auto'
+        el.style.transform = 'translateY(0)'
+        el.style.outline = '2px solid var(--ag-accent, #22d3ee)'
+        el.style.outlineOffset = '2px'
       }}
       onBlur={(e) => {
-        ;(e.currentTarget as HTMLAnchorElement).style.transform = 'translateY(-100%)'
+        const el = e.currentTarget as HTMLAnchorElement
+        el.style.opacity = '0'
+        el.style.pointerEvents = 'none'
+        el.style.transform = 'translateY(-0.5rem)'
+        el.style.outline = 'none'
+        el.style.outlineOffset = '0'
       }}
     >
       {label}

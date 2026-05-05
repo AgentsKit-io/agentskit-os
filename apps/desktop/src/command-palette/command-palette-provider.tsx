@@ -53,7 +53,7 @@ export type CommandPaletteProviderProps = {
    * Callback for navigation commands. The provider itself does not know about
    * the screen state — it delegates to the parent.
    */
-  onNavigate?: (screen: 'dashboard' | 'traces' | 'settings') => void
+  onNavigate?: (screen: string) => void
   /** Callback to clear the event feed. */
   onClearEventFeed?: () => void
 }

@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { MOCK_FLOWS, type FlowDefinition, type FlowStatus, type FlowTrigger, useFlows } from './use-flows'
+import { sidecarRequest } from '../../lib/sidecar'
+import { getRunMode } from '../../lib/run-mode-store'
 
 const STATUS_LABEL: Record<FlowStatus, string> = {
   active: 'Active',
@@ -261,6 +263,7 @@ export function FlowsScreen() {
   const { flows, loading, error } = useFlows()
   const [filter, setFilter] = useState<FlowStatus | 'all'>('all')
   const [selectedId, setSelectedId] = useState<string | null>(MOCK_FLOWS[0]?.id ?? null)
+  const [running, setRunning] = useState(false)
 
   const filteredFlows = useMemo(() => {
     return filter === 'all' ? flows : flows.filter((flow) => flow.status === filter)
@@ -290,7 +293,23 @@ export function FlowsScreen() {
             Review orchestration definitions, triggers, topology, and run health before the visual editor lands.
           </p>
         </div>
-        <Badge variant="outline">Read-only</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">Local registry</Badge>
+          <button
+            type="button"
+            disabled={running || selectedFlow === null}
+            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)] disabled:opacity-50"
+            onClick={() => {
+              if (!selectedFlow) return
+              setRunning(true)
+              const mode = getRunMode()
+              void sidecarRequest('runner.runFlow', { flowId: selectedFlow.id, mode })
+                .finally(() => setRunning(false))
+            }}
+          >
+            {running ? 'Running…' : 'Run flow'}
+          </button>
+        </div>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 px-6 py-5">

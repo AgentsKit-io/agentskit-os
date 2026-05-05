@@ -4,7 +4,7 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 464,
+    "filesScanned": 465,
     "issues": 179,
     "byKind": {
       "cyclomatic-complexity": 18,
@@ -283,21 +283,21 @@
       "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 334,
+      "line": 313,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 333,
+      "line": 312,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 332,
+      "line": 311,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
     },
     {
@@ -375,7 +375,7 @@
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/security/index.tsx",
       "line": 44,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/flows/index.tsx:43."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/lib/format.ts:3."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/security/index.tsx:b2584cac9c67fd62",
@@ -801,7 +801,7 @@
       "id": "nested-ternary:packages/os-cli/src/commands/creds.ts:94fd8693a0d1c608",
       "kind": "nested-ternary",
       "file": "packages/os-cli/src/commands/creds.ts",
-      "line": 216,
+      "line": 222,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

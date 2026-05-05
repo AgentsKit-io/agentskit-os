@@ -106,8 +106,10 @@ const renderListText = (providers: readonly ProviderRequirement[]): string => {
   if (providers.length === 0) return '(no providers match the filter)\n'
   const lines: string[] = []
   for (const p of providers) {
-    const required = p.requiredKeys.length > 0 ? p.requiredKeys.join(', ') : '(none)'
-    const optional = p.optionalKeys.length > 0 ? `  optional: ${p.optionalKeys.join(', ')}` : ''
+    let required = '(none)'
+    if (p.requiredKeys.length > 0) required = p.requiredKeys.join(', ')
+    let optional = ''
+    if (p.optionalKeys.length > 0) optional = `  optional: ${p.optionalKeys.join(', ')}`
     lines.push(`${p.id.padEnd(14)} ${p.kind.padEnd(11)} cloud=${p.cloud}  required: ${required}${optional}`)
   }
   return `${lines.join('\n')}\n`
@@ -119,8 +121,12 @@ const renderCheckText = (results: readonly ProviderCheckResult[]): string => {
     let tag = 'MISSING'
     if (r.status === 'ok') tag = 'ok'
     else if (r.status === 'skipped') tag = 'skipped'
-    const detail =
-      r.status === 'missing' ? `  missing: ${r.missingKeys.join(', ')}  hint: ${r.remediation ?? ''}` : ''
+    let detail = ''
+    if (r.status === 'missing') {
+      let hint = ''
+      if (r.remediation !== undefined) hint = r.remediation
+      detail = `  missing: ${r.missingKeys.join(', ')}  hint: ${hint}`
+    }
     lines.push(`[${tag}] ${r.providerId}${detail}`)
   }
   return `${lines.join('\n')}\n`
@@ -214,7 +220,9 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     .option('--stdin', 'read secret value from stdin (recommended; avoids shell history)', false)
     .option('--project <dir>', 'workspace root (default: current directory)')
     .action(async (key: string, opts: { stdin?: boolean; project?: string }) => {
-      const projectDir = resolve(io.cwd(), opts.project ?? '.')
+      let project = '.'
+      if (opts.project) project = opts.project
+      const projectDir = resolve(io.cwd(), project)
       if (!isCredentialEnvKey(key)) {
         result.current = {
           code: 2,

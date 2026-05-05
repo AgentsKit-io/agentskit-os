@@ -5,14 +5,14 @@
   "maxScreenLines": 240,
   "maxHookLines": 180,
   "totals": {
-    "filesScanned": 158,
-    "issues": 214,
+    "filesScanned": 159,
+    "issues": 211,
     "byKind": {
       "giant-inline-classname": 7,
       "hardcoded-color-class": 123,
-      "inline-date-in-component": 22,
+      "inline-date-in-component": 21,
       "oversized-ui-unit": 15,
-      "screen-format-helper": 18,
+      "screen-format-helper": 16,
       "screen-status-map": 17,
       "sidecar-in-component": 12
     }
@@ -57,7 +57,7 @@
       "id": "giant-inline-classname:apps/desktop/src/screens/flows/index.tsx:58cbea35ce648397",
       "kind": "giant-inline-classname",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 303,
+      "line": 282,
       "detail": "Large className strings should become small components, variants, or cn/cva helpers."
     },
     {
@@ -442,35 +442,35 @@
       "id": "hardcoded-color-class:apps/desktop/src/screens/flows/index.tsx:6efbc4fa4d5b8463",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 16,
+      "line": 17,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
       "id": "hardcoded-color-class:apps/desktop/src/screens/flows/index.tsx:8c006c0a4c02aec3",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 321,
+      "line": 300,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
       "id": "hardcoded-color-class:apps/desktop/src/screens/flows/index.tsx:91e69f1beb79d5f2",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 17,
+      "line": 18,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
       "id": "hardcoded-color-class:apps/desktop/src/screens/flows/index.tsx:b5f43dc473778e8a",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 15,
+      "line": 16,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
       "id": "hardcoded-color-class:apps/desktop/src/screens/flows/index.tsx:be19154c1337adc4",
       "kind": "hardcoded-color-class",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 18,
+      "line": 19,
       "detail": "Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens."
     },
     {
@@ -978,13 +978,6 @@
       "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
     },
     {
-      "id": "inline-date-in-component:apps/desktop/src/screens/flows/index.tsx:214ea7dcd54e8a4e",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 48,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
       "id": "inline-date-in-component:apps/desktop/src/screens/hitl/index.tsx:214ea7dcd54e8a4e",
       "kind": "inline-date-in-component",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
@@ -1244,20 +1237,6 @@
       "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
     },
     {
-      "id": "screen-format-helper:apps/desktop/src/screens/flows/index.tsx:107d558cf2ae4d7d",
-      "kind": "screen-format-helper",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 54,
-      "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
-    },
-    {
-      "id": "screen-format-helper:apps/desktop/src/screens/flows/index.tsx:1fc8673e2c436e76",
-      "kind": "screen-format-helper",
-      "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 41,
-      "detail": "Formatting helpers duplicated in screens should move to shared utilities or hooks."
-    },
-    {
       "id": "screen-format-helper:apps/desktop/src/screens/hitl/index.tsx:80ab91d126ee6712",
       "kind": "screen-format-helper",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
@@ -1345,7 +1324,7 @@
       "id": "screen-status-map:apps/desktop/src/screens/flows/index.tsx:d24ac602650986e6",
       "kind": "screen-status-map",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 14,
+      "line": 15,
       "detail": "Status labels/styles should use shared badge/status primitives instead of per-screen maps."
     },
     {
@@ -1485,7 +1464,7 @@
       "id": "sidecar-in-component:apps/desktop/src/screens/flows/index.tsx:87bc78ab5cf48453",
       "kind": "sidecar-in-component",
       "file": "apps/desktop/src/screens/flows/index.tsx",
-      "line": 308,
+      "line": 287,
       "detail": "Move sidecar/IPC calls out of visual components and into typed hooks or services."
     },
     {

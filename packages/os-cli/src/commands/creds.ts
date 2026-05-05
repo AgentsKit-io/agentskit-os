@@ -46,6 +46,19 @@ type Args = {
   stdin?: boolean
 }
 
+export const providerCheckTag = (status: ProviderCheckResult['status']): 'ok' | 'skipped' | 'MISSING' => {
+  if (status === 'ok') return 'ok'
+  if (status === 'skipped') return 'skipped'
+  return 'MISSING'
+}
+
+export const providerCheckMissingDetail = (r: ProviderCheckResult): string => {
+  if (r.status !== 'missing') return ''
+  let hint = ''
+  if (r.remediation !== undefined) hint = r.remediation
+  return `  missing: ${r.missingKeys.join(', ')}  hint: ${hint}`
+}
+
 const toArgs = (sub: Args['sub'], opts: CredsCliOpts, projectDir: string, setKey?: string): Args => ({
   sub,
   airGap: opts.airGap === true,
@@ -118,15 +131,8 @@ const renderListText = (providers: readonly ProviderRequirement[]): string => {
 const renderCheckText = (results: readonly ProviderCheckResult[]): string => {
   const lines: string[] = []
   for (const r of results) {
-    let tag = 'MISSING'
-    if (r.status === 'ok') tag = 'ok'
-    else if (r.status === 'skipped') tag = 'skipped'
-    let detail = ''
-    if (r.status === 'missing') {
-      let hint = ''
-      if (r.remediation !== undefined) hint = r.remediation
-      detail = `  missing: ${r.missingKeys.join(', ')}  hint: ${hint}`
-    }
+    const tag = providerCheckTag(r.status)
+    const detail = providerCheckMissingDetail(r)
     lines.push(`[${tag}] ${r.providerId}${detail}`)
   }
   return `${lines.join('\n')}\n`

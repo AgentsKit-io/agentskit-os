@@ -8,6 +8,7 @@ import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 import { newCmd } from './new.js'
+import { providerCheckMissingDetail, providerCheckTag } from './creds'
 
 const help = `agentskit-os wizard [<dir>] [--persona <dev|agency|clinical|non-tech>] [--force] [--air-gap] [--env-prefix <pfx>]
 
@@ -62,10 +63,8 @@ const renderCredSummary = (results: readonly ProviderCheckResult[]): string => {
   if (results.length === 0) return ''
   const lines: string[] = ['Credential check:']
   for (const r of results) {
-    const tag = r.status === 'ok' ? 'ok' : r.status === 'skipped' ? 'skipped' : 'MISSING'
-    const detail = r.status === 'missing'
-      ? `  needs: ${r.missingKeys.join(', ')}  hint: ${r.remediation ?? ''}`
-      : ''
+    const tag = providerCheckTag(r.status)
+    const detail = providerCheckMissingDetail(r).replace('  missing:', '  needs:')
     lines.push(`  [${tag}] ${r.providerId}${detail}`)
   }
   if (results.some((r) => r.status === 'missing')) {

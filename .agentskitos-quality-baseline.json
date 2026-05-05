@@ -5,11 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 465,
-    "issues": 176,
+    "issues": 173,
     "byKind": {
       "cyclomatic-complexity": 18,
       "duplicate-block": 88,
-      "nested-ternary": 70
+      "nested-ternary": 67
     }
   },
   "issues": [
@@ -801,7 +801,7 @@
       "id": "nested-ternary:packages/os-cli/src/commands/creds.ts:94fd8693a0d1c608",
       "kind": "nested-ternary",
       "file": "packages/os-cli/src/commands/creds.ts",
-      "line": 222,
+      "line": 228,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {
@@ -851,27 +851,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-cli/src/commands/new.ts",
       "line": 55,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-cli/src/commands/new.ts:2c37900088eebf7c",
-      "kind": "nested-ternary",
-      "file": "packages/os-cli/src/commands/new.ts",
-      "line": 100,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-cli/src/commands/run.ts:3f9fd5b127bc8c80",
-      "kind": "nested-ternary",
-      "file": "packages/os-cli/src/commands/run.ts",
-      "line": 226,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-cli/src/commands/wizard.ts:156475228fb7bbaf",
-      "kind": "nested-ternary",
-      "file": "packages/os-cli/src/commands/wizard.ts",
-      "line": 65,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

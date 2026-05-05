@@ -53,8 +53,10 @@ const formatTemplateRow = (t: Template): string =>
   `  ${t.id.padEnd(28)} [${t.category.padEnd(11)}] ${t.difficulty.padEnd(13)} ${t.description}`
 
 const buildConfig = (template: Template, idOverride?: string, nameOverride?: string): ConfigRoot => {
-  const id = idOverride ?? template.id
-  const name = nameOverride ?? template.name
+  let id = template.id
+  if (idOverride !== undefined) id = idOverride
+  let name = template.name
+  if (nameOverride !== undefined) name = nameOverride
   return parseConfigRoot({
     schemaVersion: CONFIG_ROOT_VERSION,
     workspace: {
@@ -97,7 +99,8 @@ const executeNew = async (args: Args, io: CliIo): Promise<CliExit> => {
 
   const baseDir = resolve(io.cwd(), args.dir ?? '.')
   const baseName = basename(baseDir)
-  const idOverride = args.id ?? (args.dir ? slugify(baseName) : undefined)
+  let idOverride = args.id
+  if (idOverride === undefined && args.dir) idOverride = slugify(baseName)
   const config = buildConfig(template, idOverride, args.name)
 
   const configPath = join(baseDir, 'agentskit-os.config.yaml')

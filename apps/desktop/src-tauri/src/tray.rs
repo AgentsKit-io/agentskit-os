@@ -16,6 +16,8 @@ use tauri::{
     AppHandle, Manager, Runtime,
 };
 
+use crate::sidecar::SidecarManager;
+
 /// Stable identifiers for the menu items — used in event handlers and tests.
 pub const ITEM_SHOW: &str = "tray_show";
 pub const ITEM_STATUS: &str = "tray_status";
@@ -84,14 +86,15 @@ fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, event: tauri::menu::MenuEve
     match event.id().as_ref() {
         ITEM_SHOW => show_main_window(app),
         ITEM_PAUSE => {
-            // TODO(Refs #240): send `runner.pause` to the sidecar once the
-            // sidecar implements the runner.pause / runner.resume commands.
-            eprintln!("[tray] runner.pause requested (sidecar stub)");
+            // Best-effort: pause queued runs.
+            if let Some(sidecar) = app.try_state::<SidecarManager>() {
+                let _ = sidecar.request("runner.pause".to_string(), serde_json::json!({}));
+            }
         }
         ITEM_RESUME => {
-            // TODO(Refs #240): send `runner.resume` to the sidecar once the
-            // sidecar implements the runner.pause / runner.resume commands.
-            eprintln!("[tray] runner.resume requested (sidecar stub)");
+            if let Some(sidecar) = app.try_state::<SidecarManager>() {
+                let _ = sidecar.request("runner.resume".to_string(), serde_json::json!({}));
+            }
         }
         ITEM_SETTINGS => {
             // TODO: open settings screen via sidecar_request once the settings
@@ -100,8 +103,13 @@ fn handle_menu_event<R: Runtime>(app: &AppHandle<R>, event: tauri::menu::MenuEve
             show_main_window(app);
         }
         ITEM_QUIT => {
-            // TODO: ask the sidecar to dispose before exiting.
-            app.exit(0);
+            // Ask the sidecar to dispose before exiting (flush audit, close handles).
+            if let Some(sidecar) = app.try_state::<SidecarManager>() {
+                let _ = sidecar.request("lifecycle.dispose".to_string(), serde_json::json!({}));
+                app.exit(0);
+            } else {
+                app.exit(0);
+            }
         }
         _ => {}
     }

@@ -31,10 +31,26 @@ import { createInterface } from 'node:readline'
 
 /** @type {import('@agentskit/os-headless').HeadlessRunner | null} */
 let runner = null
+/** @type {((opts: any) => import('@agentskit/os-headless').HeadlessRunner) | null} */
+let createHeadlessRunnerFn = null
+/** @type {any} */
+let baseRunnerOpts = null
+
+/** @type {Array<any>} */
+const traceRows = []
+/** @type {Map<string, Array<any>>} */
+const traceSpans = new Map()
+let traceCounter = 0
+
+/** @type {Map<string, any>} */
+const flowRegistry = new Map()
+/** @type {Map<string, any>} */
+const flowMeta = new Map()
 
 const tryInitRunner = async () => {
   try {
     const { createHeadlessRunner } = await import('@agentskit/os-headless')
+    createHeadlessRunnerFn = createHeadlessRunner
 
     // Minimal stub adapters for the dry_run default mode.
     // TODO(#37): replace with real adapters injected from workspace config.
@@ -48,13 +64,20 @@ const tryInitRunner = async () => {
       },
     }
 
-    runner = createHeadlessRunner({
+    baseRunnerOpts = {
       config: {
         id: 'desktop-default',
         name: 'Desktop Default Workspace',
         version: '0.0.0',
       },
       adapters: stubAdapters,
+    }
+
+    runner = createHeadlessRunner({
+      ...baseRunnerOpts,
+      observability: (event) => {
+        notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
+      },
     })
   } catch (err) {
     // Log to stderr only — stdout is reserved for JSON-RPC.
@@ -94,6 +117,90 @@ const notify = (method, params) => {
   process.stdout.write(msg + '\n')
 }
 
+const nowIso = () => new Date().toISOString()
+
+/** @param {any} flow */
+const indexNodeKinds = (flow) => {
+  /** @type {Record<string, string>} */
+  const out = {}
+  const nodes = Array.isArray(flow?.nodes) ? flow.nodes : []
+  for (const n of nodes) {
+    if (n && typeof n.id === 'string' && typeof n.kind === 'string') out[n.id] = n.kind
+  }
+  return out
+}
+
+/** @param {string} kind */
+const spanKindForNodeKind = (kind) => {
+  if (kind === 'agent') return 'agent'
+  if (kind === 'tool') return 'tool'
+  if (kind === 'human') return 'human'
+  return 'unknown'
+}
+
+const defaultDemoFlow = (flowId) => ({
+  id: flowId,
+  name: 'Desktop demo flow',
+  tags: ['desktop'],
+  entry: 'agent-1',
+  nodes: [
+    { id: 'agent-1', kind: 'agent', agent: 'demo-agent' },
+    { id: 'tool-1', kind: 'tool', tool: 'demo-tool' },
+    { id: 'human-1', kind: 'human', prompt: 'Approve demo step?' },
+  ],
+  edges: [
+    { from: 'agent-1', to: 'tool-1', on: 'always' },
+    { from: 'tool-1', to: 'human-1', on: 'always' },
+  ],
+})
+
+const ensureFlowExists = (flowId) => {
+  if (flowRegistry.has(flowId)) return
+  const flow = defaultDemoFlow(flowId)
+  flowRegistry.set(flowId, flow)
+  flowMeta.set(flowId, {
+    id: flowId,
+    name: flow.name,
+    status: 'draft',
+    trigger: 'manual',
+    version: 'v0.0.0',
+    owner: 'Local',
+    runs24h: 0,
+    successRatePct: 0,
+    avgDurationMs: 0,
+    lastRunAt: nowIso(),
+    nodes: flow.nodes.map((n) => n.id),
+    edges: flow.edges.map((e) => `${e.from} -> ${e.to}`),
+    notes: ['Local in-memory flow registry (sidecar)'],
+  })
+}
+
+const forkDraftToFlow = (flowId, draft) => {
+  const nodes = Array.isArray(draft?.nodes) ? draft.nodes : []
+  const edges = Array.isArray(draft?.edges) ? draft.edges : []
+  const firstNode = nodes[0]?.id ?? 'start'
+  const flow = {
+    id: flowId,
+    name: typeof draft?.name === 'string' ? draft.name : flowId,
+    tags: ['fork'],
+    entry: firstNode,
+    nodes: nodes.map((n) => {
+      if (n.kind === 'agent') return { id: n.id, kind: 'agent', agent: n.agent ?? 'demo-agent' }
+      if (n.kind === 'tool') return { id: n.id, kind: 'tool', tool: n.tool ?? 'demo-tool' }
+      if (n.kind === 'human') return { id: n.id, kind: 'human', prompt: 'Approval required' }
+      if (n.kind === 'flow') return { id: n.id, kind: 'condition' }
+      return { id: n.id, kind: 'condition' }
+    }),
+    edges: edges.map((e) => ({ from: e.source, to: e.target, on: 'always' })),
+  }
+  return flow
+}
+
+const newTraceId = () => {
+  traceCounter += 1
+  return `trace-${Date.now()}-${traceCounter}`
+}
+
 // ---------------------------------------------------------------------------
 // Dispatch
 // ---------------------------------------------------------------------------
@@ -111,20 +218,134 @@ const dispatch = async (req) => {
     }
 
     case 'runner.runFlow': {
-      if (!runner) {
+      if (!runner || !createHeadlessRunnerFn || !baseRunnerOpts) {
         respondError(id, -32001, 'runner not initialized')
         break
       }
       try {
         const p = /** @type {Record<string, unknown>} */ (params ?? {})
-        const result = await runner.runFlow(
-          /** @type {string} */ (p['flowId']),
+        const traceId = newTraceId()
+        const startedAt = nowIso()
+        const flowId = /** @type {string} */ (p['flowId'])
+        const mode = /** @type {string | undefined} */ (p['mode']) ?? 'dry_run'
+        ensureFlowExists(flowId)
+        const flow = flowRegistry.get(flowId) ?? defaultDemoFlow(flowId)
+        const nodeKinds = indexNodeKinds(flow)
+        /** @type {Map<string, string>} */
+        const nodeStartIso = new Map()
+
+        const rootSpanId = `${traceId}-span-root`
+        const rootSpan = {
+          traceId,
+          spanId: rootSpanId,
+          kind: 'flow',
+          name: 'flow.started',
+          workspaceId: 'desktop-default',
+          startedAt,
+          endedAt: startedAt,
+          durationMs: 0,
+          status: 'ok',
+          attributes: {
+            'agentskitos.flow_id': flowId,
+            'agentskitos.run_mode': mode,
+            'trace.source': 'desktop-sidecar',
+          },
+        }
+        traceSpans.set(traceId, [rootSpan])
+        traceRows.unshift({
+          traceId,
+          flowId,
+          runMode: mode,
+          startedAt,
+          durationMs: 0,
+          status: 'ok',
+        })
+        notify('event', { timestamp: startedAt, type: 'trace.started', data: { traceId, flowId, mode } })
+
+        const runRunner = createHeadlessRunnerFn({
+          ...baseRunnerOpts,
+          observability: (event) => {
+            notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
+
+            const spans = traceSpans.get(traceId) ?? []
+
+            if (event.kind === 'node:start') {
+              const nodeId = event.nodeId
+              nodeStartIso.set(nodeId, nowIso())
+              const started = nodeStartIso.get(nodeId) ?? nowIso()
+              const kind = spanKindForNodeKind(nodeKinds[nodeId] ?? 'unknown')
+              spans.push({
+                traceId,
+                spanId: `${traceId}-span-${nodeId}`,
+                parentSpanId: rootSpanId,
+                kind,
+                name: `node.start`,
+                workspaceId: 'desktop-default',
+                startedAt: started,
+                endedAt: started,
+                durationMs: 0,
+                status: 'ok',
+                attributes: {
+                  'agentskitos.node_id': nodeId,
+                  'agentskitos.node_kind': nodeKinds[nodeId] ?? 'unknown',
+                },
+              })
+              traceSpans.set(traceId, spans)
+            }
+
+            if (event.kind === 'node:end') {
+              const nodeId = event.nodeId
+              const ended = nowIso()
+              const started = nodeStartIso.get(nodeId) ?? ended
+              const status =
+                event.outcome?.kind === 'failed'
+                  ? 'error'
+                  : event.outcome?.kind === 'paused'
+                    ? 'paused'
+                    : event.outcome?.kind === 'skipped'
+                      ? 'skipped'
+                      : 'ok'
+
+              const spanId = `${traceId}-span-${nodeId}`
+              const span = spans.find((s) => s.spanId === spanId)
+              if (span) {
+                span.endedAt = ended
+                span.durationMs = Math.max(0, Date.parse(ended) - Date.parse(started))
+                span.status = status
+                if (event.outcome?.kind === 'failed') {
+                  span.errorCode = event.outcome.error?.code
+                  span.errorMessage = event.outcome.error?.message
+                }
+              }
+              traceSpans.set(traceId, spans)
+            }
+          },
+        })
+
+        const result = await runRunner.runFlow(
+          flow,
           {
             input: p['input'],
             mode: /** @type {import('@agentskit/os-core').RunMode | undefined} */ (p['mode']),
           },
         )
-        notify('event', { type: 'flow.complete', runId: result.runId, status: result.status })
+        await runRunner.dispose()
+        const endedAt = nowIso()
+        const spans = traceSpans.get(traceId) ?? []
+        const root = spans[0]
+        if (root) {
+          root.endedAt = endedAt
+          root.durationMs = Math.max(0, Date.parse(endedAt) - Date.parse(startedAt))
+          root.status = result.status === 'succeeded' ? 'ok' : 'error'
+        }
+        const row = traceRows.find((t) => t.traceId === traceId)
+        if (row) {
+          row.durationMs = root?.durationMs ?? 0
+          row.status = root?.status ?? 'ok'
+        }
+
+        notify('event', { timestamp: endedAt, type: 'trace.completed', data: { traceId, status: root?.status ?? 'ok' } })
+        notify('event', { timestamp: endedAt, type: 'flow.complete', data: { runId: result.runId, status: result.status } })
         respond(id, result)
       } catch (err) {
         respondError(id, -32000, err instanceof Error ? err.message : String(err))
@@ -157,6 +378,71 @@ const dispatch = async (req) => {
         runner = null
       }
       respond(id, { disposed: true })
+      break
+    }
+
+    // ---------------------------------------------------------------------
+    // Desktop UI compatibility shims (until os-headless exposes these)
+    // ---------------------------------------------------------------------
+
+    case 'traces.list': {
+      respond(id, traceRows)
+      break
+    }
+
+    case 'traces.get': {
+      const p = /** @type {Record<string, unknown>} */ (params ?? {})
+      const traceId = /** @type {string} */ (p['traceId'])
+      respond(id, traceSpans.get(traceId) ?? [])
+      break
+    }
+
+    case 'flows.list': {
+      // Return flow meta objects expected by the desktop UI.
+      const items = [...flowMeta.values()]
+      respond(id, items)
+      break
+    }
+
+    case 'flows.get': {
+      const p = /** @type {Record<string, unknown>} */ (params ?? {})
+      const flowId = /** @type {string} */ (p['flowId'])
+      ensureFlowExists(flowId)
+      respond(id, flowRegistry.get(flowId) ?? null)
+      break
+    }
+
+    case 'flows.create': {
+      const p = /** @type {Record<string, unknown>} */ (params ?? {})
+      const draft = /** @type {any} */ (p['draft'])
+      const baseName = typeof draft?.name === 'string' && draft.name.trim().length > 0 ? draft.name.trim() : 'flow'
+      const newId = `flow-${Date.now()}`
+      const flow = forkDraftToFlow(newId, draft)
+      flowRegistry.set(newId, flow)
+      flowMeta.set(newId, {
+        id: newId,
+        name: flow.name ?? baseName,
+        status: 'draft',
+        trigger: 'manual',
+        version: 'v0.0.0',
+        owner: 'Fork',
+        runs24h: 0,
+        successRatePct: 0,
+        avgDurationMs: 0,
+        lastRunAt: nowIso(),
+        nodes: flow.nodes.map((n) => n.id),
+        edges: flow.edges.map((e) => `${e.from} -> ${e.to}`),
+        notes: ['Created from fork draft'],
+      })
+      notify('event', { timestamp: nowIso(), type: 'flows.created', data: { flowId: newId, name: flow.name } })
+      respond(id, { flowId: newId })
+      break
+    }
+
+    case 'cloud.deploy': {
+      const startedAt = nowIso()
+      notify('event', { timestamp: startedAt, type: 'deploy.queued', data: { target: 'cloud' } })
+      respond(id, { status: 'queued', target: 'cloud', url: 'https://cloud.agentskit.io/' })
       break
     }
 

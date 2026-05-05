@@ -12,12 +12,13 @@
  * until the sidecar lands those methods.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { TraceList } from './trace-list'
 import { SpanTree } from './span-tree'
 import { ReplayButton } from './replay-button'
 import { useTraceSpans } from './use-traces'
 import { ForkButton } from '../../fork/fork-button'
+import { useSelection } from '../../lib/selection-store'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -137,6 +138,13 @@ const NoSelection = (): React.JSX.Element => (
 
 export const TracesScreen = (): React.JSX.Element => {
   const [selectedTraceId, setSelectedTraceId] = useState<string | null>(null)
+  const { selectedTraceId: globalSelected, setSelectedTraceId: setGlobalSelected } = useSelection()
+
+  useEffect(() => {
+    if (selectedTraceId === null && globalSelected) {
+      setSelectedTraceId(globalSelected)
+    }
+  }, [globalSelected, selectedTraceId])
 
   return (
     <section aria-label="Traces" className="flex flex-col h-full">
@@ -154,7 +162,10 @@ export const TracesScreen = (): React.JSX.Element => {
         <div role="region" aria-label="Trace list" className="w-[55%] min-w-0 flex flex-col">
           <TraceList
             selectedTraceId={selectedTraceId}
-            onSelect={setSelectedTraceId}
+            onSelect={(id) => {
+              setSelectedTraceId(id)
+              setGlobalSelected(id)
+            }}
             className="flex-1"
           />
         </div>

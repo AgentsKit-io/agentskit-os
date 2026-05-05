@@ -10,9 +10,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import { AgentsScreen } from './screens/agents'
 import { BenchmarkScreen } from './screens/benchmark'
+import { CostScreen } from './screens/cost'
 import { Dashboard } from './screens/dashboard'
+import { EvalsScreen } from './screens/evals'
 import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
+import { SecurityScreen } from './screens/security'
 import { TracesScreen } from './screens/traces'
 import { TriggersScreen } from './screens/triggers'
 import { ExampleScreen } from './example-library/example-screen'
@@ -140,8 +143,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'evals',
         label: 'Evals',
         icon: '✓',
-        status: 'preview',
-        description: 'Evaluation suites will surface dataset, scorer, and run-result contracts.',
+        status: 'supported',
       },
       {
         id: 'benchmark',
@@ -158,15 +160,13 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'cost',
         label: 'Cost & Quotas',
         icon: '$',
-        status: 'preview',
-        description: 'Cost controls need quota, budget, token, and chargeback data sources.',
+        status: 'supported',
       },
       {
         id: 'security',
         label: 'Security',
         icon: '◇',
-        status: 'preview',
-        description: 'Security center will join policy, audit, vault, and compliance workflows once contracts settle.',
+        status: 'supported',
       },
     ],
   },
@@ -398,9 +398,12 @@ function AppShell({
           {activeScreen === 'agents' && <AgentsScreen />}
           {activeScreen === 'hitl' && <HitlScreen />}
           {activeScreen === 'triggers' && <TriggersScreen />}
+          {activeScreen === 'evals' && <EvalsScreen />}
           {activeScreen === 'benchmark' && <BenchmarkScreen />}
+          {activeScreen === 'cost' && <CostScreen />}
+          {activeScreen === 'security' && <SecurityScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'benchmark' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'cost' && activeScreen !== 'security' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

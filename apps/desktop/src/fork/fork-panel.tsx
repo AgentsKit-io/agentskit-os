@@ -3,7 +3,7 @@
  *
  * Header: trace id
  * Body: ForkDraft form — name, description, node list with editable agent IDs
- * Footer: "Save as flow" → calls sidecarRequest('flows.create', { draft })
+ * Footer: "Save as flow" → calls `useCreateFlow()` to create a flow.
  *   On success: shows inline success state with the new flow id.
  *
  * TODO(Refs #91): sidecar `flows.create` implementation pending.

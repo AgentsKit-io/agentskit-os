@@ -1,8 +1,9 @@
 import { z } from 'zod'
 import { RUN_MODES, RunMode } from '../runtime/run-mode.js'
 import { EgressPolicy } from '../security/egress.js'
+import type { PluginRegistry } from '../plugins/catalog.js'
 
-export const PiiCategory = z.enum([
+export const DEFAULT_PII_CATEGORIES = [
   'email',
   'phone',
   'ssn',
@@ -12,8 +13,10 @@ export const PiiCategory = z.enum([
   'address',
   'dob',
   'api-key',
-])
-export type PiiCategory = z.infer<typeof PiiCategory>
+] as const
+
+export const PiiCategory = z.string().min(1).max(64)
+export type PiiCategory = string
 
 export const PromptFirewallConfig = z.object({
   enabled: z.boolean().default(true),
@@ -80,5 +83,21 @@ export const SecurityConfig = z.object({
 })
 export type SecurityConfig = z.infer<typeof SecurityConfig>
 
-export const parseSecurityConfig = (input: unknown): SecurityConfig => SecurityConfig.parse(input)
-export const safeParseSecurityConfig = (input: unknown) => SecurityConfig.safeParse(input)
+export const getSecurityConfigSchema = (registry?: PluginRegistry) => {
+  return SecurityConfig.superRefine((data, ctx) => {
+    for (let i = 0; i < data.piiRedaction.categories.length; i++) {
+      const cat = data.piiRedaction.categories[i]
+      if (DEFAULT_PII_CATEGORIES.includes(cat as any)) continue
+      if (cat && registry && registry.get('pii-category', cat)) continue
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Invalid PII category: ${cat}`,
+        path: ['piiRedaction', 'categories', i],
+      })
+    }
+  })
+}
+
+export const parseSecurityConfig = (input: unknown, registry?: PluginRegistry): SecurityConfig => getSecurityConfigSchema(registry).parse(input)
+export const safeParseSecurityConfig = (input: unknown, registry?: PluginRegistry) => getSecurityConfigSchema(registry).safeParse(input)

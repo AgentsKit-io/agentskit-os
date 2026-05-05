@@ -147,6 +147,18 @@ export {
   evaluateWorkspacePolicyBeforeTool,
   policyGlobMatch,
 } from './security/workspace-policy-engine.js'
+export {
+  OperatorRoleKind,
+  OperatorScreen,
+  OperatorAction,
+  OperatorRoleAssignment,
+  visibleScreensForRole,
+  allowedActionsForRole,
+  canViewScreen,
+  canPerformAction,
+  hiddenScreensForRole,
+  parseOperatorRoleAssignment,
+} from './security/operator-roles.js'
 export type {
   PolicyViolation,
   RunStartPolicyInput,

@@ -147,6 +147,18 @@ export {
   evaluateWorkspacePolicyBeforeTool,
   policyGlobMatch,
 } from './security/workspace-policy-engine.js'
+export {
+  OperatorRoleKind,
+  OperatorScreen,
+  OperatorAction,
+  OperatorRoleAssignment,
+  visibleScreensForRole,
+  allowedActionsForRole,
+  canViewScreen,
+  canPerformAction,
+  hiddenScreensForRole,
+  parseOperatorRoleAssignment,
+} from './security/operator-roles.js'
 export type {
   PolicyViolation,
   RunStartPolicyInput,
@@ -293,6 +305,16 @@ export {
   parseTelemetryConfig,
   safeParseTelemetryConfig,
 } from './obs/telemetry.js'
+export {
+  ActivationEventKind,
+  ActivationEvent,
+  RetentionCohort,
+  buildActivationFunnel,
+  buildRetentionCohorts,
+  decideEmitActivation,
+  parseActivationEvent,
+} from './obs/activation.js'
+export type { ActivationFunnel, RetentionInputs } from './obs/activation.js'
 export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 
@@ -319,6 +341,18 @@ export {
   safeParseFallbackEntry,
 } from './runtime/adapter-fallback.js'
 export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-fallback.js'
+
+export {
+  MarketplaceCacheEntry,
+  MarketplaceCacheSnapshot,
+  decideMarketplaceSource,
+  mergeMarketplaceSnapshot,
+  parseMarketplaceCacheSnapshot,
+} from './runtime/marketplace-cache.js'
+export type {
+  MarketplaceSourceDecision,
+  MarketplaceDecisionInputs,
+} from './runtime/marketplace-cache.js'
 
 export { resolveWorkspacePaths } from './runtime/workspace-paths.js'
 export type {

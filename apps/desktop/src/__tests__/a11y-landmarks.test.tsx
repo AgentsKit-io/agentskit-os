@@ -242,7 +242,7 @@ describe('App ARIA landmarks', () => {
     })
 
     expect(screen.getByRole('heading', { name: /hitl inbox/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /human approval inbox/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /human task inbox/i })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /hitl inbox is in preview/i })).not.toBeInTheDocument()
   })
 

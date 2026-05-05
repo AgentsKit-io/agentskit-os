@@ -96,6 +96,13 @@ describe('findTemplate', () => {
     expect(findTemplate('pr-review-3-way')?.name).toBe('Pr Review 3 Way')
   })
 
+  it('includes dev issue-to-PR pipeline template (#364)', () => {
+    const t = findTemplate('dev-issue-to-pr')
+    expect(t?.id).toBe('dev-issue-to-pr')
+    expect(t?.flows[0]?.entry).toBe('issue')
+    expect(t?.flows[0]?.nodes.map((n) => n.id)).toContain('pr')
+  })
+
   it('returns undefined for unknown id', () => {
     expect(findTemplate('nope')).toBeUndefined()
   })

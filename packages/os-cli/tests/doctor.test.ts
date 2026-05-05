@@ -214,6 +214,7 @@ describe('doctor --live (both probes)', () => {
         expect(out).toContain('creds:openai')
         expect(out).toContain('OPENAI_API_KEY')
         expect(out).toContain('[FAIL]')
+        expect(out).toContain('coding-agent conformance')
       } finally {
         if (prev !== undefined) process.env.OPENAI_API_KEY = prev
       }
@@ -226,6 +227,7 @@ describe('doctor --live (both probes)', () => {
         const r = await createDoctor().run(['--creds', '--provider', 'openai'])
         expect(r.code).toBe(0)
         expect(r.stdout).toContain('creds:openai')
+        expect(r.stdout).toContain('coding-agent conformance')
         expect(r.stdout).not.toContain('sk-fake-XYZ')
       } finally {
         if (prev !== undefined) process.env.OPENAI_API_KEY = prev

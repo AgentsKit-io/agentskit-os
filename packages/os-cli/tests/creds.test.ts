@@ -1,5 +1,12 @@
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { creds } from '../src/commands/creds.js'
+import {
+  resetReadSecretFromStdinForTests,
+  setReadSecretFromStdinForTests,
+} from '../src/lib/read-secret-once.js'
 
 const ENV_KEYS = [
   'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'GEMINI_API_KEY',
@@ -13,7 +20,10 @@ const cleanEnv = () => {
 }
 
 describe('creds command', () => {
-  afterEach(cleanEnv)
+  afterEach(() => {
+    cleanEnv()
+    resetReadSecretFromStdinForTests()
+  })
 
   it('shows help on --help', async () => {
     const r = await creds.run(['--help'])
@@ -76,5 +86,39 @@ describe('creds command', () => {
     const items = JSON.parse(r.stdout) as { id: string }[]
     expect(items).toHaveLength(1)
     expect(items[0]?.id).toBe('ollama')
+  })
+
+  it('guide prints playbook', async () => {
+    const r = await creds.run(['guide'])
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('creds set')
+    expect(r.stdout).toContain('--secrets-file')
+  })
+
+  it('set stores key and check --secrets-file passes without env', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'akos-creds-'))
+    try {
+      setReadSecretFromStdinForTests(() => Promise.resolve('ghp_fake_token_for_test'))
+      const setRes = await creds.run(['set', 'GITHUB_TOKEN', '--stdin', '--project', dir])
+      expect(setRes.code).toBe(0)
+      expect(setRes.stdout).toContain('GITHUB_TOKEN')
+      expect(setRes.stdout).not.toContain('ghp_fake')
+
+      const vaultRel = join(dir, '.agentskitos', 'vault', 'local.env')
+      const chk = await creds.run([
+        'check',
+        '--provider',
+        'github',
+        '--secrets-file',
+        vaultRel,
+        '--json',
+      ])
+      expect(chk.code).toBe(0)
+      const rows = JSON.parse(chk.stdout) as { providerId: string; status: string }[]
+      expect(rows[0]?.providerId).toBe('github')
+      expect(rows[0]?.status).toBe('ok')
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })

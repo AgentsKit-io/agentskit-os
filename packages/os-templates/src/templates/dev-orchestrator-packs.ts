@@ -159,10 +159,50 @@ export const devEvalTemplate: Template = {
   ],
 }
 
+/** Vertical slice #364: GitHub issue → plan → implement → tests → summary → PR draft (+ HITL). */
+export const devIssueToPrTemplate: Template = {
+  id: 'dev-issue-to-pr',
+  name: 'Dev: issue → PR pipeline',
+  description:
+    'GitHub issue (URL or number) → plan → isolated worktree implementation → tests → review summary → PR draft. Use dry_run / preview run-modes for a simulated trace without git remotes.',
+  category: 'coding',
+  tags: ['dev-orchestrator', 'github', 'issue', 'pr', 'sdlc'],
+  difficulty: 'advanced',
+  version: '0.1.0',
+  agents: [orchestrator('issue-dev', 'Issue developer', 'Own issue-to-PR pipeline coordination.')],
+  flows: [
+    parseFlowConfig({
+      id: 'dev-issue-to-pr-flow',
+      name: 'Issue to PR',
+      entry: 'issue',
+      nodes: [
+        { id: 'issue', kind: 'tool', tool: 'github.issue.fetch' },
+        { id: 'plan', kind: 'tool', tool: 'coding-agent.plan' },
+        { id: 'branch', kind: 'tool', tool: 'git.worktree.prepare' },
+        { id: 'impl', kind: 'tool', tool: 'coding-agent.implement' },
+        { id: 'test', kind: 'tool', tool: 'test.runner.run' },
+        { id: 'summarize', kind: 'tool', tool: 'coding-agent.summarize' },
+        { id: 'hitl', kind: 'human', prompt: 'Approve PR draft title/body and target branch?', approvers: ['maintainer'], quorum: 1 },
+        { id: 'pr', kind: 'tool', tool: 'github.pr.open-draft' },
+      ],
+      edges: [
+        { from: 'issue', to: 'plan' },
+        { from: 'plan', to: 'branch' },
+        { from: 'branch', to: 'impl' },
+        { from: 'impl', to: 'test' },
+        { from: 'test', to: 'summarize' },
+        { from: 'summarize', to: 'hitl' },
+        { from: 'hitl', to: 'pr' },
+      ],
+    }),
+  ],
+}
+
 export const DEV_ORCHESTRATOR_TEMPLATES: readonly Template[] = [
   devPrReviewTemplate,
   devBugFixTemplate,
   devCodeReviewTemplate,
   devRefactorTemplate,
   devEvalTemplate,
+  devIssueToPrTemplate,
 ]

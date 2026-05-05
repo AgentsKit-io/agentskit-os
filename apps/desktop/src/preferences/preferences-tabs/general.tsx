@@ -85,6 +85,20 @@ export function GeneralTab({ prefs, onChange }: GeneralTabProps) {
       </fieldset>
 
       {/* Language */}
+      <div className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)]/40 p-3">
+        <h3 className="mb-1 text-[12px] font-semibold uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+          Credentials
+        </h3>
+        <p className="text-[13px] leading-relaxed text-[var(--ag-ink-muted)]">
+          Provider keys are configured outside this UI: use the AgentsKitOS CLI{' '}
+          <code className="rounded bg-[var(--ag-surface)] px-1 text-[12px] text-[var(--ag-ink)]">agentskit-os creds guide</code>{' '}
+          to store secrets in <code className="rounded bg-[var(--ag-surface)] px-1 text-[12px]">.agentskitos/vault/local.env</code>{' '}
+          without echoing values, then{' '}
+          <code className="rounded bg-[var(--ag-surface)] px-1 text-[12px]">agentskit-os doctor --creds --secrets-file …</code>{' '}
+          to verify.
+        </p>
+      </div>
+
       <div>
         <label
           htmlFor="prefs-language"

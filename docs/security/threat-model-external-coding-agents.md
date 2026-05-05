@@ -1,0 +1,197 @@
+# Threat model: external coding-agent orchestration
+
+**Status:** living document  
+**Scope:** subprocess-based coding agents (Codex, Claude Code, Cursor, Gemini, and similar CLIs) invoked by AgentsKitOS dev orchestration, flows, and marketplace-adjacent surfaces.  
+**Related:** complements GitHub issues [#336](https://github.com/AgentsKit-io/agentskit-os/issues/336), [#342](https://github.com/AgentsKit-io/agentskit-os/issues/342), [#352](https://github.com/AgentsKit-io/agentskit-os/issues/352)–[#361](https://github.com/AgentsKit-io/agentskit-os/issues/361), [#363](https://github.com/AgentsKit-io/agentskit-os/issues/363), [#367](https://github.com/AgentsKit-io/agentskit-os/issues/367).
+
+---
+
+## 1. Assets (what we protect)
+
+| Asset | Description |
+|--------|-------------|
+| **Source code & IP** | Repository contents, branches, unmerged changes. |
+| **Secrets & credentials** | API keys, tokens, vault material, `.env` and local vault files. |
+| **Build & CI integrity** | Pipelines, lockfiles, dependency graphs, release artifacts. |
+| **Operator trust** | Decisions recorded in traces, HITL queues, audit logs. |
+| **End-user / org data** | Data reachable from the workspace (logs, fixtures, copied PII). |
+| **Provider-side data** | Prompts and telemetry retained by third-party CLIs and their backends. |
+
+---
+
+## 2. Trust boundaries
+
+```text
+[Operator / OS UI] ──► [AgentsKit runtime + policy]
+                              │
+                              ▼
+                    [Coding-agent adapter]
+                              │
+                              ▼
+              [External CLI process + provider cloud]
+                              │
+                              ▼
+        [Repo filesystem / git remotes / network egress]
+```
+
+- **Boundary A:** OS configuration and policy vs. arbitrary task text from issues, chats, or webhooks.  
+- **Boundary B:** Adapter contract vs. actual CLI behavior (binary substitution, version skew).  
+- **Boundary C:** Local workspace vs. remote Git hosting and package registries.  
+- **Boundary D:** Marketplace / third-party plugins supplying prompts or tools into the same run context.
+
+---
+
+## 3. Threat actors (abbreviated)
+
+- Malicious or compromised **task source** (issue body, PR comment, poisoned template).  
+- **Rogue or trojaned CLI** on `PATH` or misinstalled agent binary.  
+- **Insider** with legitimate credentials abusing broad scopes.  
+- **Dependency / supply-chain** attacker (malicious package post-install).  
+- **Provider / SaaS** misuse, retention, or subpoena of stored prompts.
+
+---
+
+## 4. Attack paths & mitigations
+
+### 4.1 Prompt injection → privileged action
+
+**Path:** Untrusted text in issue/PR/webhook is concatenated into agent instructions; model follows hidden directives (exfil, `curl`, destructive edits).
+
+**Mitigations:**  
+- Policy-as-code gates on sensitive tools and irreversible actions ([#336](https://github.com/AgentsKit-io/agentskit-os/issues/336)).  
+- Separate **read vs write** scopes and explicit **grants** on the `CodingTaskRequest` contract.  
+- **Dry-run** and diff preview before apply; HITL for high-risk flows ([#337](https://github.com/AgentsKit-io/agentskit-os/issues/337)).  
+- **Output guards** and egress allowlists (see ADR on egress / tool sandbox).
+
+**Residual risk:** Determined injection against weak policies or missing HITL still possible; models are stochastic.
+
+---
+
+### 4.2 Source exfiltration
+
+**Path:** Agent instructed to encode secrets or source into outbound network, gist, or paste.
+
+**Mitigations:**  
+- Default-deny **egress** unless allowlisted host/action.  
+- **Secret scanning** on outbound artifacts where applicable.  
+- **Git worktree isolation** per task ([#363](https://github.com/AgentsKit-io/agentskit-os/issues/363)) to limit blast radius.  
+- Minimize tokens in logs; **redaction** in traces and CLI (`doctor` / `creds` must not print values).
+
+**Residual risk:** Side channels (timing, encoded file names) are hard to eliminate fully.
+
+---
+
+### 4.3 Shell misuse & command injection
+
+**Path:** Agent runs shell with attacker-controlled strings; chaining to `rm`, credential harvest, lateral movement.
+
+**Mitigations:**  
+- Sandbox / spawn policy for subprocesses; non-interactive, no TTY where possible.  
+- Capability flags (`run_shell`, `run_tests`) off unless granted.  
+- Timeouts and cancellation hooks on long runs.
+
+**Residual risk:** Shell-on by policy for legitimate workflows reopens the class.
+
+---
+
+### 4.4 Secret leakage via env, logs, and traces
+
+**Path:** Provider inherits full environment; crash dumps or `--json` logs embed keys; trace exporter ships secrets.
+
+**Mitigations:**  
+- **Vault** and scoped injection of keys per provider ([#375](https://github.com/AgentsKit-io/agentskit-os/issues/375) and follow-ups).  
+- Document **least privilege** env for each adapter.  
+- Signed / structured **audit** with field-level redaction policies.
+
+**Residual risk:** Operator misconfiguration (copy-paste into issues) remains a human factor.
+
+---
+
+### 4.5 Malicious diffs & merge attacks
+
+**Path:** Agent proposes plausible-looking changes hiding backdoors, license laundering, or lockfile downgrades.
+
+**Mitigations:**  
+- Required **test** and **review** gates in pipeline templates (e.g. issue→PR).  
+- **Conformance** and provider certification for predictable failure modes ([#374](https://github.com/AgentsKit-io/agentskit-os/issues/374)).  
+- Multi-provider review / benchmark for high-risk repos ([#366](https://github.com/AgentsKit-io/agentskit-os/issues/366)).
+
+**Residual risk:** Logic bugs without test coverage can still ship.
+
+---
+
+### 4.6 Dependency & supply-chain compromise
+
+**Path:** Post-install scripts, compromised registry, typosquat packages during agent-driven upgrades.
+
+**Mitigations:**  
+- Lockfile discipline; optional **integrity verifier** workflows (see CLI roadmap).  
+- Marketplace **provenance / SBOM** ([#342](https://github.com/AgentsKit-io/agentskit-os/issues/342)).  
+- Restrict **network** during install phases where feasible.
+
+**Residual risk:** First-party dependency compromise is largely out of band.
+
+---
+
+### 4.7 CI abuse & token scope
+
+**Path:** Stolen `GITHUB_TOKEN` or overly broad PAT used from agent shell to modify other repos or org settings.
+
+**Mitigations:**  
+- Fine-scoped tokens; **OIDC** where available; separate bot identities.  
+- Policy: which flows may call `github.*` tools and from which triggers.
+
+**Residual risk:** Org-level mis-scoped tokens bypass product controls.
+
+---
+
+### 4.8 Provider log retention & subprocess trust
+
+**Path:** Provider logs prompts containing secrets; binary is swapped for a wrapper that exfiltrates.
+
+**Mitigations:**  
+- **Provider conformance** + documented install verification (`agentskit-os coding-agent conformance`).  
+- Pin versions; integrity check on known install paths where possible.  
+- Enterprise guidance: data processing terms, retention limits, customer-managed keys where offered.
+
+**Residual risk:** Full trust in third-party binary and cloud remains.
+
+---
+
+## 5. Mapping mitigations to product controls
+
+| Control area | Mechanism (issue / ADR) |
+|----------------|-------------------------|
+| **Policy profiles** | [#336](https://github.com/AgentsKit-io/agentskit-os/issues/336) — `security.workspacePolicy` + `evaluateWorkspacePolicyAtRunStart` / `evaluateWorkspacePolicyBeforeTool` in `@agentskit/os-core` |
+| **Sandboxing** | Worktrees [#363](https://github.com/AgentsKit-io/agentskit-os/issues/363), tool sandbox ADRs |
+| **Egress allowlists** | ADR egress / plugin overrides |
+| **Audit logs** | Audit signing ADR, observability package |
+| **Redaction** | Trace / export pipelines (observability) |
+| **Marketplace provenance** | [#342](https://github.com/AgentsKit-io/agentskit-os/issues/342) |
+| **Human gates** | [#337](https://github.com/AgentsKit-io/agentskit-os/issues/337) HITL inbox |
+
+---
+
+## 6. Residual risks (accepted until owned)
+
+- Stochastic model behavior under adversarial prompts.  
+- Compromised provider or CLI outside our verification window.  
+- Org-level credential sprawl not managed by AgentsKit.  
+- Cross-repo confusion when multiple remotes or submodules are present.
+
+---
+
+## 7. Suggested follow-up issues (file when unowned)
+
+Track as separate tickets rather than blocking this document:
+
+1. **Automated egress policy tests** tied to coding-agent runs (integration).  
+2. **Trace redaction profiles** per compliance regime (e.g. HIPAA-friendly defaults).  
+3. **CLI / CI gate**: fail build if conformance `--json` reports `certified: false` for claimed providers.  
+4. **Provider binary attestation** (checksum or package-manager integration) for production-ready marks.
+
+---
+
+## 8. Review gate
+
+This threat model should be **reviewed with any security stakeholder** before marketing external coding-agent integrations as **production-ready**. Updates are expected when new providers, triggers, or policy engines land.

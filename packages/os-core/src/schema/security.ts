@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { RUN_MODES, RunMode } from '../runtime/run-mode.js'
 import { EgressPolicy } from '../security/egress.js'
 
 export const PiiCategory = z.enum([
@@ -48,6 +49,26 @@ export const AuditLogConfig = z.object({
 })
 export type AuditLogConfig = z.infer<typeof AuditLogConfig>
 
+/** Declarative org rules (#336): models, tools, run modes, residency, domain packs, HITL gates. */
+export const WorkspacePolicyConfig = z.object({
+  version: z.literal(1).default(1),
+  /** When non-empty, model ref must match at least one pattern (`provider:model`, `*` globs). */
+  modelsAllow: z.array(z.string().min(1).max(128)).max(128).default([]),
+  modelsDeny: z.array(z.string().min(1).max(128)).max(128).default([]),
+  toolsDeny: z.array(z.string().min(1).max(128)).max(256).default([]),
+  runModesAllowed: z
+    .array(RunMode)
+    .max(RUN_MODES.length)
+    .default(() => [...RUN_MODES]),
+  /** If non-empty, `residencyRegion` at evaluation must be one of these codes. */
+  dataResidencyRequired: z.array(z.string().min(2).max(32)).max(16).default([]),
+  /** Domain pack / preset ids that must be active on the workspace. */
+  domainPresetsRequired: z.array(z.string().min(1).max(64)).max(32).default([]),
+  /** Tool tags that require human approval before execution when matched. */
+  irreversibleToolTags: z.array(z.string().min(1).max(64)).max(32).default(['destructive', 'payment', 'deploy']),
+})
+export type WorkspacePolicyConfig = z.infer<typeof WorkspacePolicyConfig>
+
 export const SecurityConfig = z.object({
   firewall: PromptFirewallConfig.default(() => PromptFirewallConfig.parse({})),
   piiRedaction: PiiRedactionConfig.default(() => PiiRedactionConfig.parse({})),
@@ -55,6 +76,7 @@ export const SecurityConfig = z.object({
   auditLog: AuditLogConfig.default(() => AuditLogConfig.parse({})),
   egress: EgressPolicy.default(() => EgressPolicy.parse({})),
   requireSignedPlugins: z.boolean().default(false),
+  workspacePolicy: WorkspacePolicyConfig.default(() => WorkspacePolicyConfig.parse({})),
 })
 export type SecurityConfig = z.infer<typeof SecurityConfig>
 

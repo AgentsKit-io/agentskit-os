@@ -26,7 +26,9 @@ import { telemetry } from './commands/telemetry.js'
 import { mcpDiscover } from './commands/mcp-discover.js'
 import { triggerPreset } from './commands/trigger-preset.js'
 import { devWorktree } from './commands/dev-worktree.js'
+import { codingAgentBenchmark } from './commands/coding-agent-benchmark.js'
 import { codingAgentConformance } from './commands/coding-agent-conformance.js'
+import { codingAgentDelegate } from './commands/coding-agent-delegate.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
@@ -59,6 +61,8 @@ export const COMMANDS: readonly CliCommand[] = [
   triggerPreset,
   devWorktree,
   codingAgentConformance,
+  codingAgentBenchmark,
+  codingAgentDelegate,
   version,
 ]
 

@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import { Command } from 'commander'
 import {
   BUILTIN_PROVIDERS,
@@ -5,6 +6,7 @@ import {
   PACKAGE_VERSION as OS_CORE_VERSION,
   type ProviderCheckResult,
 } from '@agentskit/os-core'
+import { parseLocalCredentialLines } from '../lib/local-credentials-file.js'
 import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit } from '../types.js'
 import { CLI_VERSION } from './version.js'
@@ -57,6 +59,8 @@ export type DoctorCredOpts = {
   readonly airGapped?: boolean
   readonly envPrefix?: string
   readonly providers?: readonly string[]
+  /** Key names treated as present (from `--secrets-file`; values never read for checks). */
+  readonly extraPresentKeys?: ReadonlySet<string>
 }
 
 const presentEnvKeys = (envPrefix: string, env: NodeJS.ProcessEnv): Set<string> => {
@@ -72,6 +76,9 @@ const presentEnvKeys = (envPrefix: string, env: NodeJS.ProcessEnv): Set<string> 
 
 const runCredChecks = (opts: DoctorCredOpts = {}): readonly ProviderCheckResult[] => {
   const present = presentEnvKeys(opts.envPrefix ?? 'AGENTSKITOS_', process.env)
+  for (const k of opts.extraPresentKeys ?? []) {
+    if (k) present.add(k)
+  }
   const ids = opts.providers
   const pool = ids ? BUILTIN_PROVIDERS.filter((p) => ids.includes(p.id)) : BUILTIN_PROVIDERS
   const checkOpts = opts.airGapped !== undefined ? { airGapped: opts.airGapped } : {}
@@ -233,6 +240,9 @@ const formatReport = (report: DoctorReport): CliExit => {
         : cr.status
       lines.push(`${icon} ${`creds:${cr.providerId}`.padEnd(20)} ${detail}`)
     }
+    lines.push(
+      '[hint] coding-agent certification: agentskit-os coding-agent conformance --provider <id> [--json]',
+    )
   }
 
   const liveFailed =
@@ -264,6 +274,7 @@ type DoctorCliOpts = {
   airGap?: boolean
   provider: string[]
   envPrefix?: string
+  secretsFile?: string
 }
 
 const buildDoctorProgram = (
@@ -283,14 +294,30 @@ const buildDoctorProgram = (
     .option('--air-gap', 'When combined with --creds, skips cloud providers.')
     .option('--provider <id>', 'Restrict creds check to one provider id (repeatable).', collectProvider, [])
     .option('--env-prefix <pfx>', 'Vault env-var prefix (default AGENTSKITOS_).')
+    .option(
+      '--secrets-file <path>',
+      'When used with --creds, merge KEY names from this dotenv file into presence checks.',
+    )
     .action(async (opts: DoctorCliOpts) => {
       const live = opts.live === true
       const providers = opts.provider ?? []
+      let extraKeys: Set<string> | undefined
+      if (opts.creds && opts.secretsFile) {
+        try {
+          const raw = await readFile(opts.secretsFile, 'utf8')
+          extraKeys = new Set(parseLocalCredentialLines(raw).keys())
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err)
+          result.current = { code: 2, stdout: '', stderr: `error: cannot read --secrets-file: ${msg}\n` }
+          return
+        }
+      }
       const credOpts: DoctorCredOpts | false = opts.creds
         ? {
             ...(opts.airGap === true ? { airGapped: true } : {}),
             ...(providers.length > 0 ? { providers } : {}),
             ...(opts.envPrefix ? { envPrefix: opts.envPrefix } : {}),
+            ...(extraKeys ? { extraPresentKeys: extraKeys } : {}),
           }
         : false
       const report = await runDoctor(live, live ? liveOpts : undefined, credOpts)

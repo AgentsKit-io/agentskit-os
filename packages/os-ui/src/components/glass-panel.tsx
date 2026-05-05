@@ -17,7 +17,7 @@ export const GlassPanel = forwardRef<HTMLDivElement, GlassPanelProps>(
       ref={ref}
       className={cn(
         'rounded-xl border border-[var(--ag-line)] text-[var(--ag-ink)]',
-        'bg-[var(--ag-panel)] supports-[background:color-mix(in_srgb,black,white)]:bg-[color-mix(in_srgb,var(--ag-panel)_96%,var(--ag-surface))]',
+        'bg-[var(--ag-panel)]',
         blurClasses[blur],
         className,
       )}

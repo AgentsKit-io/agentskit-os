@@ -84,7 +84,7 @@ export function FocusProvider({ children }: FocusProviderProps) {
   // Register "Toggle focus mode" command in the command palette
   useEffect(() => {
     registerCommand({
-      id: 'view.focus-mode',
+      id: 'view.toggle-focus',
       label: 'Toggle focus mode',
       keywords: ['focus', 'fullscreen', 'full-bleed', 'hide sidebar', 'zen'],
       category: 'View',

@@ -177,6 +177,18 @@ describe('App ARIA landmarks', () => {
     )
   })
 
+  it('opens the command palette from the navigation header shortcut button', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /toggle command palette/i }))
+    })
+
+    expect(screen.getByRole('dialog', { name: /command palette/i })).toBeInTheDocument()
+  })
+
   it('opens the supported Flows screen from primary navigation', async () => {
     await act(async () => {
       render(<App />, { container })

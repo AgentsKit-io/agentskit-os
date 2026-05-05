@@ -68,6 +68,21 @@ import { PluginContributionsProvider } from './plugins/plugin-contributions-prov
 const hasTauriRuntime = (): boolean =>
   typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
+function setScreenWithViewTransition(update: () => void): void {
+  const startViewTransition = (
+    document as Document & {
+      startViewTransition?: (callback: () => void) => void
+    }
+  ).startViewTransition
+
+  if (startViewTransition && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    startViewTransition(update)
+    return
+  }
+
+  update()
+}
+
 type ActiveScreen =
   | 'dashboard'
   | 'flows'
@@ -400,17 +415,7 @@ function AppShell({
   const navigateWithTransition = useCallback(
     (screen: ActiveScreen) => {
       if (screen === activeScreen) return
-      const startViewTransition = (
-        document as Document & {
-          startViewTransition?: (callback: () => void) => void
-        }
-      ).startViewTransition
-
-      if (startViewTransition && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
-        startViewTransition(() => setActiveScreen(screen))
-      } else {
-        setActiveScreen(screen)
-      }
+      setScreenWithViewTransition(() => setActiveScreen(screen))
     },
     [activeScreen, setActiveScreen],
   )
@@ -503,10 +508,12 @@ export function App() {
 
   const handleNavigate = useCallback((screen: string) => {
     if (isActiveScreen(screen)) {
-      setActiveScreen(screen)
+      if (screen !== activeScreen) {
+        setScreenWithViewTransition(() => setActiveScreen(screen))
+      }
       setAnnouncement(`Navigated to ${labelForScreen(screen)}`)
     }
-  }, [])
+  }, [activeScreen])
 
   const handleClearEventFeed = useCallback(() => {
     // No-op for now; Dashboard will register its own clear via the palette

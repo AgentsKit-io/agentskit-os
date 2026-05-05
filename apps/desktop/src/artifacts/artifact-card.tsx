@@ -14,23 +14,11 @@ import { HtmlRenderer } from './renderers/html-renderer'
 import { MarkdownRenderer } from './renderers/markdown-renderer'
 import { ImageRenderer } from './renderers/image-renderer'
 import { useArtifactViewer } from './use-artifact-viewer'
+import { ARTIFACT_KIND_LABELS } from './artifact-labels'
 
 // ---------------------------------------------------------------------------
 // Kind badge
 // ---------------------------------------------------------------------------
-
-const KIND_LABELS: Record<ArtifactKind, string> = {
-  code: 'Code',
-  json: 'JSON',
-  yaml: 'YAML',
-  csv: 'CSV',
-  svg: 'SVG',
-  mermaid: 'Mermaid',
-  html: 'HTML',
-  markdown: 'Markdown',
-  image: 'Image',
-  unknown: 'Unknown',
-}
 
 const KIND_COLORS: Record<ArtifactKind, string> = {
   code: 'bg-violet-500/15 text-violet-400',
@@ -52,7 +40,7 @@ function KindBadge({ kind }: KindBadgeProps): React.JSX.Element {
     <span
       className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-widest ${KIND_COLORS[kind]}`}
     >
-      {KIND_LABELS[kind]}
+      {ARTIFACT_KIND_LABELS[kind]}
     </span>
   )
 }
@@ -109,7 +97,7 @@ export function ArtifactCard({ artifact }: ArtifactCardProps): React.JSX.Element
     open(artifact)
   }, [open, artifact])
 
-  const title = artifact.name ?? `${KIND_LABELS[artifact.kind]} artifact`
+  const title = artifact.name ?? `${ARTIFACT_KIND_LABELS[artifact.kind]} artifact`
 
   return (
     <article

@@ -4,11 +4,11 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 465,
-    "issues": 120,
+    "filesScanned": 467,
+    "issues": 107,
     "byKind": {
       "cyclomatic-complexity": 18,
-      "duplicate-block": 82,
+      "duplicate-block": 69,
       "nested-ternary": 20
     }
   },
@@ -143,183 +143,92 @@
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:1623f72dbb1126db",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 64,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:71."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:16240e5d7bd78378",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 28,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:22."
+      "line": 54,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:59."
     },
     {
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:1c1433ff19a8d61c",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 65,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:72."
+      "line": 55,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:60."
     },
     {
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:24c0d2507147bfab",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 61,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:68."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:287a372bc073b03a",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 31,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:25."
+      "line": 51,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:56."
     },
     {
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:4065b3964512a095",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 63,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:70."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:5e567f733c484b40",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 30,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:24."
+      "line": 53,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:58."
     },
     {
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:6970c0ae2278e924",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 62,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:69."
+      "line": 52,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:57."
     },
     {
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:6a0bad2b47ba1f23",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 66,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:73."
+      "line": 56,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:61."
     },
     {
       "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:87b9ba62f0750a18",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 67,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:74."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/artifacts/artifact-viewer.tsx:df9870a3f3cb196d",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/artifacts/artifact-viewer.tsx",
-      "line": 29,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:23."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/benchmark/index.tsx:32c5154d7fb8dfac",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 291,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/benchmark/index.tsx:40d03977db302db5",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 290,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/benchmark/index.tsx:b2584cac9c67fd62",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/benchmark/index.tsx",
-      "line": 289,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:32c5154d7fb8dfac",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 316,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:40d03977db302db5",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 315,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/cost/index.tsx:b2584cac9c67fd62",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/cost/index.tsx",
-      "line": 314,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:32c5154d7fb8dfac",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 301,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:40d03977db302db5",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 300,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/evals/index.tsx:b2584cac9c67fd62",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/evals/index.tsx",
-      "line": 299,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "line": 57,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/artifacts/artifact-card.tsx:62."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/flows/index.tsx",
       "line": 313,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:301."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/flows/index.tsx",
       "line": 312,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:300."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/flows/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/flows/index.tsx",
       "line": 311,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:299."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
       "line": 528,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:301."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
       "line": 527,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:300."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/hitl/index.tsx",
       "line": 526,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:299."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/hitl/index.tsx:cd912f6732149508",
@@ -333,21 +242,21 @@
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/runs/index.tsx",
       "line": 280,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:301."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/runs/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/runs/index.tsx",
       "line": 279,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:300."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/runs/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/runs/index.tsx",
       "line": 278,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:299."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/runs/use-runs.ts:d9231c7f9886379c",
@@ -361,14 +270,14 @@
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/security/index.tsx",
       "line": 293,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:301."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/security/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/security/index.tsx",
       "line": 292,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:300."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/security/index.tsx:aa266e42c63273bb",
@@ -382,84 +291,84 @@
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/security/index.tsx",
       "line": 291,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:299."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:127fac146fa185fc",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 109,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:57."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:127fac146fa185fc",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 145,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:57."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:56c878d5b233f719",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 95,
+      "line": 111,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:59."
     },
     {
-      "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:56c878d5b233f719",
+      "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:127fac146fa185fc",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
       "line": 147,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:59."
     },
     {
+      "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:56c878d5b233f719",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/traces/use-traces.ts",
+      "line": 97,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:61."
+    },
+    {
+      "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:56c878d5b233f719",
+      "kind": "duplicate-block",
+      "file": "apps/desktop/src/screens/traces/use-traces.ts",
+      "line": 149,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:61."
+    },
+    {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:b7237c3414f47248",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 96,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:60."
+      "line": 98,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:62."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:b9df17b9f7582f2a",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 124,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:73."
+      "line": 126,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:75."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:edbae70f0b5b6726",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 146,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:58."
+      "line": 148,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:60."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:f7361ef22b5d47d5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 125,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:74."
+      "line": 127,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:76."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:32c5154d7fb8dfac",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/triggers/index.tsx",
       "line": 281,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:274."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:301."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:40d03977db302db5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/triggers/index.tsx",
       "line": 280,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:273."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:300."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:b2584cac9c67fd62",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/triggers/index.tsx",
       "line": 279,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/agents/index.tsx:272."
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/evals/index.tsx:299."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:cd912f6732149508",

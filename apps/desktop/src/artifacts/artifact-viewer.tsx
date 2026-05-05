@@ -20,23 +20,13 @@ import { MermaidRenderer } from './renderers/mermaid-renderer'
 import { HtmlRenderer } from './renderers/html-renderer'
 import { MarkdownRenderer } from './renderers/markdown-renderer'
 import { ImageRenderer } from './renderers/image-renderer'
+import { ARTIFACT_KIND_LABELS } from './artifact-labels'
 
 // ---------------------------------------------------------------------------
 // Kind label map (duplicated to avoid circular dep with artifact-card)
 // ---------------------------------------------------------------------------
 
-const KIND_LABELS: Record<ArtifactKind, string> = {
-  code: 'Code',
-  json: 'JSON',
-  yaml: 'YAML',
-  csv: 'CSV',
-  svg: 'SVG',
-  mermaid: 'Mermaid',
-  html: 'HTML',
-  markdown: 'Markdown',
-  image: 'Image',
-  unknown: 'Unknown',
-}
+const KIND_LABELS: Record<ArtifactKind, string> = ARTIFACT_KIND_LABELS
 
 // ---------------------------------------------------------------------------
 // Content renderer (same logic as ArtifactCard)
@@ -127,7 +117,7 @@ function ArtifactViewerModal({ artifact, onClose }: ArtifactViewerModalProps): R
     URL.revokeObjectURL(url)
   }, [artifact])
 
-  const title = artifact.name ?? `${KIND_LABELS[artifact.kind]} artifact`
+  const title = artifact.name ?? `${ARTIFACT_KIND_LABELS[artifact.kind]} artifact`
 
   return (
     /* Backdrop */
@@ -153,7 +143,7 @@ function ArtifactViewerModal({ artifact, onClose }: ArtifactViewerModalProps): R
           <div className="flex items-center gap-2 min-w-0">
             <span className="truncate text-sm font-semibold text-[var(--ag-ink)]">{title}</span>
             <span className="text-[10px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
-              {KIND_LABELS[artifact.kind]}
+              {ARTIFACT_KIND_LABELS[artifact.kind]}
             </span>
           </div>
           <div className="flex items-center gap-1 shrink-0">

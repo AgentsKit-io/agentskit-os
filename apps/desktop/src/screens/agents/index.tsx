@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import type { AgentProfile, AgentProvider, AgentStatus } from './use-agents'
 import { AGENTS_FIXTURE, useAgents } from './use-agents'
+import { FilterPills } from '../../components/filter-pills'
 
 const STATUS_LABEL: Record<AgentStatus, string> = {
   ready: 'Ready',
@@ -266,24 +267,13 @@ export function AgentsScreen() {
 
         <AgentsSummary agents={agents} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter agents by provider">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : PROVIDER_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter agents by provider"
+          labelFor={(item) => (item === 'all' ? 'All' : PROVIDER_LABEL[item])}
+        />
 
         {filteredAgents.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

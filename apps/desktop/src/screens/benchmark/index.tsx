@@ -7,6 +7,7 @@ import {
   type BenchmarkStatus,
   useBenchmarks,
 } from './use-benchmarks'
+import { FilterPills } from '../../components/filter-pills'
 
 const PROVIDER_LABEL: Record<BenchmarkProvider, string> = {
   codex: 'Codex',
@@ -283,24 +284,13 @@ export function BenchmarkScreen() {
 
         <BenchmarkSummary results={results} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter benchmarks by provider">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : PROVIDER_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter benchmarks by provider"
+          labelFor={(item) => (item === 'all' ? 'All' : PROVIDER_LABEL[item])}
+        />
 
         {filteredResults.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

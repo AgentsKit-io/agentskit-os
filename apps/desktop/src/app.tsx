@@ -13,6 +13,7 @@ import { BenchmarkScreen } from './screens/benchmark'
 import { CostScreen } from './screens/cost'
 import { Dashboard } from './screens/dashboard'
 import { EvalsScreen } from './screens/evals'
+import { FlowsScreen } from './screens/flows'
 import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
 import { SecurityScreen } from './screens/security'
@@ -101,8 +102,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'flows',
         label: 'Flows',
         icon: '◇',
-        status: 'preview',
-        description: 'Visual flow editing is planned from ADR-0019 and will land behind typed graph contracts.',
+        status: 'supported',
       },
       {
         id: 'runs',
@@ -393,6 +393,7 @@ function AppShell({
         )}
         <main id="main-content" aria-label="Main content" className="flex flex-1 flex-col overflow-auto">
           {activeScreen === 'dashboard' && <Dashboard />}
+          {activeScreen === 'flows' && <FlowsScreen />}
           {activeScreen === 'runs' && <RunsScreen />}
           {activeScreen === 'traces' && <TracesScreen />}
           {activeScreen === 'agents' && <AgentsScreen />}
@@ -403,7 +404,7 @@ function AppShell({
           {activeScreen === 'cost' && <CostScreen />}
           {activeScreen === 'security' && <SecurityScreen />}
           {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'cost' && activeScreen !== 'security' && activeScreen !== 'examples' && (
+          {activeScreen !== 'dashboard' && activeScreen !== 'flows' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'cost' && activeScreen !== 'security' && activeScreen !== 'examples' && (
             <PreviewSurface screen={activeScreen} />
           )}
         </main>

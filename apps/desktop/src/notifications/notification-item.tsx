@@ -7,7 +7,7 @@
 
 import { Button } from '@agentskit/os-ui'
 import type { Notification, NotificationSeverity } from './types'
-
+import { formatRelativeTimeFromNow } from '../lib/relative-time'
 // ---------------------------------------------------------------------------
 // Severity icon
 // ---------------------------------------------------------------------------
@@ -53,6 +53,7 @@ export type NotificationItemProps = {
 
 export function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
   const { id, severity, title, message, timestamp, read, action } = notification
+  const label = formatRelativeTimeFromNow(timestamp)
 
   return (
     <div
@@ -87,7 +88,7 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
             dateTime={timestamp}
             className="shrink-0 text-[11px] text-[var(--ag-ink-subtle)]"
           >
-            {formatRelativeTime(timestamp)}
+            {label}
           </time>
         </div>
 

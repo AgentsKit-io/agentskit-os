@@ -5,7 +5,7 @@ import { Slug, TagList } from '../schema/_primitives.js'
 
 const SemverPlain = z
   .string()
-  .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/)
+  .regex(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+){0,1}(\+[0-9A-Za-z.-]+){0,1}$/)
 
 export const VoiceTone = z.enum(['formal', 'casual', 'playful', 'technical', 'empathetic'])
 export type VoiceTone = z.infer<typeof VoiceTone>

@@ -451,8 +451,14 @@ export const runConformance = async (
   }
 }
 
-const check = (kind: ConformanceCheck, passed: boolean, detail?: string): ConformanceCheckResult =>
-  passed ? { check: kind, passed: true } : { check: kind, passed: false, ...(detail ? { detail } : {}) }
+const check = (kind: ConformanceCheck, passed: boolean, detail?: string): ConformanceCheckResult => {
+  if (passed) return { check: kind, passed: true }
+  const out: ConformanceCheckResult = { check: kind, passed: false }
+  if (detail) {
+    ;(out as { detail?: string }).detail = detail
+  }
+  return out
+}
 
 export const parseCodingTaskRequest = (input: unknown): CodingTaskRequest =>
   CodingTaskRequest.parse(input)

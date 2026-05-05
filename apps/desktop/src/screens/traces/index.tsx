@@ -21,6 +21,7 @@ import { TraceStatusBadge } from './trace-badges'
 import { ForkButton } from '../../fork/fork-button'
 import { formatShortDuration } from '../../lib/format'
 import { useSelection } from '../../lib/selection-store'
+import { formatShortDuration } from '../../lib/format'
 
 const TRACES_HEADER_CLASS = [
   'sticky top-0 z-20 flex shrink-0 flex-wrap items-center justify-between gap-4',

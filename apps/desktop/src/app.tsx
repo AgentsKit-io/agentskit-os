@@ -6,7 +6,7 @@
  * overlay (D-6), and the theme switcher with persisted choice (D-9 / D-4).
  */
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
 import {
   Activity,
@@ -445,6 +445,27 @@ function ScreenSurface({
 }
 
 /** Inner shell that reads focus state and conditionally hides sidebar/banner. */
+const SCREEN_RENDERERS: Partial<Record<ActiveScreen, () => React.ReactNode>> = {
+  dashboard: () => <Dashboard />,
+  flows: () => <FlowsScreen />,
+  runs: () => <RunsScreen />,
+  traces: () => <TracesScreen />,
+  agents: () => <AgentsScreen />,
+  hitl: () => <HitlScreen />,
+  triggers: () => <TriggersScreen />,
+  evals: () => <EvalsScreen />,
+  benchmark: () => <BenchmarkScreen />,
+  cost: () => <CostScreen />,
+  security: () => <SecurityScreen />,
+  examples: () => <ExampleScreen />,
+}
+
+function renderScreen(screen: ActiveScreen): React.ReactNode {
+  const renderer = SCREEN_RENDERERS[screen]
+  if (renderer) return renderer()
+  return <PreviewSurface screen={screen} />
+}
+
 function AppShell({
   activeScreen,
   setActiveScreen,
@@ -545,7 +566,11 @@ function AppShell({
       {focusActive && (
         <button
           type="button"
-          className="fixed right-4 top-4 z-[60] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] shadow-2xl hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
+          className={[
+            'fixed right-4 top-4 z-[60] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5',
+            'text-sm font-medium text-[var(--ag-ink)] shadow-2xl',
+            'hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]',
+          ].join(' ')}
           onClick={disableFocus}
         >
           Exit focus mode

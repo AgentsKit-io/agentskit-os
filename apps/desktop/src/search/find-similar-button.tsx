@@ -10,7 +10,7 @@
  */
 
 import { useState } from 'react'
-import { sidecarRequest } from '../lib/sidecar'
+import { useFindSimilar } from './use-find-similar'
 
 export type FindSimilarButtonProps = {
   /** The entity id to find similar results for. */
@@ -25,12 +25,13 @@ export function FindSimilarButton({
 }: FindSimilarButtonProps): React.JSX.Element {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const findSimilar = useFindSimilar()
 
   const handleClick = async (): Promise<void> => {
     setLoading(true)
     setError(null)
     try {
-      await sidecarRequest('search.findSimilar', { entityId })
+      await findSimilar(entityId)
     } catch (err) {
       // Sidecar method not implemented yet — surface a friendly hint.
       setError(err instanceof Error ? err.message : 'Sidecar unavailable')
@@ -47,7 +48,12 @@ export function FindSimilarButton({
         onClick={() => void handleClick()}
         aria-label={`Find similar to ${entityId}`}
         title="AI find similar — needs sidecar (TODO #91)"
-        className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-[var(--ag-ink-muted)] border border-[var(--ag-line)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className={[
+          'inline-flex items-center gap-1 rounded border border-[var(--ag-line)] px-2 py-1',
+          'text-[11px] text-[var(--ag-ink-muted)] transition-colors',
+          'hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]',
+          'disabled:cursor-not-allowed disabled:opacity-50',
+        ].join(' ')}
       >
         <span aria-hidden>✦</span>
         {loading ? 'Searching…' : 'AI find similar'}

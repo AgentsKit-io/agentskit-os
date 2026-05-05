@@ -5,6 +5,7 @@
 import type { FlowConfig, RunContext } from '@agentskit/os-core'
 import type { NodeOutcome, NodeHandlerMap, NodeHandler } from './handlers.js'
 import { auditGraph, buildAdjacency, topoSort } from './topo.js'
+import { edgeMatches } from './edge-matches.js'
 
 export type CheckpointRecord = {
   readonly runId: string
@@ -61,21 +62,6 @@ export type ResumeOptions = {
       | { kind: 'node:end'; nodeId: string; outcome: NodeOutcome }
       | { kind: 'node:resumed'; nodeId: string; outcome: NodeOutcome },
   ) => void
-}
-
-const edgeMatches = (on: 'success' | 'failure' | 'always' | 'true' | 'false', outcome: NodeOutcome): boolean => {
-  switch (on) {
-    case 'always':
-      return true
-    case 'success':
-      return outcome.kind === 'ok' || outcome.kind === 'skipped'
-    case 'failure':
-      return outcome.kind === 'failed'
-    case 'true':
-      return outcome.kind === 'ok' && outcome.value === true
-    case 'false':
-      return outcome.kind === 'ok' && outcome.value === false
-  }
 }
 
 const isResumable = (outcome: NodeOutcome): boolean => outcome.kind === 'ok' || outcome.kind === 'skipped'
@@ -205,8 +191,10 @@ export const resumeFlow = async (
 
   const everyExecutedSkipped =
     executed.length > 0 && executed.every((id) => outcomes.get(id)?.kind === 'skipped')
+  let status: 'completed' | 'skipped' = 'completed'
+  if (executed.length > 0 && everyExecutedSkipped) status = 'skipped'
   return {
-    status: executed.length === 0 ? 'completed' : everyExecutedSkipped ? 'skipped' : 'completed',
+    status,
     outcomes,
     executedOrder: executed,
     resumedFrom,

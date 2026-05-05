@@ -25,7 +25,15 @@ vi.mock('@agentskit/os-ui', () => {
   return {
     ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
     useTheme: () => ({ theme: _theme, resolvedTheme: _theme, setTheme }),
-    GlassPanel: ({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: (e: React.MouseEvent) => void }) =>
+    GlassPanel: ({
+      children,
+      className,
+      onClick,
+    }: {
+      children: React.ReactNode
+      className: string | undefined
+      onClick: ((e: React.MouseEvent) => void) | undefined
+    }) =>
       createElement('div', { className, onClick, 'data-testid': 'glass-panel' }, children),
     Kbd: ({ children }: { children: React.ReactNode }) =>
       createElement('kbd', {}, children),
@@ -47,11 +55,16 @@ function fireKeyDown(key: string, opts: Partial<KeyboardEventInit> = {}) {
 // Wrapper that renders both the provider and the palette
 // ---------------------------------------------------------------------------
 
-function App({ onNavigate }: { onNavigate?: (screen: 'dashboard' | 'traces' | 'settings') => void }) {
+function App({
+  onNavigate,
+}: {
+  onNavigate: ((screen: 'dashboard' | 'traces' | 'settings') => void) | undefined
+}) {
   const children = createElement(CommandPalette, null)
-  return onNavigate !== undefined
-    ? createElement(CommandPaletteProvider, { onNavigate, children })
-    : createElement(CommandPaletteProvider, { children })
+  if (onNavigate !== undefined) {
+    return createElement(CommandPaletteProvider, { onNavigate, children })
+  }
+  return createElement(CommandPaletteProvider, { children })
 }
 
 // ---------------------------------------------------------------------------

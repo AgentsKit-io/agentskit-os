@@ -12,7 +12,7 @@
  * Cancel discards changes. Reset restores defaults.
  */
 
-import { useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { GlassPanel } from '@agentskit/os-ui'
 import { usePreferences } from './preferences-provider'
 import { GeneralTab } from './preferences-tabs/general'
@@ -93,26 +93,129 @@ export type PreferencesPanelProps = {
   readonly onOpenSnapshot?: () => void
 }
 
+function PreferencesBackdrop({ onClose }: { readonly onClose: () => void }) {
+  return <div aria-hidden className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+}
+
+function PreferencesTabsNav({
+  activeTab,
+  onSelectTab,
+}: {
+  readonly activeTab: TabId
+  readonly onSelectTab: (tab: TabId) => void
+}) {
+  return (
+    <nav aria-label="Preferences sections" className="w-36 shrink-0 border-r border-[var(--ag-line)] px-2 py-3">
+      {TABS.map(({ id, label }) => (
+        <button
+          key={id}
+          type="button"
+          data-testid={`tab-${id}`}
+          onClick={() => onSelectTab(id)}
+          aria-current={activeTab === id ? 'true' : undefined}
+          className={[
+            'mb-0.5 w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors',
+            activeTab === id
+              ? 'bg-[var(--ag-accent)]/15 font-medium text-[var(--ag-accent)]'
+              : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
+          ].join(' ')}
+        >
+          {label}
+        </button>
+      ))}
+    </nav>
+  )
+}
+
+function PreferencesTabContent({
+  activeTab,
+  draft,
+  onDraftChange,
+  onExport,
+  onOpenShortcuts,
+}: {
+  readonly activeTab: TabId
+  readonly draft: Preferences
+  readonly onDraftChange: (partial: Partial<Preferences>) => void
+  readonly onExport: () => void
+  readonly onOpenShortcuts: (() => void) | undefined
+}) {
+  return (
+    <div className="flex-1 overflow-y-auto p-5">
+      {activeTab === 'general' && <GeneralTab prefs={draft} onChange={onDraftChange} />}
+      {activeTab === 'accessibility' && <AccessibilityTab prefs={draft} onChange={onDraftChange} />}
+      {activeTab === 'telemetry' && <TelemetryTab prefs={draft} onChange={onDraftChange} onExport={onExport} />}
+      {activeTab === 'theme' && <ThemeTabContent />}
+      {activeTab === 'shortcuts' && <ShortcutsTabContent onOpenShortcuts={onOpenShortcuts} />}
+    </div>
+  )
+}
+
+function PreferencesFooter({
+  onReset,
+  onOpenSnapshot,
+  onClose,
+  onSave,
+}: {
+  readonly onReset: () => void
+  readonly onOpenSnapshot: (() => void) | undefined
+  readonly onClose: () => void
+  readonly onSave: () => void
+}) {
+  return (
+    <div className="flex items-center justify-between border-t border-[var(--ag-line)] px-5 py-3">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          data-testid="reset-preferences"
+          onClick={onReset}
+          className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+        >
+          Reset to defaults
+        </button>
+        {onOpenSnapshot && (
+          <button
+            type="button"
+            data-testid="open-snapshot-btn"
+            onClick={onOpenSnapshot}
+            className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+          >
+            Snapshot…
+          </button>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          data-testid="cancel-preferences"
+          onClick={onClose}
+          className="rounded-md border border-[var(--ag-line)] px-4 py-1.5 text-sm text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          data-testid="save-preferences"
+          onClick={onSave}
+          className="rounded-md bg-[var(--ag-accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts, onOpenSnapshot }: PreferencesPanelProps) {
   const { prefs, set, reset, exportJson } = usePreferences()
   const [activeTab, setActiveTab] = useState<TabId>('general')
-  // Buffer local changes until Save is clicked
   const [draft, setDraft] = useState<Preferences>(prefs)
 
-  // Keep draft in sync when panel is opened
-  const handleOpen = useCallback(() => {
+  useEffect(() => {
+    if (!isOpen) return
     setDraft(prefs)
     setActiveTab('general')
-  }, [prefs])
-
-  // When isOpen transitions to true, sync draft
-  const [wasOpen, setWasOpen] = useState(false)
-  if (isOpen && !wasOpen) {
-    setWasOpen(true)
-    handleOpen()
-  } else if (!isOpen && wasOpen) {
-    setWasOpen(false)
-  }
+  }, [isOpen, prefs])
 
   const handleSave = () => {
     set(draft)
@@ -121,7 +224,6 @@ export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts, onOpenSnaps
 
   const handleReset = () => {
     reset()
-    // Reload default prefs from context after reset
     import('./preferences-types').then(({ DEFAULT_PREFERENCES }) => {
       setDraft(DEFAULT_PREFERENCES)
     })
@@ -138,22 +240,14 @@ export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts, onOpenSnaps
     URL.revokeObjectURL(url)
   }
 
-  const handleDraftChange = (partial: Partial<Preferences>) => {
-    setDraft((prev) => ({ ...prev, ...partial }))
-  }
+  const handleDraftChange = (partial: Partial<Preferences>) => setDraft((prev) => ({ ...prev, ...partial }))
 
   if (!isOpen) return null
 
   return (
     <>
-      {/* Backdrop */}
-      <div
-        aria-hidden
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <PreferencesBackdrop onClose={onClose} />
 
-      {/* Modal */}
       <div
         role="dialog"
         aria-label="Preferences"
@@ -162,7 +256,6 @@ export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts, onOpenSnaps
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
         <GlassPanel className="flex w-full max-w-2xl flex-col overflow-hidden rounded-xl shadow-2xl">
-          {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-5 py-4">
             <h2 className="text-[15px] font-semibold text-[var(--ag-ink)]">Preferences</h2>
             <button
@@ -177,93 +270,22 @@ export function PreferencesPanel({ isOpen, onClose, onOpenShortcuts, onOpenSnaps
           </div>
 
           <div className="flex min-h-0 flex-1">
-            {/* Tab sidebar */}
-            <nav
-              aria-label="Preferences sections"
-              className="w-36 shrink-0 border-r border-[var(--ag-line)] px-2 py-3"
-            >
-              {TABS.map(({ id, label }) => (
-                <button
-                  key={id}
-                  type="button"
-                  data-testid={`tab-${id}`}
-                  onClick={() => setActiveTab(id)}
-                  aria-current={activeTab === id ? 'true' : undefined}
-                  className={[
-                    'mb-0.5 w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors',
-                    activeTab === id
-                      ? 'bg-[var(--ag-accent)]/15 font-medium text-[var(--ag-accent)]'
-                      : 'text-[var(--ag-ink-muted)] hover:bg-[var(--ag-panel-alt)] hover:text-[var(--ag-ink)]',
-                  ].join(' ')}
-                >
-                  {label}
-                </button>
-              ))}
-            </nav>
-
-            {/* Tab content */}
-            <div className="flex-1 overflow-y-auto p-5">
-              {activeTab === 'general' && (
-                <GeneralTab prefs={draft} onChange={handleDraftChange} />
-              )}
-              {activeTab === 'accessibility' && (
-                <AccessibilityTab prefs={draft} onChange={handleDraftChange} />
-              )}
-              {activeTab === 'telemetry' && (
-                <TelemetryTab
-                  prefs={draft}
-                  onChange={handleDraftChange}
-                  onExport={handleExport}
-                />
-              )}
-              {activeTab === 'theme' && <ThemeTabContent />}
-              {activeTab === 'shortcuts' && (
-                <ShortcutsTabContent onOpenShortcuts={onOpenShortcuts} />
-              )}
-            </div>
+            <PreferencesTabsNav activeTab={activeTab} onSelectTab={setActiveTab} />
+            <PreferencesTabContent
+              activeTab={activeTab}
+              draft={draft}
+              onDraftChange={handleDraftChange}
+              onExport={handleExport}
+              onOpenShortcuts={onOpenShortcuts}
+            />
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between border-t border-[var(--ag-line)] px-5 py-3">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                data-testid="reset-preferences"
-                onClick={handleReset}
-                className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-              >
-                Reset to defaults
-              </button>
-              {onOpenSnapshot && (
-                <button
-                  type="button"
-                  data-testid="open-snapshot-btn"
-                  onClick={onOpenSnapshot}
-                  className="text-[13px] text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-                >
-                  Snapshot…
-                </button>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                data-testid="cancel-preferences"
-                onClick={onClose}
-                className="rounded-md border border-[var(--ag-line)] px-4 py-1.5 text-sm text-[var(--ag-ink-muted)] transition-colors hover:text-[var(--ag-ink)]"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                data-testid="save-preferences"
-                onClick={handleSave}
-                className="rounded-md bg-[var(--ag-accent)] px-4 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
-              >
-                Save
-              </button>
-            </div>
-          </div>
+          <PreferencesFooter
+            onReset={handleReset}
+            onOpenSnapshot={onOpenSnapshot}
+            onClose={onClose}
+            onSave={handleSave}
+          />
         </GlassPanel>
       </div>
     </>

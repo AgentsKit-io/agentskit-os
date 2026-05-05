@@ -52,17 +52,20 @@ export const createHumanHandler = (
 ): ((node: HumanNode, input: unknown, ctx: RunContext) => Promise<NodeOutcome>) => {
   return async (node: HumanNode, _input: unknown, ctx: RunContext): Promise<NodeOutcome> => {
     // quorum may not be on the base HumanNode type yet; fall back to 1.
-    const quorum: number = (node as HumanNode & { quorum?: number }).quorum ?? 1
+    let quorum = 1
+    const raw = (node as HumanNode & { quorum?: number }).quorum
+    if (typeof raw === 'number' && Number.isFinite(raw) && raw > 0) quorum = raw
 
     let decision: ApproverGateDecision
     try {
       decision = await opts.approverGate(node, ctx)
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
       return {
         kind: 'failed',
         error: {
           code: 'os.flow.hitl_quorum_unmet',
-          message: `Approver gate threw: ${(err as Error).message ?? String(err)}`,
+          message: `Approver gate threw: ${message}`,
         },
       }
     }

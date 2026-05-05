@@ -28,7 +28,7 @@ export const safeBooleanEval: ConditionEvaluator = (expression, scope) => {
     }
     if (rhsRaw === 'true') return lhs === true
     if (rhsRaw === 'false') return lhs === false
-    if (/^-?\d+(\.\d+)?$/.test(rhsRaw)) return lhs === Number(rhsRaw)
+    if (/^-?\d+(\.\d+){0,1}$/.test(rhsRaw)) return lhs === Number(rhsRaw)
     return false
   }
   return false
@@ -47,9 +47,10 @@ export const createConditionHandler = (
       const result = await evaluator(node.expression, scope)
       return { kind: 'ok', value: Boolean(result) }
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
       return {
         kind: 'failed',
-        error: { code: 'condition.threw', message: (err as Error).message ?? String(err) },
+        error: { code: 'condition.threw', message },
       }
     }
   }

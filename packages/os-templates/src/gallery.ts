@@ -1061,23 +1061,50 @@ const makeFlow = (spec: TemplateSpec) => {
     }
     return parseFlowConfig({ id: `${spec.id}-flow`, name: `${spec.name} Flow`, entry: 'compare', nodes: [{ id: 'compare', kind: 'compare', agents: [lead, reviewer, judge], selection: { mode: 'judge', judgeAgent: judge, criteria: 'Completeness, correctness, and actionability.' } }, { id: 'report', kind: 'tool', tool: 'report.create' }], edges: [{ from: 'compare', to: 'report' }], tags: [spec.category] })
   }
-  const needsApproval = ['healthcare', 'finance'].includes(spec.category) || spec.id.includes('approval') || spec.id.includes('deploy') || spec.id.includes('runbook')
+  const needsApproval =
+    ['healthcare', 'finance'].includes(spec.category) ||
+    spec.id.includes('approval') ||
+    spec.id.includes('deploy') ||
+    spec.id.includes('runbook')
+
+  const nodes: Array<unknown> = []
+  const edges: Array<unknown> = []
+
+  let ingestTool = 'fetch-url'
+  if (spec.tools[0] !== undefined) ingestTool = spec.tools[0]
+  let publishTool = 'report.create'
+  if (spec.tools[0] !== undefined) publishTool = spec.tools[0]
+  if (spec.tools[2] !== undefined) publishTool = spec.tools[2]
+
+  nodes.push({ id: 'ingest', kind: 'tool', tool: ingestTool })
+  nodes.push({ id: 'draft', kind: 'agent', agent: lead })
+  nodes.push({ id: 'review', kind: 'agent', agent: reviewer })
+
+  edges.push({ from: 'ingest', to: 'draft' })
+  edges.push({ from: 'draft', to: 'review' })
+
+  if (needsApproval) {
+    nodes.push({
+      id: 'approval',
+      kind: 'human',
+      prompt: `Approve ${spec.name} before external action?`,
+      approvers: ['owner'],
+      quorum: 1,
+    })
+    edges.push({ from: 'review', to: 'approval' })
+    edges.push({ from: 'approval', to: 'publish' })
+  } else {
+    edges.push({ from: 'review', to: 'publish' })
+  }
+
+  nodes.push({ id: 'publish', kind: 'tool', tool: publishTool })
+
   return parseFlowConfig({
     id: `${spec.id}-flow`,
     name: `${spec.name} Flow`,
     entry: 'ingest',
-    nodes: [
-      { id: 'ingest', kind: 'tool', tool: spec.tools[0] ?? 'fetch-url' },
-      { id: 'draft', kind: 'agent', agent: lead },
-      { id: 'review', kind: 'agent', agent: reviewer },
-      ...(needsApproval ? [{ id: 'approval', kind: 'human', prompt: `Approve ${spec.name} before external action?`, approvers: ['owner'], quorum: 1 } as const] : []),
-      { id: 'publish', kind: 'tool', tool: spec.tools[2] ?? spec.tools[0] ?? 'report.create' },
-    ],
-    edges: [
-      { from: 'ingest', to: 'draft' },
-      { from: 'draft', to: 'review' },
-      ...(needsApproval ? [{ from: 'review', to: 'approval' }, { from: 'approval', to: 'publish' }] : [{ from: 'review', to: 'publish' }]),
-    ],
+    nodes: nodes as never,
+    edges: edges as never,
     tags: [spec.category],
   })
 }

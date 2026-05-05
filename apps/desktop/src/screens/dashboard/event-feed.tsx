@@ -3,6 +3,7 @@ import { Button, GlassPanel } from '@agentskit/os-ui'
 import { formatClockTime } from '../../lib/format'
 import type { SidecarEvent } from '../../lib/sidecar'
 import type { EventFeedState } from './use-event-feed'
+import { formatHms } from '../../lib/time'
 
 type EventFeedProps = Pick<EventFeedState, 'events' | 'isPaused' | 'toggle'>
 

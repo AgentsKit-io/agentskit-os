@@ -1,8 +1,10 @@
+import { Command, Option } from 'commander'
 import {
   BUILTIN_PROVIDERS,
   checkProviderKeys,
   type ProviderCheckResult,
 } from '@agentskit/os-core'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 import { newCmd } from './new.js'
@@ -36,7 +38,6 @@ type Args = {
   force: boolean
   airGap: boolean
   envPrefix: string
-  usage?: string
 }
 
 const personaProviders: Record<Persona, readonly string[]> = {
@@ -73,47 +74,6 @@ const renderCredSummary = (results: readonly ProviderCheckResult[]): string => {
   return lines.join('\n')
 }
 
-const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { force: false, airGap: false, envPrefix: 'AGENTSKITOS_' }
-  let i = 0
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--force') {
-      out.force = true
-      i++
-      continue
-    }
-    if (a === '--air-gap') {
-      out.airGap = true
-      i++
-      continue
-    }
-    if (a === '--env-prefix') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: '--env-prefix requires a value' }
-      out.envPrefix = v
-      i += 2
-      continue
-    }
-    if (a === '--persona') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: '--persona requires a value' }
-      if (v !== 'dev' && v !== 'agency' && v !== 'clinical' && v !== 'non-tech') {
-        return { ...out, usage: `unknown persona "${v}"` }
-      }
-      out.persona = v
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    if (out.dir !== undefined) return { ...out, usage: 'only one positional <dir> argument allowed' }
-    if (a !== undefined) out.dir = a
-    i++
-  }
-  return out
-}
-
 const promptPersona = async (io: CliIo): Promise<Persona> => {
   if (!io.prompt) {
     throw new Error('prompt unavailable')
@@ -129,53 +89,91 @@ const promptPersona = async (io: CliIo): Promise<Persona> => {
   return 'dev'
 }
 
+const executeWizard = async (args: Args, io: CliIo): Promise<CliExit> => {
+  let persona: Persona
+  try {
+    persona = args.persona ?? (await promptPersona(io))
+  } catch {
+    return {
+      code: 2,
+      stdout: '',
+      stderr: `error: interactive prompt unavailable; pass --persona\n\n${help}`,
+    }
+  }
+
+  const templateId = personaToTemplate[persona]
+  const delegatedArgv = [
+    templateId,
+    ...(args.dir ? [args.dir] : []),
+    ...(args.force ? ['--force'] : []),
+  ]
+
+  const res = await newCmd.run(delegatedArgv, io)
+  if (res.code !== 0) return res
+
+  const expected = personaProviders[persona]
+  const present = presentEnvKeys(args.envPrefix, process.env)
+  const credResults = BUILTIN_PROVIDERS
+    .filter((p) => expected.includes(p.id))
+    .map((p) => checkProviderKeys(p, present, { airGapped: args.airGap }))
+  const credSummary = renderCredSummary(credResults)
+
+  const lines = [
+    `Wizard persona: ${persona}`,
+    `Template: ${templateId}`,
+    ``,
+    res.stdout.trimEnd(),
+    ``,
+    ...(credSummary ? [credSummary, ``] : []),
+  ]
+  return { code: 0, stdout: `${lines.join('\n')}\n`, stderr: '' }
+}
+
+type WizardCliOpts = {
+  persona?: Persona
+  force?: boolean
+  airGap?: boolean
+  envPrefix?: string
+}
+
+const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('wizard')
+    .description('agentskit-os wizard — Interactive first-run template wizard.')
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('[dir]', 'target directory')
+    .addOption(
+      new Option('--persona <p>', 'persona preset').choices(['dev', 'agency', 'clinical', 'non-tech']),
+    )
+    .option('--force', 'overwrite existing config', false)
+    .option('--air-gap', 'treat workspace as air-gapped for cred checks', false)
+    .option('--env-prefix <pfx>', 'process.env prefix to scan', 'AGENTSKITOS_')
+    .action(async (dir: string | undefined, opts: WizardCliOpts) => {
+      const args: Args = {
+        ...(dir !== undefined ? { dir } : {}),
+        ...(opts.persona !== undefined ? { persona: opts.persona } : {}),
+        force: opts.force === true,
+        airGap: opts.airGap === true,
+        envPrefix: opts.envPrefix ?? 'AGENTSKITOS_',
+      }
+      result.current = await executeWizard(args, io)
+    })
+
+  return { program, result }
+}
+
 export const wizard: CliCommand = {
   name: 'wizard',
   summary: 'Interactive first-run template wizard',
   run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const args = parseArgs(argv)
-    if (args.usage === 'help') return { code: 2, stdout: '', stderr: help }
-    if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${help}` }
-
-    let persona: Persona
-    try {
-      persona = args.persona ?? (await promptPersona(io))
-    } catch {
-      return {
-        code: 2,
-        stdout: '',
-        stderr: `error: interactive prompt unavailable; pass --persona\n\n${help}`,
-      }
+    const { program, result } = buildProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    const templateId = personaToTemplate[persona]
-    const delegatedArgv = [
-      templateId,
-      ...(args.dir ? [args.dir] : []),
-      ...(args.force ? ['--force'] : []),
-    ]
-
-    const res = await newCmd.run(delegatedArgv, io)
-    if (res.code !== 0) return res
-
-    const expected = personaProviders[persona]
-    const present = presentEnvKeys(args.envPrefix, process.env)
-    const credResults = BUILTIN_PROVIDERS
-      .filter((p) => expected.includes(p.id))
-      .map((p) => checkProviderKeys(p, present, { airGapped: args.airGap }))
-    const credSummary = renderCredSummary(credResults)
-
-    const lines = [
-      `Wizard persona: ${persona}`,
-      `Template: ${templateId}`,
-      ``,
-      res.stdout.trimEnd(),
-      ``,
-      ...(credSummary ? [credSummary, ``] : []),
-    ]
-    return { code: 0, stdout: `${lines.join('\n')}\n`, stderr: '' }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }
-
-const maybePromptTelemetry = async (_io: CliIo, _baseDir: string): Promise<string | undefined> => undefined
-

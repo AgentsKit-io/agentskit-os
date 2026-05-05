@@ -1,4 +1,5 @@
 import { resolve, join, basename, dirname } from 'node:path'
+import { Command } from 'commander'
 import {
   InMemoryPublisher,
   verifyAsset,
@@ -7,6 +8,7 @@ import {
   type Publisher,
   type PublishResult,
 } from '@agentskit/os-marketplace-sdk'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 
@@ -37,41 +39,9 @@ type Args = {
   assets?: string
   publisher: string
   dryRun: boolean
-  usage?: string
 }
 
 const SUPPORTED_PUBLISHERS = new Set(['in-memory'])
-
-const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { bundle: 'agentskit-os.bundle.json', publisher: 'in-memory', dryRun: false }
-  let i = 0
-  let positionalSeen = false
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--dry-run') {
-      out.dryRun = true
-      i++
-      continue
-    }
-    if (a === '--assets' || a === '--publisher') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: `${a} requires a value` }
-      if (a === '--assets') out.assets = v
-      else out.publisher = v
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    if (positionalSeen) return { ...out, usage: 'extra positional argument' }
-    if (a !== undefined) {
-      out.bundle = a
-      positionalSeen = true
-    }
-    i++
-  }
-  return out
-}
 
 const buildArchive = (chunks: readonly Uint8Array[]): Uint8Array => {
   let total = 0
@@ -90,143 +60,181 @@ const resolvePublisher = (name: string): Publisher | undefined => {
   return undefined
 }
 
+const executeDeploy = async (args: Args, io: CliIo): Promise<CliExit> => {
+  if (!SUPPORTED_PUBLISHERS.has(args.publisher)) {
+    return {
+      code: 2,
+      stdout: '',
+      stderr: `error: unsupported publisher "${args.publisher}". M1 supports: ${[...SUPPORTED_PUBLISHERS].join(', ')}\n`,
+    }
+  }
+
+  const bundlePath = resolve(io.cwd(), args.bundle)
+  const bundleDir = dirname(bundlePath)
+  const assetsDir = args.assets ? resolve(io.cwd(), args.assets) : join(bundleDir, 'dist')
+
+  let raw: string
+  try {
+    raw = await io.readFile(bundlePath)
+  } catch (err) {
+    return {
+      code: 3,
+      stdout: '',
+      stderr: `error: cannot read bundle at ${bundlePath}: ${(err as Error).message}\n`,
+    }
+  }
+
+  let bundle: Bundle
+  try {
+    bundle = JSON.parse(raw) as Bundle
+  } catch (err) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: `error: cannot parse bundle: ${(err as Error).message}\n`,
+    }
+  }
+
+  if (!bundle.manifest || !Array.isArray(bundle.assets) || !bundle.bundleIntegrity) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: `error: bundle missing required fields (manifest / assets / bundleIntegrity)\n`,
+    }
+  }
+
+  if (!io.readBinary) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: `error: CliIo lacks readBinary support\n`,
+    }
+  }
+
+  const chunks: Uint8Array[] = []
+  const tampered: string[] = []
+  const missing: string[] = []
+  for (const a of bundle.assets as readonly AssetRecord[]) {
+    const full = join(assetsDir, a.path)
+    let bytes: Uint8Array
+    try {
+      bytes = await io.readBinary(full)
+    } catch {
+      missing.push(a.path)
+      continue
+    }
+    if (bytes.byteLength !== a.size) {
+      tampered.push(`${a.path}: size ${bytes.byteLength} ≠ expected ${a.size}`)
+      continue
+    }
+    const ok = await verifyAsset(a.integrity, bytes)
+    if (!ok) tampered.push(`${a.path}: SHA-256 mismatch`)
+    chunks.push(bytes)
+  }
+
+  if (missing.length > 0 || tampered.length > 0) {
+    const lines = [
+      `error: bundle integrity check failed.`,
+      ...missing.map((m) => `  missing asset: ${m}`),
+      ...tampered.map((t) => `  tampered asset: ${t}`),
+    ]
+    return { code: 4, stdout: '', stderr: `${lines.join('\n')}\n` }
+  }
+
+  const summaryHeader = [
+    `bundle: ${basename(bundlePath)}`,
+    `plugin: ${bundle.manifest.id}@${bundle.manifest.version}`,
+    `assets: ${bundle.assets.length} verified`,
+    `publisher: ${args.publisher}`,
+  ].join('\n')
+
+  if (args.dryRun) {
+    return {
+      code: 0,
+      stdout: `${summaryHeader}\nmode: dry-run (skipped publisher)\n`,
+      stderr: '',
+    }
+  }
+
+  const publisher = resolvePublisher(args.publisher)
+  if (!publisher) {
+    return {
+      code: 2,
+      stdout: '',
+      stderr: `error: publisher "${args.publisher}" not wired in this build\n`,
+    }
+  }
+
+  const archive = buildArchive(chunks)
+  let result: PublishResult
+  try {
+    result = await publisher.publish(bundle, archive)
+  } catch (err) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: `error: publisher threw: ${(err as Error).message}\n`,
+    }
+  }
+
+  if (result.kind === 'rejected') {
+    return {
+      code: 5,
+      stdout: '',
+      stderr: `${summaryHeader}\nrejected: ${result.reason}\n`,
+    }
+  }
+
+  return {
+    code: 0,
+    stdout: `${summaryHeader}\nresolvedAt: ${result.resolvedAt}\nsource: ${result.source}\n`,
+    stderr: '',
+  }
+}
+
+type DeployCliOpts = {
+  assets?: string
+  publisher?: string
+  dryRun?: boolean
+}
+
+const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('deploy')
+    .description(
+      'agentskit-os deploy — Validate and ship a built plugin bundle to a Publisher backend.',
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('[bundle]', 'bundle JSON path', 'agentskit-os.bundle.json')
+    .option('--assets <dir>', 'override assets directory')
+    .option('--publisher <name>', 'publisher backend', 'in-memory')
+    .option('--dry-run', 'verify only; skip publish', false)
+    .action(async (bundle: string, opts: DeployCliOpts) => {
+      const args: Args = {
+        bundle,
+        publisher: opts.publisher ?? 'in-memory',
+        dryRun: opts.dryRun === true,
+        ...(opts.assets !== undefined ? { assets: opts.assets } : {}),
+      }
+      result.current = await executeDeploy(args, io)
+    })
+
+  return { program, result }
+}
+
 export const deploy: CliCommand = {
   name: 'deploy',
   summary: 'Validate and ship a built plugin bundle to a Publisher backend',
   run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const args = parseArgs(argv)
-    if (args.usage === 'help') return { code: 2, stdout: '', stderr: help }
-    if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${help}` }
-
-    if (!SUPPORTED_PUBLISHERS.has(args.publisher)) {
-      return {
-        code: 2,
-        stdout: '',
-        stderr: `error: unsupported publisher "${args.publisher}". M1 supports: ${[...SUPPORTED_PUBLISHERS].join(', ')}\n`,
-      }
+    const { program, result } = buildProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    const bundlePath = resolve(io.cwd(), args.bundle)
-    const bundleDir = dirname(bundlePath)
-    const assetsDir = args.assets ? resolve(io.cwd(), args.assets) : join(bundleDir, 'dist')
-
-    let raw: string
-    try {
-      raw = await io.readFile(bundlePath)
-    } catch (err) {
-      return {
-        code: 3,
-        stdout: '',
-        stderr: `error: cannot read bundle at ${bundlePath}: ${(err as Error).message}\n`,
-      }
-    }
-
-    let bundle: Bundle
-    try {
-      bundle = JSON.parse(raw) as Bundle
-    } catch (err) {
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: cannot parse bundle: ${(err as Error).message}\n`,
-      }
-    }
-
-    if (!bundle.manifest || !Array.isArray(bundle.assets) || !bundle.bundleIntegrity) {
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: bundle missing required fields (manifest / assets / bundleIntegrity)\n`,
-      }
-    }
-
-    if (!io.readBinary) {
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: CliIo lacks readBinary support\n`,
-      }
-    }
-
-    const chunks: Uint8Array[] = []
-    const tampered: string[] = []
-    const missing: string[] = []
-    for (const a of bundle.assets as readonly AssetRecord[]) {
-      const full = join(assetsDir, a.path)
-      let bytes: Uint8Array
-      try {
-        bytes = await io.readBinary(full)
-      } catch {
-        missing.push(a.path)
-        continue
-      }
-      if (bytes.byteLength !== a.size) {
-        tampered.push(`${a.path}: size ${bytes.byteLength} ≠ expected ${a.size}`)
-        continue
-      }
-      const ok = await verifyAsset(a.integrity, bytes)
-      if (!ok) tampered.push(`${a.path}: SHA-256 mismatch`)
-      chunks.push(bytes)
-    }
-
-    if (missing.length > 0 || tampered.length > 0) {
-      const lines = [
-        `error: bundle integrity check failed.`,
-        ...missing.map((m) => `  missing asset: ${m}`),
-        ...tampered.map((t) => `  tampered asset: ${t}`),
-      ]
-      return { code: 4, stdout: '', stderr: `${lines.join('\n')}\n` }
-    }
-
-    const summaryHeader = [
-      `bundle: ${basename(bundlePath)}`,
-      `plugin: ${bundle.manifest.id}@${bundle.manifest.version}`,
-      `assets: ${bundle.assets.length} verified`,
-      `publisher: ${args.publisher}`,
-    ].join('\n')
-
-    if (args.dryRun) {
-      return {
-        code: 0,
-        stdout: `${summaryHeader}\nmode: dry-run (skipped publisher)\n`,
-        stderr: '',
-      }
-    }
-
-    const publisher = resolvePublisher(args.publisher)
-    if (!publisher) {
-      return {
-        code: 2,
-        stdout: '',
-        stderr: `error: publisher "${args.publisher}" not wired in this build\n`,
-      }
-    }
-
-    const archive = buildArchive(chunks)
-    let result: PublishResult
-    try {
-      result = await publisher.publish(bundle, archive)
-    } catch (err) {
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: publisher threw: ${(err as Error).message}\n`,
-      }
-    }
-
-    if (result.kind === 'rejected') {
-      return {
-        code: 5,
-        stdout: '',
-        stderr: `${summaryHeader}\nrejected: ${result.reason}\n`,
-      }
-    }
-
-    return {
-      code: 0,
-      stdout: `${summaryHeader}\nresolvedAt: ${result.resolvedAt}\nsource: ${result.source}\n`,
-      stderr: '',
-    }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }
 

@@ -1,4 +1,5 @@
 import { resolve, join, basename } from 'node:path'
+import { Command } from 'commander'
 import { parse as parseYaml, stringify as yamlStringify } from 'yaml'
 import {
   buildBundle,
@@ -6,6 +7,7 @@ import {
   type AssetEntry,
   type Bundle,
 } from '@agentskit/os-marketplace-sdk'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 
@@ -38,39 +40,6 @@ type Args = {
   assets?: string
   out?: string
   unsigned: boolean
-  usage?: string
-}
-
-const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { dir: '.', unsigned: false }
-  let i = 0
-  let positionalSeen = false
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--unsigned') {
-      out.unsigned = true
-      i++
-      continue
-    }
-    if (a === '--manifest' || a === '--assets' || a === '--out') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: `${a} requires a value` }
-      if (a === '--manifest') out.manifest = v
-      else if (a === '--assets') out.assets = v
-      else out.out = v
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    if (positionalSeen) return { ...out, usage: 'extra positional argument' }
-    if (a !== undefined) {
-      out.dir = a
-      positionalSeen = true
-    }
-    i++
-  }
-  return out
 }
 
 const collectAssets = async (
@@ -95,87 +64,127 @@ const collectAssets = async (
   return out
 }
 
+const executePublish = async (args: Args, io: CliIo): Promise<CliExit> => {
+  const baseDir = resolve(io.cwd(), args.dir)
+  const manifestPathResolved = args.manifest
+    ? resolve(io.cwd(), args.manifest)
+    : join(baseDir, 'agentskit-os.plugin.yaml')
+  const assetsDir = args.assets
+    ? resolve(io.cwd(), args.assets)
+    : join(baseDir, 'dist')
+  const outPath = args.out
+    ? resolve(io.cwd(), args.out)
+    : join(baseDir, 'agentskit-os.bundle.json')
+
+  let raw: string
+  try {
+    raw = await io.readFile(manifestPathResolved)
+  } catch (err) {
+    return {
+      code: 3,
+      stdout: '',
+      stderr: `error: cannot read manifest at ${manifestPathResolved}: ${(err as Error).message}\n`,
+    }
+  }
+
+  let manifestObject: unknown
+  try {
+    const trimmed = raw.trimStart()
+    manifestObject =
+      trimmed.startsWith('{') || trimmed.startsWith('[') ? JSON.parse(raw) : parseYaml(raw)
+  } catch (err) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: `error: cannot parse manifest: ${(err as Error).message}\n`,
+    }
+  }
+
+  let bundle: Bundle
+  try {
+    const manifest = await buildManifest(manifestObject)
+    if (!manifest.signature && !args.unsigned) {
+      return {
+        code: 1,
+        stdout: '',
+        stderr: `error: manifest is unsigned. Sign it before publish or pass --unsigned for dev/internal bundles.\n`,
+      }
+    }
+    const assets = await collectAssets(io, assetsDir)
+    bundle = await buildBundle(manifest, assets)
+  } catch (err) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: `error: build failed: ${(err as Error).message}\n`,
+    }
+  }
+
+  const json = JSON.stringify(bundle, null, 2)
+  await io.mkdir(baseDir)
+  await io.writeFile(outPath, json)
+
+  const summary = [
+    `bundle: ${basename(outPath)}`,
+    `plugin: ${bundle.manifest.id}@${bundle.manifest.version}`,
+    `assets: ${bundle.assets.length}`,
+    `bundleIntegrity: ${bundle.bundleIntegrity}`,
+    args.unsigned ? `signature: NONE (--unsigned)` : `signature: ${bundle.manifest.signature?.algorithm}`,
+    ``,
+    `Wrote ${outPath}.`,
+    `Real upload via marketplace HTTP / npm / GitHub publishers lands in M5.`,
+  ].join('\n')
+
+  return { code: 0, stdout: `${summary}\n`, stderr: '' }
+}
+
+type PublishCliOpts = {
+  manifest?: string
+  assets?: string
+  out?: string
+  unsigned?: boolean
+}
+
+const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('publish')
+    .description(
+      'agentskit-os publish — Build a plugin bundle (manifest + assets + integrity) for marketplace upload.',
+    )
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('[dir]', 'plugin source directory', '.')
+    .option('--manifest <path>', 'override manifest path')
+    .option('--assets <dir>', 'override assets directory')
+    .option('--out <path>', 'override bundle metadata output')
+    .option('--unsigned', 'emit unsigned manifest', false)
+    .action(async (dir: string, opts: PublishCliOpts) => {
+      const args: Args = {
+        dir,
+        unsigned: opts.unsigned === true,
+        ...(opts.manifest !== undefined ? { manifest: opts.manifest } : {}),
+        ...(opts.assets !== undefined ? { assets: opts.assets } : {}),
+        ...(opts.out !== undefined ? { out: opts.out } : {}),
+      }
+      result.current = await executePublish(args, io)
+    })
+
+  return { program, result }
+}
+
 export const publish: CliCommand = {
   name: 'publish',
   summary: 'Build a plugin bundle (manifest + assets + integrity) for marketplace upload',
   run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const args = parseArgs(argv)
-    if (args.usage === 'help') return { code: 2, stdout: '', stderr: help }
-    if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${help}` }
-
-    const baseDir = resolve(io.cwd(), args.dir)
-    const manifestPath = args.manifest
-      ? resolve(io.cwd(), args.manifest)
-      : join(baseDir, 'agentskit-os.plugin.yaml')
-    const assetsDir = args.assets
-      ? resolve(io.cwd(), args.assets)
-      : join(baseDir, 'dist')
-    const outPath = args.out
-      ? resolve(io.cwd(), args.out)
-      : join(baseDir, 'agentskit-os.bundle.json')
-
-    let raw: string
-    try {
-      raw = await io.readFile(manifestPath)
-    } catch (err) {
-      return {
-        code: 3,
-        stdout: '',
-        stderr: `error: cannot read manifest at ${manifestPath}: ${(err as Error).message}\n`,
-      }
+    const { program, result } = buildProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    let manifestObject: unknown
-    try {
-      const trimmed = raw.trimStart()
-      manifestObject =
-        trimmed.startsWith('{') || trimmed.startsWith('[') ? JSON.parse(raw) : parseYaml(raw)
-    } catch (err) {
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: cannot parse manifest: ${(err as Error).message}\n`,
-      }
-    }
-
-    let bundle: Bundle
-    try {
-      const manifest = await buildManifest(manifestObject)
-      if (!manifest.signature && !args.unsigned) {
-        return {
-          code: 1,
-          stdout: '',
-          stderr: `error: manifest is unsigned. Sign it before publish or pass --unsigned for dev/internal bundles.\n`,
-        }
-      }
-      const assets = await collectAssets(io, assetsDir)
-      bundle = await buildBundle(manifest, assets)
-    } catch (err) {
-      return {
-        code: 1,
-        stdout: '',
-        stderr: `error: build failed: ${(err as Error).message}\n`,
-      }
-    }
-
-    const json = JSON.stringify(bundle, null, 2)
-    await io.mkdir(baseDir)
-    await io.writeFile(outPath, json)
-
-    const summary = [
-      `bundle: ${basename(outPath)}`,
-      `plugin: ${bundle.manifest.id}@${bundle.manifest.version}`,
-      `assets: ${bundle.assets.length}`,
-      `bundleIntegrity: ${bundle.bundleIntegrity}`,
-      args.unsigned ? `signature: NONE (--unsigned)` : `signature: ${bundle.manifest.signature?.algorithm}`,
-      ``,
-      `Wrote ${outPath}.`,
-      `Real upload via marketplace HTTP / npm / GitHub publishers lands in M5.`,
-    ].join('\n')
-
-    return { code: 0, stdout: `${summary}\n`, stderr: '' }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }
 
-// Helper for tests / programmatic use.
 export const publishHelpText = (): string => help

@@ -1,4 +1,5 @@
 import { resolve, basename, dirname, join } from 'node:path'
+import { Command } from 'commander'
 import { stringify as yamlStringify } from 'yaml'
 import {
   CONFIG_ROOT_VERSION,
@@ -11,6 +12,7 @@ import {
   listTemplates,
   type Template,
 } from '@agentskit/os-templates'
+import { runCommander } from '../cli/commander-dispatch.js'
 import type { CliCommand, CliExit, CliIo } from '../types.js'
 import { defaultIo } from '../io.js'
 
@@ -45,42 +47,6 @@ type Args = {
   id?: string
   name?: string
   force: boolean
-  usage?: string
-}
-
-const parseArgs = (argv: readonly string[]): Args => {
-  const out: Args = { list: false, force: false }
-  let i = 0
-  while (i < argv.length) {
-    const a = argv[i]
-    if (a === '--help' || a === '-h') return { ...out, usage: 'help' }
-    if (a === '--list') {
-      out.list = true
-      i++
-      continue
-    }
-    if (a === '--force') {
-      out.force = true
-      i++
-      continue
-    }
-    if (a === '--id' || a === '--name') {
-      const v = argv[i + 1]
-      if (!v || v.startsWith('--')) return { ...out, usage: `${a} requires a value` }
-      if (a === '--id') out.id = v
-      else out.name = v
-      i += 2
-      continue
-    }
-    if (a?.startsWith('--')) return { ...out, usage: `unknown flag "${a}"` }
-    if (a !== undefined) {
-      if (out.templateId === undefined) out.templateId = a
-      else if (out.dir === undefined) out.dir = a
-      else return { ...out, usage: 'extra positional argument' }
-    }
-    i++
-  }
-  return out
 }
 
 const formatTemplateRow = (t: Template): string =>
@@ -105,84 +71,125 @@ const buildConfig = (template: Template, idOverride?: string, nameOverride?: str
   })
 }
 
+const executeNew = async (args: Args, io: CliIo): Promise<CliExit> => {
+  if (args.list || (!args.templateId && !args.dir)) {
+    const lines = listTemplates({}).map(formatTemplateRow)
+    return {
+      code: args.list ? 0 : 2,
+      stdout: args.list
+        ? `${builtInTemplates.length} templates available:\n${lines.join('\n')}\n`
+        : '',
+      stderr: args.list
+        ? ''
+        : `error: missing template id\n\n${builtInTemplates.length} templates available:\n${lines.join('\n')}\n\n${help}`,
+    }
+  }
+
+  const template = args.templateId ? findTemplate(args.templateId) : undefined
+  if (!template) {
+    const ids = builtInTemplates.map((t) => t.id).join(', ')
+    return {
+      code: 2,
+      stdout: '',
+      stderr: `error: unknown template "${args.templateId}" (have: ${ids})\n`,
+    }
+  }
+
+  const baseDir = resolve(io.cwd(), args.dir ?? '.')
+  const baseName = basename(baseDir)
+  const idOverride = args.id ?? (args.dir ? slugify(baseName) : undefined)
+  const config = buildConfig(template, idOverride, args.name)
+
+  const configPath = join(baseDir, 'agentskit-os.config.yaml')
+  const dataDir = join(baseDir, '.agentskitos')
+  const gitkeep = join(dataDir, '.gitkeep')
+  const gitignore = join(baseDir, '.gitignore')
+
+  if (!args.force && (await io.exists(configPath))) {
+    return {
+      code: 4,
+      stdout: '',
+      stderr: `error: ${configPath} already exists. Use --force to overwrite.\n`,
+    }
+  }
+
+  const yaml = `# AgentsKitOS workspace scaffolded from "${template.id}" (v${template.version})\n# Description: ${template.description}\n\n${yamlStringify(JSON.parse(JSON.stringify(config)))}`
+
+  await io.mkdir(dirname(configPath))
+  await io.writeFile(configPath, yaml)
+  await io.mkdir(dataDir)
+  await io.writeFile(gitkeep, '')
+
+  let gitignoreCreated = false
+  if (!(await io.exists(gitignore))) {
+    await io.writeFile(
+      gitignore,
+      '.agentskitos/\n.env\n.env.*\n!.env.example\nnode_modules/\n',
+    )
+    gitignoreCreated = true
+  }
+
+  const summary = [
+    `created ${configPath}`,
+    `created ${gitkeep}`,
+    ...(gitignoreCreated ? [`created ${gitignore}`] : []),
+    ``,
+    `Template: ${template.name} (${template.id} v${template.version})`,
+    `Workspace: ${config.workspace.name} (${config.workspace.id})`,
+    `Agents: ${template.agents.length}, Flows: ${template.flows.length}`,
+    ``,
+    `Next:  agentskit-os config validate ${configPath}`,
+    `       agentskit-os run ${configPath} --flow ${template.flows[0]?.id ?? '<id>'}`,
+  ].join('\n')
+
+  return { code: 0, stdout: `${summary}\n`, stderr: '' }
+}
+
+type NewCliOpts = {
+  list?: boolean
+  id?: string
+  name?: string
+  force?: boolean
+}
+
+const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
+  const result: { current?: CliExit } = {}
+  const program = new Command()
+  program
+    .name('new')
+    .description('agentskit-os new — Scaffold workspace from a starter template (--list to browse).')
+    .helpOption('-h, --help', 'display help')
+    .configureHelp({ helpWidth: 96 })
+    .argument('[templateId]', 'starter template id')
+    .argument('[dir]', 'target directory')
+    .option('--list', 'list available templates and exit', false)
+    .option('--id <slug>', 'override workspace id')
+    .option('--name <name>', 'override workspace name')
+    .option('--force', 'overwrite existing config', false)
+    .action(async (templateId: string | undefined, dir: string | undefined, opts: NewCliOpts) => {
+      const args: Args = {
+        list: opts.list === true,
+        force: opts.force === true,
+        ...(templateId !== undefined ? { templateId } : {}),
+        ...(dir !== undefined ? { dir } : {}),
+        ...(opts.id !== undefined ? { id: opts.id } : {}),
+        ...(opts.name !== undefined ? { name: opts.name } : {}),
+      }
+      result.current = await executeNew(args, io)
+    })
+
+  return { program, result }
+}
+
 export const newCmd: CliCommand = {
   name: 'new',
   summary: 'Scaffold workspace from a starter template (--list to browse)',
   run: async (argv, io: CliIo = defaultIo): Promise<CliExit> => {
-    const args = parseArgs(argv)
-    if (args.usage === 'help') return { code: 2, stdout: '', stderr: help }
-    if (args.usage) return { code: 2, stdout: '', stderr: `error: ${args.usage}\n\n${help}` }
-
-    if (args.list || (!args.templateId && !args.dir)) {
-      const lines = listTemplates({}).map(formatTemplateRow)
-      return {
-        code: args.list ? 0 : 2,
-        stdout: args.list
-          ? `${builtInTemplates.length} templates available:\n${lines.join('\n')}\n`
-          : '',
-        stderr: args.list
-          ? ''
-          : `error: missing template id\n\n${builtInTemplates.length} templates available:\n${lines.join('\n')}\n\n${help}`,
-      }
+    const { program, result } = buildProgram(io)
+    const parsed = await runCommander(program, argv)
+    if (parsed.code !== 0) {
+      return parsed
     }
-
-    const template = args.templateId ? findTemplate(args.templateId) : undefined
-    if (!template) {
-      const ids = builtInTemplates.map((t) => t.id).join(', ')
-      return {
-        code: 2,
-        stdout: '',
-        stderr: `error: unknown template "${args.templateId}" (have: ${ids})\n`,
-      }
-    }
-
-    const baseDir = resolve(io.cwd(), args.dir ?? '.')
-    const baseName = basename(baseDir)
-    const idOverride = args.id ?? (args.dir ? slugify(baseName) : undefined)
-    const config = buildConfig(template, idOverride, args.name)
-
-    const configPath = join(baseDir, 'agentskit-os.config.yaml')
-    const dataDir = join(baseDir, '.agentskitos')
-    const gitkeep = join(dataDir, '.gitkeep')
-    const gitignore = join(baseDir, '.gitignore')
-
-    if (!args.force && (await io.exists(configPath))) {
-      return {
-        code: 4,
-        stdout: '',
-        stderr: `error: ${configPath} already exists. Use --force to overwrite.\n`,
-      }
-    }
-
-    const yaml = `# AgentsKitOS workspace scaffolded from "${template.id}" (v${template.version})\n# Description: ${template.description}\n\n${yamlStringify(JSON.parse(JSON.stringify(config)))}`
-
-    await io.mkdir(dirname(configPath))
-    await io.writeFile(configPath, yaml)
-    await io.mkdir(dataDir)
-    await io.writeFile(gitkeep, '')
-
-    let gitignoreCreated = false
-    if (!(await io.exists(gitignore))) {
-      await io.writeFile(
-        gitignore,
-        '.agentskitos/\n.env\n.env.*\n!.env.example\nnode_modules/\n',
-      )
-      gitignoreCreated = true
-    }
-
-    const summary = [
-      `created ${configPath}`,
-      `created ${gitkeep}`,
-      ...(gitignoreCreated ? [`created ${gitignore}`] : []),
-      ``,
-      `Template: ${template.name} (${template.id} v${template.version})`,
-      `Workspace: ${config.workspace.name} (${config.workspace.id})`,
-      `Agents: ${template.agents.length}, Flows: ${template.flows.length}`,
-      ``,
-      `Next:  agentskit-os config validate ${configPath}`,
-      `       agentskit-os run ${configPath} --flow ${template.flows[0]?.id ?? '<id>'}`,
-    ].join('\n')
-
-    return { code: 0, stdout: `${summary}\n`, stderr: '' }
+    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

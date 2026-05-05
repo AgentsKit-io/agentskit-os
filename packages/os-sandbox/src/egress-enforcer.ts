@@ -51,8 +51,14 @@ export class PolicyEgressEnforcer implements EgressEnforcer {
   constructor(private readonly policy: EgressPolicy) {}
 
   decide(url: string, opts?: { method?: string; pluginId?: string }): EgressDecision {
-    const { request } = requestFromUrl(url, opts?.method)
-    return checkEgress(this.policy, request, opts?.pluginId)
+    let method: string | undefined
+    let pluginId: string | undefined
+    if (opts) {
+      method = opts.method
+      pluginId = opts.pluginId
+    }
+    const { request } = requestFromUrl(url, method)
+    return checkEgress(this.policy, request, pluginId)
   }
 }
 
@@ -75,19 +81,25 @@ export interface CreateFetchGuardOptions {
 export const createFetchGuard = (
   opts: CreateFetchGuardOptions,
 ): typeof fetch => {
-  const realFetch = opts.fetch ?? globalThis.fetch
+  const realFetch = opts.fetch !== undefined ? opts.fetch : globalThis.fetch
   if (typeof realFetch !== 'function') {
     throw new Error('createFetchGuard: no fetch implementation available')
   }
   const guarded: typeof fetch = async (input, init) => {
-    const url =
-      typeof input === 'string'
-        ? input
-        : input instanceof URL
-          ? input.toString()
-          : (input as Request).url
-    const method = (init?.method ?? (input instanceof Request ? input.method : 'GET')).toUpperCase()
-    const decision = opts.enforcer.decide(url, { method, ...(opts.pluginId !== undefined ? { pluginId: opts.pluginId } : {}) })
+    let url = ''
+    if (typeof input === 'string') url = input
+    else if (input instanceof URL) url = input.toString()
+    else url = (input as Request).url
+
+    let rawMethod: string | undefined
+    if (init && init.method) rawMethod = init.method
+    else if (input instanceof Request) rawMethod = input.method
+    else rawMethod = 'GET'
+    const method = rawMethod.toUpperCase()
+
+    const decideOpts: { method: string; pluginId?: string } = { method }
+    if (opts.pluginId !== undefined) decideOpts.pluginId = opts.pluginId
+    const decision = opts.enforcer.decide(url, decideOpts)
 
     if (decision.kind === 'deny') {
       const event: EgressDecisionEvent = {
@@ -97,7 +109,7 @@ export const createFetchGuard = (
         method,
       }
       if (opts.pluginId !== undefined) event.pluginId = opts.pluginId
-      opts.onDecision?.(event)
+      if (opts.onDecision) opts.onDecision(event)
       throw new TypeError(`egress denied: ${decision.reason}`)
     }
 
@@ -108,7 +120,7 @@ export const createFetchGuard = (
       method,
     }
     if (opts.pluginId !== undefined) event.pluginId = opts.pluginId
-    opts.onDecision?.(event)
+    if (opts.onDecision) opts.onDecision(event)
     return realFetch(input, init)
   }
   return guarded

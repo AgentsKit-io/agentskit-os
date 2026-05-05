@@ -32,7 +32,8 @@ export const createOtelMetricSink = (opts: OtelMetricSinkOptions): MetricSink =>
   const counterFor = (name: string, unit?: string): OtelCounter => {
     let c = counters.get(name)
     if (!c) {
-      c = opts.meter.createCounter(name, unit ? { unit } : {})
+      if (unit) c = opts.meter.createCounter(name, { unit })
+      else c = opts.meter.createCounter(name)
       counters.set(name, c)
     }
     return c
@@ -41,7 +42,8 @@ export const createOtelMetricSink = (opts: OtelMetricSinkOptions): MetricSink =>
   const histogramFor = (name: string, unit?: string): OtelHistogram => {
     let h = histograms.get(name)
     if (!h) {
-      h = opts.meter.createHistogram(name, unit ? { unit } : {})
+      if (unit) h = opts.meter.createHistogram(name, { unit })
+      else h = opts.meter.createHistogram(name)
       histograms.set(name, h)
     }
     return h

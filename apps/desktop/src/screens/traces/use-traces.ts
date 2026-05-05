@@ -8,30 +8,8 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
+import type { Span, SpanKind, SpanStatus } from '@agentskit/os-observability'
 import { sidecarRequest } from '../../lib/sidecar'
-
-// ---------------------------------------------------------------------------
-// Types (mirroring @agentskit/os-observability Span shape)
-// ---------------------------------------------------------------------------
-
-export type SpanKind = 'flow' | 'agent' | 'tool' | 'human' | 'unknown'
-export type SpanStatus = 'ok' | 'error' | 'skipped' | 'paused'
-
-export type Span = {
-  readonly traceId: string
-  readonly spanId: string
-  readonly parentSpanId?: string
-  readonly kind: SpanKind
-  readonly name: string
-  readonly workspaceId: string
-  readonly startedAt: string
-  readonly endedAt: string
-  readonly durationMs: number
-  readonly status: SpanStatus
-  readonly errorCode?: string
-  readonly errorMessage?: string
-  readonly attributes: Record<string, unknown>
-}
 
 export type TraceRow = {
   readonly traceId: string

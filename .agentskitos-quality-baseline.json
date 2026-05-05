@@ -5,11 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 465,
-    "issues": 148,
+    "issues": 141,
     "byKind": {
       "cyclomatic-complexity": 18,
-      "duplicate-block": 88,
-      "nested-ternary": 42
+      "duplicate-block": 82,
+      "nested-ternary": 41
     }
   },
   "issues": [
@@ -388,57 +388,57 @@
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:127fac146fa185fc",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 131,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:79."
+      "line": 109,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:57."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:127fac146fa185fc",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 167,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:79."
+      "line": 145,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:57."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:56c878d5b233f719",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 117,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:81."
+      "line": 95,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:59."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:56c878d5b233f719",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 169,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:81."
+      "line": 147,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:59."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:b7237c3414f47248",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 118,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:82."
+      "line": 96,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:60."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:b9df17b9f7582f2a",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 146,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:95."
+      "line": 124,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:73."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:edbae70f0b5b6726",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 168,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:80."
+      "line": 146,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:58."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/traces/use-traces.ts:f7361ef22b5d47d5",
       "kind": "duplicate-block",
       "file": "apps/desktop/src/screens/traces/use-traces.ts",
-      "line": 147,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:96."
+      "line": 125,
+      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:74."
     },
     {
       "id": "duplicate-block:apps/desktop/src/screens/triggers/index.tsx:32c5154d7fb8dfac",
@@ -714,48 +714,6 @@
       "detail": "Duplicate 8-line block also appears at packages/os-flow/src/durable.ts:68."
     },
     {
-      "id": "duplicate-block:packages/os-observability/src/trace-collector.ts:0a1209fdbaf1f9f7",
-      "kind": "duplicate-block",
-      "file": "packages/os-observability/src/trace-collector.ts",
-      "line": 21,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:25."
-    },
-    {
-      "id": "duplicate-block:packages/os-observability/src/trace-collector.ts:1c2393e4e56c72ad",
-      "kind": "duplicate-block",
-      "file": "packages/os-observability/src/trace-collector.ts",
-      "line": 22,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:26."
-    },
-    {
-      "id": "duplicate-block:packages/os-observability/src/trace-collector.ts:35f6ed78a508fc5f",
-      "kind": "duplicate-block",
-      "file": "packages/os-observability/src/trace-collector.ts",
-      "line": 19,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:23."
-    },
-    {
-      "id": "duplicate-block:packages/os-observability/src/trace-collector.ts:a75f253e8113d0ec",
-      "kind": "duplicate-block",
-      "file": "packages/os-observability/src/trace-collector.ts",
-      "line": 18,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:22."
-    },
-    {
-      "id": "duplicate-block:packages/os-observability/src/trace-collector.ts:c04346518a673629",
-      "kind": "duplicate-block",
-      "file": "packages/os-observability/src/trace-collector.ts",
-      "line": 20,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:24."
-    },
-    {
-      "id": "duplicate-block:packages/os-observability/src/trace-collector.ts:fcb36ffa13305b0b",
-      "kind": "duplicate-block",
-      "file": "packages/os-observability/src/trace-collector.ts",
-      "line": 17,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/traces/use-traces.ts:21."
-    },
-    {
       "id": "nested-ternary:apps/desktop/src/command-palette/__tests__/command-palette.test.tsx:14e414a43d6465ea",
       "kind": "nested-ternary",
       "file": "apps/desktop/src/command-palette/__tests__/command-palette.test.tsx",
@@ -1005,13 +963,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-runtime/src/handlers/tool.ts",
       "line": 12,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-sandbox/src/egress-enforcer.ts:1b61819f37119911",
-      "kind": "nested-ternary",
-      "file": "packages/os-sandbox/src/egress-enforcer.ts",
-      "line": 89,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

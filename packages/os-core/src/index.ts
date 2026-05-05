@@ -132,6 +132,7 @@ export {
 
 export {
   SecurityConfig,
+  WorkspacePolicyConfig,
   PromptFirewallConfig,
   PiiRedactionConfig,
   PiiCategory,
@@ -140,6 +141,18 @@ export {
   parseSecurityConfig,
   safeParseSecurityConfig,
 } from './schema/security.js'
+
+export {
+  evaluateWorkspacePolicyAtRunStart,
+  evaluateWorkspacePolicyBeforeTool,
+  policyGlobMatch,
+} from './security/workspace-policy-engine.js'
+export type {
+  PolicyViolation,
+  RunStartPolicyInput,
+  ToolPolicyInput,
+  WorkspacePolicyDecision,
+} from './security/workspace-policy-engine.js'
 
 export {
   CloudSyncConfig,

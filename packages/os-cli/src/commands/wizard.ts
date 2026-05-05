@@ -125,6 +125,12 @@ const executeWizard = async (args: Args, io: CliIo): Promise<CliExit> => {
     res.stdout.trimEnd(),
     ``,
     ...(credSummary ? [credSummary, ``] : []),
+    ...(args.airGap
+      ? ['Air-gap: cloud provider keys are skipped in checks; use local models (Ollama / LM Studio) if needed.', ``]
+      : []),
+    `Credentials: run \`agentskit-os creds guide\` (store with \`creds set KEY --stdin\`, verify with \`creds check --secrets-file .agentskitos/vault/local.env\`).`,
+    `Health:    run \`agentskit-os doctor --creds --secrets-file .agentskitos/vault/local.env\` after writing the vault file.`,
+    ``,
   ]
   return { code: 0, stdout: `${lines.join('\n')}\n`, stderr: '' }
 }

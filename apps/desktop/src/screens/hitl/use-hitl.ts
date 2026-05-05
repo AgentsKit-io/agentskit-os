@@ -18,6 +18,10 @@ export type HitlRequest = {
   readonly expiresAt: string
   readonly summary: string
   readonly evidence: readonly string[]
+  /** Deep link into traces UI (#337). */
+  readonly traceUrl?: string
+  /** Matched workspace policy rule ids (#336). */
+  readonly policyRuleIds?: readonly string[]
 }
 
 type HitlState = {
@@ -40,6 +44,8 @@ export const MOCK_HITL_REQUESTS: readonly HitlRequest[] = [
     expiresAt: '2026-05-04T20:44:00.000Z',
     summary: 'A new frontend dependency is required to replace the custom onboarding modal with anchored product tours.',
     evidence: ['package.json adds driver.js', 'pnpm-lock.yaml integrity present', 'desktop lint and build passed'],
+    traceUrl: '#/traces/run-dev-001',
+    policyRuleIds: ['workspacePolicy.toolsDeny'],
   },
   {
     id: 'hitl-approval-002',
@@ -54,6 +60,8 @@ export const MOCK_HITL_REQUESTS: readonly HitlRequest[] = [
     expiresAt: '2026-05-04T20:17:00.000Z',
     summary: 'Parallel model benchmark needs to exceed the default task budget to compare Codex, Claude, and Gemini outputs.',
     evidence: ['$12.00 projected cost', '3 providers selected', 'benchmark issue references model completeness scoring'],
+    traceUrl: '#/traces/run-dev-002',
+    policyRuleIds: ['workspacePolicy.irreversibleToolTags', 'cost.per_flow'],
   },
   {
     id: 'hitl-approval-003',

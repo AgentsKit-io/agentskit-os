@@ -223,6 +223,39 @@ describe('coding-agent conformance', () => {
   })
 })
 
+describe('coding-agent delegate', () => {
+  it('prints help', async () => {
+    const r = await route(['coding-agent', 'delegate', '--help'])
+    expect(r.code).toBe(2)
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('--sub')
+    expect(out).toContain('coordinator')
+  })
+})
+
+describe('coding-agent benchmark', () => {
+  it('prints help', async () => {
+    const r = await route(['coding-agent', 'benchmark', '--help'])
+    expect(r.code).toBe(2)
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('--providers')
+    expect(out).toContain('--prompt')
+  })
+
+  it('rejects unknown provider id in csv', async () => {
+    const r = await route([
+      'coding-agent',
+      'benchmark',
+      '--providers',
+      'codex,nope',
+      '--prompt',
+      'x',
+    ])
+    expect(r.code).toBe(2)
+    expect(`${r.stdout}${r.stderr}`).toContain('unknown provider')
+  })
+})
+
 describe('flow new', () => {
   const validRoot = `schemaVersion: 1
 workspace:

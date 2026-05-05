@@ -135,7 +135,9 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
 
       const next = await buildLockfile(loaded.absolutePath, parsed)
 
-      const outPath = resolve(io.cwd(), opts.out ?? join(dirname(loaded.absolutePath), 'agentskit-os.lock'))
+      let outName = join(dirname(loaded.absolutePath), 'agentskit-os.lock')
+      if (opts.out) outName = opts.out
+      const outPath = resolve(io.cwd(), outName)
 
       if (opts.check) {
         const exists = await io.exists(outPath)
@@ -203,6 +205,7 @@ export const lock: CliCommand = {
     if (parsed.code !== 0) {
       return parsed
     }
-    return result.current ?? { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
+    if (result.current) return result.current
+    return { code: parsed.code, stdout: parsed.stdout, stderr: parsed.stderr }
   },
 }

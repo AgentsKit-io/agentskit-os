@@ -5,11 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 465,
-    "issues": 141,
+    "issues": 138,
     "byKind": {
       "cyclomatic-complexity": 18,
       "duplicate-block": 82,
-      "nested-ternary": 41
+      "nested-ternary": 38
     }
   },
   "issues": [
@@ -101,14 +101,14 @@
       "id": "cyclomatic-complexity:packages/os-flow/src/multi-agent-handlers.ts:018a9608725cb546",
       "kind": "cyclomatic-complexity",
       "file": "packages/os-flow/src/multi-agent-handlers.ts",
-      "line": 621,
+      "line": 625,
       "detail": "createBlackboardHandler complexity 30 exceeds max 14."
     },
     {
       "id": "cyclomatic-complexity:packages/os-flow/src/multi-agent-handlers.ts:597271e2d29c89ca",
       "kind": "cyclomatic-complexity",
       "file": "packages/os-flow/src/multi-agent-handlers.ts",
-      "line": 273,
+      "line": 277,
       "detail": "createVoteHandler complexity 20 exceeds max 14."
     },
     {
@@ -781,27 +781,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-dev-orchestrator/src/coding-delegation.ts",
       "line": 200,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-flow/src/durable.ts:b1596bee918c8ea6",
-      "kind": "nested-ternary",
-      "file": "packages/os-flow/src/durable.ts",
-      "line": 209,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-flow/src/human-handler.ts:1e2f7670c96191d2",
-      "kind": "nested-ternary",
-      "file": "packages/os-flow/src/human-handler.ts",
-      "line": 55,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-flow/src/multi-agent-handlers.ts:b7d71809cba98429",
-      "kind": "nested-ternary",
-      "file": "packages/os-flow/src/multi-agent-handlers.ts",
-      "line": 252,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

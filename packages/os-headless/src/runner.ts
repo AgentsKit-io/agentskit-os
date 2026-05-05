@@ -115,10 +115,9 @@ const resolveFlow = (
 ): FlowConfig => {
   if (typeof flow !== 'string') return flow
   if (!registry) throw new Error(`headless: no flow registry provided, cannot look up flow "${flow}"`)
-  const resolved =
-    registry instanceof Map
-      ? registry.get(flow)
-      : (registry as Record<string, FlowConfig>)[flow]
+  let resolved: FlowConfig | undefined
+  if (registry instanceof Map) resolved = registry.get(flow)
+  else resolved = (registry as Record<string, FlowConfig>)[flow]
   if (!resolved) throw new Error(`headless: flow "${flow}" not found in registry`)
   return resolved
 }

@@ -205,8 +205,10 @@ export const resumeFlow = async (
 
   const everyExecutedSkipped =
     executed.length > 0 && executed.every((id) => outcomes.get(id)?.kind === 'skipped')
+  let status: 'completed' | 'skipped' = 'completed'
+  if (executed.length > 0 && everyExecutedSkipped) status = 'skipped'
   return {
-    status: executed.length === 0 ? 'completed' : everyExecutedSkipped ? 'skipped' : 'completed',
+    status,
     outcomes,
     executedOrder: executed,
     resumedFrom,

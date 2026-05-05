@@ -249,7 +249,11 @@ const tally = (
   const scores = new Map<string, number>()
   for (let i = 0; i < outputs.length; i++) {
     const key = JSON.stringify(outputs[i])
-    const w = weights ? (weights[agentIds[i]!] ?? 1) : 1
+    let w = 1
+    if (weights) {
+      const maybe = weights[agentIds[i]!] 
+      if (typeof maybe === 'number' && Number.isFinite(maybe)) w = maybe
+    }
     scores.set(key, (scores.get(key) ?? 0) + w)
   }
   return scores

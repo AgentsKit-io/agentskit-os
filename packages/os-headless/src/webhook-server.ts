@@ -33,7 +33,7 @@ const readBody = async (req: IncomingMessage, limitBytes = 1_000_000): Promise<s
   const chunks: Buffer[] = []
   let total = 0
   for await (const c of req) {
-    const b = typeof c === 'string' ? Buffer.from(c) : Buffer.from(c)
+    const b = Buffer.from(c)
     total += b.length
     if (total > limitBytes) throw new Error('body_too_large')
     chunks.push(b)

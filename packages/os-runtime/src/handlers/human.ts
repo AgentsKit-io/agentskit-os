@@ -1,6 +1,7 @@
 import type { NodeHandler } from '@agentskit/os-flow'
 import type { HumanReviewer } from '../adapters.js'
 
+/** Adapter-backed human node. For quorum / `ApproverGate` semantics use `@agentskit/os-flow` `createHumanHandler`. */
 export const createHumanHandler = (reviewer: HumanReviewer): NodeHandler<'human'> => {
   return async (node, _input, ctx) => {
     try {

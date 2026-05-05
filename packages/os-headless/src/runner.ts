@@ -3,7 +3,7 @@
 // Composes existing primitives; does NOT reimplement them.
 
 import type { FlowConfig, RunContext, WorkspaceConfig } from '@agentskit/os-core'
-import { parseRunContext } from '@agentskit/os-core'
+import { createDefaultRunId, isStubRunMode, parseRunContext } from '@agentskit/os-core'
 import type { RunResult, RunOptions, CheckpointFn } from '@agentskit/os-flow'
 import { runFlow as flowRunFlow, defaultStubHandlers } from '@agentskit/os-flow'
 import type { AdapterRegistry, AgentLookup } from '@agentskit/os-runtime'
@@ -92,12 +92,6 @@ export type HeadlessRunner = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const defaultNewRunId = (): string => {
-  const t = Date.now().toString(36)
-  const r = Math.random().toString(36).slice(2, 8)
-  return `run_${t}_${r}`
-}
-
 // AgentLookup is synchronous (returns AgentConfig | undefined).
 const noopLookupAgent: AgentLookup = () => {
   throw new Error('headless: no lookupAgent provided — agent nodes cannot execute')
@@ -114,8 +108,6 @@ const buildCtx = (runOpts: {
     runId: runOpts.runId,
     startedAt: new Date().toISOString(),
   })
-
-const STUB_MODES: ReadonlySet<RunMode> = new Set<RunMode>(['dry_run', 'simulate', 'replay', 'preview'])
 
 const resolveFlow = (
   flow: string | FlowConfig,
@@ -151,13 +143,13 @@ const buildRunOptions = (
 // ---------------------------------------------------------------------------
 
 export const createHeadlessRunner = (opts: HeadlessRunnerOptions): HeadlessRunner => {
-  const newRunId = opts.newRunId ?? defaultNewRunId
+  const newRunId = opts.newRunId ?? createDefaultRunId
   const lookupAgent = opts.lookupAgent ?? noopLookupAgent
   const workspaceId = opts.config.id
 
   const buildHandlers = (mode: RunMode): RunOptions['handlers'] => {
-    if (STUB_MODES.has(mode)) {
-      return defaultStubHandlers(mode as 'dry_run' | 'simulate' | 'replay' | 'preview')
+    if (isStubRunMode(mode)) {
+      return defaultStubHandlers(mode)
     }
     return buildLiveHandlers({ adapters: opts.adapters, lookupAgent })
   }

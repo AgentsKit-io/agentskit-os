@@ -70,7 +70,7 @@ export function CommandPalette() {
     >
       <GlassPanel
         blur="lg"
-        className="w-full max-w-[640px] overflow-hidden bg-[var(--ag-panel)] shadow-2xl"
+        className="w-full max-w-[640px] overflow-hidden bg-[var(--ag-glass-strong-bg)] shadow-2xl"
         onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
       >
         {/* Header bar */}

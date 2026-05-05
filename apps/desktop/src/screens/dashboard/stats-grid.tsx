@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@agentskit/os-ui'
+import { formatUsd } from '../../lib/format'
 import type { DashboardStats } from './use-dashboard-stats'
 
 type StatCardProps = {
@@ -36,7 +37,7 @@ type StatsGridProps = {
 }
 
 export function StatsGrid({ stats, isLoading }: StatsGridProps) {
-  const costFormatted = `$${stats.liveCostUsd.toFixed(4)}`
+  const costFormatted = formatUsd(stats.liveCostUsd, 4)
   const latencyFormatted =
     stats.avgLatencyMs === 0 ? '—' : `${stats.avgLatencyMs.toFixed(0)} ms`
   const errorFormatted =

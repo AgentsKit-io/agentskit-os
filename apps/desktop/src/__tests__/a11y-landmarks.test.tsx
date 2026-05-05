@@ -87,6 +87,16 @@ vi.mock('@agentskit/os-ui', () => {
 
 const { App } = await import('../app')
 
+async function openNavigationCommand(name: RegExp): Promise<void> {
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: /toggle command palette/i }))
+  })
+
+  await act(async () => {
+    fireEvent.click(screen.getAllByRole('option', { name })[0])
+  })
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -152,9 +162,9 @@ describe('App ARIA landmarks', () => {
       render(<App />, { container })
     })
 
-    expect(screen.getByRole('button', { name: /dashboard/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /flows/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /benchmark/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /home/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /build/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /evaluate/i })).toBeInTheDocument()
   })
 
   it('marks the active primary nav item with aria-current', async () => {
@@ -162,16 +172,16 @@ describe('App ARIA landmarks', () => {
       render(<App />, { container })
     })
 
-    expect(screen.getByRole('button', { name: /dashboard/i })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /home/i })).toHaveAttribute(
       'aria-current',
       'page',
     )
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /traces/i }))
+      fireEvent.click(screen.getByRole('button', { name: /build/i }))
     })
 
-    expect(screen.getByRole('button', { name: /traces/i })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /build/i })).toHaveAttribute(
       'aria-current',
       'page',
     )
@@ -195,10 +205,10 @@ describe('App ARIA landmarks', () => {
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /flows/i }))
+      fireEvent.click(screen.getByRole('button', { name: /build/i }))
     })
 
-    expect(screen.getByRole('heading', { name: /^flows$/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /flows, agents, skills, and templates/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /flow registry/i })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: /flows is in preview/i })).not.toBeInTheDocument()
   })
@@ -209,7 +219,7 @@ describe('App ARIA landmarks', () => {
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /runs/i }))
+      fireEvent.click(screen.getByRole('button', { name: /operate/i }))
     })
 
     expect(screen.getByRole('heading', { name: /^runs$/i })).toBeInTheDocument()
@@ -222,9 +232,7 @@ describe('App ARIA landmarks', () => {
       render(<App />, { container })
     })
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /agents/i }))
-    })
+    await openNavigationCommand(/go to agents/i)
 
     expect(screen.getByRole('heading', { name: /^agents$/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /agent registry/i })).toBeInTheDocument()
@@ -236,9 +244,7 @@ describe('App ARIA landmarks', () => {
       render(<App />, { container })
     })
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /triggers/i }))
-    })
+    await openNavigationCommand(/go to triggers/i)
 
     expect(screen.getByRole('heading', { name: /^triggers$/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /trigger rules/i })).toBeInTheDocument()
@@ -250,9 +256,7 @@ describe('App ARIA landmarks', () => {
       render(<App />, { container })
     })
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /hitl inbox/i }))
-    })
+    await openNavigationCommand(/go to approvals/i)
 
     expect(screen.getByRole('heading', { name: /hitl inbox/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /human task inbox/i })).toBeInTheDocument()
@@ -265,7 +269,7 @@ describe('App ARIA landmarks', () => {
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /benchmark/i }))
+      fireEvent.click(screen.getByRole('button', { name: /evaluate/i }))
     })
 
     expect(screen.getByRole('heading', { name: /^benchmark$/i })).toBeInTheDocument()
@@ -278,9 +282,7 @@ describe('App ARIA landmarks', () => {
       render(<App />, { container })
     })
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /evals/i }))
-    })
+    await openNavigationCommand(/go to evals/i)
 
     expect(screen.getByRole('heading', { name: /^evals$/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /evaluation suites/i })).toBeInTheDocument()
@@ -292,9 +294,7 @@ describe('App ARIA landmarks', () => {
       render(<App />, { container })
     })
 
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /cost & quotas/i }))
-    })
+    await openNavigationCommand(/go to cost/i)
 
     expect(screen.getByRole('heading', { name: /cost & quotas/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /cost budgets/i })).toBeInTheDocument()
@@ -307,7 +307,7 @@ describe('App ARIA landmarks', () => {
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /security/i }))
+      fireEvent.click(screen.getByRole('button', { name: /^govern$/i }))
     })
 
     expect(screen.getByRole('heading', { name: /^security$/i })).toBeInTheDocument()

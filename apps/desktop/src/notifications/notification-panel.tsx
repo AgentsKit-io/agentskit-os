@@ -21,6 +21,9 @@ const SEVERITY_LABEL: Record<NotificationSeverity, string> = {
   success: 'Success',
 }
 
+const PANEL_CLASSNAME =
+  'fixed inset-x-0 bottom-0 z-50 flex max-h-[88vh] flex-col overflow-hidden rounded-none rounded-t-xl border-b-0 bg-[var(--ag-glass-strong-bg)] shadow-2xl sm:inset-x-auto sm:right-0 sm:top-0 sm:h-screen sm:max-h-none sm:w-96 sm:rounded-l-xl sm:rounded-tr-none sm:border-r-0'
+
 export function NotificationPanel() {
   const { items, unread, isOpen, close, markRead, clear } = useNotifications()
 
@@ -54,7 +57,7 @@ export function NotificationPanel() {
         role="complementary"
         aria-label="Notification center"
         data-testid="notification-panel"
-        className="fixed inset-x-0 bottom-0 z-50 flex max-h-[88vh] flex-col overflow-hidden rounded-none rounded-t-xl border-b-0 bg-[var(--ag-panel)] shadow-2xl sm:inset-x-auto sm:right-0 sm:top-0 sm:h-screen sm:max-h-none sm:w-96 sm:rounded-l-xl sm:rounded-tr-none sm:border-r-0"
+        className={PANEL_CLASSNAME}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--ag-line)] px-4 py-3">
@@ -94,7 +97,6 @@ export function NotificationPanel() {
         <div className="flex-1 overflow-y-auto px-2 py-2">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 py-16 text-center">
-              <span className="text-2xl opacity-30" aria-hidden>🔔</span>
               <p className="text-[13px] text-[var(--ag-ink-subtle)]">No notifications</p>
             </div>
           ) : (

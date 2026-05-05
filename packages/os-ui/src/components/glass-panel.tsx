@@ -6,9 +6,9 @@ export interface GlassPanelProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const blurClasses: Record<NonNullable<GlassPanelProps['blur']>, string> = {
-  sm: '[backdrop-filter:saturate(140%)_blur(4px)] [-webkit-backdrop-filter:saturate(140%)_blur(4px)]',
-  md: '[backdrop-filter:saturate(140%)_blur(8px)] [-webkit-backdrop-filter:saturate(140%)_blur(8px)]',
-  lg: '[backdrop-filter:saturate(140%)_blur(12px)] [-webkit-backdrop-filter:saturate(140%)_blur(12px)]',
+  sm: '[backdrop-filter:saturate(160%)_blur(12px)] [-webkit-backdrop-filter:saturate(160%)_blur(12px)]',
+  md: '[backdrop-filter:var(--ag-glass-blur)] [-webkit-backdrop-filter:var(--ag-glass-blur)]',
+  lg: '[backdrop-filter:saturate(180%)_blur(28px)] [-webkit-backdrop-filter:saturate(180%)_blur(28px)]',
 }
 
 export const GlassPanel = forwardRef<HTMLDivElement, GlassPanelProps>(
@@ -16,8 +16,8 @@ export const GlassPanel = forwardRef<HTMLDivElement, GlassPanelProps>(
     <div
       ref={ref}
       className={cn(
-        'rounded-xl border border-[var(--ag-line)] text-[var(--ag-ink)]',
-        'bg-[var(--ag-panel)]',
+        'rounded-xl border border-[var(--ag-glass-border)] text-[var(--ag-ink)] shadow-[var(--ag-glass-shadow)]',
+        'bg-[var(--ag-glass-bg)]',
         blurClasses[blur],
         className,
       )}

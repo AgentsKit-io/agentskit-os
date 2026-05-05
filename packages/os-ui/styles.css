@@ -67,11 +67,12 @@
    -------------------------------------------------------------------------- */
 
 .ag-glass {
-  background: var(--ag-panel);
-  backdrop-filter: saturate(140%) blur(8px);
-  -webkit-backdrop-filter: saturate(140%) blur(8px);
-  border: 1px solid var(--ag-line);
+  background: var(--ag-glass-bg, var(--ag-panel));
+  backdrop-filter: var(--ag-glass-blur, saturate(180%) blur(18px));
+  -webkit-backdrop-filter: var(--ag-glass-blur, saturate(180%) blur(18px));
+  border: 1px solid var(--ag-glass-border, var(--ag-line));
   border-radius: 0.75rem;
+  box-shadow: var(--ag-glass-shadow, none);
 }
 
 /* --------------------------------------------------------------------------
@@ -80,8 +81,8 @@
 
 .ag-ring-glow {
   box-shadow:
-    0 0 0 1px rgba(34, 211, 238, 0.25),
-    0 0 40px -10px rgba(34, 211, 238, 0.35);
+    0 0 0 1px color-mix(in srgb, var(--ag-accent) 36%, transparent),
+    0 0 32px -16px color-mix(in srgb, var(--ag-accent) 55%, transparent);
 }
 
 /* --------------------------------------------------------------------------

@@ -127,7 +127,28 @@ export interface CodingAgentProvider {
    * the boundary and the provider should still emit a `timeout` result.
    */
   runTask(request: CodingTaskRequest): Promise<CodingTaskResult>
+  /**
+   * Optional cooperative cancellation (nothing in flight → fast no-op).
+   * When present, the conformance suite verifies idempotent calls do not throw.
+   */
+  cancelTask?(): Promise<void>
 }
+
+/** Magic `CodingTaskRequest.prompt` fragments used by `runConformance` scenario probes (#374). */
+export const CONFORMANCE_PROMPTS = {
+  /** Provider should return `ok` with an empty `files` array. */
+  expectNoDiff: 'CONFORMANCE:EXPECT_NO_DIFF',
+  /** Provider should return `fail` with `errorCode` related to tests and a failing shell line. */
+  expectFailingTests: 'CONFORMANCE:EXPECT_FAILING_TESTS',
+  /** Provider should return `fail` with an `errorCode` containing `permission`. */
+  expectPermissionDenied: 'CONFORMANCE:EXPECT_PERMISSION_DENIED',
+  /** Provider should return `ok` with at least one `tools` entry (artifact collection). */
+  expectArtifacts: 'CONFORMANCE:EXPECT_ARTIFACTS',
+  /** Provider should return `timeout` status (simulated slow / bounded work). */
+  expectTimeout: 'CONFORMANCE:EXPECT_TIMEOUT',
+  /** Provider should complete quickly with `ok` (used for timeout budget probe). */
+  expectFastOk: 'CONFORMANCE:EXPECT_FAST_OK',
+} as const
 
 // ---- conformance suite (#374) ----------------------------------------
 
@@ -137,9 +158,17 @@ export const ConformanceCheck = z.enum([
   'dry_run_writes_no_files',
   'edit_within_writeScope',
   'shell_only_when_granted',
-  'timeout_returns_timeout_status',
+  'fast_run_within_timeout_budget',
+  'timeout_status_emitted_when_requested',
   'cost_or_token_reported',
   'errorCode_on_fail',
+  'provider_id_matches',
+  'structured_summary_present',
+  'no_diff_ok_surfaces',
+  'failing_tests_reported',
+  'permission_denied_reported',
+  'artifacts_collected',
+  'cancel_task_idempotent',
 ])
 export type ConformanceCheck = z.infer<typeof ConformanceCheck>
 
@@ -150,14 +179,40 @@ export const ConformanceCheckResult = z.object({
 })
 export type ConformanceCheckResult = z.infer<typeof ConformanceCheckResult>
 
+export const MarketplaceConformanceBadge = z.enum(['none', 'verified-basic'])
+export type MarketplaceConformanceBadge = z.infer<typeof MarketplaceConformanceBadge>
+
 export const ConformanceReport = z.object({
   providerId: z.string().min(1).max(64),
-  results: z.array(ConformanceCheckResult).max(32),
+  results: z.array(ConformanceCheckResult).max(64),
   passed: z.number().int().nonnegative(),
   failed: z.number().int().nonnegative(),
   certified: z.boolean(),
+  /** When `verified-basic`, marketplace UIs may show a conformance badge (policy still applies). */
+  marketplaceBadge: MarketplaceConformanceBadge.default('none'),
 })
 export type ConformanceReport = z.infer<typeof ConformanceReport>
+
+const matchesWriteScope = (filePath: string, glob: string): boolean => {
+  const p = filePath.replaceAll('\\', '/').replaceAll(/^\.\//g, '')
+  const g = glob.replaceAll('\\', '/').replaceAll(/^\.\//g, '')
+
+  if (g.endsWith('/**')) {
+    const root = g.slice(0, -3)
+    return p === root || p.startsWith(`${root}/`)
+  }
+
+  if (!/[+*?\[]/.test(g)) {
+    return p === g || p.startsWith(`${g}/`)
+  }
+
+  const escaped = g
+    .replaceAll(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replaceAll('\\*\\*', '.*')
+    .replaceAll('\\*', '[^/]*')
+  const re = new RegExp(`^${escaped}$`)
+  return re.test(p)
+}
 
 /**
  * Runs the conformance suite against a provider instance.
@@ -166,11 +221,16 @@ export type ConformanceReport = z.infer<typeof ConformanceReport>
  *
  * The suite mocks file/shell side effects via the provider's own dryRun
  * path; therefore providers MUST implement dry-run faithfully.
+ *
+ * Scenario probes use `CONFORMANCE_PROMPTS` substrings in `prompt`. Fakes and
+ * test doubles should branch on them; real CLIs may not satisfy every probe
+ * until adapters teach the model those contracts.
  */
 export const runConformance = async (
   provider: CodingAgentProvider,
 ): Promise<ConformanceReport> => {
   const out: ConformanceCheckResult[] = []
+  const pid = provider.info.id
 
   out.push(check('capability_declared', provider.info.capabilities.length > 0,
     provider.info.capabilities.length === 0 ? 'no capabilities declared' : undefined))
@@ -190,19 +250,22 @@ export const runConformance = async (
     out.push(check('isAvailable_returns_bool', typeof available === 'boolean'))
   }
 
-  // Dry-run + write-scope: ask provider to "create" a file outside the
-  // declared writeScope; conforming providers must NOT report the file
-  // as written (or report an error).
-  const drRequest: CodingTaskRequest = {
+  const baseProbe = (overrides: Partial<CodingTaskRequest>): CodingTaskRequest => ({
     kind: 'free-form',
-    prompt: 'CONFORMANCE: pretend to create /etc/forbidden but stay in dry-run',
+    prompt: CONFORMANCE_PROMPTS.expectFastOk,
     cwd: '/tmp',
     readScope: ['**/*'],
     writeScope: ['allowed/**'],
     granted: provider.info.capabilities,
     timeoutMs: 5000,
     dryRun: true,
-  }
+    ...overrides,
+  })
+
+  const drRequest = baseProbe({
+    prompt: 'CONFORMANCE: pretend to create /etc/forbidden but stay in dry-run',
+  })
+
   let drResult: CodingTaskResult | undefined
   try {
     drResult = await provider.runTask(drRequest)
@@ -231,7 +294,6 @@ export const runConformance = async (
     ))
   }
 
-  // Shell only when granted:
   out.push(check(
     'shell_only_when_granted',
     !drResult
@@ -241,36 +303,60 @@ export const runConformance = async (
     'shell invoked without run_shell capability or grant',
   ))
 
-  // Timeout shape:
-  const tightRequest: CodingTaskRequest = { ...drRequest, timeoutMs: 1000 }
-  let toResult: CodingTaskResult | undefined
+  let fastRes: CodingTaskResult | undefined
   try {
-    toResult = await provider.runTask(tightRequest)
+    fastRes = await provider.runTask(baseProbe({
+      prompt: CONFORMANCE_PROMPTS.expectFastOk,
+      timeoutMs: 900,
+    }))
   } catch (err) {
-    toResult = undefined
+    fastRes = undefined
     out.push(check(
-      'timeout_returns_timeout_status',
+      'fast_run_within_timeout_budget',
       false,
-      err instanceof Error ? err.message : 'runTask threw during timeout probe',
+      err instanceof Error ? err.message : 'runTask threw during fast timeout probe',
     ))
   }
-  if (toResult) {
-    const slackMs = 750
-    const budget = tightRequest.timeoutMs + slackMs
+  if (fastRes) {
+    const slackMs = 400
+    const budget = 900 + slackMs
     out.push(check(
-      'timeout_returns_timeout_status',
-      toResult.durationMs === undefined || toResult.durationMs <= budget,
-      toResult.durationMs === undefined
+      'fast_run_within_timeout_budget',
+      fastRes.durationMs === undefined || fastRes.durationMs <= budget,
+      fastRes.durationMs === undefined
         ? 'durationMs missing — cannot verify timeout budget'
-        : `exceeded timeoutMs budget (${toResult.durationMs}ms > ${budget}ms)`,
+        : `exceeded timeoutMs budget (${fastRes.durationMs}ms > ${budget}ms)`,
+    ))
+  }
+
+  let timeoutRes: CodingTaskResult | undefined
+  try {
+    timeoutRes = await provider.runTask(baseProbe({
+      prompt: CONFORMANCE_PROMPTS.expectTimeout,
+      timeoutMs: 5000,
+    }))
+  } catch (err) {
+    timeoutRes = undefined
+    out.push(check(
+      'timeout_status_emitted_when_requested',
+      false,
+      err instanceof Error ? err.message : 'runTask threw during timeout scenario',
+    ))
+  }
+  if (timeoutRes) {
+    out.push(check(
+      'timeout_status_emitted_when_requested',
+      timeoutRes.status === 'timeout',
+      `expected status "timeout", got "${timeoutRes.status}"`,
     ))
   }
 
   out.push(check(
     'cost_or_token_reported',
-    !!drResult && (drResult.costUsd !== undefined
+    !drResult
+      || drResult.costUsd !== undefined
       || drResult.inputTokens !== undefined
-      || drResult.outputTokens !== undefined),
+      || drResult.outputTokens !== undefined,
     'no cost/token info reported',
   ))
 
@@ -280,43 +366,93 @@ export const runConformance = async (
     'fail status without errorCode',
   ))
 
+  out.push(check(
+    'provider_id_matches',
+    !drResult || drResult.providerId === pid,
+    `providerId mismatch (want ${pid}, got ${drResult?.providerId})`,
+  ))
+
+  out.push(check(
+    'structured_summary_present',
+    !drResult
+      || drResult.status === 'fail'
+      || drResult.status === 'timeout'
+      || drResult.summary.trim().length > 0,
+    'ok/partial result without summary text',
+  ))
+
+  const runScenario = async (prompt: string): Promise<CodingTaskResult | undefined> => {
+    try {
+      return await provider.runTask(baseProbe({ prompt, timeoutMs: 5000 }))
+    } catch {
+      return undefined
+    }
+  }
+
+  const noDiff = await runScenario(CONFORMANCE_PROMPTS.expectNoDiff)
+  out.push(check(
+    'no_diff_ok_surfaces',
+    !!noDiff && noDiff.status === 'ok' && noDiff.files.length === 0,
+    'expected ok with zero file edits for no-diff scenario',
+  ))
+
+  const failTests = await runScenario(CONFORMANCE_PROMPTS.expectFailingTests)
+  const testsFailed =
+    !!failTests
+    && (failTests.status === 'fail' || failTests.status === 'partial')
+    && (
+      (failTests.errorCode?.toLowerCase().includes('test') ?? false)
+      || failTests.shell.some((s) => s.exitCode !== 0)
+    )
+  out.push(check(
+    'failing_tests_reported',
+    testsFailed,
+    'expected fail/partial with test-related errorCode or failing shell exitCode',
+  ))
+
+  const perm = await runScenario(CONFORMANCE_PROMPTS.expectPermissionDenied)
+  out.push(check(
+    'permission_denied_reported',
+    !!perm && perm.status === 'fail' && (perm.errorCode?.toLowerCase().includes('permission') ?? false),
+    'expected fail with permission-related errorCode',
+  ))
+
+  const art = await runScenario(CONFORMANCE_PROMPTS.expectArtifacts)
+  out.push(check(
+    'artifacts_collected',
+    !!art && art.tools.length > 0,
+    'expected at least one tools[] entry for artifact collection scenario',
+  ))
+
+  if (typeof provider.cancelTask === 'function') {
+    try {
+      await provider.cancelTask()
+      await provider.cancelTask()
+      out.push(check('cancel_task_idempotent', true))
+    } catch (err) {
+      out.push(check(
+        'cancel_task_idempotent',
+        false,
+        err instanceof Error ? err.message : 'cancelTask threw',
+      ))
+    }
+  }
+
   const passed = out.filter((r) => r.passed).length
   const failed = out.length - passed
+  const certified = failed === 0
   return {
-    providerId: provider.info.id,
+    providerId: pid,
     results: out,
     passed,
     failed,
-    certified: failed === 0,
+    certified,
+    marketplaceBadge: certified ? 'verified-basic' : 'none',
   }
 }
 
 const check = (kind: ConformanceCheck, passed: boolean, detail?: string): ConformanceCheckResult =>
   passed ? { check: kind, passed: true } : { check: kind, passed: false, ...(detail ? { detail } : {}) }
-
-const matchesWriteScope = (filePath: string, glob: string): boolean => {
-  const p = filePath.replaceAll('\\', '/').replaceAll(/^\.\//g, '')
-  const g = glob.replaceAll('\\', '/').replaceAll(/^\.\//g, '')
-
-  // Common directory-root patterns: "allowed/**"
-  if (g.endsWith('/**')) {
-    const root = g.slice(0, -3)
-    return p === root || p.startsWith(`${root}/`)
-  }
-
-  // If there are no glob metacharacters, treat as prefix path.
-  if (!/[+*?\[]/.test(g)) {
-    return p === g || p.startsWith(`${g}/`)
-  }
-
-  // Fallback: conservative glob support (enough for conformance tests).
-  const escaped = g
-    .replaceAll(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replaceAll('\\*\\*', '.*')
-    .replaceAll('\\*', '[^/]*')
-  const re = new RegExp(`^${escaped}$`)
-  return re.test(p)
-}
 
 export const parseCodingTaskRequest = (input: unknown): CodingTaskRequest =>
   CodingTaskRequest.parse(input)

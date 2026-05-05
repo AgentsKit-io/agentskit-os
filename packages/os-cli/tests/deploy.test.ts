@@ -33,13 +33,13 @@ describe('deploy', () => {
   it('shows help', async () => {
     const r = await route(['deploy', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('agentskit-os deploy')
+    expect(`${r.stdout}${r.stderr}`).toContain('agentskit-os deploy')
   })
 
   it('rejects unknown flag', async () => {
     const r = await route(['deploy', '--cosmic'], fakeIo())
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown flag')
+    expect(r.stderr).toMatch(/unknown (flag|option)/i)
   })
 
   it('rejects unsupported publisher', async () => {

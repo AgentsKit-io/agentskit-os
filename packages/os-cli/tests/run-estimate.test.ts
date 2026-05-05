@@ -236,13 +236,14 @@ describe('--estimate flag: edge cases', () => {
       fakeIo({ '/work/cfg.yaml': minimalConfig }),
     )
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('unknown flag')
+    expect(r.stderr).toMatch(/unknown (flag|option)/i)
   })
 
   it('--estimate included in help text', async () => {
     const r = await route(['run', '--help'])
     expect(r.code).toBe(2)
-    expect(r.stderr).toContain('--estimate')
-    expect(r.stderr).toContain('--force')
+    const out = `${r.stdout}${r.stderr}`
+    expect(out).toContain('--estimate')
+    expect(out).toContain('--force')
   })
 })

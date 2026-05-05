@@ -36,7 +36,7 @@ const WidgetBody = (args: {
   if (isLoading) {
     return (
       <p className="text-sm text-[var(--ag-ink-subtle)]" aria-live="polite">
-        Loading…
+        Loading...
       </p>
     )
   }

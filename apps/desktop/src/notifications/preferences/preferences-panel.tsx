@@ -347,6 +347,10 @@ export function NotificationPreferencesPanel({
     onClose()
   }, [save, draft, onClose])
 
+  const handleCancel = useCallback(() => {
+    onClose()
+  }, [onClose])
+
   const handleReset = useCallback(() => {
     reset()
     setDraft(DEFAULT_NOTIFICATION_PREFERENCES)

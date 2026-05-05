@@ -196,18 +196,7 @@ export const BlackboardNode = z.object({
 })
 export type BlackboardNode = z.infer<typeof BlackboardNode>
 
-export const FlowNode = z.discriminatedUnion('kind', [
-  AgentNode,
-  ToolNode,
-  HumanNode,
-  ConditionNode,
-  ParallelNode,
-  CompareNode,
-  VoteNode,
-  DebateNode,
-  AuctionNode,
-  BlackboardNode,
-])
+export const FlowNode = z.discriminatedUnion('kind', [AgentNode, ToolNode, HumanNode, ConditionNode, ParallelNode, CompareNode, VoteNode, DebateNode, AuctionNode, BlackboardNode])
 export type FlowNode = z.infer<typeof FlowNode>
 
 export const FlowEdge = z.object({
@@ -224,9 +213,7 @@ const checkAcyclicAndReachable = (flow: { nodes: FlowNode[]; edges: FlowEdge[]; 
     if (!ids.has(e.from)) return { ok: false as const, message: `edge from "${e.from}" missing` }
     if (!ids.has(e.to)) return { ok: false as const, message: `edge to "${e.to}" missing` }
   }
-  const adj = new Map<string, string[]>()
-  for (const id of ids) adj.set(id, [])
-  for (const e of flow.edges) adj.get(e.from)!.push(e.to)
+  const adj = buildAdjacency(ids, flow.edges)
 
   const WHITE = 0,
     GRAY = 1,
@@ -245,12 +232,27 @@ const checkAcyclicAndReachable = (flow: { nodes: FlowNode[]; edges: FlowEdge[]; 
     return false
   }
 
-  for (const id of ids) {
-    if (color.get(id) === WHITE && dfs(id)) {
-      return { ok: false as const, message: 'flow contains a cycle' }
-    }
-  }
+  if (containsCycle(ids, color, dfs)) return { ok: false as const, message: 'flow contains a cycle' }
   return { ok: true as const }
+}
+
+const buildAdjacency = (ids: ReadonlySet<string>, edges: readonly FlowEdge[]): Map<string, string[]> => {
+  const adj = new Map<string, string[]>()
+  for (const id of ids) adj.set(id, [])
+  for (const e of edges) adj.get(e.from)!.push(e.to)
+  return adj
+}
+
+const containsCycle = (
+  ids: ReadonlySet<string>,
+  color: Map<string, number>,
+  dfs: (u: string) => boolean,
+): boolean => {
+  const WHITE = 0
+  for (const id of ids) {
+    if (color.get(id) === WHITE && dfs(id)) return true
+  }
+  return false
 }
 
 export const FlowConfig = z

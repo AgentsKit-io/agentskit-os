@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { RUNS_FIXTURE, type RunQueueItem, type RunStatus, useRuns } from './use-runs'
 import { useSelection } from '../../lib/selection-store'
+import { FilterPills } from '../../components/filter-pills'
 
 const STATUS_LABEL: Record<RunStatus, string> = {
   queued: 'Queued',
@@ -272,24 +273,13 @@ export function RunsScreen() {
 
         <RunsSummary runs={runs} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter runs by status">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : STATUS_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter runs by status"
+          labelFor={(item) => (item === 'all' ? 'All' : STATUS_LABEL[item])}
+        />
 
         {filteredRuns.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

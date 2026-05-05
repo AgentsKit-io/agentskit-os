@@ -11,6 +11,19 @@ export function formatDate(iso: string): string {
   }
 }
 
+export function formatTime(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(iso))
+  } catch {
+    return iso
+  }
+}
+
 export function formatDuration(ms: number): string {
   if (ms <= 0) return 'n/a'
   const minutes = Math.round(ms / 60_000)

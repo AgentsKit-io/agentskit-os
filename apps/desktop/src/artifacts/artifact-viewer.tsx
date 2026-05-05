@@ -11,61 +11,9 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useArtifactViewer } from './use-artifact-viewer'
-import type { Artifact, ArtifactKind } from './artifact-types'
-import { CodeRenderer } from './renderers/code-renderer'
-import { JsonRenderer } from './renderers/json-renderer'
-import { CsvRenderer } from './renderers/csv-renderer'
-import { SvgRenderer } from './renderers/svg-renderer'
-import { MermaidRenderer } from './renderers/mermaid-renderer'
-import { HtmlRenderer } from './renderers/html-renderer'
-import { MarkdownRenderer } from './renderers/markdown-renderer'
-import { ImageRenderer } from './renderers/image-renderer'
+import type { Artifact } from './artifact-types'
 import { ARTIFACT_KIND_LABELS } from './artifact-labels'
-
-// ---------------------------------------------------------------------------
-// Kind label map (duplicated to avoid circular dep with artifact-card)
-// ---------------------------------------------------------------------------
-
-const KIND_LABELS: Record<ArtifactKind, string> = ARTIFACT_KIND_LABELS
-
-// ---------------------------------------------------------------------------
-// Content renderer (same logic as ArtifactCard)
-// ---------------------------------------------------------------------------
-
-function ArtifactContent({
-  artifact,
-  wordWrap,
-}: {
-  artifact: Artifact
-  wordWrap: boolean
-}): React.JSX.Element {
-  switch (artifact.kind) {
-    case 'code':
-    case 'yaml':
-    case 'unknown':
-      return (
-        <div className={wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'}>
-          <CodeRenderer content={artifact.content} />
-        </div>
-      )
-    case 'json':
-      return <JsonRenderer content={artifact.content} />
-    case 'csv':
-      return <CsvRenderer content={artifact.content} />
-    case 'svg':
-      return <SvgRenderer content={artifact.content} />
-    case 'mermaid':
-      return <MermaidRenderer content={artifact.content} />
-    case 'html':
-      return <HtmlRenderer content={artifact.content} />
-    case 'markdown':
-      return <MarkdownRenderer content={artifact.content} />
-    case 'image':
-      return <ImageRenderer content={artifact.content} name={artifact.name} />
-    default:
-      return <CodeRenderer content={artifact.content} />
-  }
-}
+import { ArtifactContent } from './artifact-content'
 
 // ---------------------------------------------------------------------------
 // ArtifactViewer modal

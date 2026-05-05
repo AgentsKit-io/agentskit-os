@@ -98,7 +98,9 @@ export const langgraphImporter: Importer = {
           message: 'conditional routing flattened to plain edge',
         })
       }
-      return { from: slug(e.source ?? ''), to: slug(e.target ?? '') }
+      const fromRaw = e.source !== undefined ? e.source : ''
+      const toRaw = e.target !== undefined ? e.target : ''
+      return { from: slug(fromRaw), to: slug(toRaw) }
     })
 
     let entry = 'node-0'

@@ -45,6 +45,53 @@ function getTargetCoords(targetId: string): Coords {
   }
 }
 
+const useOverlayPosition = (args: {
+  isOpen: boolean
+  currentTarget: { id: string } | null
+  setPrompt: React.Dispatch<React.SetStateAction<string>>
+  inputRef: React.RefObject<HTMLInputElement | null>
+}): Coords => {
+  const { isOpen, currentTarget, setPrompt, inputRef } = args
+  const [coords, setCoords] = useState<Coords>({ top: 0, left: 0 })
+  useEffect(() => {
+    if (!isOpen || !currentTarget) return
+    setCoords(getTargetCoords(currentTarget.id))
+    setPrompt('')
+    requestAnimationFrame(() => {
+      inputRef.current?.focus()
+    })
+  }, [isOpen, currentTarget, setPrompt, inputRef])
+  return coords
+}
+
+const useEscapeToDismiss = (args: {
+  handleDismiss: () => void
+}): ((e: React.KeyboardEvent<HTMLDivElement>) => void) => {
+  const { handleDismiss } = args
+  return useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      handleDismiss()
+    },
+    [handleDismiss],
+  )
+}
+
+const useEnterToSend = (args: {
+  handleSend: () => void
+}): ((e: React.KeyboardEvent<HTMLInputElement>) => void) => {
+  const { handleSend } = args
+  return useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key !== 'Enter' || e.shiftKey) return
+      e.preventDefault()
+      handleSend()
+    },
+    [handleSend],
+  )
+}
+
 // ---------------------------------------------------------------------------
 // AssistantOverlay
 // ---------------------------------------------------------------------------
@@ -54,19 +101,14 @@ export function AssistantOverlay(): React.JSX.Element | null {
   const { stream, cancel } = useAssistStream()
 
   const [prompt, setPrompt] = useState('')
-  const [coords, setCoords] = useState<Coords>({ top: 0, left: 0 })
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Re-calculate position whenever the overlay opens
-  useEffect(() => {
-    if (isOpen && currentTarget) {
-      setCoords(getTargetCoords(currentTarget.id))
-      setPrompt('')
-      requestAnimationFrame(() => {
-        inputRef.current?.focus()
-      })
-    }
-  }, [isOpen, currentTarget])
+  const coords = useOverlayPosition({
+    isOpen,
+    currentTarget: currentTarget ?? null,
+    setPrompt,
+    inputRef,
+  })
 
   const handleSend = useCallback(() => {
     const trimmed = prompt.trim()
@@ -87,25 +129,9 @@ export function AssistantOverlay(): React.JSX.Element | null {
     close()
   }, [cancel, close])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        handleDismiss()
-      }
-    },
-    [handleDismiss],
-  )
+  const handleKeyDown = useEscapeToDismiss({ handleDismiss })
 
-  const handleFormKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault()
-        handleSend()
-      }
-    },
-    [handleSend],
-  )
+  const handleFormKeyDown = useEnterToSend({ handleSend })
 
   if (!isOpen || !currentTarget) return null
 

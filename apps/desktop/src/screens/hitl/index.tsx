@@ -8,6 +8,9 @@ import {
   type HitlStatus,
   useHitlRequests,
 } from './use-hitl'
+import { FilterPills } from '../../components/filter-pills'
+import { formatTime } from '../../lib/format'
+import { compareIsoAsc, compareIsoDesc, isDueWithinMs } from '../../lib/date'
 
 const KIND_LABEL: Record<HitlKind, string> = {
   code_change: 'Code change',
@@ -72,23 +75,36 @@ function Pill({
   )
 }
 
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
-}
+const filterAndSortRequests = (args: {
+  requests: readonly HitlRequest[]
+  filter: HitlStatus | 'all'
+  kindFilter: 'all' | HitlKind
+  query: string
+  sortDue: 'soonest' | 'newest'
+  localStatus: Partial<Record<string, HitlStatus>>
+}): HitlRequest[] => {
+  const { requests, filter, kindFilter, query, sortDue, localStatus } = args
+  const eff = (r: HitlRequest): HitlStatus => localStatus[r.id] ?? r.status
+  let rows = filter === 'all' ? [...requests] : requests.filter((request) => eff(request) === filter)
+  if (kindFilter !== 'all') rows = rows.filter((r) => r.kind === kindFilter)
 
-const dueWithin24h = (iso: string): boolean => {
-  const t = new Date(iso).getTime()
-  const now = Date.now()
-  return t > now && t - now < 24 * 60 * 60 * 1000
+  const q = query.trim().toLowerCase()
+  if (q.length > 0) {
+    rows = rows.filter((r) => {
+      return (
+        r.title.toLowerCase().includes(q) ||
+        r.runId.toLowerCase().includes(q) ||
+        r.requester.toLowerCase().includes(q) ||
+        r.summary.toLowerCase().includes(q)
+      )
+    })
+  }
+
+  rows.sort((a, b) => {
+    if (sortDue === 'soonest') return compareIsoAsc(a.expiresAt, b.expiresAt)
+    return compareIsoDesc(a.createdAt, b.createdAt)
+  })
+  return rows
 }
 
 function HitlSummary({
@@ -103,7 +119,7 @@ function HitlSummary({
   const approved = requests.filter((request) => statusOf(request) === 'approved').length
   const denied = requests.filter((request) => statusOf(request) === 'denied').length
   const dueSoon = requests.filter(
-    (request) => statusOf(request) === 'pending' && dueWithin24h(request.expiresAt),
+    (request) => statusOf(request) === 'pending' && isDueWithinMs(request.expiresAt, 24 * 60 * 60 * 1000),
   ).length
 
   const items = [
@@ -402,28 +418,7 @@ export function HitlScreen() {
   const statusOf = (r: HitlRequest): HitlStatus => localStatus[r.id] ?? r.status
 
   const filteredRequests = useMemo(() => {
-    const eff = (r: HitlRequest) => localStatus[r.id] ?? r.status
-    let rows = filter === 'all' ? [...requests] : requests.filter((request) => eff(request) === filter)
-    if (kindFilter !== 'all') {
-      rows = rows.filter((r) => r.kind === kindFilter)
-    }
-    const q = query.trim().toLowerCase()
-    if (q.length > 0) {
-      rows = rows.filter(
-        (r) =>
-          r.title.toLowerCase().includes(q) ||
-          r.runId.toLowerCase().includes(q) ||
-          r.requester.toLowerCase().includes(q) ||
-          r.summary.toLowerCase().includes(q),
-      )
-    }
-    rows.sort((a, b) => {
-      if (sortDue === 'soonest') {
-        return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime()
-      }
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    })
-    return rows
+    return filterAndSortRequests({ requests, filter, kindFilter, query, sortDue, localStatus })
   }, [filter, kindFilter, query, requests, localStatus, sortDue])
 
   const selectedRequest = useMemo(() => {
@@ -520,43 +515,21 @@ export function HitlScreen() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter human tasks by status">
-            {FILTERS.map((item) => (
-              <button
-                key={item}
-                type="button"
-                aria-pressed={filter === item}
-                onClick={() => setFilter(item)}
-                className={[
-                  'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                  filter === item
-                    ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                    : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-                ].join(' ')}
-              >
-                {item === 'all' ? 'All statuses' : STATUS_LABEL[item]}
-              </button>
-            ))}
-          </div>
+          <FilterPills
+            items={FILTERS}
+            active={filter}
+            onChange={setFilter}
+            ariaLabel="Filter human tasks by status"
+            labelFor={(item) => (item === 'all' ? 'All statuses' : STATUS_LABEL[item])}
+          />
 
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter human tasks by queue kind">
-            {KIND_FILTERS.map((item) => (
-              <button
-                key={item}
-                type="button"
-                aria-pressed={kindFilter === item}
-                onClick={() => setKindFilter(item)}
-                className={[
-                  'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                  kindFilter === item
-                    ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                    : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-                ].join(' ')}
-              >
-                {item === 'all' ? 'All queues' : KIND_LABEL[item]}
-              </button>
-            ))}
-          </div>
+          <FilterPills
+            items={KIND_FILTERS}
+            active={kindFilter}
+            onChange={setKindFilter}
+            ariaLabel="Filter human tasks by queue kind"
+            labelFor={(item) => (item === 'all' ? 'All queues' : KIND_LABEL[item])}
+          />
         </div>
 
         {filteredRequests.length === 0 ? (

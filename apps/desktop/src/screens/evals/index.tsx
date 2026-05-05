@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { EVAL_SUITES_FIXTURE, type EvalCadence, type EvalStatus, type EvalSuite, useEvals } from './use-evals'
+import { formatTime } from '../../lib/format'
 
 const STATUS_LABEL: Record<EvalStatus, string> = {
   passing: 'Passing',
@@ -30,19 +31,6 @@ function StatusPill({ status }: { readonly status: EvalStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function EvalsSummary({ suites }: { readonly suites: readonly EvalSuite[] }) {

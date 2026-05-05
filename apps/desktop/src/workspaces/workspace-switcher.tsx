@@ -16,25 +16,90 @@ import {
 import { useWorkspaces } from './workspaces-provider'
 import { WorkspaceStatusBadge } from './workspace-status-badge'
 import { useCommandPalette } from '../command-palette/command-palette-provider'
+import { IconSvg } from '../components/icon-svg'
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="10"
-      height="10"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
+    <IconSvg
+      size={10}
       className={['transition-transform duration-150', open ? 'rotate-180' : ''].join(' ')}
     >
       <polyline points="6 9 12 15 18 9" />
-    </svg>
+    </IconSvg>
   )
+}
+
+const useWorkspaceSwitcherCommand = (args: {
+  registerCommand: (c: { id: string; label: string; keywords: string[]; category: string; run: () => void }) => void
+  openDropdown: () => void
+}): void => {
+  const { registerCommand, openDropdown } = args
+  useEffect(() => {
+    registerCommand({
+      id: 'workspaces.switch',
+      label: 'Switch workspace',
+      keywords: ['workspace', 'project', 'switch', 'change'],
+      category: 'Navigation',
+      run: openDropdown,
+    })
+  }, [registerCommand, openDropdown])
+}
+
+const useWorkspaceSwitcherHotkey = (openDropdown: () => void): void => {
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const modKey = e.metaKey || e.ctrlKey
+      if (modKey && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault()
+        openDropdown()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [openDropdown])
+}
+
+const useFocusSearchOnOpen = (args: { isOpen: boolean; searchRef: React.RefObject<HTMLInputElement | null> }): void => {
+  const { isOpen, searchRef } = args
+  useEffect(() => {
+    if (!isOpen) return
+    requestAnimationFrame(() => {
+      searchRef.current?.focus()
+    })
+  }, [isOpen, searchRef])
+}
+
+const useCloseOnOutsidePointerDown = (args: {
+  isOpen: boolean
+  containerRef: React.RefObject<HTMLDivElement | null>
+  closeDropdown: () => void
+}): void => {
+  const { isOpen, containerRef, closeDropdown } = args
+  useEffect(() => {
+    if (!isOpen) return
+    function handlePointerDown(e: PointerEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        closeDropdown()
+      }
+    }
+    window.addEventListener('pointerdown', handlePointerDown)
+    return () => window.removeEventListener('pointerdown', handlePointerDown)
+  }, [isOpen, closeDropdown, containerRef])
+}
+
+const useCloseOnEscape = (args: { isOpen: boolean; closeDropdown: () => void }): void => {
+  const { isOpen, closeDropdown } = args
+  useEffect(() => {
+    if (!isOpen) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        closeDropdown()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, closeDropdown])
 }
 
 export function WorkspaceSwitcher() {
@@ -65,68 +130,15 @@ export function WorkspaceSwitcher() {
     }
   }, [isOpen, openDropdown, closeDropdown])
 
-  // Register command palette entry
-  useEffect(() => {
-    registerCommand({
-      id: 'workspaces.switch',
-      label: 'Switch workspace',
-      keywords: ['workspace', 'project', 'switch', 'change'],
-      category: 'Navigation',
-      run: openDropdown,
-    })
-  }, [registerCommand, openDropdown])
+  useWorkspaceSwitcherCommand({ registerCommand, openDropdown })
 
-  // Listen for Cmd+P / Ctrl+P to open the switcher
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      const modKey = e.metaKey || e.ctrlKey
-      if (modKey && (e.key === 'p' || e.key === 'P')) {
-        e.preventDefault()
-        openDropdown()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [openDropdown])
+  useWorkspaceSwitcherHotkey(openDropdown)
 
-  // Focus search input when dropdown opens
-  useEffect(() => {
-    if (isOpen) {
-      // Use rAF to ensure the DOM has updated before focusing
-      requestAnimationFrame(() => {
-        searchRef.current?.focus()
-      })
-    }
-  }, [isOpen])
+  useFocusSearchOnOpen({ isOpen, searchRef })
 
-  // Close on outside click
-  useEffect(() => {
-    if (!isOpen) return
+  useCloseOnOutsidePointerDown({ isOpen, containerRef, closeDropdown })
 
-    function handlePointerDown(e: PointerEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        closeDropdown()
-      }
-    }
-
-    window.addEventListener('pointerdown', handlePointerDown)
-    return () => window.removeEventListener('pointerdown', handlePointerDown)
-  }, [isOpen, closeDropdown])
-
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return
-
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        closeDropdown()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, closeDropdown])
+  useCloseOnEscape({ isOpen, closeDropdown })
 
   const filteredWorkspaces = query.trim()
     ? all.filter((w) =>

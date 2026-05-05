@@ -7,6 +7,8 @@ import {
   type SecurityStatus,
   useSecurityControls,
 } from './use-security'
+import { FilterPills } from '../../components/filter-pills'
+import { formatDate } from '../../lib/format'
 
 const AREA_LABEL: Record<SecurityArea, string> = {
   audit: 'Audit',
@@ -37,19 +39,6 @@ function StatusPill({ status }: { readonly status: SecurityStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      month: 'short',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function SecuritySummary({ controls }: { readonly controls: readonly SecurityControl[] }) {
@@ -285,24 +274,13 @@ export function SecurityScreen() {
 
         <SecuritySummary controls={controls} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter controls by area">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : AREA_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter controls by area"
+          labelFor={(item) => (item === 'all' ? 'All' : AREA_LABEL[item])}
+        />
 
         {filteredControls.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

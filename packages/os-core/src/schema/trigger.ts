@@ -111,16 +111,7 @@ export const CdcTrigger = z.object({
 })
 export type CdcTrigger = z.infer<typeof CdcTrigger>
 
-export const TriggerConfig = z.discriminatedUnion('kind', [
-  CronTrigger,
-  WebhookTrigger,
-  FileWatchTrigger,
-  EmailTrigger,
-  SlackTrigger,
-  GitHubTrigger,
-  LinearTrigger,
-  CdcTrigger,
-])
+export const TriggerConfig = z.discriminatedUnion('kind', [CronTrigger, WebhookTrigger, FileWatchTrigger, EmailTrigger, SlackTrigger, GitHubTrigger, LinearTrigger, CdcTrigger])
 export type TriggerConfig = z.infer<typeof TriggerConfig>
 
 export const parseTriggerConfig = (input: unknown): TriggerConfig => TriggerConfig.parse(input)

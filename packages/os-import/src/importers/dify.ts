@@ -118,6 +118,120 @@ const NORMALIZE_PROVIDER: Record<string, string> = {
   bedrock: 'anthropic',
 }
 
+const getDifyModel = (n: DifyNode): { provider: string; model: string } => {
+  let rawProvider = ''
+  if (n.data !== undefined && n.data.model !== undefined && n.data.model.provider !== undefined) {
+    rawProvider = n.data.model.provider
+  }
+  let provider = 'openai'
+  if (rawProvider) {
+    const mapped = NORMALIZE_PROVIDER[rawProvider]
+    if (mapped) provider = mapped
+  }
+
+  let model = 'gpt-4o'
+  if (n.data !== undefined && n.data.model !== undefined && n.data.model.name !== undefined) {
+    model = n.data.model.name
+  }
+  return { provider, model }
+}
+
+const buildDifyNodes = (args: {
+  nodes: readonly DifyNode[]
+  warnings: ImportWarning[]
+}): {
+  agents: ReturnType<typeof parseAgentConfig>[]
+  flowNodes: Array<Record<string, unknown>>
+  idMap: Map<string, string>
+} => {
+  const { nodes, warnings } = args
+  const takenNodeIds = new Set<string>()
+  const takenAgentIds = new Set<string>()
+  const idMap = new Map<string, string>()
+  const agents: ReturnType<typeof parseAgentConfig>[] = []
+  const flowNodes: Array<Record<string, unknown>> = []
+
+  for (const n of nodes) {
+    const componentType = n.data?.type ?? 'unknown'
+    const title = n.data?.title ?? componentType
+    const kind = inferKind(componentType)
+    const baseId = ensureUnique(slugify(title || componentType), takenNodeIds)
+    idMap.set(n.id, baseId)
+
+    if (kind === 'agent') {
+      const agentId = ensureUnique(slugify(`${title}-agent`), takenAgentIds)
+      const model = getDifyModel(n)
+      try {
+        agents.push(parseAgentConfig({ id: agentId, name: title, model }))
+      } catch (err) {
+        warnings.push({
+          code: 'lossy_conversion',
+          path: ['nodes', n.id, 'agent'],
+          message: `agent parse failed: ${(err as Error).message}`,
+        })
+      }
+      flowNodes.push({ id: baseId, kind: 'agent', agent: agentId })
+      continue
+    }
+
+    if (kind === 'human') {
+      flowNodes.push({ id: baseId, kind: 'human', prompt: `Dify ${componentType}: ${title}` })
+      continue
+    }
+
+    if (kind === 'condition') {
+      flowNodes.push({ id: baseId, kind: 'condition', expression: 'true' })
+      warnings.push({
+        code: 'lossy_conversion',
+        path: ['nodes', n.id, 'expression'],
+        message: `Dify "${componentType}" condition stubbed to "true" — manual edit required`,
+      })
+      continue
+    }
+
+    if (kind === 'tool') {
+      flowNodes.push({ id: baseId, kind: 'tool', tool: `dify.${slugify(componentType)}`.slice(0, 128) })
+      continue
+    }
+
+    flowNodes.push({ id: baseId, kind: 'tool', tool: 'dify.unknown' })
+    warnings.push({
+      code: 'unknown_node_type',
+      path: ['nodes', n.id],
+      message: `unfamiliar Dify node type "${componentType}" — emitted as generic tool`,
+    })
+  }
+
+  return { agents, flowNodes, idMap }
+}
+
+const buildDifyEdges = (edges: readonly DifyEdge[], idMap: Map<string, string>): Array<{ from: string; to: string }> => {
+  const flowEdges: Array<{ from: string; to: string }> = []
+  for (const e of edges) {
+    const from = idMap.get(e.source)
+    const to = idMap.get(e.target)
+    if (from && to) flowEdges.push({ from, to })
+  }
+  return flowEdges
+}
+
+const pickDifyEntryId = (args: {
+  nodes: readonly DifyNode[]
+  flowNodes: Array<Record<string, unknown>>
+  idMap: Map<string, string>
+}): string => {
+  const { nodes, flowNodes, idMap } = args
+  const startEntry = nodes.find((n) => n.data?.type === 'start')
+  let entryId = 'entry'
+  if (startEntry) {
+    const mapped = idMap.get(startEntry.id)
+    if (mapped) entryId = mapped
+  }
+  const first = flowNodes[0]?.id as string | undefined
+  if (entryId === 'entry' && first) entryId = first
+  return entryId
+}
+
 export const difyImporter: Importer = {
   source: 'dify',
   displayName: 'Dify',
@@ -139,94 +253,22 @@ export const difyImporter: Importer = {
       throw new Error('difyImporter: workflow has no nodes')
     }
 
-    const takenNodeIds = new Set<string>()
-    const takenAgentIds = new Set<string>()
-    const idMap = new Map<string, string>()
-    const agents: ReturnType<typeof parseAgentConfig>[] = []
-    const flowNodes: Array<Record<string, unknown>> = []
-
-    for (const n of nodes) {
-      const componentType = n.data?.type ?? 'unknown'
-      const title = n.data?.title ?? componentType
-      const kind = inferKind(componentType)
-      const baseId = ensureUnique(slugify(title || componentType), takenNodeIds)
-      idMap.set(n.id, baseId)
-
-      if (kind === 'agent') {
-        const agentId = ensureUnique(slugify(`${title}-agent`), takenAgentIds)
-        const provider = NORMALIZE_PROVIDER[n.data?.model?.provider ?? ''] ?? 'openai'
-        const model = n.data?.model?.name ?? 'gpt-4o'
-        try {
-          agents.push(parseAgentConfig({ id: agentId, name: title, model: { provider, model } }))
-        } catch (err) {
-          warnings.push({
-            code: 'lossy_conversion',
-            path: ['nodes', n.id, 'agent'],
-            message: `agent parse failed: ${(err as Error).message}`,
-          })
-        }
-        flowNodes.push({ id: baseId, kind: 'agent', agent: agentId })
-      } else if (kind === 'human') {
-        flowNodes.push({
-          id: baseId,
-          kind: 'human',
-          prompt: `Dify ${componentType}: ${title}`,
-        })
-      } else if (kind === 'condition') {
-        flowNodes.push({
-          id: baseId,
-          kind: 'condition',
-          expression: 'true',
-        })
-        warnings.push({
-          code: 'lossy_conversion',
-          path: ['nodes', n.id, 'expression'],
-          message: `Dify "${componentType}" condition stubbed to "true" — manual edit required`,
-        })
-      } else if (kind === 'tool') {
-        flowNodes.push({
-          id: baseId,
-          kind: 'tool',
-          tool: `dify.${slugify(componentType)}`.slice(0, 128),
-        })
-      } else {
-        flowNodes.push({ id: baseId, kind: 'tool', tool: 'dify.unknown' })
-        warnings.push({
-          code: 'unknown_node_type',
-          path: ['nodes', n.id],
-          message: `unfamiliar Dify node type "${componentType}" — emitted as generic tool`,
-        })
-      }
-    }
-
-    const flowEdges: Array<{ from: string; to: string }> = []
-    for (const e of edges) {
-      const from = idMap.get(e.source)
-      const to = idMap.get(e.target)
-      if (from && to) flowEdges.push({ from, to })
-    }
-
-    const startEntry = nodes.find((n) => n.data?.type === 'start')
-    let entryId = 'entry'
-    if (startEntry) {
-      const mapped = idMap.get(startEntry.id)
-      if (mapped) entryId = mapped
-    }
-    const first = flowNodes[0]?.id as string | undefined
-    if (entryId === 'entry' && first) entryId = first
+    const built = buildDifyNodes({ nodes, warnings })
+    const flowEdges = buildDifyEdges(edges, built.idMap)
+    const entryId = pickDifyEntryId({ nodes, flowNodes: built.flowNodes, idMap: built.idMap })
 
     const flow = parseFlowConfig({
       id: flowId,
       name: appName,
       entry: entryId,
-      nodes: flowNodes as never,
+      nodes: built.flowNodes as never,
       edges: flowEdges,
     })
 
     return {
       source: 'dify',
       workspace: { id: workspaceId, name: appName },
-      agents,
+      agents: built.agents,
       flows: [flow],
       warnings,
     } satisfies ImportResult

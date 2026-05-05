@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import { TRIGGERS_FIXTURE, type TriggerProvider, type TriggerRule, type TriggerStatus, useTriggers } from './use-triggers'
+import { FilterPills } from '../../components/filter-pills'
+import { formatTime } from '../../lib/format'
 
 const PROVIDER_LABEL: Record<TriggerProvider, string> = {
   slack: 'Slack',
@@ -33,19 +35,6 @@ function StatusPill({ status }: { readonly status: TriggerStatus }) {
       {STATUS_LABEL[status]}
     </span>
   )
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(iso))
-  } catch {
-    return iso
-  }
 }
 
 function TriggerSummary({ triggers }: { readonly triggers: readonly TriggerRule[] }) {
@@ -273,24 +262,13 @@ export function TriggersScreen() {
 
         <TriggerSummary triggers={triggers} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter triggers by provider">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : PROVIDER_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <FilterPills
+          items={FILTERS}
+          active={filter}
+          onChange={setFilter}
+          ariaLabel="Filter triggers by provider"
+          labelFor={(item) => (item === 'all' ? 'All' : PROVIDER_LABEL[item])}
+        />
 
         {filteredTriggers.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">

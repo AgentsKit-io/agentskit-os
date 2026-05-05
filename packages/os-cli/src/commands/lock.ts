@@ -115,7 +115,7 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     .argument('<configPath>', 'workspace config file path')
     .option('--check', 'compare existing lockfile against current config; exit non-zero on drift', false)
     .option('--out <path>', 'write lockfile to this path (default: <config-dir>/agentskit-os.lock)')
-    .action(async (configPath: string, opts: { check?: boolean; out?: string }) => {
+    .action(async (configPath: string, opts: { check: boolean | undefined; out: string | undefined }) => {
       const loaded = await loadConfigFile(io, configPath)
       if (!loaded.ok) {
         result.current = { code: loaded.code, stdout: '', stderr: loaded.message }

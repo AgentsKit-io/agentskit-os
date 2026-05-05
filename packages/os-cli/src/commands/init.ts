@@ -39,7 +39,7 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     .option('--id <slug>', 'workspace id (default: slugified directory name)')
     .option('--name <name>', 'workspace display name (default: directory basename)')
     .option('--force', 'overwrite existing agentskit-os.config.yaml', false)
-    .action(async (dirArg: string, opts: { id?: string; name?: string; force?: boolean }) => {
+    .action(async (dirArg: string, opts: { id: string | undefined; name: string | undefined; force: boolean | undefined }) => {
       const baseDir = resolve(io.cwd(), dirArg || '.')
       const baseName = basename(baseDir)
       let idInput = baseName

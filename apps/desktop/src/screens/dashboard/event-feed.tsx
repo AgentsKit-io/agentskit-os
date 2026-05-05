@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Button, GlassPanel } from '@agentskit/os-ui'
+import { formatClockTime } from '../../lib/format'
 import type { SidecarEvent } from '../../lib/sidecar'
 import type { EventFeedState } from './use-event-feed'
 
@@ -15,19 +16,13 @@ function dataSummary(data: Record<string, unknown>): string {
 }
 
 function EventRow({ event }: { event: SidecarEvent }) {
-  const time = new Date(event.timestamp).toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  })
   return (
     <div className="flex gap-3 py-0.5 text-xs text-[var(--ag-ink-muted)]">
       <time
         dateTime={event.timestamp}
         className="shrink-0 tabular-nums text-[var(--ag-ink-subtle)]"
       >
-        {time}
+        {formatClockTime(event.timestamp)}
       </time>
       <span className="shrink-0 font-medium text-[var(--ag-accent)]">{event.type}</span>
       <span className="min-w-0 truncate text-[var(--ag-ink-muted)]">

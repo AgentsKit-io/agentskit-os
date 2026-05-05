@@ -21,12 +21,11 @@ export const parseAgentJsonResult = (raw: string, providerId: string): CodingTas
   if (!isRecord(parsed)) return null
 
   const statusRaw = asStr(parsed.status) ?? asStr(parsed.state)
-  const status =
-    statusRaw === 'timeout' ? 'timeout'
-      : statusRaw === 'partial' ? 'partial'
-        : statusRaw === 'fail' || statusRaw === 'error' ? 'fail'
-          : statusRaw === 'ok' || statusRaw === 'success' ? 'ok'
-            : undefined
+  let status: CodingTaskResult['status'] | undefined
+  if (statusRaw === 'timeout') status = 'timeout'
+  else if (statusRaw === 'partial') status = 'partial'
+  else if (statusRaw === 'fail' || statusRaw === 'error') status = 'fail'
+  else if (statusRaw === 'ok' || statusRaw === 'success') status = 'ok'
   if (!status) return null
 
   const files: FileEdit[] = []
@@ -36,18 +35,14 @@ export const parseAgentJsonResult = (raw: string, providerId: string): CodingTas
       if (!isRecord(fe)) continue
       const path = asStr(fe.path) ?? asStr(fe.file)
       const opRaw = asStr(fe.op) ?? asStr(fe.operation) ?? 'modify'
-      const op =
-        opRaw === 'create' || opRaw === 'add' ? 'create'
-          : opRaw === 'delete' || opRaw === 'remove' ? 'delete'
-            : 'modify'
+      let op: FileEdit['op'] = 'modify'
+      if (opRaw === 'create' || opRaw === 'add') op = 'create'
+      else if (opRaw === 'delete' || opRaw === 'remove') op = 'delete'
       const after = asStr(fe.after) ?? asStr(fe.content) ?? ''
       const before = asStr(fe.before)
       if (!path) continue
-      files.push(
-        before === undefined
-          ? { path, op, after }
-          : { path, op, before, after },
-      )
+      if (before === undefined) files.push({ path, op, after })
+      else files.push({ path, op, before, after })
     }
   }
 

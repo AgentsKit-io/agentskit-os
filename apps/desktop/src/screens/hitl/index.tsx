@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Badge } from '@agentskit/os-ui'
 import {
   MOCK_HITL_REQUESTS,
@@ -14,7 +14,21 @@ const KIND_LABEL: Record<HitlKind, string> = {
   cost_exception: 'Cost exception',
   deploy_gate: 'Deploy gate',
   data_access: 'Data access',
+  clinical_review: 'Clinical review',
+  client_approval: 'Client approval',
+  failed_run: 'Failed run',
 }
+
+const KIND_FILTERS: Array<'all' | HitlKind> = [
+  'all',
+  'code_change',
+  'cost_exception',
+  'deploy_gate',
+  'data_access',
+  'clinical_review',
+  'client_approval',
+  'failed_run',
+]
 
 const STATUS_LABEL: Record<HitlStatus, string> = {
   pending: 'Pending',
@@ -71,6 +85,12 @@ function formatTime(iso: string): string {
   }
 }
 
+const dueWithin24h = (iso: string): boolean => {
+  const t = new Date(iso).getTime()
+  const now = Date.now()
+  return t > now && t - now < 24 * 60 * 60 * 1000
+}
+
 function HitlSummary({
   requests,
   statusOf,
@@ -82,16 +102,20 @@ function HitlSummary({
   const highRisk = requests.filter((request) => request.risk === 'high').length
   const approved = requests.filter((request) => statusOf(request) === 'approved').length
   const denied = requests.filter((request) => statusOf(request) === 'denied').length
+  const dueSoon = requests.filter(
+    (request) => statusOf(request) === 'pending' && dueWithin24h(request.expiresAt),
+  ).length
 
   const items = [
     { label: 'Pending', value: pending.toString() },
+    { label: 'Due < 24h', value: dueSoon.toString() },
     { label: 'High risk', value: highRisk.toString() },
     { label: 'Approved', value: approved.toString() },
     { label: 'Denied', value: denied.toString() },
   ]
 
   return (
-    <div className="grid gap-3 md:grid-cols-4">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
       {items.map((item) => (
         <div key={item.label} className="rounded-lg border border-[var(--ag-line)] bg-[var(--ag-panel)] px-4 py-3">
           <div className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
@@ -365,6 +389,9 @@ function DetailBlock({
 export function HitlScreen() {
   const { requests, loading, error } = useHitlRequests()
   const [filter, setFilter] = useState<HitlStatus | 'all'>('all')
+  const [kindFilter, setKindFilter] = useState<'all' | HitlKind>('all')
+  const [query, setQuery] = useState('')
+  const [sortDue, setSortDue] = useState<'soonest' | 'newest'>('soonest')
   const [selectedId, setSelectedId] = useState<string | null>(MOCK_HITL_REQUESTS[1]?.id ?? null)
   const [localStatus, setLocalStatus] = useState<Partial<Record<string, HitlStatus>>>({})
   const [escalationNotes, setEscalationNotes] = useState<Partial<Record<string, string>>>({})
@@ -373,12 +400,40 @@ export function HitlScreen() {
 
   const filteredRequests = useMemo(() => {
     const eff = (r: HitlRequest) => localStatus[r.id] ?? r.status
-    return filter === 'all' ? requests : requests.filter((request) => eff(request) === filter)
-  }, [filter, requests, localStatus])
+    let rows = filter === 'all' ? [...requests] : requests.filter((request) => eff(request) === filter)
+    if (kindFilter !== 'all') {
+      rows = rows.filter((r) => r.kind === kindFilter)
+    }
+    const q = query.trim().toLowerCase()
+    if (q.length > 0) {
+      rows = rows.filter(
+        (r) =>
+          r.title.toLowerCase().includes(q) ||
+          r.runId.toLowerCase().includes(q) ||
+          r.requester.toLowerCase().includes(q) ||
+          r.summary.toLowerCase().includes(q),
+      )
+    }
+    rows.sort((a, b) => {
+      if (sortDue === 'soonest') {
+        return new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime()
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+    return rows
+  }, [filter, kindFilter, query, requests, localStatus, sortDue])
 
   const selectedRequest = useMemo(() => {
     return requests.find((request) => request.id === selectedId) ?? filteredRequests[0] ?? null
   }, [filteredRequests, requests, selectedId])
+
+  useEffect(() => {
+    if (filteredRequests.length === 0) return
+    const stillHere = filteredRequests.some((r) => r.id === selectedId)
+    if (!stillHere) {
+      setSelectedId(filteredRequests[0]?.id ?? null)
+    }
+  }, [filteredRequests, selectedId])
 
   if (loading) {
     return (
@@ -397,7 +452,8 @@ export function HitlScreen() {
             Human task inbox
           </p>
           <p className="mt-1 text-sm text-[var(--ag-ink-muted)]">
-            Approvals, escalations, deploy gates, data access, and failed runs that need an operator decision.
+            Pending approvals, clinical and client review queues, policy exceptions, deploy gates, failed runs, and
+            escalations — each linked to traces, policy context, requester, and due time (#337).
           </p>
         </div>
         <Badge variant="outline">Preview data</Badge>
@@ -412,28 +468,95 @@ export function HitlScreen() {
 
         <HitlSummary requests={requests} statusOf={statusOf} />
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter approvals by status">
-          {FILTERS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={filter === item}
-              onClick={() => setFilter(item)}
-              className={[
-                'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                filter === item
-                  ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
-                  : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
-              ].join(' ')}
-            >
-              {item === 'all' ? 'All' : STATUS_LABEL[item]}
-            </button>
-          ))}
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="flex min-w-[200px] flex-1 flex-col gap-1 text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+              Search
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Title, run id, requester…"
+                className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-surface-alt)] px-3 py-2 text-sm normal-case tracking-normal text-[var(--ag-ink)] placeholder:text-[var(--ag-ink-subtle)]"
+              />
+            </label>
+            <div className="flex flex-col gap-1">
+              <span className="text-[11px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+                Sort by
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  aria-pressed={sortDue === 'soonest'}
+                  onClick={() => setSortDue('soonest')}
+                  className={[
+                    'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+                    sortDue === 'soonest'
+                      ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
+                      : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50',
+                  ].join(' ')}
+                >
+                  Due soonest
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={sortDue === 'newest'}
+                  onClick={() => setSortDue('newest')}
+                  className={[
+                    'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+                    sortDue === 'newest'
+                      ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
+                      : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50',
+                  ].join(' ')}
+                >
+                  Newest
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter human tasks by status">
+            {FILTERS.map((item) => (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={filter === item}
+                onClick={() => setFilter(item)}
+                className={[
+                  'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+                  filter === item
+                    ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
+                    : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
+                ].join(' ')}
+              >
+                {item === 'all' ? 'All statuses' : STATUS_LABEL[item]}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter human tasks by queue kind">
+            {KIND_FILTERS.map((item) => (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={kindFilter === item}
+                onClick={() => setKindFilter(item)}
+                className={[
+                  'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
+                  kindFilter === item
+                    ? 'border-[var(--ag-accent)] bg-[var(--ag-accent)]/10 text-[var(--ag-accent)]'
+                    : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
+                ].join(' ')}
+              >
+                {item === 'all' ? 'All queues' : KIND_LABEL[item]}
+              </button>
+            ))}
+          </div>
         </div>
 
         {filteredRequests.length === 0 ? (
           <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-8 text-center">
-            <p className="text-sm text-[var(--ag-ink-muted)]">No approvals match this status.</p>
+            <p className="text-sm text-[var(--ag-ink-muted)]">No tasks match the current filters.</p>
           </div>
         ) : (
           <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">

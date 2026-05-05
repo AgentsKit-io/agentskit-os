@@ -2,7 +2,7 @@
 
 **Status:** living document  
 **Scope:** subprocess-based coding agents (Codex, Claude Code, Cursor, Gemini, and similar CLIs) invoked by AgentsKitOS dev orchestration, flows, and marketplace-adjacent surfaces.  
-**Related:** complements GitHub issues [#336](https://github.com/AgentsKit-io/agentskit-os/issues/336), [#342](https://github.com/AgentsKit-io/agentskit-os/issues/342), [#352](https://github.com/AgentsKit-io/agentskit-os/issues/352)–[#361](https://github.com/AgentsKit-io/agentskit-os/issues/361), [#363](https://github.com/AgentsKit-io/agentskit-os/issues/363), [#367](https://github.com/AgentsKit-io/agentskit-os/issues/367).
+**Related:** complements GitHub issues [#336](https://github.com/AgentsKit-io/agentskit-os/issues/336), [#337](https://github.com/AgentsKit-io/agentskit-os/issues/337), [#342](https://github.com/AgentsKit-io/agentskit-os/issues/342), [#352](https://github.com/AgentsKit-io/agentskit-os/issues/352)–[#361](https://github.com/AgentsKit-io/agentskit-os/issues/361), [#363](https://github.com/AgentsKit-io/agentskit-os/issues/363), [#367](https://github.com/AgentsKit-io/agentskit-os/issues/367), [#379](https://github.com/AgentsKit-io/agentskit-os/issues/379) (this document).
 
 ---
 
@@ -170,6 +170,20 @@
 | **Marketplace provenance** | [#342](https://github.com/AgentsKit-io/agentskit-os/issues/342) |
 | **Human gates** | [#337](https://github.com/AgentsKit-io/agentskit-os/issues/337) HITL inbox |
 
+### 5.1 Mitigation pillars × attack paths (#379)
+
+Legend: **P** = primary control for that path, **S** = supporting / defense in depth, **—** = not the main lever.
+
+| Pillar ↓ / §4 → | 4.1 Injection | 4.2 Exfil | 4.3 Shell | 4.4 Secrets | 4.5 Diffs | 4.6 Supply chain | 4.7 CI abuse | 4.8 Provider |
+|-----------------|---------------|-----------|-----------|---------------|-----------|------------------|--------------|----------------|
+| **Policy profiles** (`workspacePolicy`, tool gates) | P | S | P | S | S | S | P | S |
+| **Sandboxing & isolation** (worktrees, spawn policy) | S | P | P | — | S | S | — | S |
+| **Egress allowlists** | S | P | S | — | — | P | S | — |
+| **Audit logs & attest** | S | S | S | P | S | S | P | S |
+| **Redaction & exports** | — | S | — | P | — | — | S | S |
+| **Marketplace provenance** | S | — | — | — | S | P | — | S |
+| **HITL inbox & traces** | P | S | S | S | P | S | S | S |
+
 ---
 
 ## 6. Residual risks (accepted until owned)
@@ -181,17 +195,29 @@
 
 ---
 
-## 7. Suggested follow-up issues (file when unowned)
+## 7. Suggested follow-up issues (file when unowned) — P0 / P1 backlog (#379)
 
-Track as separate tickets rather than blocking this document:
+Open discrete GitHub issues for anything below that does not already have an owner; do not treat this list as done until tickets exist or the risk is explicitly accepted.
 
-1. **Automated egress policy tests** tied to coding-agent runs (integration).  
-2. **Trace redaction profiles** per compliance regime (e.g. HIPAA-friendly defaults).  
-3. **CLI / CI gate**: fail build if conformance `--json` reports `certified: false` for claimed providers.  
-4. **Provider binary attestation** (checksum or package-manager integration) for production-ready marks.
+| Suggested issue title | Priority | Notes |
+|------------------------|----------|--------|
+| Automated egress policy tests on real coding-agent runs | **P1** | Integration coverage for default-deny + allowlist drift. |
+| Trace / export **redaction profiles** (regime-specific defaults) | **P1** | HIPAA-style defaults; tie to observability pipelines. |
+| CI gate: fail when `coding-agent conformance --json` is not certified for claimed providers | **P1** | Bridges [#374](https://github.com/AgentsKit-io/agentskit-os/issues/374) to release policy. |
+| Provider **binary attestation** or install-path integrity checks | **P0** | Reduces trojaned-CLI risk in §4.8; pair with install docs. |
+| **Stolen CI / PAT** abuse playbooks and least-privilege templates | **P1** | Org-level; product can ship reference policies. |
+| **Prompt firewall** regression suite for issue→PR and webhook-sourced prompts | **P0** | When prompt firewall ships beyond static deny lists. |
 
 ---
 
-## 8. Review gate
+## 8. Review gate & production-readiness sign-off (#379)
 
-This threat model should be **reviewed with any security stakeholder** before marketing external coding-agent integrations as **production-ready**. Updates are expected when new providers, triggers, or policy engines land.
+Before external coding-agent integrations are marketed or labeled **production-ready**, complete the following with a named reviewer (security, platform, or delegated engineering lead):
+
+- [ ] Assets and trust boundaries in §1–§2 are still accurate for the shipping provider set.  
+- [ ] Each §4 attack path has an **owned** mitigation in code or ops runbooks (or an accepted residual in §6).  
+- [ ] The matrix in §5.1 has been walked with the team; gaps have **open** issues from §7 or written waivers.  
+- [ ] HITL ([#337](https://github.com/AgentsKit-io/agentskit-os/issues/337)) and policy ([#336](https://github.com/AgentsKit-io/agentskit-os/issues/336)) are wired for any tool or run mode exposed to untrusted prompt sources.  
+- [ ] Marketplace / plugin provenance ([#342](https://github.com/AgentsKit-io/agentskit-os/issues/342)) is understood for any third-party prompt or tool surface in scope.
+
+Updates to this document are expected when new providers, triggers, policy engines, or data-processing terms land.

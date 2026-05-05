@@ -6,67 +6,8 @@
   "maxHookLines": 180,
   "totals": {
     "filesScanned": 229,
-    "issues": 8,
-    "byKind": {
-      "oversized-ui-unit": 8
-    }
+    "issues": 0,
+    "byKind": {}
   },
-  "issues": [
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/dashboards/dashboard-grid.tsx:d12b763ced27d6a7",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/dashboards/dashboard-grid.tsx",
-      "line": 141,
-      "detail": "DashboardGrid is 178 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/keyboard/shortcuts-panel.tsx:6b96bdd98668f761",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/keyboard/shortcuts-panel.tsx",
-      "line": 34,
-      "detail": "ShortcutsPanel is 319 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/notifications/preferences/preferences-panel.tsx:2d7df66e26bb78a6",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/notifications/preferences/preferences-panel.tsx",
-      "line": 217,
-      "detail": "NotificationPreferencesPanel is 155 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/preferences/preferences-panel.tsx:a9a64be81750496f",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/preferences/preferences-panel.tsx",
-      "line": 96,
-      "detail": "PreferencesPanel is 176 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/search/search-overlay.tsx:e105628c2793c830",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/search/search-overlay.tsx",
-      "line": 146,
-      "detail": "SearchOverlay is 166 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/status-line/status-line-config-panel.tsx:df086ab7a6a57986",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/status-line/status-line-config-panel.tsx",
-      "line": 105,
-      "detail": "StatusLineConfigPanel is 141 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/theme-editor/theme-editor-panel.tsx:d1e93dfa2ece94b0",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/theme-editor/theme-editor-panel.tsx",
-      "line": 242,
-      "detail": "ThemeEditorPanel is 219 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/workspaces/workspace-switcher.tsx:041aed7484254b77",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/workspaces/workspace-switcher.tsx",
-      "line": 106,
-      "detail": "WorkspaceSwitcher is 142 lines; keep components under 140 lines or split logic into hooks/primitives."
-    }
-  ]
+  "issues": []
 }

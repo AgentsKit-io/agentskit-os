@@ -195,7 +195,7 @@ export function EvalsScreen() {
                   : 'border-[var(--ag-line)] text-[var(--ag-ink-muted)] hover:border-[var(--ag-accent)]/50 hover:text-[var(--ag-ink)]',
               ].join(' ')}
             >
-              {item === 'all' ? 'All' : STATUS_LABEL[item]}
+              {item === 'all' ? 'All' : statusLabelByStatus[item]}
             </button>
           ))}
         </div>

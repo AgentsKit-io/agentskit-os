@@ -15,6 +15,7 @@ import {
 } from 'react'
 import { useWorkspaces } from './workspaces-provider'
 import { WorkspaceStatusBadge } from './workspace-status-badge'
+import type { WorkspaceStatus } from './types'
 import { useCommandPalette } from '../command-palette/command-palette-provider'
 import type { Command } from '../command-palette/commands'
 import { IconSvg } from '../components/icon-svg'
@@ -34,7 +35,7 @@ type WorkspaceSwitcherTriggerProps = {
   readonly isOpen: boolean
   readonly dropdownId: string
   readonly currentName: string
-  readonly currentStatus: string | undefined
+  readonly currentStatus: WorkspaceStatus | undefined
   readonly onToggle: () => void
 }
 
@@ -69,7 +70,7 @@ type WorkspaceSwitcherDropdownProps = {
   readonly onQueryChange: (value: string) => void
   readonly searchRef: React.RefObject<HTMLInputElement | null>
   readonly currentId: string | undefined
-  readonly items: ReadonlyArray<{ id: string; name: string; status: string }>
+  readonly items: ReadonlyArray<{ id: string; name: string; status: WorkspaceStatus }>
   readonly onSelect: (id: string) => void
 }
 

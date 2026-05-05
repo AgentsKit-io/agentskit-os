@@ -244,8 +244,8 @@ function ThemeEditorBackdrop({ onClose }: { readonly onClose: () => void }) {
 }
 
 type ThemeEditorHeaderProps = {
-  readonly baseTheme: string
-  readonly setBaseTheme: (t: string) => void
+  readonly baseTheme: BaseTheme
+  readonly setBaseTheme: (t: BaseTheme) => void
   readonly importRef: React.RefObject<HTMLInputElement | null>
   readonly onImportChange: (e: ChangeEvent<HTMLInputElement>) => void
   readonly onClose: () => void

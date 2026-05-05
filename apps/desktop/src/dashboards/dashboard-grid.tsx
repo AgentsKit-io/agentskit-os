@@ -141,7 +141,7 @@ function GridTile({
 function useDashboardGridLayout(args: {
   dashboard: Dashboard
   onLayoutChange: (widgets: Widget[]) => void
-  onRemoveWidget?: (widgetId: WidgetId) => void
+  onRemoveWidget: ((widgetId: WidgetId) => void) | undefined
 }) {
   const { dashboard, onLayoutChange, onRemoveWidget } = args
   const { widgets, gridCols, gridRowHeight } = dashboard

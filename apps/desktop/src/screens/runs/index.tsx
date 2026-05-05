@@ -156,7 +156,7 @@ export function RunsScreen() {
           active={filter}
           onChange={setFilter}
           ariaLabel="Filter runs by status"
-          labelFor={(item) => (item === 'all' ? 'All' : STATUS_LABEL[item])}
+          labelFor={(item) => (item === 'all' ? 'All' : statusLabelByStatus[item])}
         />
 
         {filteredRuns.length === 0 ? (

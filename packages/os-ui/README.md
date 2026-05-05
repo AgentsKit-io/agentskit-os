@@ -2,7 +2,7 @@
 
 > **Distribution tier:** `public` · **Stability:** `alpha`
 
-shadcn-based React primitives and the dark cyan token system shared by `apps/desktop` and any embedder.
+shadcn-based React primitives and the Apple-inspired operational token system shared by `apps/desktop` and any embedder.
 
 ## Install
 

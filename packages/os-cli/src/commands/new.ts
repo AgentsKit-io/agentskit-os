@@ -41,18 +41,22 @@ const slugify = (input: string): string => {
 }
 
 type Args = {
-  templateId?: string
-  dir?: string
+  templateId: string | undefined
+  dir: string | undefined
   list: boolean
-  id?: string
-  name?: string
+  id: string | undefined
+  name: string | undefined
   force: boolean
 }
 
 const formatTemplateRow = (t: Template): string =>
   `  ${t.id.padEnd(28)} [${t.category.padEnd(11)}] ${t.difficulty.padEnd(13)} ${t.description}`
 
-const buildConfig = (template: Template, idOverride?: string, nameOverride?: string): ConfigRoot => {
+const buildConfig = (
+  template: Template,
+  idOverride: string | undefined,
+  nameOverride: string | undefined,
+): ConfigRoot => {
   let id = template.id
   if (idOverride !== undefined) id = idOverride
   let name = template.name
@@ -149,10 +153,10 @@ const executeNew = async (args: Args, io: CliIo): Promise<CliExit> => {
 }
 
 type NewCliOpts = {
-  list?: boolean
-  id?: string
-  name?: string
-  force?: boolean
+  list: boolean | undefined
+  id: string | undefined
+  name: string | undefined
+  force: boolean | undefined
 }
 
 const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExit } } => {
@@ -173,10 +177,10 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
       const args: Args = {
         list: opts.list === true,
         force: opts.force === true,
-        ...(templateId !== undefined ? { templateId } : {}),
-        ...(dir !== undefined ? { dir } : {}),
-        ...(opts.id !== undefined ? { id: opts.id } : {}),
-        ...(opts.name !== undefined ? { name: opts.name } : {}),
+        templateId,
+        dir,
+        id: opts.id,
+        name: opts.name,
       }
       result.current = await executeNew(args, io)
     })

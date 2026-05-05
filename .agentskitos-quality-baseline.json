@@ -5,11 +5,11 @@
   "duplicateWindow": 8,
   "totals": {
     "filesScanned": 465,
-    "issues": 173,
+    "issues": 172,
     "byKind": {
       "cyclomatic-complexity": 18,
       "duplicate-block": 88,
-      "nested-ternary": 67
+      "nested-ternary": 66
     }
   },
   "issues": [
@@ -844,13 +844,6 @@
       "kind": "nested-ternary",
       "file": "packages/os-cli/src/commands/doctor.ts",
       "line": 212,
-      "detail": "Nested ternary detected; use a named helper or explicit branch."
-    },
-    {
-      "id": "nested-ternary:packages/os-cli/src/commands/new.ts:1306d28cac2486db",
-      "kind": "nested-ternary",
-      "file": "packages/os-cli/src/commands/new.ts",
-      "line": 55,
       "detail": "Nested ternary detected; use a named helper or explicit branch."
     },
     {

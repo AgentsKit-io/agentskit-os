@@ -320,6 +320,8 @@ describe('coding-agent benchmark', () => {
           'codex',
           '--prompt',
           'noop',
+          '--timeout-ms',
+          '100',
           '--persist',
           outPath,
         ],

@@ -32,6 +32,7 @@ type BenchmarkOpts = {
   kind: string
   apply: boolean
   isolateWorktrees: boolean
+  timeoutMs: string
   json?: boolean
   persist?: string
 }
@@ -69,6 +70,7 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       'create a detached worktree per provider under the system temp dir',
       false,
     )
+    .option('--timeout-ms <ms>', 'per-provider task timeout in milliseconds', '120000')
     .option('--json', 'print CodingBenchmarkReport as JSON', false)
     .option('--persist <path>', 'write JSON report to file (same payload as --json)', undefined)
     .action(async (opts: BenchmarkOpts) => {
@@ -87,6 +89,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       }
 
       const dryRun = opts.apply !== true
+      const timeoutMs = Number.parseInt(opts.timeoutMs, 10)
+      if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) {
+        program.error(`invalid --timeout-ms "${opts.timeoutMs}"`, { exitCode: 2 })
+        return
+      }
       const providers = narrowed.map((id) => createBuiltinCodingAgentProvider(id))
       const report = await runCodingAgentBenchmark({
         repoRoot: resolve(opts.repoRoot),
@@ -95,6 +102,7 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         prompt: opts.prompt,
         dryRun,
         isolateWorktrees: opts.isolateWorktrees === true,
+        timeoutMs,
       })
 
       const jsonOut = `${JSON.stringify(report, null, 2)}\n`

@@ -80,13 +80,31 @@ jobs:
       - run: pnpm --filter @agentskit/desktop build:web
 
   adr:
-    name: ADR enforcement
+    name: ADR + RFC enforcement
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - run: node scripts/check-no-agentskit-deps.mjs
       - run: node scripts/check-zod-is-peer.mjs
       - run: node scripts/check-distribution.mjs
+      - run: pnpm --filter "./packages/*" build
+      - run: node scripts/check-public-api.mjs
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:typecheck

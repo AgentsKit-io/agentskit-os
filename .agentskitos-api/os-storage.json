@@ -1,52 +1,79 @@
 {
-  "exports": {
-    "FileCheckpointStore": {
-      "kind": "reexport"
+  "entries": {
+    "fs-utils.d.ts": {
+      "FileSystem": {
+        "kind": "interface"
+      },
+      "nodeFs": {
+        "kind": "const"
+      },
+      "safeRunId": {
+        "kind": "const"
+      },
+      "type FileSystem": {
+        "kind": "reexport"
+      }
     },
-    "FileCheckpointStoreOptions": {
-      "kind": "reexport"
+    "index.d.ts": {
+      "FileCheckpointStore": {
+        "kind": "reexport"
+      },
+      "FileCheckpointStoreOptions": {
+        "kind": "reexport"
+      },
+      "FileRegistryStore": {
+        "kind": "class"
+      },
+      "FileRegistryStoreOptions": {
+        "kind": "type"
+      },
+      "FileSystem": {
+        "kind": "reexport"
+      },
+      "LockfileStore": {
+        "kind": "reexport"
+      },
+      "LockfileStoreOptions": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "SqliteCheckpointStore": {
+        "kind": "reexport"
+      },
+      "SqliteCheckpointStoreOptions": {
+        "kind": "reexport"
+      },
+      "SqliteDatabase": {
+        "kind": "reexport"
+      },
+      "SqliteStatement": {
+        "kind": "reexport"
+      },
+      "nodeFs": {
+        "kind": "reexport"
+      },
+      "safeRunId": {
+        "kind": "reexport"
+      },
+      "type FileRegistryStoreOptions": {
+        "kind": "reexport"
+      }
     },
-    "FileRegistryStore": {
-      "kind": "class"
-    },
-    "FileRegistryStoreOptions": {
-      "kind": "type"
-    },
-    "FileSystem": {
-      "kind": "reexport"
-    },
-    "LockfileStore": {
-      "kind": "reexport"
-    },
-    "LockfileStoreOptions": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "SqliteCheckpointStore": {
-      "kind": "reexport"
-    },
-    "SqliteCheckpointStoreOptions": {
-      "kind": "reexport"
-    },
-    "SqliteDatabase": {
-      "kind": "reexport"
-    },
-    "SqliteStatement": {
-      "kind": "reexport"
-    },
-    "nodeFs": {
-      "kind": "reexport"
-    },
-    "safeRunId": {
-      "kind": "reexport"
-    },
-    "type FileRegistryStoreOptions": {
-      "kind": "reexport"
+    "lockfile-store.d.ts": {
+      "LockfileStore": {
+        "kind": "class"
+      },
+      "LockfileStoreOptions": {
+        "kind": "type"
+      },
+      "type LockfileStoreOptions": {
+        "kind": "reexport"
+      }
     }
   }
 }

@@ -1,58 +1,129 @@
 {
-  "exports": {
-    "AgentskitChatAdapter": {
-      "kind": "reexport"
+  "entries": {
+    "index.d.ts": {
+      "AgentskitChatAdapter": {
+        "kind": "reexport"
+      },
+      "AgentskitChatRequest": {
+        "kind": "reexport"
+      },
+      "AgentskitChatResponse": {
+        "kind": "reexport"
+      },
+      "AgentskitLlmAdapterOptions": {
+        "kind": "reexport"
+      },
+      "AgentskitMemoryAdapterOptions": {
+        "kind": "reexport"
+      },
+      "AgentskitMemoryStore": {
+        "kind": "reexport"
+      },
+      "AgentskitMessage": {
+        "kind": "reexport"
+      },
+      "AgentskitRegistryOptions": {
+        "kind": "reexport"
+      },
+      "AgentskitTool": {
+        "kind": "reexport"
+      },
+      "AgentskitToolExecutorOptions": {
+        "kind": "reexport"
+      },
+      "AgentskitToolReturn": {
+        "kind": "reexport"
+      },
+      "AgentskitUsage": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "createAgentskitLlmAdapter": {
+        "kind": "reexport"
+      },
+      "createAgentskitMemoryAdapter": {
+        "kind": "reexport"
+      },
+      "createAgentskitRegistry": {
+        "kind": "reexport"
+      },
+      "createAgentskitToolExecutor": {
+        "kind": "reexport"
+      }
     },
-    "AgentskitChatRequest": {
-      "kind": "reexport"
+    "llm-adapter.d.ts": {
+      "AgentskitChatAdapter": {
+        "kind": "interface"
+      },
+      "AgentskitChatRequest": {
+        "kind": "type"
+      },
+      "AgentskitChatResponse": {
+        "kind": "type"
+      },
+      "AgentskitLlmAdapterOptions": {
+        "kind": "type"
+      },
+      "AgentskitMessage": {
+        "kind": "type"
+      },
+      "AgentskitUsage": {
+        "kind": "type"
+      },
+      "createAgentskitLlmAdapter": {
+        "kind": "const"
+      },
+      "type AgentskitChatAdapter": {
+        "kind": "reexport"
+      },
+      "type AgentskitChatRequest": {
+        "kind": "reexport"
+      },
+      "type AgentskitChatResponse": {
+        "kind": "reexport"
+      },
+      "type AgentskitLlmAdapterOptions": {
+        "kind": "reexport"
+      },
+      "type AgentskitMessage": {
+        "kind": "reexport"
+      },
+      "type AgentskitUsage": {
+        "kind": "reexport"
+      }
     },
-    "AgentskitChatResponse": {
-      "kind": "reexport"
+    "memory-adapter.d.ts": {
+      "AgentskitMemoryAdapterOptions": {
+        "kind": "type"
+      },
+      "AgentskitMemoryStore": {
+        "kind": "interface"
+      },
+      "createAgentskitMemoryAdapter": {
+        "kind": "const"
+      },
+      "type AgentskitMemoryAdapterOptions": {
+        "kind": "reexport"
+      },
+      "type AgentskitMemoryStore": {
+        "kind": "reexport"
+      }
     },
-    "AgentskitLlmAdapterOptions": {
-      "kind": "reexport"
-    },
-    "AgentskitMemoryAdapterOptions": {
-      "kind": "reexport"
-    },
-    "AgentskitMemoryStore": {
-      "kind": "reexport"
-    },
-    "AgentskitMessage": {
-      "kind": "reexport"
-    },
-    "AgentskitRegistryOptions": {
-      "kind": "reexport"
-    },
-    "AgentskitTool": {
-      "kind": "reexport"
-    },
-    "AgentskitToolExecutorOptions": {
-      "kind": "reexport"
-    },
-    "AgentskitToolReturn": {
-      "kind": "reexport"
-    },
-    "AgentskitUsage": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "createAgentskitLlmAdapter": {
-      "kind": "reexport"
-    },
-    "createAgentskitMemoryAdapter": {
-      "kind": "reexport"
-    },
-    "createAgentskitRegistry": {
-      "kind": "reexport"
-    },
-    "createAgentskitToolExecutor": {
-      "kind": "reexport"
+    "registry.d.ts": {
+      "AgentskitRegistryOptions": {
+        "kind": "type"
+      },
+      "createAgentskitRegistry": {
+        "kind": "const"
+      },
+      "type AgentskitRegistryOptions": {
+        "kind": "reexport"
+      }
     }
   }
 }

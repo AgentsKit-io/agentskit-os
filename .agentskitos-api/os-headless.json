@@ -1,31 +1,98 @@
 {
-  "exports": {
-    "HeadlessRunner": {
-      "kind": "reexport"
+  "entries": {
+    "index.d.ts": {
+      "HeadlessRunner": {
+        "kind": "reexport"
+      },
+      "HeadlessRunnerOptions": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "WebhookSecretResolver": {
+        "kind": "type"
+      },
+      "WebhookServer": {
+        "kind": "type"
+      },
+      "WebhookServerOptions": {
+        "kind": "type"
+      },
+      "WorkspaceRunRequest": {
+        "kind": "reexport"
+      },
+      "WorkspaceRunResult": {
+        "kind": "reexport"
+      },
+      "createHeadlessRunner": {
+        "kind": "reexport"
+      },
+      "createWebhookServer": {
+        "kind": "const"
+      },
+      "runFlowHeadless": {
+        "kind": "reexport"
+      },
+      "runWorkspace": {
+        "kind": "reexport"
+      },
+      "signOutboundWebhook": {
+        "kind": "const"
+      },
+      "type WebhookSecretResolver": {
+        "kind": "reexport"
+      },
+      "type WebhookServer": {
+        "kind": "reexport"
+      },
+      "type WebhookServerOptions": {
+        "kind": "reexport"
+      }
     },
-    "HeadlessRunnerOptions": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "WorkspaceRunRequest": {
-      "kind": "reexport"
-    },
-    "WorkspaceRunResult": {
-      "kind": "reexport"
-    },
-    "createHeadlessRunner": {
-      "kind": "reexport"
-    },
-    "runFlowHeadless": {
-      "kind": "reexport"
-    },
-    "runWorkspace": {
-      "kind": "reexport"
+    "runner.d.ts": {
+      "FlowRunOpts": {
+        "kind": "type"
+      },
+      "HeadlessRunner": {
+        "kind": "type"
+      },
+      "HeadlessRunnerOptions": {
+        "kind": "type"
+      },
+      "WorkspaceRunRequest": {
+        "kind": "type"
+      },
+      "WorkspaceRunResult": {
+        "kind": "type"
+      },
+      "createHeadlessRunner": {
+        "kind": "const"
+      },
+      "runFlowHeadless": {
+        "kind": "const"
+      },
+      "runWorkspace": {
+        "kind": "const"
+      },
+      "type FlowRunOpts": {
+        "kind": "reexport"
+      },
+      "type HeadlessRunner": {
+        "kind": "reexport"
+      },
+      "type HeadlessRunnerOptions": {
+        "kind": "reexport"
+      },
+      "type WorkspaceRunRequest": {
+        "kind": "reexport"
+      },
+      "type WorkspaceRunResult": {
+        "kind": "reexport"
+      }
     }
   }
 }

@@ -1,34 +1,150 @@
 {
-  "exports": {
-    "DevOrchestratorWorktreeManager": {
-      "kind": "type"
-    },
-    "GitRunResult": {
-      "kind": "type"
-    },
-    "GitRunner": {
-      "kind": "type"
-    },
-    "WorktreeAddInput": {
-      "kind": "type"
-    },
-    "createDevOrchestratorWorktreeManager": {
-      "kind": "const"
-    },
-    "defaultGitRunner": {
-      "kind": "const"
-    },
-    "type DevOrchestratorWorktreeManager": {
-      "kind": "reexport"
-    },
-    "type GitRunResult": {
-      "kind": "reexport"
-    },
-    "type GitRunner": {
-      "kind": "reexport"
-    },
-    "type WorktreeAddInput": {
-      "kind": "reexport"
+  "entries": {
+    "index.d.ts": {
+      "CodingAgentWorktreeCreateInput": {
+        "kind": "type"
+      },
+      "CodingAgentWorktreeManager": {
+        "kind": "type"
+      },
+      "CodingBenchmarkReport": {
+        "kind": "type"
+      },
+      "CodingBenchmarkRow": {
+        "kind": "type"
+      },
+      "DelegationReport": {
+        "kind": "type"
+      },
+      "DelegationSubTaskRow": {
+        "kind": "type"
+      },
+      "DelegationSubTaskSpec": {
+        "kind": "type"
+      },
+      "DelegationTraceNode": {
+        "kind": "type"
+      },
+      "DevOrchestratorWorktreeManager": {
+        "kind": "type"
+      },
+      "FileConflict": {
+        "kind": "type"
+      },
+      "GitDiffFile": {
+        "kind": "type"
+      },
+      "GitDiffHunk": {
+        "kind": "type"
+      },
+      "GitDiffResult": {
+        "kind": "type"
+      },
+      "GitRunResult": {
+        "kind": "type"
+      },
+      "GitRunner": {
+        "kind": "type"
+      },
+      "IssueToPrDryRunReport": {
+        "kind": "type"
+      },
+      "IssueToPrPipelineEvent": {
+        "kind": "type"
+      },
+      "WorktreeAddInput": {
+        "kind": "type"
+      },
+      "WorktreeCleanupOutcome": {
+        "kind": "type"
+      },
+      "WorktreeTaskMeta": {
+        "kind": "type"
+      },
+      "computeCompletenessScore": {
+        "kind": "const"
+      },
+      "computeGitDiff": {
+        "kind": "const"
+      },
+      "createCodingAgentWorktreeManager": {
+        "kind": "const"
+      },
+      "createDevOrchestratorWorktreeManager": {
+        "kind": "const"
+      },
+      "defaultGitRunner": {
+        "kind": "const"
+      },
+      "runCodingAgentBenchmark": {
+        "kind": "const"
+      },
+      "runDelegatedCodingTask": {
+        "kind": "const"
+      },
+      "simulateIssueToPrDryRun": {
+        "kind": "const"
+      },
+      "type CodingAgentWorktreeCreateInput": {
+        "kind": "reexport"
+      },
+      "type CodingAgentWorktreeManager": {
+        "kind": "reexport"
+      },
+      "type CodingBenchmarkReport": {
+        "kind": "reexport"
+      },
+      "type CodingBenchmarkRow": {
+        "kind": "reexport"
+      },
+      "type DelegationReport": {
+        "kind": "reexport"
+      },
+      "type DelegationSubTaskRow": {
+        "kind": "reexport"
+      },
+      "type DelegationSubTaskSpec": {
+        "kind": "reexport"
+      },
+      "type DelegationTraceNode": {
+        "kind": "reexport"
+      },
+      "type DevOrchestratorWorktreeManager": {
+        "kind": "reexport"
+      },
+      "type FileConflict": {
+        "kind": "reexport"
+      },
+      "type GitDiffFile": {
+        "kind": "reexport"
+      },
+      "type GitDiffHunk": {
+        "kind": "reexport"
+      },
+      "type GitDiffResult": {
+        "kind": "reexport"
+      },
+      "type GitRunResult": {
+        "kind": "reexport"
+      },
+      "type GitRunner": {
+        "kind": "reexport"
+      },
+      "type IssueToPrDryRunReport": {
+        "kind": "reexport"
+      },
+      "type IssueToPrPipelineEvent": {
+        "kind": "reexport"
+      },
+      "type WorktreeAddInput": {
+        "kind": "reexport"
+      },
+      "type WorktreeCleanupOutcome": {
+        "kind": "reexport"
+      },
+      "type WorktreeTaskMeta": {
+        "kind": "reexport"
+      }
     }
   }
 }

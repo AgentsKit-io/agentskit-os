@@ -159,6 +159,9 @@ const detectOversizedUnits = (path, raw, issues) => {
 const HARD_CODED_COLOR_CLASS =
   /\b(?:bg|text|border|from|to|via|ring)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/
 
+const ARBITRARY_COLOR_CLASS =
+  /\b(?:bg|text|border|from|to|via|ring)-\[(?:#[0-9a-fA-F]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))\]/
+
 const FORMAT_HELPER = /\b(?:function|const)\s+(format(?:Date|Time|Duration|Currency|Cost|Tokens|Bytes|Number)\w*)\b/
 
 const detectPatternDebt = (path, raw, issues) => {
@@ -199,6 +202,16 @@ const detectPatternDebt = (path, raw, issues) => {
         line: lineNo,
         stableKey: line.trim(),
         detail: 'Use semantic visual tokens or shared variants instead of hardcoded color utility classes in feature screens.',
+      })
+    }
+
+    if (isVisualComponent && ARBITRARY_COLOR_CLASS.test(line)) {
+      addIssue(issues, {
+        kind: 'arbitrary-color-class',
+        file,
+        line: lineNo,
+        stableKey: line.trim(),
+        detail: 'Arbitrary Tailwind color values (bg-[#...], text-[rgb(...)]) bypass the token system; use semantic tokens instead.',
       })
     }
 

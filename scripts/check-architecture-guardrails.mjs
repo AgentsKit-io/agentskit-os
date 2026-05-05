@@ -79,7 +79,8 @@ const sourceFiles = SOURCE_ROOTS.flatMap((root) => walk(join(ROOT, root)))
   })
   .sort()
 
-const readSource = (path) => readFileSync(path, 'utf8').replace(/\r\n/g, '\n')
+const readSource = (path) =>
+  stripBlockComments(readFileSync(path, 'utf8').replace(/\r\n/g, '\n'))
 
 const stripLineComment = (line) => {
   let quote = null
@@ -106,6 +107,31 @@ const stripStrings = (line) => {
       continue
     }
     out += quote ? 'x' : char
+  }
+  return out
+}
+
+const stripBlockComments = (raw) => {
+  let out = ''
+  let i = 0
+  let inBlock = false
+  while (i < raw.length) {
+    if (!inBlock && raw[i] === '/' && raw[i + 1] === '*') {
+      inBlock = true
+      i += 2
+      continue
+    }
+    if (inBlock && raw[i] === '*' && raw[i + 1] === '/') {
+      inBlock = false
+      i += 2
+      continue
+    }
+    if (inBlock) {
+      out += raw[i] === '\n' ? '\n' : ' '
+    } else {
+      out += raw[i]
+    }
+    i += 1
   }
   return out
 }
@@ -158,7 +184,7 @@ const detectPatternDebt = (path, raw, issues) => {
       })
     }
 
-    if (!test && /\bas\s+any\b|:\s*any\b/.test(code)) {
+    if (!test && /\bas\s+any\b|:\s*any\b|<\s*any\s*[,>]|\bany\[\]/.test(code)) {
       addIssue(issues, {
         kind: 'explicit-any',
         file,

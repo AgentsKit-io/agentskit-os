@@ -1,85 +1,199 @@
 {
-  "exports": {
-    "AdapterRegistry": {
-      "kind": "reexport"
+  "entries": {
+    "adapters.d.ts": {
+      "AdapterRegistry": {
+        "kind": "type"
+      },
+      "HumanReviewer": {
+        "kind": "interface"
+      },
+      "LlmAdapter": {
+        "kind": "interface"
+      },
+      "LlmCall": {
+        "kind": "type"
+      },
+      "LlmResult": {
+        "kind": "type"
+      },
+      "MemoryAdapter": {
+        "kind": "interface"
+      },
+      "ToolCall": {
+        "kind": "type"
+      },
+      "ToolExecutor": {
+        "kind": "interface"
+      },
+      "ToolResult": {
+        "kind": "type"
+      }
     },
-    "AgentLookup": {
-      "kind": "reexport"
+    "cost-tracker.d.ts": {
+      "CostEntry": {
+        "kind": "type"
+      },
+      "CostTracker": {
+        "kind": "class"
+      },
+      "MeterAdapterOptions": {
+        "kind": "type"
+      },
+      "RunCost": {
+        "kind": "type"
+      },
+      "computeCost": {
+        "kind": "reexport"
+      },
+      "meteredLlmAdapter": {
+        "kind": "const"
+      },
+      "summarizeRun": {
+        "kind": "const"
+      },
+      "type CostEntry": {
+        "kind": "reexport"
+      },
+      "type MeterAdapterOptions": {
+        "kind": "reexport"
+      },
+      "type RunCost": {
+        "kind": "reexport"
+      }
     },
-    "ConditionEvaluator": {
-      "kind": "reexport"
+    "handlers/agent.d.ts": {
+      "AgentLookup": {
+        "kind": "type"
+      },
+      "createAgentHandler": {
+        "kind": "const"
+      },
+      "type AgentLookup": {
+        "kind": "reexport"
+      }
     },
-    "CostEntry": {
-      "kind": "reexport"
+    "handlers/condition.d.ts": {
+      "ConditionEvaluator": {
+        "kind": "type"
+      },
+      "createConditionHandler": {
+        "kind": "const"
+      },
+      "safeBooleanEval": {
+        "kind": "const"
+      },
+      "type ConditionEvaluator": {
+        "kind": "reexport"
+      }
     },
-    "CostTracker": {
-      "kind": "reexport"
+    "handlers/human.d.ts": {
+      "createHumanHandler": {
+        "kind": "const"
+      }
     },
-    "HumanReviewer": {
-      "kind": "reexport"
+    "handlers/parallel.d.ts": {
+      "createParallelHandler": {
+        "kind": "const"
+      }
     },
-    "LiveHandlerOptions": {
-      "kind": "reexport"
+    "handlers/tool.d.ts": {
+      "createToolHandler": {
+        "kind": "const"
+      }
     },
-    "LlmAdapter": {
-      "kind": "reexport"
+    "index.d.ts": {
+      "AdapterRegistry": {
+        "kind": "reexport"
+      },
+      "AgentLookup": {
+        "kind": "reexport"
+      },
+      "ConditionEvaluator": {
+        "kind": "reexport"
+      },
+      "CostEntry": {
+        "kind": "reexport"
+      },
+      "CostTracker": {
+        "kind": "reexport"
+      },
+      "HumanReviewer": {
+        "kind": "reexport"
+      },
+      "LiveHandlerOptions": {
+        "kind": "reexport"
+      },
+      "LlmAdapter": {
+        "kind": "reexport"
+      },
+      "LlmCall": {
+        "kind": "reexport"
+      },
+      "LlmResult": {
+        "kind": "reexport"
+      },
+      "MemoryAdapter": {
+        "kind": "reexport"
+      },
+      "MeterAdapterOptions": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "RunCost": {
+        "kind": "reexport"
+      },
+      "ToolCall": {
+        "kind": "reexport"
+      },
+      "ToolExecutor": {
+        "kind": "reexport"
+      },
+      "ToolResult": {
+        "kind": "reexport"
+      },
+      "buildLiveHandlers": {
+        "kind": "reexport"
+      },
+      "createAgentHandler": {
+        "kind": "reexport"
+      },
+      "createConditionHandler": {
+        "kind": "reexport"
+      },
+      "createHumanHandler": {
+        "kind": "reexport"
+      },
+      "createParallelHandler": {
+        "kind": "reexport"
+      },
+      "createToolHandler": {
+        "kind": "reexport"
+      },
+      "meteredLlmAdapter": {
+        "kind": "reexport"
+      },
+      "safeBooleanEval": {
+        "kind": "reexport"
+      },
+      "summarizeRun": {
+        "kind": "reexport"
+      }
     },
-    "LlmCall": {
-      "kind": "reexport"
-    },
-    "LlmResult": {
-      "kind": "reexport"
-    },
-    "MemoryAdapter": {
-      "kind": "reexport"
-    },
-    "MeterAdapterOptions": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "RunCost": {
-      "kind": "reexport"
-    },
-    "ToolCall": {
-      "kind": "reexport"
-    },
-    "ToolExecutor": {
-      "kind": "reexport"
-    },
-    "ToolResult": {
-      "kind": "reexport"
-    },
-    "buildLiveHandlers": {
-      "kind": "reexport"
-    },
-    "createAgentHandler": {
-      "kind": "reexport"
-    },
-    "createConditionHandler": {
-      "kind": "reexport"
-    },
-    "createHumanHandler": {
-      "kind": "reexport"
-    },
-    "createParallelHandler": {
-      "kind": "reexport"
-    },
-    "createToolHandler": {
-      "kind": "reexport"
-    },
-    "meteredLlmAdapter": {
-      "kind": "reexport"
-    },
-    "safeBooleanEval": {
-      "kind": "reexport"
-    },
-    "summarizeRun": {
-      "kind": "reexport"
+    "registry.d.ts": {
+      "LiveHandlerOptions": {
+        "kind": "type"
+      },
+      "buildLiveHandlers": {
+        "kind": "const"
+      },
+      "type LiveHandlerOptions": {
+        "kind": "reexport"
+      }
     }
   }
 }

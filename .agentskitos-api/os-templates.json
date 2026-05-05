@@ -1,73 +1,224 @@
 {
-  "exports": {
-    "BUILTIN_EVAL_PACKS": {
-      "kind": "reexport"
+  "entries": {
+    "eval-packs/agency.d.ts": {
+      "agencyPack": {
+        "kind": "const"
+      }
     },
-    "PACKAGE_NAME": {
-      "kind": "const"
+    "eval-packs/clinical.d.ts": {
+      "clinicalPack": {
+        "kind": "const"
+      }
     },
-    "PACKAGE_VERSION": {
-      "kind": "const"
+    "eval-packs/dev.d.ts": {
+      "devPack": {
+        "kind": "const"
+      }
     },
-    "TEMPLATES": {
-      "kind": "reexport"
+    "eval-packs/index.d.ts": {
+      "BUILTIN_EVAL_PACKS": {
+        "kind": "const"
+      },
+      "agencyPack": {
+        "kind": "reexport"
+      },
+      "clinicalPack": {
+        "kind": "reexport"
+      },
+      "devPack": {
+        "kind": "reexport"
+      },
+      "findPack": {
+        "kind": "const"
+      },
+      "nonTechPack": {
+        "kind": "reexport"
+      }
     },
-    "Template": {
-      "kind": "reexport"
+    "eval-packs/non-tech.d.ts": {
+      "nonTechPack": {
+        "kind": "const"
+      }
     },
-    "TemplateCategory": {
-      "kind": "reexport"
+    "gallery.d.ts": {
+      "TEMPLATES": {
+        "kind": "const"
+      },
+      "builtInTemplates": {
+        "kind": "const"
+      },
+      "templateSpecs": {
+        "kind": "const"
+      }
     },
-    "TemplateMetadata": {
-      "kind": "reexport"
+    "index.d.ts": {
+      "BUILTIN_EVAL_PACKS": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "TEMPLATES": {
+        "kind": "reexport"
+      },
+      "Template": {
+        "kind": "reexport"
+      },
+      "TemplateCategory": {
+        "kind": "reexport"
+      },
+      "TemplateMetadata": {
+        "kind": "reexport"
+      },
+      "TemplateMetadataSchema": {
+        "kind": "reexport"
+      },
+      "agencyPack": {
+        "kind": "reexport"
+      },
+      "allCategories": {
+        "kind": "reexport"
+      },
+      "allTags": {
+        "kind": "reexport"
+      },
+      "builtInTemplates": {
+        "kind": "reexport"
+      },
+      "clinicalConsensusTemplate": {
+        "kind": "reexport"
+      },
+      "clinicalPack": {
+        "kind": "reexport"
+      },
+      "devPack": {
+        "kind": "reexport"
+      },
+      "findPack": {
+        "kind": "reexport"
+      },
+      "findTemplate": {
+        "kind": "reexport"
+      },
+      "listTemplates": {
+        "kind": "reexport"
+      },
+      "marketing3WayTemplate": {
+        "kind": "reexport"
+      },
+      "nonTechPack": {
+        "kind": "reexport"
+      },
+      "prReviewTemplate": {
+        "kind": "reexport"
+      },
+      "researchSummaryTemplate": {
+        "kind": "reexport"
+      },
+      "supportTriageTemplate": {
+        "kind": "reexport"
+      }
     },
-    "TemplateMetadataSchema": {
-      "kind": "reexport"
+    "registry.d.ts": {
+      "TEMPLATES": {
+        "kind": "const"
+      },
+      "allCategories": {
+        "kind": "const"
+      },
+      "allTags": {
+        "kind": "const"
+      },
+      "builtInTemplates": {
+        "kind": "const"
+      },
+      "findTemplate": {
+        "kind": "const"
+      },
+      "listTemplates": {
+        "kind": "const"
+      }
     },
-    "agencyPack": {
-      "kind": "reexport"
+    "templates/marketing-3way.d.ts": {
+      "marketing3WayTemplate": {
+        "kind": "const"
+      }
     },
-    "allCategories": {
-      "kind": "reexport"
+    "templates/pr-review.d.ts": {
+      "prReviewTemplate": {
+        "kind": "const"
+      }
     },
-    "allTags": {
-      "kind": "reexport"
+    "templates/research-summary.d.ts": {
+      "researchSummaryTemplate": {
+        "kind": "const"
+      }
     },
-    "builtInTemplates": {
-      "kind": "reexport"
+    "templates/support-triage.d.ts": {
+      "supportTriageTemplate": {
+        "kind": "const"
+      }
     },
-    "clinicalConsensusTemplate": {
-      "kind": "reexport"
+    "templates/topology-packs.d.ts": {
+      "TOPOLOGY_TEMPLATES": {
+        "kind": "const"
+      },
+      "auctionTemplate": {
+        "kind": "const"
+      },
+      "blackboardTemplate": {
+        "kind": "const"
+      },
+      "compareTemplate": {
+        "kind": "const"
+      },
+      "composeTemplate": {
+        "kind": "const"
+      },
+      "conditionTemplate": {
+        "kind": "const"
+      },
+      "debateTemplate": {
+        "kind": "const"
+      },
+      "linearPipelineTemplate": {
+        "kind": "const"
+      },
+      "parallelTemplate": {
+        "kind": "const"
+      },
+      "replayTraceTemplate": {
+        "kind": "const"
+      },
+      "voteTemplate": {
+        "kind": "const"
+      }
     },
-    "clinicalPack": {
-      "kind": "reexport"
-    },
-    "devPack": {
-      "kind": "reexport"
-    },
-    "findPack": {
-      "kind": "reexport"
-    },
-    "findTemplate": {
-      "kind": "reexport"
-    },
-    "listTemplates": {
-      "kind": "reexport"
-    },
-    "marketing3WayTemplate": {
-      "kind": "reexport"
-    },
-    "nonTechPack": {
-      "kind": "reexport"
-    },
-    "prReviewTemplate": {
-      "kind": "reexport"
-    },
-    "researchSummaryTemplate": {
-      "kind": "reexport"
-    },
-    "supportTriageTemplate": {
-      "kind": "reexport"
+    "types.d.ts": {
+      "Template": {
+        "kind": "type"
+      },
+      "TemplateCategory": {
+        "kind": "type"
+      },
+      "TemplateMetadata": {
+        "kind": "type"
+      },
+      "TemplateMetadataSchema": {
+        "kind": "const"
+      },
+      "type Template": {
+        "kind": "reexport"
+      },
+      "type TemplateCategory": {
+        "kind": "reexport"
+      },
+      "type TemplateMetadata": {
+        "kind": "reexport"
+      }
     }
   }
 }

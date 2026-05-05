@@ -1,58 +1,101 @@
 {
-  "exports": {
-    "ChildHandle": {
-      "kind": "reexport"
+  "entries": {
+    "index.d.ts": {
+      "ChildHandle": {
+        "kind": "reexport"
+      },
+      "CreateFetchGuardOptions": {
+        "kind": "interface"
+      },
+      "EgressDecisionEvent": {
+        "kind": "type"
+      },
+      "EgressEnforcer": {
+        "kind": "interface"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "PolicyEgressEnforcer": {
+        "kind": "class"
+      },
+      "ProcessRuntimeOptions": {
+        "kind": "reexport"
+      },
+      "SandboxRegistry": {
+        "kind": "reexport"
+      },
+      "Spawner": {
+        "kind": "reexport"
+      },
+      "createFetchGuard": {
+        "kind": "const"
+      },
+      "exposeAllowedEnvKeys": {
+        "kind": "reexport"
+      },
+      "nodeSpawner": {
+        "kind": "reexport"
+      },
+      "noneSandbox": {
+        "kind": "reexport"
+      },
+      "processSandbox": {
+        "kind": "reexport"
+      },
+      "type CreateFetchGuardOptions": {
+        "kind": "reexport"
+      },
+      "type EgressDecisionEvent": {
+        "kind": "reexport"
+      },
+      "type EgressEnforcer": {
+        "kind": "reexport"
+      }
     },
-    "CreateFetchGuardOptions": {
-      "kind": "interface"
+    "none-runtime.d.ts": {
+      "noneSandbox": {
+        "kind": "const"
+      }
     },
-    "EgressDecisionEvent": {
-      "kind": "type"
+    "process-runtime.d.ts": {
+      "ProcessRuntimeOptions": {
+        "kind": "type"
+      },
+      "exposeAllowedEnvKeys": {
+        "kind": "const"
+      },
+      "processSandbox": {
+        "kind": "const"
+      },
+      "type ProcessRuntimeOptions": {
+        "kind": "reexport"
+      }
     },
-    "EgressEnforcer": {
-      "kind": "interface"
+    "registry.d.ts": {
+      "SandboxRegistry": {
+        "kind": "class"
+      }
     },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "PolicyEgressEnforcer": {
-      "kind": "class"
-    },
-    "ProcessRuntimeOptions": {
-      "kind": "reexport"
-    },
-    "SandboxRegistry": {
-      "kind": "reexport"
-    },
-    "Spawner": {
-      "kind": "reexport"
-    },
-    "createFetchGuard": {
-      "kind": "const"
-    },
-    "exposeAllowedEnvKeys": {
-      "kind": "reexport"
-    },
-    "nodeSpawner": {
-      "kind": "reexport"
-    },
-    "noneSandbox": {
-      "kind": "reexport"
-    },
-    "processSandbox": {
-      "kind": "reexport"
-    },
-    "type CreateFetchGuardOptions": {
-      "kind": "reexport"
-    },
-    "type EgressDecisionEvent": {
-      "kind": "reexport"
-    },
-    "type EgressEnforcer": {
-      "kind": "reexport"
+    "spawner.d.ts": {
+      "ChildHandle": {
+        "kind": "interface"
+      },
+      "Spawner": {
+        "kind": "interface"
+      },
+      "nodeSpawner": {
+        "kind": "const"
+      },
+      "type ChildHandle": {
+        "kind": "reexport"
+      },
+      "type Spawner": {
+        "kind": "reexport"
+      }
     }
   }
 }

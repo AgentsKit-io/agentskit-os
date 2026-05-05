@@ -1,67 +1,155 @@
 {
-  "exports": {
-    "AssetEntry": {
-      "kind": "reexport"
+  "entries": {
+    "bundle.d.ts": {
+      "AssetEntry": {
+        "kind": "type"
+      },
+      "AssetRecord": {
+        "kind": "type"
+      },
+      "Bundle": {
+        "kind": "type"
+      },
+      "buildBundle": {
+        "kind": "const"
+      },
+      "type AssetEntry": {
+        "kind": "reexport"
+      },
+      "type AssetRecord": {
+        "kind": "reexport"
+      },
+      "type Bundle": {
+        "kind": "reexport"
+      },
+      "verifyAsset": {
+        "kind": "const"
+      },
+      "verifyBundleArchive": {
+        "kind": "const"
+      }
     },
-    "AssetRecord": {
-      "kind": "reexport"
+    "index.d.ts": {
+      "AssetEntry": {
+        "kind": "reexport"
+      },
+      "AssetRecord": {
+        "kind": "reexport"
+      },
+      "BuildOptions": {
+        "kind": "reexport"
+      },
+      "Bundle": {
+        "kind": "reexport"
+      },
+      "InMemoryPublisher": {
+        "kind": "reexport"
+      },
+      "ManifestSigner": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "PublishResult": {
+        "kind": "reexport"
+      },
+      "Publisher": {
+        "kind": "reexport"
+      },
+      "buildBundle": {
+        "kind": "reexport"
+      },
+      "buildManifest": {
+        "kind": "reexport"
+      },
+      "canonicalJson": {
+        "kind": "reexport"
+      },
+      "sha256OfBytes": {
+        "kind": "reexport"
+      },
+      "sha256OfCanonical": {
+        "kind": "reexport"
+      },
+      "sha512OfBytes": {
+        "kind": "reexport"
+      },
+      "sha512OfCanonical": {
+        "kind": "reexport"
+      },
+      "stripSignature": {
+        "kind": "reexport"
+      },
+      "verifyAsset": {
+        "kind": "reexport"
+      },
+      "verifyBundleArchive": {
+        "kind": "reexport"
+      },
+      "verifyIntegrity": {
+        "kind": "reexport"
+      }
     },
-    "BuildOptions": {
-      "kind": "reexport"
+    "integrity.d.ts": {
+      "canonicalJson": {
+        "kind": "const"
+      },
+      "sha256OfBytes": {
+        "kind": "const"
+      },
+      "sha256OfCanonical": {
+        "kind": "const"
+      },
+      "sha512OfBytes": {
+        "kind": "const"
+      },
+      "sha512OfCanonical": {
+        "kind": "const"
+      },
+      "verifyIntegrity": {
+        "kind": "const"
+      }
     },
-    "Bundle": {
-      "kind": "reexport"
+    "manifest-builder.d.ts": {
+      "BuildOptions": {
+        "kind": "type"
+      },
+      "ManifestSigner": {
+        "kind": "type"
+      },
+      "buildManifest": {
+        "kind": "const"
+      },
+      "stripSignature": {
+        "kind": "const"
+      },
+      "type BuildOptions": {
+        "kind": "reexport"
+      },
+      "type ManifestSigner": {
+        "kind": "reexport"
+      }
     },
-    "InMemoryPublisher": {
-      "kind": "reexport"
-    },
-    "ManifestSigner": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "PublishResult": {
-      "kind": "reexport"
-    },
-    "Publisher": {
-      "kind": "reexport"
-    },
-    "buildBundle": {
-      "kind": "reexport"
-    },
-    "buildManifest": {
-      "kind": "reexport"
-    },
-    "canonicalJson": {
-      "kind": "reexport"
-    },
-    "sha256OfBytes": {
-      "kind": "reexport"
-    },
-    "sha256OfCanonical": {
-      "kind": "reexport"
-    },
-    "sha512OfBytes": {
-      "kind": "reexport"
-    },
-    "sha512OfCanonical": {
-      "kind": "reexport"
-    },
-    "stripSignature": {
-      "kind": "reexport"
-    },
-    "verifyAsset": {
-      "kind": "reexport"
-    },
-    "verifyBundleArchive": {
-      "kind": "reexport"
-    },
-    "verifyIntegrity": {
-      "kind": "reexport"
+    "publisher.d.ts": {
+      "InMemoryPublisher": {
+        "kind": "class"
+      },
+      "PublishResult": {
+        "kind": "type"
+      },
+      "Publisher": {
+        "kind": "interface"
+      },
+      "type PublishResult": {
+        "kind": "reexport"
+      },
+      "type Publisher": {
+        "kind": "reexport"
+      }
     }
   }
 }

@@ -1,61 +1,150 @@
 {
-  "exports": {
-    "FetchResult": {
-      "kind": "reexport"
+  "entries": {
+    "index.d.ts": {
+      "FetchResult": {
+        "kind": "reexport"
+      },
+      "GrantPolicy": {
+        "kind": "reexport"
+      },
+      "GrantStatus": {
+        "kind": "reexport"
+      },
+      "InMemoryManifestFetcher": {
+        "kind": "reexport"
+      },
+      "LoadErrorCode": {
+        "kind": "reexport"
+      },
+      "LoadOptions": {
+        "kind": "reexport"
+      },
+      "LoadResult": {
+        "kind": "reexport"
+      },
+      "ManifestEvaluation": {
+        "kind": "reexport"
+      },
+      "ManifestFetcher": {
+        "kind": "reexport"
+      },
+      "PACKAGE_NAME": {
+        "kind": "const"
+      },
+      "PACKAGE_VERSION": {
+        "kind": "const"
+      },
+      "PermissionDecision": {
+        "kind": "reexport"
+      },
+      "SignatureVerifier": {
+        "kind": "reexport"
+      },
+      "decidePermission": {
+        "kind": "reexport"
+      },
+      "evaluateManifestPermissions": {
+        "kind": "reexport"
+      },
+      "filterDangerousPermissions": {
+        "kind": "reexport"
+      },
+      "loadPlugin": {
+        "kind": "reexport"
+      },
+      "tightenConstraints": {
+        "kind": "reexport"
+      },
+      "validateManifestShape": {
+        "kind": "reexport"
+      }
     },
-    "GrantPolicy": {
-      "kind": "reexport"
+    "loader.d.ts": {
+      "LoadErrorCode": {
+        "kind": "type"
+      },
+      "LoadOptions": {
+        "kind": "type"
+      },
+      "LoadResult": {
+        "kind": "type"
+      },
+      "SignatureVerifier": {
+        "kind": "type"
+      },
+      "filterDangerousPermissions": {
+        "kind": "const"
+      },
+      "loadPlugin": {
+        "kind": "const"
+      },
+      "type LoadErrorCode": {
+        "kind": "reexport"
+      },
+      "type LoadOptions": {
+        "kind": "reexport"
+      },
+      "type LoadResult": {
+        "kind": "reexport"
+      },
+      "type SignatureVerifier": {
+        "kind": "reexport"
+      }
     },
-    "GrantStatus": {
-      "kind": "reexport"
+    "manifest-fetcher.d.ts": {
+      "FetchResult": {
+        "kind": "type"
+      },
+      "InMemoryManifestFetcher": {
+        "kind": "class"
+      },
+      "ManifestFetcher": {
+        "kind": "interface"
+      },
+      "type FetchResult": {
+        "kind": "reexport"
+      },
+      "type ManifestFetcher": {
+        "kind": "reexport"
+      },
+      "validateManifestShape": {
+        "kind": "const"
+      }
     },
-    "InMemoryManifestFetcher": {
-      "kind": "reexport"
-    },
-    "LoadErrorCode": {
-      "kind": "reexport"
-    },
-    "LoadOptions": {
-      "kind": "reexport"
-    },
-    "LoadResult": {
-      "kind": "reexport"
-    },
-    "ManifestEvaluation": {
-      "kind": "reexport"
-    },
-    "ManifestFetcher": {
-      "kind": "reexport"
-    },
-    "PACKAGE_NAME": {
-      "kind": "const"
-    },
-    "PACKAGE_VERSION": {
-      "kind": "const"
-    },
-    "PermissionDecision": {
-      "kind": "reexport"
-    },
-    "SignatureVerifier": {
-      "kind": "reexport"
-    },
-    "decidePermission": {
-      "kind": "reexport"
-    },
-    "evaluateManifestPermissions": {
-      "kind": "reexport"
-    },
-    "filterDangerousPermissions": {
-      "kind": "reexport"
-    },
-    "loadPlugin": {
-      "kind": "reexport"
-    },
-    "tightenConstraints": {
-      "kind": "reexport"
-    },
-    "validateManifestShape": {
-      "kind": "reexport"
+    "permissions.d.ts": {
+      "GrantPolicy": {
+        "kind": "type"
+      },
+      "GrantStatus": {
+        "kind": "type"
+      },
+      "ManifestEvaluation": {
+        "kind": "type"
+      },
+      "PermissionDecision": {
+        "kind": "type"
+      },
+      "decidePermission": {
+        "kind": "const"
+      },
+      "evaluateManifestPermissions": {
+        "kind": "const"
+      },
+      "tightenConstraints": {
+        "kind": "const"
+      },
+      "type GrantPolicy": {
+        "kind": "reexport"
+      },
+      "type GrantStatus": {
+        "kind": "reexport"
+      },
+      "type ManifestEvaluation": {
+        "kind": "reexport"
+      },
+      "type PermissionDecision": {
+        "kind": "reexport"
+      }
     }
   }
 }

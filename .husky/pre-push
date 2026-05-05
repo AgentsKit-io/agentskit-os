@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Full enforcement before push — mirrors CI.
+# Build is required for RFC-0007 public-API snapshot diff.
+pnpm check:quality-gates && \
+  pnpm check:adr-0002 && \
+  pnpm check:adr-0004 && \
+  pnpm check:adr-0014 && \
+  pnpm --filter "./packages/*" build && \
+  pnpm check:rfc-0007 && \
+  pnpm check:typecheck

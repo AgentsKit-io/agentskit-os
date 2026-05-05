@@ -177,7 +177,19 @@ describe('App ARIA landmarks', () => {
     )
   })
 
-  it('opens an intentional preview state for primary nav surfaces without contracts', async () => {
+  it('opens the command palette from the navigation header shortcut button', async () => {
+    await act(async () => {
+      render(<App />, { container })
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /toggle command palette/i }))
+    })
+
+    expect(screen.getByRole('dialog', { name: /command palette/i })).toBeInTheDocument()
+  })
+
+  it('opens the supported Flows screen from primary navigation', async () => {
     await act(async () => {
       render(<App />, { container })
     })
@@ -186,8 +198,9 @@ describe('App ARIA landmarks', () => {
       fireEvent.click(screen.getByRole('button', { name: /flows/i }))
     })
 
-    expect(screen.getByRole('heading', { name: /flows is in preview/i })).toBeInTheDocument()
-    expect(screen.getByText(/typed graph contracts/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /^flows$/i })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /flow registry/i })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: /flows is in preview/i })).not.toBeInTheDocument()
   })
 
   it('opens the supported Runs screen from primary navigation', async () => {
@@ -320,7 +333,7 @@ describe('App ARIA landmarks', () => {
     expect(screen.getByText(/restart onboarding tour/i)).toBeInTheDocument()
   })
 
-  it('registers preview surface navigation commands in the command palette', async () => {
+  it('does not register supported surface preview commands in the command palette', async () => {
     await act(async () => {
       render(<App />, { container })
     })
@@ -329,6 +342,7 @@ describe('App ARIA landmarks', () => {
       fireEvent.keyDown(window, { key: 'k', metaKey: true })
     })
 
-    expect(screen.getByText(/go to flows/i)).toBeInTheDocument()
+    expect(screen.queryByText(/go to flows/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/go to security/i)).not.toBeInTheDocument()
   })
 })

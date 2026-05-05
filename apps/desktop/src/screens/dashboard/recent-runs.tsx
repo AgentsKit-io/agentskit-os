@@ -53,7 +53,7 @@ export function RecentRuns({ runs }: RecentRunsProps) {
               No runs yet. Start an agent to see activity here.
             </p>
             <a
-              href="https://agentskit.io/docs/get-started/quickstart"
+              href="https://www.agentskit.io/docs/get-started"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm font-medium text-[var(--ag-accent)] underline-offset-4 hover:underline"

@@ -13,6 +13,7 @@ import { BenchmarkScreen } from './screens/benchmark'
 import { CostScreen } from './screens/cost'
 import { Dashboard } from './screens/dashboard'
 import { EvalsScreen } from './screens/evals'
+import { FlowsScreen } from './screens/flows'
 import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
 import { SecurityScreen } from './screens/security'
@@ -67,6 +68,21 @@ import { PluginContributionsProvider } from './plugins/plugin-contributions-prov
 const hasTauriRuntime = (): boolean =>
   typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 
+function setScreenWithViewTransition(update: () => void): void {
+  const startViewTransition = (
+    document as Document & {
+      startViewTransition?: (callback: () => void) => void
+    }
+  ).startViewTransition
+
+  if (startViewTransition && window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    startViewTransition(update)
+    return
+  }
+
+  update()
+}
+
 type ActiveScreen =
   | 'dashboard'
   | 'flows'
@@ -101,8 +117,7 @@ const NAV_GROUPS: ReadonlyArray<{
         id: 'flows',
         label: 'Flows',
         icon: '◇',
-        status: 'preview',
-        description: 'Visual flow editing is planned from ADR-0019 and will land behind typed graph contracts.',
+        status: 'supported',
       },
       {
         id: 'runs',
@@ -235,23 +250,23 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
     <aside
       aria-label="Application sidebar"
       data-onboarding-target="sidebar"
-      className="flex w-60 flex-col border-r border-[var(--ag-line)] bg-[var(--ag-surface-alt)]"
+      className="flex max-h-[46vh] w-full shrink-0 flex-col overflow-y-auto border-b border-[var(--ag-line)] bg-[var(--ag-surface-alt)] md:max-h-none md:w-60 md:border-b-0 md:border-r"
     >
       <WorkspaceSwitcher />
-      <div className="flex items-center justify-between px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
+      <div className="flex items-center justify-between gap-3 px-3 pt-3 text-[11px] uppercase tracking-widest text-[var(--ag-ink-subtle)]">
         <span aria-hidden>Navigation</span>
         <span
-          className="flex items-center gap-1 normal-case tracking-normal"
+          className="flex shrink-0 items-center gap-1 normal-case tracking-normal"
           data-onboarding-target="command-palette"
         >
           <NotificationBell />
           <VoiceToggle />
           <FocusToggle />
-          <Kbd>⌘K</Kbd>
+          <CommandPaletteButton />
         </span>
       </div>
       <nav aria-label="Main navigation">
-        <div className="flex flex-col gap-3 px-3 pt-2">
+        <div className="grid gap-3 px-3 pt-2 sm:grid-cols-2 md:flex md:flex-col">
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="flex flex-col gap-1">
               <div className="px-2 pt-1 text-[10px] font-medium uppercase tracking-widest text-[var(--ag-ink-subtle)]">
@@ -283,6 +298,29 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
         <ThemeSwitcher />
       </div>
     </aside>
+  )
+}
+
+function CommandPaletteButton() {
+  const { open, openPalette, closePalette } = useCommandPalette()
+  const shortcutLabel =
+    typeof navigator !== 'undefined' && navigator.platform.startsWith('Mac')
+      ? '⌘K'
+      : 'Ctrl K'
+
+  return (
+    <button
+      type="button"
+      aria-label="Toggle command palette"
+      aria-pressed={open}
+      onClick={() => {
+        if (open) closePalette()
+        else openPalette()
+      }}
+      className="rounded text-[var(--ag-ink-subtle)] hover:text-[var(--ag-ink)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ag-accent)]"
+    >
+      <Kbd>{shortcutLabel}</Kbd>
+    </button>
   )
 }
 
@@ -372,7 +410,31 @@ function AppShell({
   setServiceBanner: (visible: boolean) => void
   announcement: string
 }) {
-  const { active: focusActive } = useFocus()
+  const { active: focusActive, disable: disableFocus } = useFocus()
+
+  const navigateWithTransition = useCallback(
+    (screen: ActiveScreen) => {
+      if (screen === activeScreen) return
+      setScreenWithViewTransition(() => setActiveScreen(screen))
+    },
+    [activeScreen, setActiveScreen],
+  )
+
+  function renderActiveScreen(): React.ReactNode {
+    if (activeScreen === 'dashboard') return <Dashboard />
+    if (activeScreen === 'flows') return <FlowsScreen />
+    if (activeScreen === 'runs') return <RunsScreen />
+    if (activeScreen === 'traces') return <TracesScreen />
+    if (activeScreen === 'agents') return <AgentsScreen />
+    if (activeScreen === 'hitl') return <HitlScreen />
+    if (activeScreen === 'triggers') return <TriggersScreen />
+    if (activeScreen === 'evals') return <EvalsScreen />
+    if (activeScreen === 'benchmark') return <BenchmarkScreen />
+    if (activeScreen === 'cost') return <CostScreen />
+    if (activeScreen === 'security') return <SecurityScreen />
+    if (activeScreen === 'examples') return <ExampleScreen />
+    return <PreviewSurface screen={activeScreen} />
+  }
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
@@ -387,27 +449,25 @@ function AppShell({
           />
         </header>
       )}
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         {!focusActive && (
-          <Sidebar activeScreen={activeScreen} onNavigate={setActiveScreen} />
+          <Sidebar activeScreen={activeScreen} onNavigate={navigateWithTransition} />
         )}
-        <main id="main-content" aria-label="Main content" className="flex flex-1 flex-col overflow-auto">
-          {activeScreen === 'dashboard' && <Dashboard />}
-          {activeScreen === 'runs' && <RunsScreen />}
-          {activeScreen === 'traces' && <TracesScreen />}
-          {activeScreen === 'agents' && <AgentsScreen />}
-          {activeScreen === 'hitl' && <HitlScreen />}
-          {activeScreen === 'triggers' && <TriggersScreen />}
-          {activeScreen === 'evals' && <EvalsScreen />}
-          {activeScreen === 'benchmark' && <BenchmarkScreen />}
-          {activeScreen === 'cost' && <CostScreen />}
-          {activeScreen === 'security' && <SecurityScreen />}
-          {activeScreen === 'examples' && <ExampleScreen />}
-          {activeScreen !== 'dashboard' && activeScreen !== 'runs' && activeScreen !== 'traces' && activeScreen !== 'agents' && activeScreen !== 'hitl' && activeScreen !== 'triggers' && activeScreen !== 'evals' && activeScreen !== 'benchmark' && activeScreen !== 'cost' && activeScreen !== 'security' && activeScreen !== 'examples' && (
-            <PreviewSurface screen={activeScreen} />
-          )}
+        <main id="main-content" aria-label="Main content" className="flex min-w-0 flex-1 flex-col overflow-auto">
+          <div key={activeScreen} className="app-screen flex min-h-full flex-1 flex-col">
+            {renderActiveScreen()}
+          </div>
         </main>
       </div>
+      {focusActive && (
+        <button
+          type="button"
+          className="fixed right-4 top-4 z-[60] rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] shadow-2xl hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
+          onClick={disableFocus}
+        >
+          Exit focus mode
+        </button>
+      )}
       <StatusLine />
     </div>
   )
@@ -448,10 +508,12 @@ export function App() {
 
   const handleNavigate = useCallback((screen: string) => {
     if (isActiveScreen(screen)) {
-      setActiveScreen(screen)
+      if (screen !== activeScreen) {
+        setScreenWithViewTransition(() => setActiveScreen(screen))
+      }
       setAnnouncement(`Navigated to ${labelForScreen(screen)}`)
     }
-  }, [])
+  }, [activeScreen])
 
   const handleClearEventFeed = useCallback(() => {
     // No-op for now; Dashboard will register its own clear via the palette

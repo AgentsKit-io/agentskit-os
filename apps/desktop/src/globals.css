@@ -6,6 +6,7 @@ html,
 body,
 #root {
   height: 100%;
+  min-width: 0;
   margin: 0;
   padding: 0;
   background-color: var(--ag-surface);
@@ -17,6 +18,70 @@ body,
     'SF Pro Display',
     system-ui,
     sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+button,
+a,
+[role='button'],
+tr[tabindex='0'] {
+  transition:
+    background-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+button:active,
+a:active,
+[role='button']:active {
+  transform: translateY(1px);
+}
+
+.app-screen {
+  animation: app-screen-enter 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  contain: layout paint;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes app-screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  #main-content {
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  a,
+  [role='button'],
+  tr[tabindex='0'],
+  .app-screen,
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
 }
 
 .driver-popover.agentskitos-driver {

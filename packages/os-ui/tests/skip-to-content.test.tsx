@@ -42,9 +42,9 @@ describe('SkipToContent', () => {
     expect(screen.getByText('Skip navigation')).toBeInTheDocument()
   })
 
-  it('is initially visually translated off-screen', () => {
+  it('is initially visually hidden without leaking a focus outline', () => {
     render(<SkipToContent />)
     const link = screen.getByTestId('skip-to-content')
-    expect(link).toHaveStyle({ transform: 'translateY(-100%)' })
+    expect(link).toHaveStyle({ opacity: '0', outline: 'none' })
   })
 })

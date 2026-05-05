@@ -30,6 +30,14 @@ Exit code `0` means `certified: true` in the JSON report. Use `--json` for CI ga
 
 **Library tests:** see `tests/conformance.test.ts` (mock subprocess runner; no real CLI required).
 
+**Optional integration test (local only):**
+
+```bash
+AK_RUN_CONFORMANCE_INTEGRATION=1 pnpm -C packages/os-coding-agents test
+```
+
+This will attempt to run the conformance suite against any locally installed built-in CLIs (it skips ones that aren’t installed).
+
 ## Unsupported / planned adapters
 
 Additional provider ids (Aider, OpenCode, Continue) are tracked separately; follow the same contract and add conformance coverage before marking stable.

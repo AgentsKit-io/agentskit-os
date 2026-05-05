@@ -5,7 +5,7 @@
   "maxScreenLines": 240,
   "maxHookLines": 180,
   "totals": {
-    "filesScanned": 246,
+    "filesScanned": 245,
     "issues": 5,
     "byKind": {
       "inline-date-in-component": 2,

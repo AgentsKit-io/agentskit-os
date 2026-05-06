@@ -30,15 +30,14 @@ jobs:
         env:
           CODING_AGENT_CONFORMANCE_PROVIDERS: ${{ vars.CODING_AGENT_CONFORMANCE_PROVIDERS }}
           CODING_AGENT_CONFORMANCE_SECRETS_FILE: ${{ vars.CODING_AGENT_CONFORMANCE_SECRETS_FILE }}
-        run: |
-          mkdir -p artifacts/conformance
-          node scripts/check-coding-agent-conformance-gate.mjs 2>&1 | tee artifacts/conformance/release-gate.log
-      - name: Upload conformance gate output
+          CODING_AGENT_CONFORMANCE_OUT_DIR: artifacts/coding-agent-conformance
+        run: node scripts/check-coding-agent-conformance-gate.mjs
+      - name: Upload conformance reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coding-agent-conformance-gate
-          path: artifacts/conformance/
+          name: coding-agent-conformance
+          path: artifacts/coding-agent-conformance
       - name: Create Release Pull Request or Publish
         uses: changesets/action@v1
         with:

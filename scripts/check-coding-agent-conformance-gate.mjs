@@ -12,6 +12,7 @@
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { mkdirSync, writeFileSync } from 'node:fs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const cli = join(ROOT, 'packages/os-cli/bin/agentskit-os.js')
@@ -30,6 +31,10 @@ if (ids.length === 0) {
 }
 
 const secrets = process.env.CODING_AGENT_CONFORMANCE_SECRETS_FILE?.trim()
+const outDir = (process.env.CODING_AGENT_CONFORMANCE_OUT_DIR ?? '').trim()
+if (outDir.length > 0) {
+  mkdirSync(outDir, { recursive: true })
+}
 
 for (const id of ids) {
   const args = [cli, 'coding-agent', 'conformance', '--provider', id, '--skip-if-unavailable', '--json']
@@ -42,8 +47,12 @@ for (const id of ids) {
     env: process.env,
   })
   if (r.status === 0) {
-    const out = `${r.stdout}${r.stderr}`.trim()
-    if (out.includes('"skipped"') && out.includes('true')) {
+    const out = `${r.stdout}`.trim()
+    if (outDir.length > 0 && out.length > 0) {
+      writeFileSync(join(outDir, `${id}.json`), `${out}\n`, 'utf8')
+    }
+    const outAny = `${r.stdout}${r.stderr}`.trim()
+    if (outAny.includes('"skipped"') && outAny.includes('true')) {
       console.log(`Conformance gate: ${id} — skipped (CLI not available).`)
       continue
     }

@@ -81,6 +81,22 @@ export type {
   DevTriggerPresetMapInput,
   DevTriggerRunMode,
 } from './dev-trigger-presets.js'
+export {
+  CODING_PERMISSION_PROFILES,
+  buildCodingPermissionAuditEvent,
+  evaluateCodingPermission,
+  getCodingPermissionProfile,
+  listCodingPermissionProfiles,
+} from './coding-permission-profiles.js'
+export type {
+  CodingGitOps,
+  CodingNetworkPolicy,
+  CodingOperation,
+  CodingPermissionAuditEvent,
+  CodingPermissionDecision,
+  CodingPermissionProfile,
+  CodingPermissionProfileId,
+} from './coding-permission-profiles.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'
 export { simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
 export type { IssueToPrDryRunReport, IssueToPrPipelineEvent } from './issue-pr-pipeline.js'

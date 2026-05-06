@@ -205,7 +205,7 @@ Open discrete GitHub issues for anything below that does not already have an own
 | Trace / export **redaction profiles** (regime-specific defaults) | **P1** | HIPAA-style defaults; tie to observability pipelines. |
 | CI gate: fail when `coding-agent conformance --json` is not certified for claimed providers | **P1** | Bridges [#374](https://github.com/AgentsKit-io/agentskit-os/issues/374) to release policy. |
 | Provider **binary attestation** or install-path integrity checks | **P0** | Reduces trojaned-CLI risk in §4.8; pair with install docs. |
-| **Stolen CI / PAT** abuse playbooks and least-privilege templates | **P1** | Org-level; product can ship reference policies. |
+| **Stolen CI / PAT** abuse playbooks and least-privilege templates | **P1** | See [ci-least-privilege-coding-agents.md](./ci-least-privilege-coding-agents.md) (#379). |
 | **Prompt firewall** regression suite for issue→PR and webhook-sourced prompts | **P0** | When prompt firewall ships beyond static deny lists. |
 
 ---

@@ -21,3 +21,5 @@ export {
   isBuiltinCodingAgentId,
 } from './builtin.js'
 export type { BuiltinCodingAgentId } from './builtin.js'
+
+export { loadSecretsEnvFromFile, parseSecretsEnvFileLines } from './secrets-env-file.js'

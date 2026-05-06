@@ -635,6 +635,9 @@ export type {
   PiiCategoryRegistry,
 } from './security/pii-categories.js'
 
+export { createSecurityBundle } from './security/bundle.js'
+export type { SecurityBundle, SecurityBundleOpts } from './security/bundle.js'
+
 export { createSandboxRegistry } from './security/sandbox-backends.js'
 export type {
   SandboxBackend,

@@ -32,3 +32,6 @@ export {
 export type { BuiltinCodingAgentId } from './builtin.js'
 
 export { loadSecretsEnvFromFile, parseSecretsEnvFileLines } from './secrets-env-file.js'
+
+export { sha256OfFile, verifyBinaryAttestation } from './binary-attestation.js'
+export type { AttestationVerdict, BinaryAttestation } from './binary-attestation.js'

@@ -626,6 +626,14 @@ export {
 } from './audit/batch.js'
 export type { ChainBreak, SignatureVerifier } from './audit/batch.js'
 
+export { verifyDataIntegrity } from './audit/integrity-verifier.js'
+export type {
+  IntegrityIssue,
+  IntegrityReport,
+  LockfileEntry,
+  MemoryRecord,
+} from './audit/integrity-verifier.js'
+
 export {
   buildSignedAuditBatch,
   createNullAuditSigner,

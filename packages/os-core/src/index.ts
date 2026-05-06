@@ -488,6 +488,18 @@ export { PROMPT_FIREWALL_CORPUS, evaluatePromptFirewall } from './security/promp
 export type { PromptFirewallCorpusEntry, PromptFirewallVerdict } from './security/prompt-firewall.js'
 
 export {
+  REDACTION_PROFILE_IDS,
+  applyRedactionProfile,
+  createRedactor,
+  getRedactionProfile,
+} from './security/redaction-profiles.js'
+export type {
+  RedactionProfile,
+  RedactionProfileId,
+  RedactionRule,
+} from './security/redaction-profiles.js'
+
+export {
   AirGapPolicy,
   airGapEnforce,
   parseAirGapPolicy,

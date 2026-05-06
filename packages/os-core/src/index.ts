@@ -456,6 +456,9 @@ export type {
   SurfaceMountPlan,
 } from './runtime/plugin-composer.js'
 
+export { TOPOLOGY_IDS, buildTopologyPlan } from './runtime/topology-presets.js'
+export type { Topology, TopologyPlan } from './runtime/topology-presets.js'
+
 export {
   DEFAULT_SELF_HEALING_POLICY,
   createSelfHealingLedger,

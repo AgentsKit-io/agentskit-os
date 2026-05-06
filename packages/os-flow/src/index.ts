@@ -34,6 +34,16 @@ export { runWithGracefulDegradation } from './graceful-degradation.js'
 export { detectHotReloadConflicts } from './hot-reload-conflicts.js'
 export { runUnderChaos } from './chaos-harness.js'
 export type { ChaosFault, ChaosOutcome, ChaosPlan, ChaosRule } from './chaos-harness.js'
+export {
+  AutomationAction,
+  AutomationEventMatcher,
+  AutomationRule,
+  AutomationRuleSet,
+  matchAutomationRules,
+  parseAutomationRuleSet,
+  safeParseAutomationRuleSet,
+} from './automation-rules.js'
+export type { AutomationDispatch, AutomationEvent } from './automation-rules.js'
 export type { HotReloadConflict, HotReloadRunSnapshot } from './hot-reload-conflicts.js'
 export type {
   DegradationAttempt,

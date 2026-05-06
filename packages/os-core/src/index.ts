@@ -484,6 +484,9 @@ export type {
   WebhookVerifyDecision,
 } from './security/webhook-signing.js'
 
+export { PROMPT_FIREWALL_CORPUS, evaluatePromptFirewall } from './security/prompt-firewall.js'
+export type { PromptFirewallCorpusEntry, PromptFirewallVerdict } from './security/prompt-firewall.js'
+
 export {
   AirGapPolicy,
   airGapEnforce,

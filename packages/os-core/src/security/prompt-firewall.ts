@@ -10,7 +10,20 @@ export type PromptFirewallVerdict = {
   readonly matched: readonly string[]
   readonly overridden: readonly string[]
   readonly reason: 'disabled' | 'allow' | 'block' | 'log'
+  /** True when the caller should fan out an alert (e.g. paging on-call). */
+  readonly alert?: boolean
+  /** Tier that produced the verdict. */
+  readonly tier?: PromptFirewallTier
 }
+
+export type PromptFirewallTier = 'off' | 'log' | 'block' | 'block_and_alert'
+
+export const PROMPT_FIREWALL_TIERS: readonly PromptFirewallTier[] = [
+  'off',
+  'log',
+  'block',
+  'block_and_alert',
+]
 
 const lowerIncludes = (haystack: string, needle: string): boolean =>
   haystack.toLowerCase().includes(needle.toLowerCase())
@@ -45,6 +58,43 @@ export const evaluatePromptFirewall = (
     return { allowed: false, matched, overridden, reason: 'block' }
   }
   return { allowed: true, matched, overridden, reason: 'log' }
+}
+
+/**
+ * Tier-based prompt firewall verdict (#200). Layers the tier mode on top of
+ * the base `evaluatePromptFirewall` semantics:
+ *
+ * - `off`             → always allow with reason='disabled', no alert.
+ * - `log`             → never block; matches still surface for audit (reason='log').
+ * - `block`           → blocklist hits become reason='block' + allowed=false.
+ * - `block_and_alert` → same as `block` plus `alert=true` so the runtime fans
+ *                       a notification out to on-call / Slack / pager.
+ *
+ * Allowlist overrides still suppress the block, regardless of tier.
+ */
+export const evaluatePromptFirewallTiered = (
+  prompt: string,
+  config: PromptFirewallConfig,
+  tier: PromptFirewallTier,
+): PromptFirewallVerdict => {
+  if (tier === 'off') {
+    return { allowed: true, matched: [], overridden: [], reason: 'disabled', tier, alert: false }
+  }
+  const matched = config.blocklist.filter((needle) => lowerIncludes(prompt, needle))
+  const overridden = matched.filter((needle) =>
+    config.allowlistOverride.some((ovr) => lowerIncludes(prompt, ovr) && ovr === needle),
+  )
+  if (matched.length === 0) {
+    return { allowed: true, matched: [], overridden: [], reason: 'allow', tier, alert: false }
+  }
+  if (overridden.length === matched.length) {
+    return { allowed: true, matched, overridden, reason: 'allow', tier, alert: false }
+  }
+  if (tier === 'log') {
+    return { allowed: true, matched, overridden, reason: 'log', tier, alert: false }
+  }
+  const alert = tier === 'block_and_alert'
+  return { allowed: false, matched, overridden, reason: 'block', tier, alert }
 }
 
 export type PromptFirewallCorpusEntry = {

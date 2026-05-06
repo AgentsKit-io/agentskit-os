@@ -484,8 +484,17 @@ export type {
   WebhookVerifyDecision,
 } from './security/webhook-signing.js'
 
-export { PROMPT_FIREWALL_CORPUS, evaluatePromptFirewall } from './security/prompt-firewall.js'
-export type { PromptFirewallCorpusEntry, PromptFirewallVerdict } from './security/prompt-firewall.js'
+export {
+  PROMPT_FIREWALL_CORPUS,
+  PROMPT_FIREWALL_TIERS,
+  evaluatePromptFirewall,
+  evaluatePromptFirewallTiered,
+} from './security/prompt-firewall.js'
+export type {
+  PromptFirewallCorpusEntry,
+  PromptFirewallTier,
+  PromptFirewallVerdict,
+} from './security/prompt-firewall.js'
 
 export {
   REDACTION_PROFILE_IDS,

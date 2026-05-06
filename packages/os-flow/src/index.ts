@@ -14,6 +14,12 @@ export type { NodeHandler, NodeHandlerMap, NodeOutcome } from './handlers.js'
 export { runFlow } from './runner.js'
 export type { RunResult, RunOptions, CheckpointFn } from './runner.js'
 export type { FlowCostTickEvent } from './flow-observability-events.js'
+export { cancelOnBudget, createFlowCostMeter } from './flow-cost-meter.js'
+export type {
+  FlowCostMeter,
+  FlowCostMeterOpts,
+  FlowCostMeterUpdate,
+} from './flow-cost-meter.js'
 
 export { applyModeStubs, validateDeterministicFlow, policyForMode } from './mode-policy.js'
 export type {

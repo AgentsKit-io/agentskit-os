@@ -5,48 +5,9 @@
   "maxScreenLines": 240,
   "maxHookLines": 180,
   "totals": {
-    "filesScanned": 248,
-    "issues": 5,
-    "byKind": {
-      "inline-date-in-component": 2,
-      "oversized-ui-unit": 3
-    }
+    "filesScanned": 1,
+    "issues": 0,
+    "byKind": {}
   },
-  "issues": [
-    {
-      "id": "inline-date-in-component:apps/desktop/src/notifications/notification-item.tsx:628b0973fdb19c50",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/notifications/notification-item.tsx",
-      "line": 34,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
-      "id": "inline-date-in-component:apps/desktop/src/notifications/notification-item.tsx:8b88c34ea87d5b2a",
-      "kind": "inline-date-in-component",
-      "file": "apps/desktop/src/notifications/notification-item.tsx",
-      "line": 35,
-      "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/_wip/dashboards/custom/custom-widget-editor.tsx:95a7ed831fe8e7f2",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/_wip/dashboards/custom/custom-widget-editor.tsx",
-      "line": 414,
-      "detail": "CustomWidgetEditor is 293 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/_wip/dashboards/custom/custom-widget-renderer.tsx:48369b4de1b247b9",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/_wip/dashboards/custom/custom-widget-renderer.tsx",
-      "line": 197,
-      "detail": "CustomWidgetRenderer is 145 lines; keep components under 140 lines or split logic into hooks/primitives."
-    },
-    {
-      "id": "oversized-ui-unit:apps/desktop/src/notifications/preferences/preferences-panel.tsx:2d7df66e26bb78a6",
-      "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/notifications/preferences/preferences-panel.tsx",
-      "line": 316,
-      "detail": "NotificationPreferencesPanel is 151 lines; keep components under 140 lines or split logic into hooks/primitives."
-    }
-  ]
+  "issues": []
 }

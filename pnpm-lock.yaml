@@ -44,6 +44,9 @@ importers:
       '@agentskit/os-core':
         specifier: workspace:*
         version: link:../../packages/os-core
+      '@agentskit/os-desktop':
+        specifier: workspace:*
+        version: link:../../packages/os-desktop
       '@agentskit/os-headless':
         specifier: workspace:*
         version: link:../../packages/os-headless
@@ -326,6 +329,70 @@ importers:
       zod:
         specifier: ^4.4.1
         version: 4.4.1
+
+  packages/os-desktop:
+    dependencies:
+      '@agentskit/os-core':
+        specifier: workspace:*
+        version: link:../os-core
+      '@agentskit/os-headless':
+        specifier: workspace:*
+        version: link:../os-headless
+      '@agentskit/os-observability':
+        specifier: workspace:*
+        version: link:../os-observability
+      '@agentskit/os-ui':
+        specifier: workspace:^
+        version: link:../os-ui
+      driver.js:
+        specifier: ^1.4.0
+        version: 1.4.0
+      lucide-react:
+        specifier: ^0.513.0
+        version: 0.513.0(react@19.2.5)
+    devDependencies:
+      '@tauri-apps/api':
+        specifier: ^2
+        version: 2.11.0
+      '@tauri-apps/plugin-shell':
+        specifier: ^2
+        version: 2.3.5
+      '@testing-library/jest-dom':
+        specifier: ^6.6.3
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: ^16.3.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@types/node':
+        specifier: ^25.6.0
+        version: 25.6.0
+      '@types/react':
+        specifier: ^19.1.5
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.1.5
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^4
+        version: 4.7.0(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@1.21.7)(yaml@2.8.3))
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
+      react:
+        specifier: ^19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.5
+        version: 19.2.5(react@19.2.5)
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.5
+        version: 4.1.5(@types/node@25.6.0)(jsdom@26.1.0)(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@1.21.7)(yaml@2.8.3))
+      zod:
+        specifier: ^4.4.2
+        version: 4.4.2
 
   packages/os-dev-orchestrator:
     dependencies:
@@ -5976,6 +6043,18 @@ snapshots:
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
       vite: 6.4.2(@types/node@25.6.0)(jiti@1.21.7)(lightningcss@1.32.0)(yaml@2.8.3)
+    transitivePeerDependencies:
+      - supports-color
+
+  '@vitejs/plugin-react@4.7.0(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@1.21.7)(yaml@2.8.3))':
+    dependencies:
+      '@babel/core': 7.29.0
+      '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
+      '@babel/plugin-transform-react-jsx-source': 7.27.1(@babel/core@7.29.0)
+      '@rolldown/pluginutils': 1.0.0-beta.27
+      '@types/babel__core': 7.20.5
+      react-refresh: 0.17.0
+      vite: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@1.21.7)(yaml@2.8.3)
     transitivePeerDependencies:
       - supports-color
 

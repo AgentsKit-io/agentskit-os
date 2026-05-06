@@ -635,6 +635,20 @@ export type {
   PiiCategoryRegistry,
 } from './security/pii-categories.js'
 
+export { createSandboxRegistry } from './security/sandbox-backends.js'
+export type {
+  SandboxBackend,
+  SandboxBackendKind,
+  SandboxCapability,
+  SandboxLaunchSpec,
+  SandboxMount,
+  SandboxNetworkPolicy,
+  SandboxRegistration,
+  SandboxRegistry,
+  SandboxResourceLimits,
+  SandboxRunResult,
+} from './security/sandbox-backends.js'
+
 export { verifyDataIntegrity } from './audit/integrity-verifier.js'
 export type {
   IntegrityIssue,

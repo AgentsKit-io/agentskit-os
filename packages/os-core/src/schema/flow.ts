@@ -196,7 +196,32 @@ export const BlackboardNode = z.object({
 })
 export type BlackboardNode = z.infer<typeof BlackboardNode>
 
-export const FlowNode = z.discriminatedUnion('kind', [AgentNode, ToolNode, HumanNode, ConditionNode, ParallelNode, CompareNode, VoteNode, DebateNode, AuctionNode, BlackboardNode])
+/**
+ * LLM-decision branching node (#67). The model is asked to choose one of
+ * `branches` based on the prompt + run context; flow runtime emits one of
+ * `branches[].outcome` strings (`true` / `false` / `success` / custom) so
+ * standard FlowEdge `on` matching keeps working.
+ */
+export const LlmBranchNode = z.object({
+  ...NodeCommon,
+  kind: z.literal('llm-branch'),
+  agent: Slug,
+  prompt: z.string().min(1).max(8_192),
+  branches: z
+    .array(
+      z.object({
+        outcome: z.string().min(1).max(64),
+        description: z.string().max(512).default(''),
+      }),
+    )
+    .min(2)
+    .max(16),
+  /** Optional fallback outcome when the model's choice is not a known branch. */
+  fallbackOutcome: z.string().min(1).max(64).optional(),
+})
+export type LlmBranchNode = z.infer<typeof LlmBranchNode>
+
+export const FlowNode = z.discriminatedUnion('kind', [AgentNode, ToolNode, HumanNode, ConditionNode, ParallelNode, CompareNode, VoteNode, DebateNode, AuctionNode, BlackboardNode, LlmBranchNode])
 export type FlowNode = z.infer<typeof FlowNode>
 
 export const FlowEdge = z.object({

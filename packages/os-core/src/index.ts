@@ -99,6 +99,7 @@ export {
   BlackboardScratchpad,
   BlackboardSchedule,
   BlackboardTermination,
+  LlmBranchNode,
   RetryPolicy,
   parseFlowConfig,
   safeParseFlowConfig,

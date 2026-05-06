@@ -75,6 +75,9 @@ const agentSlugsOf = (node: FlowNode): readonly string[] => {
     case 'debate':
       // proponent + opponent + judge all need LLM calls in each round.
       return [node.proponent, node.opponent, node.judge]
+    case 'llm-branch':
+      // LLM router decides one branch per invocation.
+      return [node.agent]
     // Non-LLM nodes:
     case 'tool':
     case 'human':

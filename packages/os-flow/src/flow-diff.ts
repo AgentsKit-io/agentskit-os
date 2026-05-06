@@ -49,6 +49,8 @@ const nodeKeyFields = (n: FlowNode): Record<string, unknown> => {
       return { kind: n.kind, bidders: n.bidders, task: n.task, bidCriteria: n.bidCriteria, customScorer: n.customScorer, reservePrice: n.reservePrice, fallback: n.fallback, timeout: n.timeout, retry: n.retry, timeoutMs: n.timeoutMs, label: n.label }
     case 'blackboard':
       return { kind: n.kind, agents: n.agents, scratchpad: n.scratchpad, schedule: n.schedule, termination: n.termination, retry: n.retry, timeoutMs: n.timeoutMs, label: n.label }
+    case 'llm-branch':
+      return { kind: n.kind, agent: n.agent, prompt: n.prompt, branches: n.branches, fallbackOutcome: n.fallbackOutcome, retry: n.retry, timeoutMs: n.timeoutMs, label: n.label }
   }
 }
 

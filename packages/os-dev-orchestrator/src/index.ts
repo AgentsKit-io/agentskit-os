@@ -43,7 +43,7 @@ export type {
 } from './coding-run-artifacts.js'
 export {
   CODING_FAILURE_CATALOG,
-  buildCodingFailureIncident,
+  buildCodingFailureIncidentRecord,
   classifyCodingFailure,
 } from './coding-failure-taxonomy.js'
 export type {

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "dev-orchestrator-benchmark-demo-workspace",
+    "name": "Dev Orchestrator Benchmark Demo",
+    "tags": [
+      "coding",
+      "demo",
+      "benchmark"
+    ],
+    "limits": {
+      "usdPerRun": 5,
+      "tokensPerRun": 200000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": [
+      "console"
+    ],
+    "redactInputs": false
+  },
+  "agents": [
+    {
+      "id": "demo-coordinator",
+      "name": "Demo Coordinator",
+      "systemPrompt": "Coordinates the dev-orchestrator benchmark demo. For each demo task, dispatch the same prompt to every configured coding-agent provider, collect their reports, and emit a comparison table covering completeness, cost, duration, tokens, and tests run.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.1
+      },
+      "tools": [
+        "coding-agent.benchmark",
+        "coding-agent.delegate"
+      ],
+      "tags": [
+        "lead",
+        "demo"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "dev-orchestrator-benchmark-demo-flow",
+      "name": "Dev Orchestrator Benchmark Demo Flow",
+      "entry": "select-task",
+      "nodes": [
+        {
+          "id": "select-task",
+          "kind": "tool",
+          "tool": "coding-agent.benchmark"
+        },
+        {
+          "id": "compare",
+          "kind": "agent",
+          "agent": "demo-coordinator"
+        },
+        {
+          "id": "publish-report",
+          "kind": "tool",
+          "tool": "coding-agent.delegate"
+        }
+      ],
+      "edges": [
+        {
+          "from": "select-task",
+          "to": "compare"
+        },
+        {
+          "from": "compare",
+          "to": "publish-report"
+        }
+      ],
+      "tags": [
+        "coding",
+        "demo",
+        "benchmark"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "dev-orchestrator-benchmark-demo-trigger",
+      "name": "Dev Orchestrator Benchmark Demo Trigger",
+      "flow": "dev-orchestrator-benchmark-demo-flow",
+      "enabled": true,
+      "tags": [
+        "coding",
+        "demo"
+      ],
+      "limits": {
+        "usdPerRun": 5,
+        "tokensPerRun": 200000
+      },
+      "kind": "cron",
+      "cron": "0 12 * * 1",
+      "timezone": "UTC"
+    }
+  ]
+}

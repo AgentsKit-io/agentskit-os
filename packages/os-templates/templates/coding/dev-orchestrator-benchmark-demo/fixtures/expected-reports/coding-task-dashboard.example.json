@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-05-05T12:00:00.000Z",
+  "source": "benchmark",
+  "aggregate": {
+    "providerCount": 4,
+    "okCount": 3,
+    "partialCount": 0,
+    "failCount": 1,
+    "timeoutCount": 0,
+    "totalCostUsd": 0.012,
+    "totalInputTokens": 6220,
+    "totalOutputTokens": 1990,
+    "totalDurationMs": 9842
+  },
+  "providers": [
+    { "providerId": "codex", "status": "ok", "costUsd": 0.004, "inputTokens": 1800, "outputTokens": 620, "durationMs": 2310, "completenessScore": 92, "requiresHumanReview": false },
+    { "providerId": "claude-code", "status": "ok", "costUsd": 0.0035, "inputTokens": 1700, "outputTokens": 590, "durationMs": 2640, "completenessScore": 88, "requiresHumanReview": false },
+    { "providerId": "cursor", "status": "ok", "costUsd": 0.003, "inputTokens": 1620, "outputTokens": 540, "durationMs": 2270, "completenessScore": 81, "requiresHumanReview": false },
+    { "providerId": "gemini", "status": "fail", "costUsd": 0.0015, "inputTokens": 1100, "outputTokens": 240, "durationMs": 2622, "completenessScore": 12, "failureCode": "invalid_diff", "requiresHumanReview": false }
+  ],
+  "links": {}
+}

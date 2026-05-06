@@ -4,35 +4,28 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 580,
-    "issues": 10,
+    "filesScanned": 591,
+    "issues": 8,
     "byKind": {
       "cyclomatic-complexity": 2,
-      "duplicate-block": 7,
+      "duplicate-block": 5,
       "nested-ternary": 1
     }
   },
   "issues": [
     {
-      "id": "cyclomatic-complexity:apps/desktop/src/dashboards/custom/custom-widget-editor.tsx:670645eb0725c3b6",
+      "id": "cyclomatic-complexity:packages/os-desktop/src/_wip/dashboards/custom/custom-widget-editor.tsx:670645eb0725c3b6",
       "kind": "cyclomatic-complexity",
-      "file": "apps/desktop/src/dashboards/custom/custom-widget-editor.tsx",
+      "file": "packages/os-desktop/src/_wip/dashboards/custom/custom-widget-editor.tsx",
       "line": 414,
       "detail": "CustomWidgetEditor complexity 21 exceeds max 14."
     },
     {
-      "id": "cyclomatic-complexity:apps/desktop/src/dashboards/custom/custom-widget-renderer.tsx:8f3cdd212b8a9476",
+      "id": "cyclomatic-complexity:packages/os-desktop/src/_wip/dashboards/custom/custom-widget-renderer.tsx:8f3cdd212b8a9476",
       "kind": "cyclomatic-complexity",
-      "file": "apps/desktop/src/dashboards/custom/custom-widget-renderer.tsx",
+      "file": "packages/os-desktop/src/_wip/dashboards/custom/custom-widget-renderer.tsx",
       "line": 197,
       "detail": "CustomWidgetRenderer complexity 20 exceeds max 14."
-    },
-    {
-      "id": "duplicate-block:apps/desktop/src/screens/runs/use-runs.ts:d9231c7f9886379c",
-      "kind": "duplicate-block",
-      "file": "apps/desktop/src/screens/runs/use-runs.ts",
-      "line": 79,
-      "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/runs/use-runs.ts:60."
     },
     {
       "id": "duplicate-block:packages/os-coding-agents/src/cursor.ts:a02e63e76aa18a77",
@@ -63,18 +56,11 @@
       "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:37."
     },
     {
-      "id": "duplicate-block:packages/os-coding-agents/src/secrets-env-file.ts:219da06672187e14",
+      "id": "duplicate-block:packages/os-desktop/src/screens/runs/use-runs.ts:d9231c7f9886379c",
       "kind": "duplicate-block",
-      "file": "packages/os-coding-agents/src/secrets-env-file.ts",
-      "line": 8,
-      "detail": "Duplicate 8-line block also appears at packages/os-cli/src/lib/local-credentials-file.ts:8."
-    },
-    {
-      "id": "duplicate-block:packages/os-coding-agents/src/secrets-env-file.ts:4d44ee040031aa59",
-      "kind": "duplicate-block",
-      "file": "packages/os-coding-agents/src/secrets-env-file.ts",
-      "line": 9,
-      "detail": "Duplicate 8-line block also appears at packages/os-cli/src/lib/local-credentials-file.ts:9."
+      "file": "packages/os-desktop/src/screens/runs/use-runs.ts",
+      "line": 79,
+      "detail": "Duplicate 8-line block also appears at packages/os-desktop/src/screens/runs/use-runs.ts:60."
     },
     {
       "id": "nested-ternary:packages/os-core/src/events/bus.ts:5b54345de0394536",

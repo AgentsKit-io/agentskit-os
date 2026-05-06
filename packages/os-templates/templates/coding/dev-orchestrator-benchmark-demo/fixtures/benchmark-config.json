@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "kind": "benchmark",
+  "isolateWorktrees": true,
+  "dryRun": true,
+  "tasks": [
+    {
+      "id": "bug-off-by-one",
+      "kind": "edit",
+      "promptFile": "issues/bug-off-by-one.md",
+      "readScope": ["src/**", "tests/**"],
+      "writeScope": ["src/**"],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "test-coverage-gap",
+      "kind": "test",
+      "promptFile": "issues/test-coverage-gap.md",
+      "readScope": ["src/**", "tests/**"],
+      "writeScope": ["tests/**"],
+      "timeoutMs": 120000
+    },
+    {
+      "id": "feat-formatter",
+      "kind": "free-form",
+      "promptFile": "issues/feat-formatter.md",
+      "readScope": ["src/**"],
+      "writeScope": ["src/**"],
+      "timeoutMs": 240000
+    }
+  ],
+  "providers": [
+    "codex",
+    "claude-code",
+    "cursor",
+    "gemini",
+    "aider",
+    "opencode",
+    "continue"
+  ],
+  "provider_skip_when_unavailable": true,
+  "report": {
+    "emitMarkdown": true,
+    "emitJson": true,
+    "emitDashboard": true
+  }
+}

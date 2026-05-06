@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "workspace": {
+    "schemaVersion": 1,
+    "id": "dev-issue-to-pr-workspace-root",
+    "name": "Issue → PR demo workspace",
+    "tags": ["coding", "demo", "issue-to-pr"],
+    "limits": {
+      "usdPerRun": 5,
+      "tokensPerRun": 200000
+    }
+  },
+  "vault": {
+    "backend": "env",
+    "prefix": "AGENTSKITOS_"
+  },
+  "security": {},
+  "observability": {
+    "enabled": true,
+    "exporters": ["console"],
+    "redactInputs": true
+  },
+  "agents": [
+    {
+      "id": "issue-pipeline-lead",
+      "name": "Issue pipeline lead",
+      "systemPrompt": "Coordinates issue → plan → worktree → implement → tests → review → draft PR. Use dry-run / preview modes until credentials and remotes are configured.",
+      "model": {
+        "provider": "openai",
+        "model": "gpt-5.4-mini",
+        "temperature": 0.1
+      },
+      "tools": [
+        "github.issue.fetch",
+        "coding-agent.plan",
+        "git.worktree.prepare",
+        "coding-agent.implement",
+        "test.runner.run",
+        "coding-agent.summarize",
+        "github.pr.open-draft"
+      ],
+      "tags": ["lead", "demo"]
+    }
+  ],
+  "flows": [
+    {
+      "id": "dev-issue-to-pr-demo-flow",
+      "name": "Issue to PR (demo)",
+      "entry": "issue",
+      "nodes": [
+        { "id": "issue", "kind": "tool", "tool": "github.issue.fetch" },
+        { "id": "plan", "kind": "tool", "tool": "coding-agent.plan" },
+        { "id": "branch", "kind": "tool", "tool": "git.worktree.prepare" },
+        { "id": "impl", "kind": "tool", "tool": "coding-agent.implement" },
+        { "id": "test", "kind": "tool", "tool": "test.runner.run" },
+        { "id": "summarize", "kind": "tool", "tool": "coding-agent.summarize" },
+        {
+          "id": "hitl",
+          "kind": "human",
+          "prompt": "Approve PR draft title/body and target branch?",
+          "approvers": ["maintainer"],
+          "quorum": 1
+        },
+        { "id": "pr", "kind": "tool", "tool": "github.pr.open-draft" }
+      ],
+      "edges": [
+        { "from": "issue", "to": "plan" },
+        { "from": "plan", "to": "branch" },
+        { "from": "branch", "to": "impl" },
+        { "from": "impl", "to": "test" },
+        { "from": "test", "to": "summarize" },
+        { "from": "summarize", "to": "hitl" },
+        { "from": "hitl", "to": "pr" }
+      ],
+      "tags": ["coding", "demo", "issue-to-pr"]
+    }
+  ],
+  "triggers": [
+    {
+      "id": "dev-issue-to-pr-demo-trigger",
+      "name": "Issue → PR demo (manual)",
+      "flow": "dev-issue-to-pr-demo-flow",
+      "enabled": false,
+      "tags": ["coding", "demo"],
+      "limits": { "usdPerRun": 5, "tokensPerRun": 200000 },
+      "kind": "github",
+      "repo": "example-org/example-repo",
+      "event": "issues"
+    }
+  ]
+}

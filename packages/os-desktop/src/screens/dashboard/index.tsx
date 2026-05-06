@@ -10,7 +10,7 @@ import { useDashboardRuntime } from './use-dashboard-runtime'
 // ---------------------------------------------------------------------------
 
 type DashboardProps = {
-  readonly onNavigate?: (screen: 'flows' | 'runs') => void
+  readonly onNavigate?: (screen: 'runs') => void
   /**
    * Optional ref-setter called once on mount so a parent (e.g. the command
    * palette provider) can imperatively trigger `clearEventFeed`.
@@ -35,7 +35,6 @@ export function Dashboard({ onNavigate, onRegisterClear }: DashboardProps) {
       <div className="flex flex-col gap-5 px-4 py-5 sm:px-6">
         <HomeHero
           onChangeRunMode={runtime.setMode}
-          onCreateAutomation={() => onNavigate?.('flows')}
           onDeploy={runtime.deploy}
           onOpenRuns={() => onNavigate?.('runs')}
           runMode={runtime.runMode}
@@ -43,7 +42,7 @@ export function Dashboard({ onNavigate, onRegisterClear }: DashboardProps) {
           workspaceName="My Workspace"
         />
         <StatsGrid stats={statsState.stats} isLoading={statsState.isLoading} />
-        <NextActions onCreateAutomation={() => onNavigate?.('flows')} />
+        <NextActions />
         <HomeActivityPanel
           events={eventsState.events}
           isPaused={eventsState.isPaused}

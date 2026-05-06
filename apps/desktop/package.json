@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@agentskit/os-core": "workspace:*",
+    "@agentskit/os-desktop": "workspace:*",
     "@agentskit/os-headless": "workspace:*",
     "@agentskit/os-observability": "workspace:*",
     "@agentskit/os-ui": "workspace:^",

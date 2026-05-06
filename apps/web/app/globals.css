@@ -1,5 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 
+/*
+ * Shared design tokens (--ag-*) per ADR-0018 §3.7.
+ * Web uses its own Tailwind theme keys (ink/surface/panel/line/accent) for
+ * the marketing palette but loads the desktop tokens here so future shared
+ * components (glass panels, status pills) resolve from one source.
+ */
+@import "@agentskit/os-ui/tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

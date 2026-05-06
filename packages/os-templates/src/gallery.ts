@@ -14,6 +14,52 @@ type TemplateSpec = {
 
 export const templateSpecs = [
   {
+    "id": "dev-orchestrator-benchmark-demo",
+    "category": "coding",
+    "categoryLabel": "Coding",
+    "name": "Dev Orchestrator Benchmark Demo",
+    "description": "Public demo workspace that benchmarks the dev orchestrator across coding-agent providers on three task types (bug fix, test generation, small feature).",
+    "tags": [
+      "coding",
+      "benchmark",
+      "demo",
+      "dev-orchestrator",
+      "dogfood"
+    ],
+    "tools": [
+      "coding-agent.benchmark",
+      "coding-agent.delegate"
+    ],
+    "triggerKind": "cron"
+  },
+  {
+    "id": "dev-issue-to-pr-workspace",
+    "category": "coding",
+    "categoryLabel": "Coding",
+    "name": "Issue → PR workspace (demo)",
+    "description":
+      "Workspace for the GitHub issue → plan → worktree → implement → tests → PR draft pipeline (#364). Use `agentskit-os dev issue-pr --issue …` for a headless dry-run trace without remotes.",
+    "tags": [
+      "coding",
+      "demo",
+      "dev-orchestrator",
+      "github",
+      "issue",
+      "pr",
+      "sdlc"
+    ],
+    "tools": [
+      "github.issue.fetch",
+      "coding-agent.plan",
+      "git.worktree.prepare",
+      "coding-agent.implement",
+      "test.runner.run",
+      "coding-agent.summarize",
+      "github.pr.open-draft"
+    ],
+    "triggerKind": "github"
+  },
+  {
     "id": "pr-review-3-way",
     "category": "coding",
     "categoryLabel": "Coding",

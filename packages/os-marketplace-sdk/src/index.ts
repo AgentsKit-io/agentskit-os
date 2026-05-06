@@ -41,5 +41,11 @@ export type {
   SbomEntry,
 } from './provenance.js'
 
+export { filterForPrivateViewer, tagPrivateScope } from './private-library.js'
+export type {
+  PrivateLibraryViewer,
+  PrivateScope,
+} from './private-library.js'
+
 export const PACKAGE_NAME = '@agentskit/os-marketplace-sdk' as const
 export const PACKAGE_VERSION = '0.0.0' as const

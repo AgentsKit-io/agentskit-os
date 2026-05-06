@@ -681,6 +681,14 @@ export type {
 export { createSecurityBundle } from './security/bundle.js'
 export type { SecurityBundle, SecurityBundleOpts } from './security/bundle.js'
 
+export { createOAuthHub } from './security/oauth-hub.js'
+export type {
+  OAuthConnection,
+  OAuthConnectionState,
+  OAuthHubRegistry,
+  OAuthProvider,
+} from './security/oauth-hub.js'
+
 export { createSandboxRegistry } from './security/sandbox-backends.js'
 export type {
   SandboxBackend,

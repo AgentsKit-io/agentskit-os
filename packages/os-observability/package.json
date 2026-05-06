@@ -26,7 +26,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm --filter @agentskit/os-dev-orchestrator build && tsup",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",

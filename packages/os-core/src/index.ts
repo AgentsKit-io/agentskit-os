@@ -580,6 +580,13 @@ export {
 export type { ChainBreak, SignatureVerifier } from './audit/batch.js'
 
 export {
+  buildSignedAuditBatch,
+  createNullAuditSigner,
+  nextPrevBatchHash,
+} from './audit/builder.js'
+export type { AuditBatchBuilderInput, AuditSigner } from './audit/builder.js'
+
+export {
   EXTENSION_API_VERSION,
   EXTENSION_POINTS,
   ExtensionPoint,

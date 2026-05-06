@@ -106,6 +106,14 @@ export type { PostHogExporterOpts, PostHogHttp } from './exporters/posthog.js'
 export { buildCostHeatMap, totalCostForTag } from './cost-heat-map.js'
 export { replayBisect } from './replay-bisect.js'
 export type { BisectOpts, BisectVerdict, ReplayOracle } from './replay-bisect.js'
+
+export {
+  ANOMALY_PRESET_IDS,
+  BUILTIN_ANOMALY_RULES,
+  defaultAnomalyRuleSet,
+  getAnomalyPreset,
+} from './anomaly-presets.js'
+export type { AnomalyPresetId } from './anomaly-presets.js'
 export type {
   CostHeatCell,
   CostHeatMap,

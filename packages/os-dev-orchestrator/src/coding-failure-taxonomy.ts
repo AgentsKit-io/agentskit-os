@@ -287,42 +287,46 @@ export const classifyCodingFailure = (result: CodingTaskResult): CodingFailureCl
 
 export type CodingFailureIncidentRecord = {
   readonly schemaVersion: '1.0'
-  readonly incidentId: string
-  readonly capturedAt: string
+  readonly at: string
+  readonly taskId: string
   readonly providerId: string
-  readonly runId?: string
-  readonly taskId?: string
   readonly classification: CodingFailureClassification
-  readonly summary: string
-  readonly errorCode?: string
+  readonly context: {
+    readonly status: CodingTaskResult['status']
+    readonly errorCode?: string
+    readonly summarySnippet: string
+    readonly fileCount: number
+    readonly shellCount: number
+    readonly toolCount: number
+  }
 }
 
 /**
- * Build an incident record for a failed coding run. Returns `null` when the run
- * was a clean success — only failures yield an incident.
+ * Build an incident-like record from a failing (or risky) result. This is a low-level
+ * payload intended for traces, artifacts, dashboards, and later conversion into an
+ * `AgentIncident` when desired (#376 + #341).
  */
-export const buildCodingFailureIncident = (args: {
-  readonly result: CodingTaskResult
+export const buildCodingFailureIncidentRecord = (args: {
+  readonly taskId: string
   readonly providerId: string
-  readonly runId?: string
-  readonly taskId?: string
-  readonly capturedAt?: string
-  readonly idPrefix?: string
+  readonly result: CodingTaskResult
+  readonly at?: string
 }): CodingFailureIncidentRecord | null => {
   const classification = classifyCodingFailure(args.result)
   if (!classification) return null
-  const capturedAt = args.capturedAt ?? new Date().toISOString()
-  const safeRun = (args.runId ?? 'run').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 32)
-  const incidentId = `${args.idPrefix ?? 'inc'}-${safeRun}-${classification.code}-${capturedAt.replace(/[^0-9]/g, '').slice(0, 14)}`
   return {
     schemaVersion: '1.0',
-    incidentId,
-    capturedAt,
+    at: args.at ?? new Date().toISOString(),
+    taskId: args.taskId,
     providerId: args.providerId,
-    ...(args.runId !== undefined ? { runId: args.runId } : {}),
-    ...(args.taskId !== undefined ? { taskId: args.taskId } : {}),
     classification,
-    summary: args.result.summary,
-    ...(args.result.errorCode !== undefined ? { errorCode: args.result.errorCode } : {}),
+    context: {
+      status: args.result.status,
+      ...(args.result.errorCode !== undefined ? { errorCode: args.result.errorCode } : {}),
+      summarySnippet: args.result.summary.slice(0, 240),
+      fileCount: args.result.files.length,
+      shellCount: args.result.shell.length,
+      toolCount: args.result.tools.length,
+    },
   }
 }

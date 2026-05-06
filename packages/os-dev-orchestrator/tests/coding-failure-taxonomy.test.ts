@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { CodingTaskResult } from '@agentskit/os-core'
 import {
-  buildCodingFailureIncident,
+  buildCodingFailureIncidentRecord,
   classifyCodingFailure,
   CODING_FAILURE_CATALOG,
 } from '../src/coding-failure-taxonomy.js'
@@ -83,30 +83,18 @@ describe('classifyCodingFailure', () => {
     )
     expect(c?.code).toBe('hallucinated_file')
   })
-})
 
-describe('buildCodingFailureIncident', () => {
-  it('returns null for clean success', () => {
-    expect(
-      buildCodingFailureIncident({
-        result: base({ status: 'ok', summary: 'done' }),
-        providerId: 'codex',
-      }),
-    ).toBeNull()
-  })
-
-  it('builds incident for timeout', () => {
-    const inc = buildCodingFailureIncident({
-      result: base({ status: 'timeout', summary: 'timed out' }),
-      providerId: 'codex',
-      runId: 'r1',
+  it('builds an incident record for classified failures', () => {
+    const result = base({ status: 'timeout' })
+    const inc = buildCodingFailureIncidentRecord({
       taskId: 't1',
-      capturedAt: '2026-05-05T12:00:00Z',
+      providerId: 'p1',
+      result,
+      at: '2026-05-06T00:00:00.000Z',
     })
-    expect(inc).not.toBeNull()
+    expect(inc?.schemaVersion).toBe('1.0')
+    expect(inc?.taskId).toBe('t1')
+    expect(inc?.providerId).toBe('p1')
     expect(inc?.classification.code).toBe('provider_timeout')
-    expect(inc?.providerId).toBe('codex')
-    expect(inc?.runId).toBe('r1')
-    expect(inc?.incidentId).toContain('provider_timeout')
   })
 })

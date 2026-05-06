@@ -81,6 +81,16 @@ export type {
   IncidentTransition,
 } from './agent-incident.js'
 
+export {
+  createSubstringRedactor,
+  getRedactionProfile,
+  REDACTION_PROFILES,
+} from './redaction-profiles.js'
+export type {
+  RedactionProfile,
+  RedactionProfileId,
+} from './redaction-profiles.js'
+
 export { applyFieldRedaction } from './field-redaction.js'
 export type {
   FieldRedactionConfig,

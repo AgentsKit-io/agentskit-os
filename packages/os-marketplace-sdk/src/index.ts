@@ -47,5 +47,17 @@ export type {
   PrivateScope,
 } from './private-library.js'
 
+export {
+  filterPluginStoreEntries,
+  latestAudit,
+  renderStoreBadge,
+} from './plugin-store.js'
+export type {
+  AuditEntry,
+  PluginStoreEntry,
+  StoreFilter,
+  VerificationLevel,
+} from './plugin-store.js'
+
 export const PACKAGE_NAME = '@agentskit/os-marketplace-sdk' as const
 export const PACKAGE_VERSION = '0.0.0' as const

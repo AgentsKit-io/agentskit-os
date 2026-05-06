@@ -251,7 +251,7 @@ describe('runCodingAgentBenchmark', () => {
     }
   })
 
-  it.skip('writes run_cancelled artifact when aborted after a provider with capture enabled', async () => {
+  it('writes run_cancelled artifact when aborted after a provider with capture enabled', async () => {
     const outDir = join(tmpdir(), `ak-bench-cancel-${Date.now()}`)
     const ctrl = new AbortController()
     const p1 = fakeProvider('p-one', async () => {

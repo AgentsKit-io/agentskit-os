@@ -15,7 +15,11 @@ export type CodingAgentArtifactIds = {
   readonly traceId?: string
 }
 
-export type CodingRunArtifactPhase = 'setup_failed' | 'provider_completed' | 'provider_threw'
+export type CodingRunArtifactPhase =
+  | 'setup_failed'
+  | 'provider_completed'
+  | 'provider_threw'
+  | 'run_cancelled'
 
 export type CodingRunGitRefDiffSummary = {
   readonly from: string
@@ -178,6 +182,17 @@ export const artifactFilenameForBenchmarkStep = (
   const safeRun = runId.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 48)
   const safePid = providerId.replace(/[^a-zA-Z0-9._-]+/g, '_')
   return `coding-run-artifact-${safeRun}-${index}-${safePid}.json`
+}
+
+/** Filename for a cancellation marker artifact (#367). */
+export const artifactFilenameForBenchmarkCancellation = (
+  runId: string,
+  index: number,
+  providerId: string,
+): string => {
+  const safeRun = runId.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 40)
+  const safePid = providerId.replace(/[^a-zA-Z0-9._-]+/g, '_')
+  return `coding-run-artifact-${safeRun}-${index}-${safePid}-cancelled.json`
 }
 
 export const artifactFilenameForDelegationStep = (

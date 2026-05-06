@@ -199,14 +199,14 @@ Legend: **P** = primary control for that path, **S** = supporting / defense in d
 
 Open discrete GitHub issues for anything below that does not already have an owner; do not treat this list as done until tickets exist or the risk is explicitly accepted.
 
-| Suggested issue title | Priority | Notes |
-|------------------------|----------|--------|
-| Automated egress policy tests on real coding-agent runs | **P1** | Integration coverage for default-deny + allowlist drift. |
-| Trace / export **redaction profiles** (regime-specific defaults) | **P1** | HIPAA-style defaults; tie to observability pipelines. |
-| CI gate: fail when `coding-agent conformance --json` is not certified for claimed providers | **P1** | Bridges [#374](https://github.com/AgentsKit-io/agentskit-os/issues/374) to release policy. |
-| Provider **binary attestation** or install-path integrity checks | **P0** | Reduces trojaned-CLI risk in §4.8; pair with install docs. |
-| **Stolen CI / PAT** abuse playbooks and least-privilege templates | **P1** | See [ci-least-privilege-coding-agents.md](./ci-least-privilege-coding-agents.md) (#379). |
-| **Prompt firewall** regression suite for issue→PR and webhook-sourced prompts | **P0** | When prompt firewall ships beyond static deny lists. |
+| Suggested issue title | Priority | Tracker | Notes |
+|------------------------|----------|---------|--------|
+| Automated egress policy tests on real coding-agent runs | **P1** | [#438](https://github.com/AgentsKit-io/agentskit-os/issues/438) | Integration coverage for default-deny + allowlist drift. |
+| Trace / export **redaction profiles** (regime-specific defaults) | **P1** | [#439](https://github.com/AgentsKit-io/agentskit-os/issues/439) | HIPAA-style defaults; tie to observability pipelines. |
+| CI gate: fail when `coding-agent conformance --json` is not certified for claimed providers | **P1** | [#440](https://github.com/AgentsKit-io/agentskit-os/issues/440) | Bridges [#374](https://github.com/AgentsKit-io/agentskit-os/issues/374) to release policy. |
+| Provider **binary attestation** or install-path integrity checks | **P0** | [#441](https://github.com/AgentsKit-io/agentskit-os/issues/441) | Reduces trojaned-CLI risk in §4.8; pair with install docs. |
+| **Stolen CI / PAT** abuse playbooks and least-privilege templates | **P1** | [#442](https://github.com/AgentsKit-io/agentskit-os/issues/442) | See [ci-least-privilege-coding-agents.md](./ci-least-privilege-coding-agents.md). |
+| **Prompt firewall** regression suite for issue→PR and webhook-sourced prompts | **P0** | [#443](https://github.com/AgentsKit-io/agentskit-os/issues/443) | When prompt firewall ships beyond static deny lists. |
 
 ---
 
@@ -216,6 +216,7 @@ Before external coding-agent integrations are marketed or labeled **production-r
 
 - [ ] Assets and trust boundaries in §1–§2 are still accurate for the shipping provider set.  
 - [ ] Each §4 attack path has an **owned** mitigation in code or ops runbooks (or an accepted residual in §6).  
+- [x] The §7 follow-up backlog has open trackers ([#438](https://github.com/AgentsKit-io/agentskit-os/issues/438) – [#443](https://github.com/AgentsKit-io/agentskit-os/issues/443)) — filed 2026-05-06; sign-off blocks on those issues, not on the doc.
 - [ ] The matrix in §5.1 has been walked with the team; gaps have **open** issues from §7 or written waivers.  
 - [ ] HITL ([#337](https://github.com/AgentsKit-io/agentskit-os/issues/337)) and policy ([#336](https://github.com/AgentsKit-io/agentskit-os/issues/336)) are wired for any tool or run mode exposed to untrusted prompt sources.  
 - [ ] Marketplace / plugin provenance ([#342](https://github.com/AgentsKit-io/agentskit-os/issues/342)) is understood for any third-party prompt or tool surface in scope.

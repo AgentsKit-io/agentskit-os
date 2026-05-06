@@ -1,5 +1,8 @@
 // Per #364 — headless dry-run trace for issue → PR pipeline (no git remotes).
 
+import type { CodingAgentProvider, CodingTaskKind } from '@agentskit/os-core'
+import { runCodingAgentBenchmark, type CodingBenchmarkReport } from './coding-benchmark.js'
+
 export type IssueToPrPipelineEvent = {
   readonly phase: string
   readonly detail: string
@@ -103,5 +106,80 @@ export const simulateIssueToPrDryRun = (opts: {
     testLogPreview,
     reviewSummary,
     prDraft,
+  }
+}
+
+export type IssueToPrLiveReport = {
+  readonly schemaVersion: 1
+  readonly issueRef: string
+  readonly repoRoot: string
+  readonly dryRun: false
+  readonly templateId: 'dev-issue-to-pr'
+  readonly plan: IssueToPrDryRunReport
+  readonly benchmark: CodingBenchmarkReport
+  readonly prDraft: IssueToPrPrDraftMeta
+}
+
+export type IssueToPrPipelineReport = IssueToPrDryRunReport | IssueToPrLiveReport
+
+/**
+ * Headless issue → PR pipeline entry point (#364).
+ * Dry-run mode returns the deterministic plan trace. Live mode runs the
+ * single chosen provider through `runCodingAgentBenchmark`, reusing the
+ * provider isolation + artifact capture that already ships for #366/#367.
+ *
+ * Live mode does not push a remote PR; the returned `prDraft` carries the
+ * branch + body the caller would need to open one.
+ */
+export const runIssueToPrPipeline = async (opts: {
+  readonly issueRef: string
+  readonly repoRoot: string
+  readonly mode: 'dry-run' | 'live'
+  readonly providers?: readonly string[]
+  readonly provider?: CodingAgentProvider
+  readonly kind?: CodingTaskKind
+  readonly isolateWorktrees?: boolean
+  readonly timeoutMs?: number
+  readonly signal?: AbortSignal
+}): Promise<IssueToPrPipelineReport> => {
+  if (opts.mode === 'dry-run') {
+    const dry: { issueRef: string; repoRoot: string; providers?: readonly string[] } = {
+      issueRef: opts.issueRef,
+      repoRoot: opts.repoRoot,
+      ...(opts.providers !== undefined ? { providers: opts.providers } : {}),
+    }
+    return simulateIssueToPrDryRun(dry)
+  }
+
+  if (opts.provider === undefined) {
+    throw new Error('runIssueToPrPipeline: live mode requires a CodingAgentProvider via opts.provider')
+  }
+
+  const planInput: { issueRef: string; repoRoot: string; providers?: readonly string[] } = {
+    issueRef: opts.issueRef,
+    repoRoot: opts.repoRoot,
+    ...(opts.providers !== undefined ? { providers: opts.providers } : { providers: [opts.provider.info.id] }),
+  }
+  const plan = simulateIssueToPrDryRun(planInput)
+  const benchmark = await runCodingAgentBenchmark({
+    repoRoot: opts.repoRoot,
+    providers: [opts.provider],
+    kind: opts.kind ?? 'free-form',
+    prompt: `Implement issue ${opts.issueRef} per repository conventions.`,
+    dryRun: false,
+    isolateWorktrees: opts.isolateWorktrees === true,
+    ...(opts.timeoutMs !== undefined ? { timeoutMs: opts.timeoutMs } : {}),
+    ...(opts.signal !== undefined ? { signal: opts.signal } : {}),
+  })
+
+  return {
+    schemaVersion: 1,
+    issueRef: opts.issueRef,
+    repoRoot: opts.repoRoot,
+    dryRun: false,
+    templateId: 'dev-issue-to-pr',
+    plan,
+    benchmark,
+    prDraft: plan.prDraft,
   }
 }

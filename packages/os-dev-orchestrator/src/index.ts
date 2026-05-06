@@ -85,10 +85,12 @@ export type {
   CodingPermissionProfileId,
 } from './coding-permission-profiles.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'
-export { simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
+export { runIssueToPrPipeline, simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
 export type {
   IssueToPrDryRunReport,
+  IssueToPrLiveReport,
   IssueToPrPipelineEvent,
+  IssueToPrPipelineReport,
   IssueToPrPrDraftMeta,
 } from './issue-pr-pipeline.js'
 export type {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CodingAgentProvider, CodingTaskResult } from '@agentskit/os-core'
+import { createInMemoryHitlInbox } from '@agentskit/os-core'
 import { runDelegatedCodingTask } from '../src/coding-delegation.js'
 
 const fake = (id: string, result: CodingTaskResult): CodingAgentProvider => ({
@@ -166,5 +167,82 @@ describe('runDelegatedCodingTask', () => {
     })
     expect(report.subtasks[0]?.permissionProfileId).toBe('read_only_review')
     expect(report.subtasks[0]?.expectedArtifacts).toEqual(['diff', 'tests'])
+  })
+
+  it('flags missing expected artifacts and routes to human inbox (#365)', async () => {
+    const inbox = createInMemoryHitlInbox()
+    const report = await runDelegatedCodingTask({
+      repoRoot: '/repo',
+      coordinatorPrompt: 'art-check',
+      isolateWorktrees: false,
+      hitlInbox: inbox,
+      hitlApprovers: ['lead-eng'],
+      shards: [
+        {
+          id: 'a',
+          providerId: 'p-a',
+          provider: fake('p-a', {
+            providerId: 'p-a',
+            status: 'ok',
+            files: [],
+            shell: [],
+            tools: [],
+            summary: '',
+          }),
+          prompt: 'x',
+          kind: 'free-form',
+          dryRun: true,
+          expectedArtifacts: ['diff', 'tests', 'summary', 'src/special.ts'],
+        },
+      ],
+    })
+
+    expect(report.subtasks[0]?.missingArtifacts).toEqual([
+      'diff',
+      'tests',
+      'summary',
+      'src/special.ts',
+    ])
+    expect(report.suggestHumanInbox).toBe(true)
+    expect(report.coordinatorSummary).toContain('missingArtifacts: 1')
+    expect(report.hitlTaskId).toBeDefined()
+
+    const tasks = inbox.list('open')
+    expect(tasks).toHaveLength(1)
+    expect(tasks[0]?.tags).toContain('delegation')
+    expect(tasks[0]?.approvers).toEqual(['lead-eng'])
+    expect(tasks[0]?.prompt).toContain('Missing artifacts')
+  })
+
+  it('does not enqueue inbox task when shards clean (#365)', async () => {
+    const inbox = createInMemoryHitlInbox()
+    const report = await runDelegatedCodingTask({
+      repoRoot: '/repo',
+      coordinatorPrompt: 'clean',
+      isolateWorktrees: false,
+      hitlInbox: inbox,
+      shards: [
+        {
+          id: 'a',
+          providerId: 'p-a',
+          provider: fake('p-a', {
+            providerId: 'p-a',
+            status: 'ok',
+            files: [{ path: 'a.ts', op: 'modify', after: '1' }],
+            shell: [],
+            tools: [],
+            summary: 'done',
+          }),
+          prompt: 'x',
+          kind: 'free-form',
+          dryRun: true,
+          expectedArtifacts: ['diff', 'summary'],
+        },
+      ],
+    })
+
+    expect(report.suggestHumanInbox).toBe(false)
+    expect(report.hitlTaskId).toBeUndefined()
+    expect(inbox.list('open')).toHaveLength(0)
   })
 })

@@ -81,5 +81,12 @@ export type {
   IncidentTransition,
 } from './agent-incident.js'
 
+export { applyFieldRedaction } from './field-redaction.js'
+export type {
+  FieldRedactionConfig,
+  FieldRedactor,
+  FieldSelector,
+} from './field-redaction.js'
+
 export const PACKAGE_NAME = '@agentskit/os-observability' as const
 export const PACKAGE_VERSION = '0.0.0' as const

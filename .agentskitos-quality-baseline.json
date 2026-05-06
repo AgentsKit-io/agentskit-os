@@ -4,11 +4,11 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 569,
-    "issues": 4,
+    "filesScanned": 580,
+    "issues": 10,
     "byKind": {
       "cyclomatic-complexity": 2,
-      "duplicate-block": 1,
+      "duplicate-block": 7,
       "nested-ternary": 1
     }
   },
@@ -33,6 +33,48 @@
       "file": "apps/desktop/src/screens/runs/use-runs.ts",
       "line": 79,
       "detail": "Duplicate 8-line block also appears at apps/desktop/src/screens/runs/use-runs.ts:60."
+    },
+    {
+      "id": "duplicate-block:packages/os-coding-agents/src/cursor.ts:a02e63e76aa18a77",
+      "kind": "duplicate-block",
+      "file": "packages/os-coding-agents/src/cursor.ts",
+      "line": 34,
+      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:38."
+    },
+    {
+      "id": "duplicate-block:packages/os-coding-agents/src/cursor.ts:a69b0bc33e981c50",
+      "kind": "duplicate-block",
+      "file": "packages/os-coding-agents/src/cursor.ts",
+      "line": 33,
+      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:37."
+    },
+    {
+      "id": "duplicate-block:packages/os-coding-agents/src/opencode.ts:a02e63e76aa18a77",
+      "kind": "duplicate-block",
+      "file": "packages/os-coding-agents/src/opencode.ts",
+      "line": 33,
+      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:38."
+    },
+    {
+      "id": "duplicate-block:packages/os-coding-agents/src/opencode.ts:a69b0bc33e981c50",
+      "kind": "duplicate-block",
+      "file": "packages/os-coding-agents/src/opencode.ts",
+      "line": 32,
+      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:37."
+    },
+    {
+      "id": "duplicate-block:packages/os-coding-agents/src/secrets-env-file.ts:219da06672187e14",
+      "kind": "duplicate-block",
+      "file": "packages/os-coding-agents/src/secrets-env-file.ts",
+      "line": 8,
+      "detail": "Duplicate 8-line block also appears at packages/os-cli/src/lib/local-credentials-file.ts:8."
+    },
+    {
+      "id": "duplicate-block:packages/os-coding-agents/src/secrets-env-file.ts:4d44ee040031aa59",
+      "kind": "duplicate-block",
+      "file": "packages/os-coding-agents/src/secrets-env-file.ts",
+      "line": 9,
+      "detail": "Duplicate 8-line block also appears at packages/os-cli/src/lib/local-credentials-file.ts:9."
     },
     {
       "id": "nested-ternary:packages/os-core/src/events/bus.ts:5b54345de0394536",

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { CONFORMANCE_PROMPTS, runConformance } from '@agentskit/os-core'
-import { createClaudeCodeProvider, createCodexProvider, createCursorProvider, createGeminiProvider } from '../src/index.js'
+import {
+  createAiderProvider,
+  createClaudeCodeProvider,
+  createCodexProvider,
+  createContinueProvider,
+  createCursorProvider,
+  createGeminiProvider,
+  createOpenCodeProvider,
+} from '../src/index.js'
 import {
   BUILTIN_CODING_AGENT_IDS,
   createBuiltinCodingAgentProvider,
@@ -94,10 +102,12 @@ const conformanceJsonForStdin = (stdin: string | undefined): string => {
   return base({})
 }
 
-/** Codex uses `stdin`; Claude/Cursor/Gemini embed the task in `-p <prompt>` args. */
+/** Codex uses `stdin`; others embed the task as a `-p`/`--message` arg. */
 const conformanceProbeText = (opts: { readonly args: readonly string[]; readonly stdin?: string }): string | undefined => {
-  const pIdx = opts.args.indexOf('-p')
-  if (pIdx >= 0 && opts.args[pIdx + 1]) return String(opts.args[pIdx + 1])
+  for (const flag of ['-p', '--message', '--prompt']) {
+    const i = opts.args.indexOf(flag)
+    if (i >= 0 && opts.args[i + 1]) return String(opts.args[i + 1])
+  }
   return opts.stdin
 }
 
@@ -153,10 +163,58 @@ describe('os-coding-agents adapters', () => {
     expect(report.certified).toBe(true)
   })
 
+  it('aider: passes conformance with json stdout', async () => {
+    const runner = mockRunner({
+      which: async () => '/bin/aider',
+      run: conformanceMockRun,
+    })
+    const report = await runConformance(createAiderProvider({ runner }))
+    expect(report.certified).toBe(true)
+  })
+
+  it('opencode: passes conformance with json stdout', async () => {
+    const runner = mockRunner({
+      which: async () => '/bin/opencode',
+      run: conformanceMockRun,
+    })
+    const report = await runConformance(createOpenCodeProvider({ runner }))
+    expect(report.certified).toBe(true)
+  })
+
+  it('continue: passes conformance with json stdout', async () => {
+    const runner = mockRunner({
+      which: async () => '/bin/cn',
+      run: conformanceMockRun,
+    })
+    const report = await runConformance(createContinueProvider({ runner }))
+    expect(report.certified).toBe(true)
+  })
+
   it('builtin factory returns all ids', () => {
-    expect(BUILTIN_CODING_AGENT_IDS.length).toBe(4)
+    expect(BUILTIN_CODING_AGENT_IDS.length).toBe(7)
     for (const id of BUILTIN_CODING_AGENT_IDS) {
       expect(createBuiltinCodingAgentProvider(id).info.id).toBe(id)
     }
+  })
+
+  it('aider: not_found returns structured fail when binary missing', async () => {
+    const runner = mockRunner({
+      which: async () => null,
+      run: conformanceMockRun,
+    })
+    const p = createAiderProvider({ runner })
+    expect(await p.isAvailable()).toBe(false)
+    const r = await p.runTask({
+      kind: 'edit',
+      cwd: '/tmp',
+      prompt: 'noop',
+      dryRun: false,
+      readScope: [],
+      writeScope: [],
+      granted: [],
+      timeoutMs: 1000,
+    })
+    expect(r.status).toBe('fail')
+    expect(r.errorCode).toBe('aider.not_found')
   })
 })

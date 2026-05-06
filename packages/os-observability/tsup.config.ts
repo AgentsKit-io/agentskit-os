@@ -13,7 +13,10 @@ export default defineConfig({
     'src/cost-bridge.ts',
   ],
   format: ['esm', 'cjs'],
-  dts: true,
+  // resolve types for cross-workspace re-exports (coding-task-report-exports.ts
+  // re-exports from @agentskit/os-dev-orchestrator). Without resolve:[...]
+  // the DTS pass races against the dependency's build under parallel pnpm.
+  dts: { resolve: ['@agentskit/os-dev-orchestrator'] },
   sourcemap: true,
   clean: true,
   treeshake: true,

@@ -24,7 +24,9 @@ export type {
 } from './coding-benchmark.js'
 export {
   artifactFilenameForBenchmarkStep,
+  artifactFilenameForDelegationStep,
   buildCodingRunArtifactPayload,
+  collectGitHeadDiffSnapshot,
   redactCodingTaskRequest,
   redactCodingTaskResult,
   resolveHeadOidSafe,
@@ -36,15 +38,18 @@ export type {
   CodingAgentArtifactIds,
   CodingRunArtifactPayload,
   CodingRunArtifactPhase,
+  CodingRunArtifactsOpts,
   CodingRunGitRefDiffSummary,
 } from './coding-run-artifacts.js'
 export {
   CODING_FAILURE_CATALOG,
+  buildCodingFailureIncident,
   classifyCodingFailure,
 } from './coding-failure-taxonomy.js'
 export type {
   CodingFailureClassification,
   CodingFailureCode,
+  CodingFailureIncidentRecord,
   CodingRecoveryAction,
   FailureSeverity,
   RetryPolicy,
@@ -63,10 +68,24 @@ export type {
   CodingTaskReportLinks,
   CodingTaskReportRow,
 } from './coding-task-report.js'
+export {
+  DEV_TRIGGER_PRESETS,
+  getDevTriggerPreset,
+  listDevTriggerPresets,
+} from './dev-trigger-presets.js'
+export type {
+  DevTriggerAuthExpectation,
+  DevTriggerKind,
+  DevTriggerPermissionProfile,
+  DevTriggerPreset,
+  DevTriggerPresetMapInput,
+  DevTriggerRunMode,
+} from './dev-trigger-presets.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'
 export { simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
 export type { IssueToPrDryRunReport, IssueToPrPipelineEvent } from './issue-pr-pipeline.js'
 export type {
+  DelegationArtifactsOpts,
   DelegationReport,
   DelegationSubTaskRow,
   DelegationSubTaskSpec,

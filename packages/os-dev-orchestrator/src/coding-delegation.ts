@@ -2,6 +2,15 @@
 
 import type { CodingAgentProvider, CodingTaskKind, CodingTaskRequest, CodingTaskResult } from '@agentskit/os-core'
 import { createCodingAgentWorktreeManager, type CodingAgentWorktreeManager, type GitRunner } from './git-worktree-manager.js'
+import {
+  artifactFilenameForDelegationStep,
+  buildCodingRunArtifactPayload,
+  collectGitHeadDiffSnapshot,
+  resolveHeadOidSafe,
+  writeCodingRunArtifactFile,
+  type CodingAgentArtifactIds,
+  type CodingRunArtifactsOpts,
+} from './coding-run-artifacts.js'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -43,6 +52,8 @@ export type DelegationReport = {
   readonly trace: DelegationTraceNode
   readonly suggestHumanInbox: boolean
 }
+
+export type DelegationArtifactsOpts = CodingRunArtifactsOpts
 
 const filePathKey = (f: { path: string }): string => f.path
 
@@ -91,23 +102,66 @@ type PrepOk = {
   readonly cwd: string
   readonly taskId?: string
   readonly worktreePath?: string
+  readonly shardIndex: number
 }
 
 type PrepFail = {
   readonly ok: false
   readonly row: DelegationSubTaskRow
   readonly trace: DelegationTraceNode
+  readonly shardIndex: number
 }
 
 type Prep = PrepOk | PrepFail
 
+const persistDelegationArtifact = async (
+  artifacts: CodingRunArtifactsOpts | undefined,
+  args: {
+    readonly shardIndex: number
+    readonly specId: string
+    readonly providerId: string
+    readonly worktreeId?: string
+    readonly cwd: string
+    readonly headBefore?: string
+    readonly phase: 'setup_failed' | 'provider_completed' | 'provider_threw'
+    readonly setupError?: string
+    readonly taskRequest?: CodingTaskRequest
+    readonly taskResult?: CodingTaskResult
+  },
+): Promise<void> => {
+  if (artifacts === undefined) return
+  const { outDir, runId, traceId, redact } = artifacts
+  const gitSnap = await collectGitHeadDiffSnapshot(args.cwd, args.headBefore)
+  const ids: CodingAgentArtifactIds = {
+    runId,
+    taskId: `delegation:${args.shardIndex}:${args.specId}:${args.providerId}`,
+    providerId: args.providerId,
+    ...(args.worktreeId !== undefined ? { worktreeId: args.worktreeId } : {}),
+    ...(traceId !== undefined ? { traceId } : {}),
+  }
+  const payload = buildCodingRunArtifactPayload({
+    ids,
+    benchmarkIndex: args.shardIndex,
+    phase: args.phase,
+    ...(args.setupError !== undefined ? { setupError: args.setupError } : {}),
+    ...(args.taskRequest !== undefined ? { taskRequest: args.taskRequest } : {}),
+    ...(args.taskResult !== undefined ? { taskResult: args.taskResult } : {}),
+    ...(redact !== undefined ? { redact } : {}),
+    ...(gitSnap !== undefined ? { git: gitSnap } : {}),
+  })
+  const name = artifactFilenameForDelegationStep(runId, args.shardIndex, args.specId, args.providerId)
+  await writeCodingRunArtifactFile(outDir, name, payload)
+}
+
 const prepareShard = async (
   shard: DelegationSubTaskSpec,
+  shardIndex: number,
   wm: CodingAgentWorktreeManager | undefined,
   repoRoot: string,
+  artifacts: CodingRunArtifactsOpts | undefined,
 ): Promise<Prep> => {
   if (!wm) {
-    return { ok: true, shard, cwd: repoRoot }
+    return { ok: true, shard, cwd: repoRoot, shardIndex }
   }
 
   const basePath = await mkdtemp(join(tmpdir(), `ak-deleg-${shard.providerId}-`))
@@ -120,8 +174,18 @@ const prepareShard = async (
     cleanupDefault: 'delete',
   })
   if (!created.ok) {
+    await persistDelegationArtifact(artifacts, {
+      shardIndex,
+      specId: shard.id,
+      providerId: shard.providerId,
+      worktreeId: taskId,
+      cwd: repoRoot,
+      phase: 'setup_failed',
+      setupError: created.error,
+    })
     return {
       ok: false,
+      shardIndex,
       row: {
         specId: shard.id,
         providerId: shard.providerId,
@@ -150,6 +214,7 @@ const prepareShard = async (
     cwd: created.meta.path,
     taskId,
     worktreePath: created.meta.path,
+    shardIndex,
   }
 }
 
@@ -158,9 +223,11 @@ type ShardExec = { readonly row: DelegationSubTaskRow; readonly trace: Delegatio
 const execPrepared = async (
   p: PrepOk,
   wm: CodingAgentWorktreeManager | undefined,
+  artifacts: CodingRunArtifactsOpts | undefined,
 ): Promise<ShardExec> => {
-  const { shard, cwd, taskId, worktreePath } = p
+  const { shard, cwd, taskId, worktreePath, shardIndex } = p
   const req = buildTask(shard.kind, shard.prompt, cwd, shard.dryRun)
+  const headBefore = await resolveHeadOidSafe(cwd)
   let result: CodingTaskResult
   try {
     result = await shard.provider.runTask(req)
@@ -175,10 +242,25 @@ const execPrepared = async (
       summary: msg,
       errorCode: 'delegation.run_threw',
     }
-  } finally {
-    if (wm && taskId) {
-      await wm.finalize(taskId, 'delete').catch(() => {})
-    }
+  }
+
+  const phase: 'provider_completed' | 'provider_threw' =
+    result.errorCode === 'delegation.run_threw' ? 'provider_threw' : 'provider_completed'
+  await persistDelegationArtifact(artifacts, {
+    shardIndex,
+    specId: shard.id,
+    providerId: shard.providerId,
+    ...(taskId !== undefined ? { worktreeId: taskId } : {}),
+    cwd,
+    ...(headBefore !== undefined ? { headBefore } : {}),
+    phase,
+    taskRequest: req,
+    taskResult: result,
+    ...(phase === 'provider_threw' ? { setupError: result.summary } : {}),
+  })
+
+  if (wm && taskId) {
+    await wm.finalize(taskId, 'delete').catch(() => {})
   }
 
   let row: DelegationSubTaskRow = { specId: shard.id, providerId: shard.providerId, result }
@@ -216,13 +298,19 @@ export const runDelegatedCodingTask = async (opts: {
   readonly isolateWorktrees: boolean
   readonly parallel?: boolean
   readonly gitRunner?: GitRunner
+  readonly artifacts?: DelegationArtifactsOpts
+  readonly signal?: AbortSignal
 }): Promise<DelegationReport> => {
+  opts.signal?.throwIfAborted()
+
   const parallel = opts.parallel === true
   if (parallel && !opts.isolateWorktrees && opts.shards.some((s) => !s.dryRun)) {
     throw new Error(
       'runDelegatedCodingTask: parallel=true requires isolateWorktrees=true unless every shard uses dryRun',
     )
   }
+
+  const artifacts = opts.artifacts
 
   let wm: CodingAgentWorktreeManager | undefined
   if (opts.isolateWorktrees) {
@@ -237,8 +325,10 @@ export const runDelegatedCodingTask = async (opts: {
   const subRows: DelegationSubTaskRow[] = []
 
   const preps: Prep[] = []
-  for (const shard of opts.shards) {
-    preps.push(await prepareShard(shard, wm, opts.repoRoot))
+  for (let i = 0; i < opts.shards.length; i += 1) {
+    opts.signal?.throwIfAborted()
+    const shard = opts.shards[i]!
+    preps.push(await prepareShard(shard, i, wm, opts.repoRoot, artifacts))
   }
 
   for (const p of preps) {
@@ -251,11 +341,12 @@ export const runDelegatedCodingTask = async (opts: {
   const oks = preps.filter((p): p is PrepOk => p.ok)
   let execs: ShardExec[]
   if (parallel) {
-    execs = shardOrder(opts.shards, await Promise.all(oks.map((p) => execPrepared(p, wm))))
+    execs = shardOrder(opts.shards, await Promise.all(oks.map((p) => execPrepared(p, wm, artifacts))))
   } else {
     execs = []
     for (const p of oks) {
-      execs.push(await execPrepared(p, wm))
+      opts.signal?.throwIfAborted()
+      execs.push(await execPrepared(p, wm, artifacts))
     }
   }
 

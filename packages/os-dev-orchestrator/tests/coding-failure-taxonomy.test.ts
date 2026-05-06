@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { CodingTaskResult } from '@agentskit/os-core'
-import { classifyCodingFailure, CODING_FAILURE_CATALOG } from '../src/coding-failure-taxonomy.js'
+import {
+  buildCodingFailureIncident,
+  classifyCodingFailure,
+  CODING_FAILURE_CATALOG,
+} from '../src/coding-failure-taxonomy.js'
 
 const base = (overrides: Partial<CodingTaskResult>): CodingTaskResult => ({
   providerId: 'codex',
@@ -78,5 +82,31 @@ describe('classifyCodingFailure', () => {
       }),
     )
     expect(c?.code).toBe('hallucinated_file')
+  })
+})
+
+describe('buildCodingFailureIncident', () => {
+  it('returns null for clean success', () => {
+    expect(
+      buildCodingFailureIncident({
+        result: base({ status: 'ok', summary: 'done' }),
+        providerId: 'codex',
+      }),
+    ).toBeNull()
+  })
+
+  it('builds incident for timeout', () => {
+    const inc = buildCodingFailureIncident({
+      result: base({ status: 'timeout', summary: 'timed out' }),
+      providerId: 'codex',
+      runId: 'r1',
+      taskId: 't1',
+      capturedAt: '2026-05-05T12:00:00Z',
+    })
+    expect(inc).not.toBeNull()
+    expect(inc?.classification.code).toBe('provider_timeout')
+    expect(inc?.providerId).toBe('codex')
+    expect(inc?.runId).toBe('r1')
+    expect(inc?.incidentId).toContain('provider_timeout')
   })
 })

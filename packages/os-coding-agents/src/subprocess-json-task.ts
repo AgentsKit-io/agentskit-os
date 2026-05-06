@@ -2,7 +2,7 @@ import type { CodingTaskRequest, CodingTaskResult } from '@agentskit/os-core'
 import type { SubprocessRunner } from './subprocess.js'
 import { parseAgentJsonResult } from './json-result.js'
 
-export type SubprocessJsonProviderName = 'gemini' | 'cursor'
+export type SubprocessJsonProviderName = 'gemini' | 'cursor' | 'aider' | 'opencode' | 'continue'
 
 export const buildSubprocessJsonPrompt = (req: CodingTaskRequest): string => {
   return [
@@ -36,6 +36,10 @@ export const runSubprocessJsonTask = async (
     notFoundErrorCode: string
     notFoundSummary: string
     badJsonErrorCode: string
+    /** Override CLI args builder. Default: `['-p', prompt, '--output-format', 'json', ...extraArgs]`. */
+    readonly buildArgs?: (input: { readonly prompt: string; readonly extraArgs: readonly string[] }) => readonly string[]
+    /** Send prompt on stdin instead of as an arg. */
+    readonly stdinPrompt?: boolean
   },
 ): Promise<CodingTaskResult> => {
   const { runner, command, req, providerName, providerId, badJsonErrorCode } = args
@@ -57,14 +61,17 @@ export const runSubprocessJsonTask = async (
 
   const prompt = buildSubprocessJsonPrompt(req)
   const extraArgs = args.extraArgs !== undefined ? args.extraArgs : []
-  const jsonArgs = ['-p', prompt, '--output-format', 'json', ...extraArgs]
+  const jsonArgs = args.buildArgs
+    ? [...args.buildArgs({ prompt, extraArgs })]
+    : args.stdinPrompt
+      ? ['--output-format', 'json', ...extraArgs]
+      : ['-p', prompt, '--output-format', 'json', ...extraArgs]
 
-  const r = await runner.run({
-    command: path,
-    args: jsonArgs,
-    cwd: req.cwd,
-    timeoutMs: req.timeoutMs,
-  })
+  const r = await runner.run(
+    args.stdinPrompt
+      ? { command: path, args: jsonArgs, cwd: req.cwd, timeoutMs: req.timeoutMs, stdin: prompt }
+      : { command: path, args: jsonArgs, cwd: req.cwd, timeoutMs: req.timeoutMs },
+  )
 
   const parsed = parseAgentJsonResult(r.stdout, providerName)
   if (parsed) {

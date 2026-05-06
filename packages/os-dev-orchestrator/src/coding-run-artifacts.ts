@@ -5,6 +5,7 @@ import git from 'isomorphic-git'
 import fs from 'node:fs'
 import type { GitDiffResult } from './git-diff.js'
 import { computeGitDiff } from './git-diff.js'
+import { classifyCodingFailure, type CodingFailureClassification } from './coding-failure-taxonomy.js'
 
 export type CodingAgentArtifactIds = {
   readonly runId: string
@@ -37,6 +38,16 @@ export type CodingRunArtifactPayload = {
     readonly headAfter?: string
     readonly refDiff?: CodingRunGitRefDiffSummary
   }
+  /** Failure classification (#376) — null when run completed cleanly. */
+  readonly failure?: CodingFailureClassification | null
+}
+
+/** Options for per-step run artifact JSON (#367); benchmark and delegation share this shape. */
+export type CodingRunArtifactsOpts = {
+  readonly outDir: string
+  readonly runId: string
+  readonly traceId?: string
+  readonly redact?: (s: string) => string
 }
 
 const redactString = (s: string, r?: (x: string) => string): string => {
@@ -54,7 +65,6 @@ export const redactCodingTaskRequest = (
   prompt: redactString(req.prompt, r),
   readScope: req.readScope.map((x) => redactString(x, r)),
   writeScope: req.writeScope.map((x) => redactString(x, r)),
-  granted: req.granted.map((x) => redactString(x, r)) as CodingTaskRequest['granted'],
 })
 
 export const redactCodingTaskResult = (
@@ -111,6 +121,27 @@ export const resolveHeadOidSafe = async (dir: string): Promise<string | undefine
   }
 }
 
+/** Git HEAD before/after plus optional ref-to-ref diff summary for run artifacts (#367). */
+export const collectGitHeadDiffSnapshot = async (
+  cwd: string,
+  headBefore: string | undefined,
+): Promise<CodingRunArtifactPayload['git'] | undefined> => {
+  const headAfter = await resolveHeadOidSafe(cwd)
+  let refDiff: CodingRunGitRefDiffSummary | undefined
+  if (headBefore !== undefined && headAfter !== undefined && headBefore !== headAfter) {
+    refDiff = await tryGitRefDiffSummary(cwd, headBefore, headAfter)
+  }
+  const git: NonNullable<CodingRunArtifactPayload['git']> = {
+    ...(headBefore !== undefined ? { headBefore } : {}),
+    ...(headAfter !== undefined ? { headAfter } : {}),
+    ...(refDiff !== undefined ? { refDiff } : {}),
+  }
+  if (headBefore === undefined && headAfter === undefined && refDiff === undefined) {
+    return undefined
+  }
+  return git
+}
+
 export const buildCodingRunArtifactPayload = (args: {
   readonly ids: CodingAgentArtifactIds
   readonly benchmarkIndex: number
@@ -124,6 +155,7 @@ export const buildCodingRunArtifactPayload = (args: {
   const capturedAt = new Date().toISOString()
   const req = args.taskRequest !== undefined ? redactCodingTaskRequest(args.taskRequest, args.redact) : undefined
   const res = args.taskResult !== undefined ? redactCodingTaskResult(args.taskResult, args.redact) : undefined
+  const failure = args.taskResult !== undefined ? classifyCodingFailure(args.taskResult) : undefined
   return {
     schemaVersion: '1.0',
     ids: args.ids,
@@ -134,6 +166,7 @@ export const buildCodingRunArtifactPayload = (args: {
     ...(req !== undefined ? { taskRequest: req } : {}),
     ...(res !== undefined ? { taskResult: res } : {}),
     ...(args.git !== undefined ? { git: args.git } : {}),
+    ...(failure !== undefined ? { failure } : {}),
   }
 }
 
@@ -145,6 +178,18 @@ export const artifactFilenameForBenchmarkStep = (
   const safeRun = runId.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 48)
   const safePid = providerId.replace(/[^a-zA-Z0-9._-]+/g, '_')
   return `coding-run-artifact-${safeRun}-${index}-${safePid}.json`
+}
+
+export const artifactFilenameForDelegationStep = (
+  runId: string,
+  shardIndex: number,
+  specId: string,
+  providerId: string,
+): string => {
+  const safeRun = runId.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 40)
+  const safeSpec = specId.replace(/[^a-zA-Z0-9._-]+/g, '_')
+  const safePid = providerId.replace(/[^a-zA-Z0-9._-]+/g, '_')
+  return `coding-run-artifact-deleg-${safeRun}-${shardIndex}-${safeSpec}-${safePid}.json`
 }
 
 export const writeCodingRunArtifactFile = async (

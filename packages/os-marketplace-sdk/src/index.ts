@@ -19,5 +19,17 @@ export type { Publisher, PublishResult } from './publisher.js'
 export { buildPluginCostBadge } from './cost-badge.js'
 export type { PluginCostBadge, PluginCostBadgeInput } from './cost-badge.js'
 
+export { evaluateInstall, searchListings } from './listing.js'
+export type {
+  EvaluateInstallArgs,
+  InstallVerdict,
+  InstallVerdictFail,
+  InstallVerdictOk,
+  ListingCategory,
+  ListingSearchQuery,
+  MarketplaceListing,
+  SearchOpts,
+} from './listing.js'
+
 export const PACKAGE_NAME = '@agentskit/os-marketplace-sdk' as const
 export const PACKAGE_VERSION = '0.0.0' as const

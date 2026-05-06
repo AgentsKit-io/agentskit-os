@@ -62,5 +62,13 @@ export type {
 export { suggestConnections } from './connection-suggester.js'
 export type { ConnectionSuggestion } from './connection-suggester.js'
 
+export { buildRatingHistogram, buildUsageStats, selectFeatured } from './featured-and-stats.js'
+export type {
+  FeaturedSelection,
+  FeaturedSlot,
+  RatingHistogram,
+  UsageStats,
+} from './featured-and-stats.js'
+
 export const PACKAGE_NAME = '@agentskit/os-marketplace-sdk' as const
 export const PACKAGE_VERSION = '0.0.0' as const

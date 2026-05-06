@@ -98,5 +98,13 @@ export type {
   FieldSelector,
 } from './field-redaction.js'
 
+export { buildDecisionLogEntry, filterDecisionLog } from './decision-log.js'
+export type {
+  DecisionAlternative,
+  DecisionLogEntry,
+  DecisionLogInput,
+  DecisionLogQuery,
+} from './decision-log.js'
+
 export const PACKAGE_NAME = '@agentskit/os-observability' as const
 export const PACKAGE_VERSION = '0.0.0' as const

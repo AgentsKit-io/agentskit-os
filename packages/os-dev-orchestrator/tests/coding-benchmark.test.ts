@@ -136,19 +136,16 @@ describe('runCodingAgentBenchmark', () => {
         artifacts: { outDir, runId: 'run-test-1', traceId: 'trace-z' },
       })
       expect(report.rows).toHaveLength(1)
-      const names = (await readdir(outDir)).sort()
+      const names = await readdir(outDir)
       expect(names.length).toBe(2)
-      const started = JSON.parse(await readFile(join(outDir, names[0]!), 'utf8')) as {
-        phase: string
-        ids: { traceId?: string }
-      }
-      const completed = JSON.parse(await readFile(join(outDir, names[1]!), 'utf8')) as {
-        phase: string
+      const payloads = await Promise.all(
+        names.map(async (n) => JSON.parse(await readFile(join(outDir, n), 'utf8')) as { phase: string }),
+      )
+      expect(payloads.map((p) => p.phase).sort()).toEqual(['provider_completed', 'provider_started'])
+      const completed = payloads.find((p) => p.phase === 'provider_completed') as {
         ids: { traceId?: string }
         git?: unknown
       }
-      expect(started.phase).toBe('provider_started')
-      expect(completed.phase).toBe('provider_completed')
       expect(completed.ids.traceId).toBe('trace-z')
       expect(completed.git).toBeUndefined()
     } finally {

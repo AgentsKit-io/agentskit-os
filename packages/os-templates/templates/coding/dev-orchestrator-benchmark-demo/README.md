@@ -50,7 +50,7 @@ Reference outputs (shape only, values vary):
 
 ## 10-minute walkthrough
 
-See [`docs/demo-walkthrough.md`](../../../../docs/demo/dev-orchestrator-benchmark.md) for an investor / contributor walkthrough.
+See [docs/demo/dev-orchestrator-benchmark.md](../../../../docs/demo/dev-orchestrator-benchmark.md) for an investor / contributor walkthrough.
 
 ## Issues
 

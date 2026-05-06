@@ -11,6 +11,7 @@ export default defineConfig({
     'src/metrics-registry.ts',
     'src/in-memory-metric-sink.ts',
     'src/cost-bridge.ts',
+    'src/coding-task-report-exports.ts',
   ],
   format: ['esm', 'cjs'],
   // resolve types for cross-workspace re-exports (coding-task-report-exports.ts
@@ -22,5 +23,5 @@ export default defineConfig({
   treeshake: true,
   splitting: false,
   target: 'es2022',
-  external: ['zod', '@agentskit/os-core'],
+  external: ['zod', '@agentskit/os-core', '@agentskit/os-dev-orchestrator'],
 })

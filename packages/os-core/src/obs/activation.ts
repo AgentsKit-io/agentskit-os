@@ -19,6 +19,8 @@ export const ActivationEventKind = z.enum([
   'workspace.first_provider_connected',
   'workspace.first_pr_generated',
   'workspace.repeat_run',
+  'provider.run_succeeded',
+  'provider.run_failed',
 ])
 export type ActivationEventKind = z.infer<typeof ActivationEventKind>
 
@@ -59,6 +61,19 @@ export type ActivationFunnel = ReadonlyArray<{
   readonly installs: number
 }>
 
+export type RepeatRunFrequency = ReadonlyArray<{
+  readonly installId: string
+  readonly runs: number
+}>
+
+export type ProviderSuccessRate = ReadonlyArray<{
+  readonly providerCategory: string
+  readonly successes: number
+  readonly failures: number
+  readonly total: number
+  readonly successRate: number
+}>
+
 export const decideEmitActivation = (consent: TelemetryConsent): 'emit' | 'drop' =>
   decideEmit(consent)
 
@@ -82,6 +97,45 @@ export const buildActivationFunnel = (
     stage,
     installs: reachedByStage.get(stage)?.size ?? 0,
   }))
+}
+
+export const buildRepeatRunFrequency = (
+  events: readonly ActivationEvent[],
+): RepeatRunFrequency => {
+  const counts = new Map<string, number>()
+  for (const event of events) {
+    if (event.kind !== 'workspace.repeat_run') continue
+    counts.set(event.installId, (counts.get(event.installId) ?? 0) + 1)
+  }
+  return [...counts.entries()]
+    .map(([installId, runs]) => ({ installId, runs }))
+    .sort((a, b) => b.runs - a.runs || a.installId.localeCompare(b.installId))
+}
+
+export const buildProviderSuccessRates = (
+  events: readonly ActivationEvent[],
+): ProviderSuccessRate => {
+  const byProvider = new Map<string, { successes: number; failures: number }>()
+  for (const event of events) {
+    if (event.kind !== 'provider.run_succeeded' && event.kind !== 'provider.run_failed') continue
+    if (!event.providerCategory) continue
+    const bucket = byProvider.get(event.providerCategory) ?? { successes: 0, failures: 0 }
+    if (event.kind === 'provider.run_succeeded') bucket.successes += 1
+    else bucket.failures += 1
+    byProvider.set(event.providerCategory, bucket)
+  }
+  return [...byProvider.entries()]
+    .map(([providerCategory, counts]) => {
+      const total = counts.successes + counts.failures
+      return {
+        providerCategory,
+        successes: counts.successes,
+        failures: counts.failures,
+        total,
+        successRate: total === 0 ? 0 : counts.successes / total,
+      }
+    })
+    .sort((a, b) => a.providerCategory.localeCompare(b.providerCategory))
 }
 
 const isoDate = (iso: string): string => iso.slice(0, 10)
@@ -155,3 +209,5 @@ export const buildRetentionCohorts = ({
 
 export const parseActivationEvent = (input: unknown): ActivationEvent =>
   ActivationEvent.parse(input)
+export const safeParseActivationEvent = (input: unknown) =>
+  ActivationEvent.safeParse(input)

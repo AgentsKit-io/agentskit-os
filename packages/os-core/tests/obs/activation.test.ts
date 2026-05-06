@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   ActivationEvent,
   buildActivationFunnel,
+  buildProviderSuccessRates,
+  buildRepeatRunFrequency,
   buildRetentionCohorts,
   decideEmitActivation,
   parseActivationEvent,
@@ -88,6 +90,56 @@ describe('buildActivationFunnel', () => {
     expect(funnel.find((s) => s.stage === 'workspace.first_provider_connected')?.installs).toBe(1)
     expect(funnel.find((s) => s.stage === 'workspace.first_run_succeeded')?.installs).toBe(1)
     expect(funnel.find((s) => s.stage === 'workspace.first_pr_generated')?.installs).toBe(0)
+  })
+})
+
+describe('buildRepeatRunFrequency', () => {
+  it('counts repeat runs per install without storing run contents', () => {
+    const frequency = buildRepeatRunFrequency([
+      event(installB, 'workspace.repeat_run', '2026-01-03T00:00:00.000Z'),
+      event(installA, 'workspace.repeat_run', '2026-01-03T00:00:00.000Z'),
+      event(installA, 'workspace.repeat_run', '2026-01-04T00:00:00.000Z'),
+      event(installC, 'workspace.first_run_succeeded', '2026-01-04T00:00:00.000Z'),
+    ])
+
+    expect(frequency).toEqual([
+      { installId: installA, runs: 2 },
+      { installId: installB, runs: 1 },
+    ])
+  })
+})
+
+describe('buildProviderSuccessRates', () => {
+  it('computes provider success rates from categorical provider events', () => {
+    const rates = buildProviderSuccessRates([
+      event(installA, 'provider.run_succeeded', '2026-01-01T00:00:00.000Z', {
+        providerCategory: 'openai',
+      }),
+      event(installA, 'provider.run_failed', '2026-01-01T00:01:00.000Z', {
+        providerCategory: 'openai',
+      }),
+      event(installB, 'provider.run_succeeded', '2026-01-01T00:02:00.000Z', {
+        providerCategory: 'anthropic',
+      }),
+      event(installB, 'provider.run_failed', '2026-01-01T00:03:00.000Z'),
+    ])
+
+    expect(rates).toEqual([
+      {
+        providerCategory: 'anthropic',
+        successes: 1,
+        failures: 0,
+        total: 1,
+        successRate: 1,
+      },
+      {
+        providerCategory: 'openai',
+        successes: 1,
+        failures: 1,
+        total: 2,
+        successRate: 0.5,
+      },
+    ])
   })
 })
 

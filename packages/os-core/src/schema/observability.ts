@@ -20,6 +20,18 @@ export const AnomalyDetection = z.object({
 })
 export type AnomalyDetection = z.infer<typeof AnomalyDetection>
 
+export const ActivationMetricsConfig = z.object({
+  /**
+   * Strict opt-in. When false, activation/retention events must not be
+   * emitted even if the generic telemetry sink is configured.
+   */
+  enabled: z.boolean().default(false),
+  retentionHorizonWeeks: z.number().int().min(1).max(26).default(12),
+  exportableByWorkspaceOwner: z.literal(true).default(true),
+  collectContent: z.literal(false).default(false),
+})
+export type ActivationMetricsConfig = z.infer<typeof ActivationMetricsConfig>
+
 export const ObservabilityConfig = z.object({
   enabled: z.boolean().default(true),
   exporters: z.array(TraceExporter).min(1).default(['console']),
@@ -29,6 +41,7 @@ export const ObservabilityConfig = z.object({
   redactInputs: z.boolean().default(false),
   costQuota: CostQuota.optional(),
   anomalyDetection: AnomalyDetection.optional(),
+  activationMetrics: ActivationMetricsConfig.optional(),
 })
 export type ObservabilityConfig = z.infer<typeof ObservabilityConfig>
 

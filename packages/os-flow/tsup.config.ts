@@ -9,6 +9,7 @@ export default defineConfig({
     'src/durable.ts',
     'src/bus-bridge.ts',
     'src/cost-estimator.ts',
+    'src/git-diff-tool.ts',
   ],
   format: ['esm', 'cjs'],
   dts: true,

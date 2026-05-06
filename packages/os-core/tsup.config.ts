@@ -8,6 +8,7 @@ export default defineConfig({
     'src/schema/trigger.ts',
     'src/schema/flow.ts',
     'src/schema/flow-envelope.ts',
+    'src/schema/flow-visual.ts',
     'src/schema/plugin.ts',
     'src/schema/vault.ts',
     'src/schema/memory.ts',

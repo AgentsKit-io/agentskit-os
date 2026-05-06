@@ -98,5 +98,20 @@ export type { ApproverGate, ApproverGateDecision, HumanHandlerOptions } from './
 export { diffFlowSemantics, renderFlowDiffMarkdown } from './flow-diff.js'
 export type { FlowSemanticDiff, FlowNodeChange, FlowEdgeChange } from './flow-diff.js'
 
+// #193 — built-in diff-as-input primitive
+export {
+  GIT_DIFF_TOOL_NAME,
+  GitDiffToolInput,
+  GitDiffLine,
+  GitDiffHunk,
+  GitDiffFile,
+  GitDiffResult,
+  createGitDiffToolCall,
+  parseUnifiedGitDiff,
+  parseGitDiffToolInput,
+  safeParseGitDiffToolInput,
+} from './git-diff-tool.js'
+export type { GitDiffToolCall } from './git-diff-tool.js'
+
 export const PACKAGE_NAME = '@agentskit/os-flow' as const
 export const PACKAGE_VERSION = '0.0.0' as const

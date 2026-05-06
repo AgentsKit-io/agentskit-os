@@ -23,6 +23,13 @@ export type {
   CircuitState,
 } from './circuit-breaker.js'
 export { cancelOnBudget, createFlowCostMeter } from './flow-cost-meter.js'
+export { evaluateFlowWatchdog } from './flow-watchdog.js'
+export type {
+  FlowWatchdogOpts,
+  RunHeartbeat,
+  WatchdogAction,
+  WatchdogVerdict,
+} from './flow-watchdog.js'
 export type {
   FlowCostMeter,
   FlowCostMeterOpts,

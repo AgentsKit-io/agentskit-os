@@ -58,6 +58,16 @@ export {
 } from './trigger/presets.js'
 export type { TriggerPreset } from './trigger/presets.js'
 
+export { createTriggerRegistry } from './trigger/contract.js'
+export type {
+  TriggerContract,
+  TriggerDispatch,
+  TriggerEvent,
+  TriggerKind,
+  TriggerRegistration,
+  TriggerRegistry,
+} from './trigger/contract.js'
+
 export {
   FlowConfig,
   FlowNode,

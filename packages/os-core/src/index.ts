@@ -401,6 +401,15 @@ export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-f
 export { forkAgentConfig, forkWorkspaceConfig } from './runtime/fork.js'
 export type { ForkOptions } from './runtime/fork.js'
 
+export { createAgentHarness } from './runtime/agent-harness.js'
+export type {
+  AgentHarness,
+  HarnessAgent,
+  HarnessAgentState,
+  HarnessAuditEntry,
+  HarnessOpts,
+} from './runtime/agent-harness.js'
+
 export {
   MarketplaceCacheEntry,
   MarketplaceCacheSnapshot,

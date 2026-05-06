@@ -48,6 +48,7 @@ type BenchmarkOpts = {
   traceUrl?: string
   prUrl?: string
   secretsFile?: string
+  printReport?: boolean
 }
 
 const parseProviders = (csv: string): string[] =>
@@ -107,6 +108,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       '--secrets-file <path>',
       'merge KEY=value lines into env for each provider CLI subprocess (#375)',
       undefined,
+    )
+    .option(
+      '--print-report',
+      'render the markdown coding-task report to stdout (no --artifact-dir required) (#368)',
+      false,
     )
     .action(async (opts: BenchmarkOpts) => {
       const ids = parseProviders(opts.providers)
@@ -176,6 +182,23 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       const jsonOut = `${JSON.stringify(report, null, 2)}\n`
       if (opts.persist !== undefined && opts.persist !== '') {
         await writeFile(resolve(opts.persist), jsonOut, 'utf8')
+      }
+
+      if (opts.printReport === true) {
+        const linkMap: Record<string, string> = {}
+        putReportLink(linkMap, 'traceUrl', opts.traceUrl)
+        putReportLink(linkMap, 'prUrl', opts.prUrl)
+        const reportOpts: { links?: Record<string, string> } = {}
+        if (Object.keys(linkMap).length > 0) {
+          reportOpts.links = linkMap
+        }
+        const taskReport = buildCodingTaskReportFromBenchmark(report, reportOpts)
+        const md = renderCodingTaskReportMarkdown(taskReport)
+        const ok = report.rows.every(
+          (r: (typeof report.rows)[number]) => r.status === 'ok' || r.status === 'partial',
+        )
+        result.current = ok ? { code: 0, stdout: md, stderr: '' } : { code: 1, stdout: '', stderr: md }
+        return
       }
 
       if (opts.json || (opts.persist !== undefined && opts.persist !== '')) {

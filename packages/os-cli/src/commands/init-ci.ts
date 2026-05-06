@@ -32,8 +32,25 @@ jobs:
         run: agentskit-os config validate agentskit-os.config.yaml
       - name: Doctor
         run: agentskit-os doctor --json
-      - name: Conformance
-        run: agentskit-os coding-agent conformance --strict
+      - name: Conformance (opt-in coding agents)
+        env:
+          CODING_AGENT_CONFORMANCE_PROVIDERS: \${{ vars.CODING_AGENT_CONFORMANCE_PROVIDERS }}
+          CODING_AGENT_CONFORMANCE_SECRETS_FILE: \${{ vars.CODING_AGENT_CONFORMANCE_SECRETS_FILE }}
+        run: |
+          set -euo pipefail
+          if [ -z "${'${'}CODING_AGENT_CONFORMANCE_PROVIDERS:-}" ]; then
+            echo "Conformance: skip (set repo variable CODING_AGENT_CONFORMANCE_PROVIDERS)."
+            exit 0
+          fi
+          echo "$CODING_AGENT_CONFORMANCE_PROVIDERS" | tr ',' '\\n' | while IFS= read -r raw; do
+            id_trim=$(echo "$raw" | tr -d '[:space:]')
+            [ -z "$id_trim" ] && continue
+            if [ -n "${'${'}CODING_AGENT_CONFORMANCE_SECRETS_FILE:-}" ]; then
+              agentskit-os coding-agent conformance --provider "$id_trim" --skip-if-unavailable --secrets-file "$CODING_AGENT_CONFORMANCE_SECRETS_FILE" --json || exit 1
+            else
+              agentskit-os coding-agent conformance --provider "$id_trim" --skip-if-unavailable --json || exit 1
+            fi
+          done
 `
 
 const EVALS_WORKFLOW = `name: agentskit-evals

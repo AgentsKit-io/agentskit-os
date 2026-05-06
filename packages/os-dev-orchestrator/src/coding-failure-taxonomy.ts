@@ -284,3 +284,45 @@ export const classifyCodingFailure = (result: CodingTaskResult): CodingFailureCl
 
   return withSource('unknown', 'heuristic')
 }
+
+export type CodingFailureIncidentRecord = {
+  readonly schemaVersion: '1.0'
+  readonly incidentId: string
+  readonly capturedAt: string
+  readonly providerId: string
+  readonly runId?: string
+  readonly taskId?: string
+  readonly classification: CodingFailureClassification
+  readonly summary: string
+  readonly errorCode?: string
+}
+
+/**
+ * Build an incident record for a failed coding run. Returns `null` when the run
+ * was a clean success — only failures yield an incident.
+ */
+export const buildCodingFailureIncident = (args: {
+  readonly result: CodingTaskResult
+  readonly providerId: string
+  readonly runId?: string
+  readonly taskId?: string
+  readonly capturedAt?: string
+  readonly idPrefix?: string
+}): CodingFailureIncidentRecord | null => {
+  const classification = classifyCodingFailure(args.result)
+  if (!classification) return null
+  const capturedAt = args.capturedAt ?? new Date().toISOString()
+  const safeRun = (args.runId ?? 'run').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 32)
+  const incidentId = `${args.idPrefix ?? 'inc'}-${safeRun}-${classification.code}-${capturedAt.replace(/[^0-9]/g, '').slice(0, 14)}`
+  return {
+    schemaVersion: '1.0',
+    incidentId,
+    capturedAt,
+    providerId: args.providerId,
+    ...(args.runId !== undefined ? { runId: args.runId } : {}),
+    ...(args.taskId !== undefined ? { taskId: args.taskId } : {}),
+    classification,
+    summary: args.result.summary,
+    ...(args.result.errorCode !== undefined ? { errorCode: args.result.errorCode } : {}),
+  }
+}

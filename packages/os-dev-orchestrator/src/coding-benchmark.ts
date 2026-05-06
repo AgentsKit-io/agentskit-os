@@ -10,13 +10,13 @@ import type {
 import {
   artifactFilenameForBenchmarkStep,
   buildCodingRunArtifactPayload,
+  collectGitHeadDiffSnapshot,
   resolveHeadOidSafe,
-  tryGitRefDiffSummary,
   writeCodingRunArtifactFile,
   type CodingAgentArtifactIds,
   type CodingRunArtifactPayload,
   type CodingRunArtifactPhase,
-  type CodingRunGitRefDiffSummary,
+  type CodingRunArtifactsOpts,
 } from './coding-run-artifacts.js'
 import { createCodingAgentWorktreeManager, type GitRunner } from './git-worktree-manager.js'
 
@@ -47,36 +47,7 @@ export type CodingBenchmarkReport = {
   readonly rows: readonly CodingBenchmarkRow[]
 }
 
-export type CodingBenchmarkArtifactsOpts = {
-  readonly outDir: string
-  readonly runId: string
-  readonly traceId?: string
-  readonly redact?: (s: string) => string
-}
-
-const gitSnapshotAfterRun = async (
-  cwd: string,
-  headBefore: string | undefined,
-): Promise<CodingRunArtifactPayload['git'] | undefined> => {
-  const headAfter = await resolveHeadOidSafe(cwd)
-  let refDiff: CodingRunGitRefDiffSummary | undefined
-  if (headBefore !== undefined && headAfter !== undefined && headBefore !== headAfter) {
-    refDiff = await tryGitRefDiffSummary(cwd, headBefore, headAfter)
-  }
-  const git: NonNullable<CodingRunArtifactPayload['git']> = {
-    ...(headBefore !== undefined ? { headBefore } : {}),
-    ...(headAfter !== undefined ? { headAfter } : {}),
-    ...(refDiff !== undefined ? { refDiff } : {}),
-  }
-  if (
-    headBefore === undefined &&
-    headAfter === undefined &&
-    refDiff === undefined
-  ) {
-    return undefined
-  }
-  return git
-}
+export type CodingBenchmarkArtifactsOpts = CodingRunArtifactsOpts
 
 const rowFromResult = (result: CodingTaskResult, worktreePath?: string): CodingBenchmarkRow => {
   const paths = result.files.map((f) => f.path)
@@ -252,7 +223,7 @@ export const runCodingAgentBenchmark = async (opts: {
       if (opts.artifacts === undefined) {
         return
       }
-      const git = await gitSnapshotAfterRun(cwd, headBefore)
+      const git = await collectGitHeadDiffSnapshot(cwd, headBefore)
       await persistArtifact({
         index: i,
         providerId: pid,

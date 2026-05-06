@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { CodingTaskRequest, CodingTaskResult } from '@agentskit/os-core'
 import {
+  artifactFilenameForDelegationStep,
   buildCodingRunArtifactPayload,
   redactCodingTaskResult,
   summarizeGitDiffForArtifact,
@@ -50,6 +51,45 @@ describe('buildCodingRunArtifactPayload', () => {
   })
 })
 
+describe('buildCodingRunArtifactPayload failure classification', () => {
+  it('attaches failure classification when result is a failure', () => {
+    const res: CodingTaskResult = {
+      providerId: 'codex',
+      status: 'timeout',
+      files: [],
+      shell: [],
+      tools: [],
+      summary: 'timed out',
+    }
+    const payload = buildCodingRunArtifactPayload({
+      ids: { runId: 'r', taskId: 't', providerId: 'codex' },
+      benchmarkIndex: 0,
+      phase: 'provider_completed',
+      taskResult: res,
+    })
+    expect(payload.failure).not.toBeNull()
+    expect(payload.failure?.code).toBe('provider_timeout')
+  })
+
+  it('attaches null failure for clean ok', () => {
+    const res: CodingTaskResult = {
+      providerId: 'codex',
+      status: 'ok',
+      files: [],
+      shell: [],
+      tools: [],
+      summary: 'done',
+    }
+    const payload = buildCodingRunArtifactPayload({
+      ids: { runId: 'r', taskId: 't', providerId: 'codex' },
+      benchmarkIndex: 0,
+      phase: 'provider_completed',
+      taskResult: res,
+    })
+    expect(payload.failure).toBeNull()
+  })
+})
+
 describe('redactCodingTaskResult', () => {
   it('is a no-op when redact is omitted', () => {
     const res: CodingTaskResult = {
@@ -61,6 +101,15 @@ describe('redactCodingTaskResult', () => {
       summary: 'x',
     }
     expect(redactCodingTaskResult(res)).toEqual(res)
+  })
+})
+
+describe('artifactFilenameForDelegationStep', () => {
+  it('prefixes deleg and includes shard index', () => {
+    const n = artifactFilenameForDelegationStep('run/x', 2, 'shard-0', 'codex')
+    expect(n.startsWith('coding-run-artifact-deleg-')).toBe(true)
+    expect(n).toContain('-2-')
+    expect(n.endsWith('.json')).toBe(true)
   })
 })
 

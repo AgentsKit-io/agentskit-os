@@ -62,6 +62,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check:quality-gates
       - run: pnpm --filter "./packages/*" build
+      - name: Coding-agent conformance gate (opt-in)
+        env:
+          CODING_AGENT_CONFORMANCE_PROVIDERS: ${{ vars.CODING_AGENT_CONFORMANCE_PROVIDERS }}
+          CODING_AGENT_CONFORMANCE_SECRETS_FILE: ${{ vars.CODING_AGENT_CONFORMANCE_SECRETS_FILE }}
+        run: node scripts/check-coding-agent-conformance-gate.mjs
       - run: pnpm --filter "./packages/*" lint
       - run: pnpm test
 

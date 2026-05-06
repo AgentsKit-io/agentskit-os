@@ -802,3 +802,10 @@ export type {
   CostMeterId,
   BudgetDecision,
 } from './cost/cost-meter.js'
+
+export { evaluateCostGuard } from './cost/guard.js'
+export type {
+  CostGuardOpts,
+  CostGuardVerdict,
+  CostUsage,
+} from './cost/guard.js'

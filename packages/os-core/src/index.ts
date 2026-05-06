@@ -439,6 +439,12 @@ export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-f
 export { forkAgentConfig, forkWorkspaceConfig } from './runtime/fork.js'
 export type { ForkOptions } from './runtime/fork.js'
 
+export { cloneAgentWithVariation } from './runtime/clone-variation.js'
+export type {
+  CloneVariation,
+  CloneVariationInput,
+} from './runtime/clone-variation.js'
+
 export { createAgentHarness } from './runtime/agent-harness.js'
 export type {
   AgentHarness,

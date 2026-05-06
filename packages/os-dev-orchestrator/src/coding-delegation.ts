@@ -1,6 +1,12 @@
 // Per #365 — multi-provider coding delegation (coordinator + merge signals).
 
-import type { CodingAgentProvider, CodingTaskKind, CodingTaskRequest, CodingTaskResult } from '@agentskit/os-core'
+import type {
+  CodingAgentProvider,
+  CodingTaskKind,
+  CodingTaskRequest,
+  CodingTaskResult,
+  HitlInbox,
+} from '@agentskit/os-core'
 import { createCodingAgentWorktreeManager, type CodingAgentWorktreeManager, type GitRunner } from './git-worktree-manager.js'
 import {
   artifactFilenameForDelegationStep,
@@ -42,6 +48,8 @@ export type DelegationSubTaskRow = {
   readonly worktreePath?: string
   readonly permissionProfileId?: CodingPermissionProfileId
   readonly expectedArtifacts?: readonly string[]
+  /** Items from `expectedArtifacts` that did not appear in shard output (#365). */
+  readonly missingArtifacts?: readonly string[]
 }
 
 export type FileConflict = {
@@ -64,6 +72,32 @@ export type DelegationReport = {
   /** Graph for observability / human inbox (#337). */
   readonly trace: DelegationTraceNode
   readonly suggestHumanInbox: boolean
+  /** Inbox task id when conflicts/failures dispatched to a HITL inbox (#365 → #337). */
+  readonly hitlTaskId?: string
+}
+
+/**
+ * Detect artifact ids declared on the shard spec that did not appear in the result.
+ * Match rule: substring match against any `result.files[].path`. Special-case ids:
+ * - `summary` satisfied when `result.summary` non-empty
+ * - `tests` satisfied when `result.shell` or `result.tools` non-empty
+ * - `diff` satisfied when `result.files` non-empty
+ */
+const findMissingArtifacts = (
+  expected: readonly string[] | undefined,
+  result: CodingTaskResult,
+): readonly string[] => {
+  if (!expected || expected.length === 0) return []
+  const paths = result.files.map((f) => f.path)
+  const missing: string[] = []
+  for (const item of expected) {
+    if (item === 'summary' && result.summary.trim().length > 0) continue
+    if (item === 'tests' && (result.shell.length > 0 || result.tools.length > 0)) continue
+    if (item === 'diff' && result.files.length > 0) continue
+    if (paths.some((p) => p === item || p.includes(item))) continue
+    missing.push(item)
+  }
+  return missing
 }
 
 export type DelegationArtifactsOpts = CodingRunArtifactsOpts
@@ -276,12 +310,14 @@ const execPrepared = async (
     await wm.finalize(taskId, 'delete').catch(() => {})
   }
 
+  const missing = findMissingArtifacts(shard.expectedArtifacts, result)
   let row: DelegationSubTaskRow = {
     specId: shard.id,
     providerId: shard.providerId,
     result,
     ...(shard.permissionProfileId !== undefined ? { permissionProfileId: shard.permissionProfileId } : {}),
     ...(shard.expectedArtifacts !== undefined ? { expectedArtifacts: shard.expectedArtifacts } : {}),
+    ...(missing.length > 0 ? { missingArtifacts: missing } : {}),
   }
   if (worktreePath !== undefined) {
     row = { ...row, worktreePath }
@@ -293,7 +329,8 @@ const execPrepared = async (
     kind: 'shard',
     detail: (() => {
       const f = shard.permissionProfileId ? ` perm=${shard.permissionProfileId}` : ''
-      return `${result.status}${f}: ${result.summary.slice(0, 120)}`
+      const m = missing.length > 0 ? ` missing=${missing.join(',')}` : ''
+      return `${result.status}${f}${m}: ${result.summary.slice(0, 120)}`
     })(),
   }
   return { row, trace }
@@ -324,6 +361,10 @@ export const runDelegatedCodingTask = async (opts: {
   readonly gitRunner?: GitRunner
   readonly artifacts?: DelegationArtifactsOpts
   readonly signal?: AbortSignal
+  /** Optional HITL inbox; conflicts/failures enqueue a task here (#365 → #337). */
+  readonly hitlInbox?: HitlInbox
+  /** Approver ids attached to the HITL task when dispatched. */
+  readonly hitlApprovers?: readonly string[]
 }): Promise<DelegationReport> => {
   opts.signal?.throwIfAborted()
 
@@ -401,14 +442,58 @@ export const runDelegatedCodingTask = async (opts: {
     children: [...shardTraceNodes, mergeNode],
   }
 
-  const suggestHumanInbox = conflicts.length > 0 || subRows.some((r) => r.result.status === 'fail')
+  const missingByShard = subRows.flatMap((r) =>
+    r.missingArtifacts && r.missingArtifacts.length > 0
+      ? [{ specId: r.specId, providerId: r.providerId, missing: r.missingArtifacts }]
+      : [],
+  )
+
+  const suggestHumanInbox =
+    conflicts.length > 0 || subRows.some((r) => r.result.status === 'fail') || missingByShard.length > 0
 
   const coordinatorSummary = [
     `shards: ${opts.shards.length}`,
     `parallel: ${parallel}`,
     `conflicts: ${conflicts.length}`,
+    missingByShard.length > 0 ? `missingArtifacts: ${missingByShard.length}` : null,
     suggestHumanInbox ? 'human review recommended' : 'clean merge signal',
-  ].join(' · ')
+  ]
+    .filter((s): s is string => s !== null)
+    .join(' · ')
+
+  let hitlTaskId: string | undefined
+  if (suggestHumanInbox && opts.hitlInbox) {
+    const failures = subRows.filter((r) => r.result.status === 'fail').map((r) => r.providerId)
+    const promptLines = [
+      `Delegated coding task needs review.`,
+      `Coordinator: ${opts.coordinatorPrompt.slice(0, 200)}`,
+      `Shards: ${opts.shards.length}, conflicts: ${conflicts.length}, failures: ${failures.length}, missingArtifacts: ${missingByShard.length}`,
+    ]
+    if (conflicts.length > 0) {
+      promptLines.push(`Conflicting paths: ${conflicts.map((c) => c.path).join(', ').slice(0, 800)}`)
+    }
+    if (failures.length > 0) {
+      promptLines.push(`Failed shards: ${failures.join(', ').slice(0, 400)}`)
+    }
+    if (missingByShard.length > 0) {
+      promptLines.push(
+        `Missing artifacts: ${missingByShard
+          .map((m) => `${m.specId}(${m.providerId})→[${m.missing.join(',')}]`)
+          .join('; ')
+          .slice(0, 800)}`,
+      )
+    }
+    hitlTaskId = `delegation-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+    opts.hitlInbox.enqueue({
+      schemaVersion: 1,
+      id: hitlTaskId,
+      createdAt: new Date().toISOString(),
+      prompt: promptLines.join('\n'),
+      approvers: opts.hitlApprovers ? [...opts.hitlApprovers] : [],
+      quorum: 1,
+      tags: ['delegation', 'coding-task', ...(conflicts.length > 0 ? ['conflict'] : [])],
+    })
+  }
 
   return {
     coordinatorSummary,
@@ -416,5 +501,6 @@ export const runDelegatedCodingTask = async (opts: {
     conflicts,
     trace,
     suggestHumanInbox,
+    ...(hitlTaskId !== undefined ? { hitlTaskId } : {}),
   }
 }

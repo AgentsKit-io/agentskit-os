@@ -4,8 +4,8 @@
   "maxComplexity": 14,
   "duplicateWindow": 8,
   "totals": {
-    "filesScanned": 591,
-    "issues": 8,
+    "filesScanned": 587,
+    "issues": 4,
     "byKind": {
       "cyclomatic-complexity": 2,
       "duplicate-block": 5,
@@ -26,34 +26,6 @@
       "file": "packages/os-desktop/src/_wip/dashboards/custom/custom-widget-renderer.tsx",
       "line": 197,
       "detail": "CustomWidgetRenderer complexity 20 exceeds max 14."
-    },
-    {
-      "id": "duplicate-block:packages/os-coding-agents/src/cursor.ts:a02e63e76aa18a77",
-      "kind": "duplicate-block",
-      "file": "packages/os-coding-agents/src/cursor.ts",
-      "line": 34,
-      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:38."
-    },
-    {
-      "id": "duplicate-block:packages/os-coding-agents/src/cursor.ts:a69b0bc33e981c50",
-      "kind": "duplicate-block",
-      "file": "packages/os-coding-agents/src/cursor.ts",
-      "line": 33,
-      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:37."
-    },
-    {
-      "id": "duplicate-block:packages/os-coding-agents/src/opencode.ts:a02e63e76aa18a77",
-      "kind": "duplicate-block",
-      "file": "packages/os-coding-agents/src/opencode.ts",
-      "line": 33,
-      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:38."
-    },
-    {
-      "id": "duplicate-block:packages/os-coding-agents/src/opencode.ts:a69b0bc33e981c50",
-      "kind": "duplicate-block",
-      "file": "packages/os-coding-agents/src/opencode.ts",
-      "line": 32,
-      "detail": "Duplicate 8-line block also appears at packages/os-coding-agents/src/continue.ts:37."
     },
     {
       "id": "duplicate-block:packages/os-desktop/src/screens/runs/use-runs.ts:d9231c7f9886379c",

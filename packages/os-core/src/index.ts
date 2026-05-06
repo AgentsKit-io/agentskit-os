@@ -167,7 +167,12 @@ export type {
 } from './security/workspace-policy-engine.js'
 
 export { createInMemoryHitlInbox, HitlDecision, HitlTask, HitlTaskStatus } from './hitl/inbox.js'
-export type { HitlDecision, HitlInbox, HitlTask, HitlTaskStatus } from './hitl/inbox.js'
+export type {
+  HitlDecision as HitlDecisionType,
+  HitlInbox,
+  HitlTask as HitlTaskType,
+  HitlTaskStatus as HitlTaskStatusType,
+} from './hitl/inbox.js'
 
 export {
   CloudSyncConfig,

@@ -23,14 +23,6 @@ export type CodingPermissionProfileId =
   | 'full_sandbox'
   | 'release_manager'
 
-// Local copy of profile ids (kept in sync with the permission profiles module when present).
-export type CodingPermissionProfileId =
-  | 'read_only_review'
-  | 'edit_without_shell'
-  | 'test_runner'
-  | 'full_sandbox'
-  | 'release_manager'
-
 export type DelegationSubTaskSpec = {
   readonly id: string
   readonly providerId: string

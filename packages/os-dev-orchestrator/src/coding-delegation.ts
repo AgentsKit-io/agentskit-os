@@ -14,6 +14,7 @@ import {
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import type { CodingPermissionProfileId } from './coding-permission-profiles.js'
 
 // Local copy of profile ids (kept in sync with the permission profiles module when present).
 export type CodingPermissionProfileId =

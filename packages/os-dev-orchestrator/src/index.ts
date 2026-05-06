@@ -14,7 +14,7 @@ export type {
   WorktreeTaskMeta,
 } from './git-worktree-manager.js'
 
-export { computeGitDiff } from './git-diff.js'
+export { computeGitDiff, formatUnifiedDiffPreview } from './git-diff.js'
 export type { GitDiffFile, GitDiffHunk, GitDiffResult } from './git-diff.js'
 export { computeCompletenessScore, runCodingAgentBenchmark } from './coding-benchmark.js'
 export type {
@@ -24,7 +24,9 @@ export type {
 } from './coding-benchmark.js'
 export {
   artifactFilenameForBenchmarkStep,
+  artifactFilenameForDelegationStep,
   buildCodingRunArtifactPayload,
+  collectGitHeadDiffSnapshot,
   redactCodingTaskRequest,
   redactCodingTaskResult,
   resolveHeadOidSafe,
@@ -36,15 +38,18 @@ export type {
   CodingAgentArtifactIds,
   CodingRunArtifactPayload,
   CodingRunArtifactPhase,
+  CodingRunArtifactsOpts,
   CodingRunGitRefDiffSummary,
 } from './coding-run-artifacts.js'
 export {
   CODING_FAILURE_CATALOG,
+  buildCodingFailureIncident,
   classifyCodingFailure,
 } from './coding-failure-taxonomy.js'
 export type {
   CodingFailureClassification,
   CodingFailureCode,
+  CodingFailureIncidentRecord,
   CodingRecoveryAction,
   FailureSeverity,
   RetryPolicy,
@@ -63,10 +68,44 @@ export type {
   CodingTaskReportLinks,
   CodingTaskReportRow,
 } from './coding-task-report.js'
+export {
+  DEV_TRIGGER_PRESETS,
+  getDevTriggerPreset,
+  listDevTriggerPresets,
+} from './dev-trigger-presets.js'
+export type {
+  DevTriggerAuthExpectation,
+  DevTriggerKind,
+  DevTriggerPermissionProfile,
+  DevTriggerPreset,
+  DevTriggerPresetMapInput,
+  DevTriggerRunMode,
+} from './dev-trigger-presets.js'
+export {
+  CODING_PERMISSION_PROFILES,
+  buildCodingPermissionAuditEvent,
+  evaluateCodingPermission,
+  getCodingPermissionProfile,
+  listCodingPermissionProfiles,
+} from './coding-permission-profiles.js'
+export type {
+  CodingGitOps,
+  CodingNetworkPolicy,
+  CodingOperation,
+  CodingPermissionAuditEvent,
+  CodingPermissionDecision,
+  CodingPermissionProfile,
+  CodingPermissionProfileId,
+} from './coding-permission-profiles.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'
 export { simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
-export type { IssueToPrDryRunReport, IssueToPrPipelineEvent } from './issue-pr-pipeline.js'
 export type {
+  IssueToPrDryRunReport,
+  IssueToPrPipelineEvent,
+  IssueToPrPrDraftMeta,
+} from './issue-pr-pipeline.js'
+export type {
+  DelegationArtifactsOpts,
   DelegationReport,
   DelegationSubTaskRow,
   DelegationSubTaskSpec,

@@ -137,12 +137,17 @@ describe('runCodingAgentBenchmark', () => {
       })
       expect(report.rows).toHaveLength(1)
       const names = await readdir(outDir)
-      expect(names.length).toBe(1)
-      const raw = await readFile(join(outDir, names[0]!), 'utf8')
-      const parsed = JSON.parse(raw) as { phase: string; ids: { traceId?: string }; git?: unknown }
-      expect(parsed.phase).toBe('provider_completed')
-      expect(parsed.ids.traceId).toBe('trace-z')
-      expect(parsed.git).toBeUndefined()
+      expect(names.length).toBe(2)
+      const payloads = await Promise.all(
+        names.map(async (n) => JSON.parse(await readFile(join(outDir, n), 'utf8')) as { phase: string }),
+      )
+      expect(payloads.map((p) => p.phase).sort()).toEqual(['provider_completed', 'provider_started'])
+      const completed = payloads.find((p) => p.phase === 'provider_completed') as {
+        ids: { traceId?: string }
+        git?: unknown
+      }
+      expect(completed.ids.traceId).toBe('trace-z')
+      expect(completed.git).toBeUndefined()
     } finally {
       await rm(outDir, { recursive: true, force: true })
     }
@@ -239,11 +244,58 @@ describe('runCodingAgentBenchmark', () => {
         artifacts: { outDir, runId: 'run-throw' },
       })
       const names = await readdir(outDir)
-      expect(names.length).toBe(1)
-      const raw = await readFile(join(outDir, names[0]!), 'utf8')
-      const parsed = JSON.parse(raw) as { phase: string; taskResult?: { errorCode?: string } }
-      expect(parsed.phase).toBe('provider_threw')
-      expect(parsed.taskResult?.errorCode).toBe('benchmark.run_threw')
+      expect(names.length).toBe(2)
+      const threw = JSON.parse(
+        await readFile(
+          join(outDir, names.find((n) => n.includes('-threw'))!),
+          'utf8',
+        ),
+      ) as { phase: string; taskResult?: { errorCode?: string } }
+      expect(threw.phase).toBe('provider_threw')
+      expect(threw.taskResult?.errorCode).toBe('benchmark.run_threw')
+    } finally {
+      await rm(outDir, { recursive: true, force: true })
+    }
+  })
+
+  it('writes run_cancelled artifact when aborted after a provider with capture enabled', async () => {
+    const outDir = join(tmpdir(), `ak-bench-cancel-${Date.now()}`)
+    const ctrl = new AbortController()
+    const p1 = fakeProvider('p-one', async () => {
+      ctrl.abort()
+      return {
+        providerId: 'p-one',
+        status: 'ok' as const,
+        files: [],
+        shell: [],
+        tools: [],
+        summary: '',
+      }
+    })
+    const p2 = fakeProvider('p-two', async () => ({
+      providerId: 'p-two',
+      status: 'ok' as const,
+      files: [],
+      shell: [],
+      tools: [],
+      summary: '',
+    }))
+    try {
+      await runCodingAgentBenchmark({
+        repoRoot: '/r',
+        providers: [p1, p2],
+        kind: 'free-form',
+        prompt: 'x',
+        dryRun: true,
+        isolateWorktrees: false,
+        signal: ctrl.signal,
+        artifacts: { outDir, runId: 'run-cancel-art' },
+      })
+      const names = await readdir(outDir)
+      const cancelName = names.find((n) => n.includes('-cancelled'))
+      expect(cancelName).toBeDefined()
+      const cancel = JSON.parse(await readFile(join(outDir, cancelName!), 'utf8')) as { phase: string }
+      expect(cancel.phase).toBe('run_cancelled')
     } finally {
       await rm(outDir, { recursive: true, force: true })
     }

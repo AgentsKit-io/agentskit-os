@@ -554,6 +554,9 @@ importers:
       '@agentskit/os-core':
         specifier: workspace:*
         version: link:../os-core
+      '@agentskit/os-dev-orchestrator':
+        specifier: workspace:*
+        version: link:../os-dev-orchestrator
       '@agentskit/os-flow':
         specifier: workspace:*
         version: link:../os-flow

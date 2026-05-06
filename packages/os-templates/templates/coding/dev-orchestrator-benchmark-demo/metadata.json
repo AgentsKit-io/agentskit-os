@@ -1,0 +1,29 @@
+{
+  "id": "dev-orchestrator-benchmark-demo",
+  "name": "Dev Orchestrator Benchmark Demo",
+  "intent": "Public demo workspace that benchmarks the dev orchestrator across coding-agent providers on three task types (bug fix, test generation, small feature). Runs in dry-run without credentials and live when providers are configured.",
+  "category": "coding",
+  "tags": [
+    "coding",
+    "benchmark",
+    "demo",
+    "dev-orchestrator",
+    "dogfood"
+  ],
+  "estimatedCostUsd": 1.5,
+  "estimatedTokens": 120000,
+  "primaryAgents": [
+    "demo-coordinator"
+  ],
+  "primaryTools": [
+    "coding-agent.benchmark",
+    "coding-agent.delegate"
+  ],
+  "runModesSupported": [
+    "dry_run",
+    "preview",
+    "real"
+  ],
+  "triggerKind": "cron",
+  "stability": "ready"
+}

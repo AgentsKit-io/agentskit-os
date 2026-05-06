@@ -61,5 +61,25 @@ export type {
   CostMetricsRecorderOptions,
 } from './cost-bridge.js'
 
+export {
+  applyIncidentTransition,
+  buildIncidentAuditExport,
+  createAgentIncident,
+  renderIncidentMarkdown,
+} from './agent-incident.js'
+export type {
+  AgentIncident,
+  CreateAgentIncidentInput,
+  IncidentAuditExport,
+  IncidentCustomerImpact,
+  IncidentLink,
+  IncidentRcaNotes,
+  IncidentRollbackAction,
+  IncidentSeverity,
+  IncidentStatus,
+  IncidentTimelineEntry,
+  IncidentTransition,
+} from './agent-incident.js'
+
 export const PACKAGE_NAME = '@agentskit/os-observability' as const
 export const PACKAGE_VERSION = '0.0.0' as const

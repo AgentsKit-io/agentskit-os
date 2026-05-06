@@ -21,10 +21,18 @@ export type SubprocessRunner = {
   readonly run: RunFn
 }
 
-export const defaultRun: RunFn = async ({ command, args, cwd, timeoutMs, stdin }) =>
+const mergeProcessEnv = (extra?: Readonly<Record<string, string>>): NodeJS.ProcessEnv => {
+  if (extra === undefined || Object.keys(extra).length === 0) {
+    return process.env
+  }
+  return { ...process.env, ...extra }
+}
+
+const createRunWithEnv = (env: NodeJS.ProcessEnv): RunFn => async ({ command, args, cwd, timeoutMs, stdin }) =>
   new Promise((resolve) => {
     const child = spawn(command, [...args], {
       cwd,
+      env,
       windowsHide: true,
       stdio: stdin === undefined ? ['ignore', 'pipe', 'pipe'] : ['pipe', 'pipe', 'pipe'],
     })
@@ -58,8 +66,9 @@ export const defaultRun: RunFn = async ({ command, args, cwd, timeoutMs, stdin }
     })
   })
 
-export const defaultWhich: WhichFn = async (command) => {
-  const r = await defaultRun({
+const createWhichWithEnv = (env: NodeJS.ProcessEnv): WhichFn => async (command) => {
+  const run = createRunWithEnv(env)
+  const r = await run({
     command: process.platform === 'win32' ? 'where' : 'command',
     args: process.platform === 'win32' ? [command] : ['-v', command],
     cwd: process.cwd(),
@@ -70,10 +79,27 @@ export const defaultWhich: WhichFn = async (command) => {
   return line ?? command
 }
 
+export const defaultRun: RunFn = createRunWithEnv(process.env)
+export const defaultWhich: WhichFn = createWhichWithEnv(process.env)
+
 export const createSubprocessRunner = (opts?: {
   readonly which?: WhichFn
   readonly run?: RunFn
-}): SubprocessRunner => ({
-  which: opts?.which ?? defaultWhich,
-  run: opts?.run ?? defaultRun,
-})
+  /**
+   * Extra env vars merged over `process.env` for provider CLI discovery and runs (#375).
+   * Use with a vault `local.env` file (see `loadSecretsEnvFromFile` + `createBuiltinCodingAgentProvider`).
+   */
+  readonly env?: Readonly<Record<string, string>>
+}): SubprocessRunner => {
+  if (opts?.env !== undefined && Object.keys(opts.env).length > 0) {
+    const merged = mergeProcessEnv(opts.env)
+    return {
+      which: opts.which ?? createWhichWithEnv(merged),
+      run: opts.run ?? createRunWithEnv(merged),
+    }
+  }
+  return {
+    which: opts?.which ?? defaultWhich,
+    run: opts?.run ?? defaultRun,
+  }
+}

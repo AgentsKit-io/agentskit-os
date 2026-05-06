@@ -282,6 +282,40 @@ describe('coding-agent delegate', () => {
     expect(out).toContain('--sub')
     expect(out).toContain('coordinator')
     expect(out).toContain('--parallel')
+    expect(out).toContain('--capture-run-artifacts')
+    expect(out).toContain('--artifact-trace-id')
+  })
+
+  it('writes coding run delegation artifacts when --capture-run-artifacts is set', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ak-deleg-run-art-'))
+    try {
+      const r = await route(
+        [
+          'coding-agent',
+          'delegate',
+          '--sub',
+          'codex:noop',
+          '--sub',
+          'codex:noop2',
+          '--capture-run-artifacts',
+          dir,
+          '--artifact-trace-id',
+          'deleg-trace',
+        ],
+        fakeIo({}),
+      )
+      expect([0, 1] as const).toContain(r.code)
+      const files = readdirSync(dir).filter((f) => f.startsWith('coding-run-artifact-deleg-'))
+      expect(files.length).toBeGreaterThanOrEqual(2)
+      const disk = JSON.parse(readFileSync(join(dir, files[0]!), 'utf8')) as {
+        ids: { traceId?: string }
+        phase: string
+      }
+      expect(disk.ids.traceId).toBe('deleg-trace')
+      expect(disk.phase).toBe('provider_completed')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
 

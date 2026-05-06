@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { Command } from 'commander'
-import type { CodingTaskKind } from '@agentskit/os-core'
+import { createDefaultRunId, type CodingTaskKind } from '@agentskit/os-core'
 import {
   buildCodingTaskReportFromDelegation,
   renderCodingTaskReportMarkdown,
@@ -55,8 +55,11 @@ type DelegateOpts = {
   parallel: boolean
   json?: boolean
   artifactDir?: string
+  captureRunArtifacts?: string
+  artifactTraceId?: string
   traceUrl?: string
   prUrl?: string
+  secretsFile?: string
 }
 
 const buildProgram = (): { program: Command; result: { current?: CliExit } } => {
@@ -91,12 +94,27 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
     )
     .option('--json', 'print DelegationReport as JSON', false)
     .option(
+      '--capture-run-artifacts <path>',
+      'write per-shard coding-run-artifact-deleg-*.json bundles under this directory (#367)',
+      undefined,
+    )
+    .option(
+      '--artifact-trace-id <id>',
+      'trace id stored in each coding run artifact (use with --capture-run-artifacts)',
+      undefined,
+    )
+    .option(
       '--artifact-dir <path>',
       'write coding-task-report.json, coding-task-report.md, coding-task-dashboard.json (#368)',
       undefined,
     )
     .option('--trace-url <url>', 'trace URL embedded in task report artifacts', undefined)
     .option('--pr-url <url>', 'PR URL embedded in task report artifacts', undefined)
+    .option(
+      '--secrets-file <path>',
+      'merge KEY=value lines into env for each shard provider CLI subprocess (#375)',
+      undefined,
+    )
     .action(async (opts: DelegateOpts) => {
       if (opts.sub.length === 0) {
         program.error('at least one --sub provider:prompt is required', { exitCode: 2 })
@@ -106,6 +124,9 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         program.error(`unknown --kind "${opts.kind}"`, { exitCode: 2 })
         return
       }
+
+      const sf = opts.secretsFile?.trim()
+      const vaultOpts = sf !== undefined && sf.length > 0 ? { secretsFile: resolve(sf) } : undefined
 
       const shards: { id: string; providerId: string; provider: ReturnType<typeof createBuiltinCodingAgentProvider>; prompt: string; kind: CodingTaskKind; dryRun: boolean }[] = []
       for (let i = 0; i < opts.sub.length; i += 1) {
@@ -117,12 +138,15 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         shards.push({
           id: `shard-${i}`,
           providerId: parsed.provider,
-          provider: createBuiltinCodingAgentProvider(parsed.provider),
+          provider: createBuiltinCodingAgentProvider(parsed.provider, vaultOpts),
           prompt: parsed.prompt,
           kind: opts.kind,
           dryRun: opts.apply !== true,
         })
       }
+
+      const captureDir = opts.captureRunArtifacts?.trim()
+      const traceIdOpt = opts.artifactTraceId?.trim()
 
       let report: Awaited<ReturnType<typeof runDelegatedCodingTask>>
       try {
@@ -132,6 +156,15 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
           shards,
           isolateWorktrees: opts.isolateWorktrees === true,
           parallel: opts.parallel === true,
+          ...(captureDir !== undefined && captureDir.length > 0
+            ? {
+                artifacts: {
+                  outDir: resolve(captureDir),
+                  runId: createDefaultRunId(),
+                  ...(traceIdOpt !== undefined && traceIdOpt.length > 0 ? { traceId: traceIdOpt } : {}),
+                },
+              }
+            : {}),
         })
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err)

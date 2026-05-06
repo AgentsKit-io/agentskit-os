@@ -15,6 +15,15 @@ export type { CursorProviderOptions } from './cursor.js'
 export { createGeminiProvider } from './gemini.js'
 export type { GeminiProviderOptions } from './gemini.js'
 
+export { createAiderProvider } from './aider.js'
+export type { AiderProviderOptions } from './aider.js'
+
+export { createOpenCodeProvider } from './opencode.js'
+export type { OpenCodeProviderOptions } from './opencode.js'
+
+export { createContinueProvider } from './continue.js'
+export type { ContinueProviderOptions } from './continue.js'
+
 export {
   BUILTIN_CODING_AGENT_IDS,
   createBuiltinCodingAgentProvider,

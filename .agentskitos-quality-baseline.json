@@ -8,7 +8,7 @@
     "issues": 4,
     "byKind": {
       "cyclomatic-complexity": 2,
-      "duplicate-block": 1,
+      "duplicate-block": 5,
       "nested-ternary": 1
     }
   },

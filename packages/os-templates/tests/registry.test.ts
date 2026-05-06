@@ -103,6 +103,11 @@ describe('findTemplate', () => {
     expect(t?.flows[0]?.nodes.map((n) => n.id)).toContain('pr')
   })
 
+  it('includes dev-issue-to-pr-workspace gallery id (#364)', () => {
+    const meta = TEMPLATES.find((m) => m.id === 'dev-issue-to-pr-workspace')
+    expect(meta?.primaryTools).toContain('github.issue.fetch')
+  })
+
   it('returns undefined for unknown id', () => {
     expect(findTemplate('nope')).toBeUndefined()
   })

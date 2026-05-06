@@ -47,6 +47,7 @@ type BenchmarkOpts = {
   artifactTraceId?: string
   traceUrl?: string
   prUrl?: string
+  secretsFile?: string
 }
 
 const parseProviders = (csv: string): string[] =>
@@ -102,6 +103,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
     )
     .option('--trace-url <url>', 'trace URL embedded in task report artifacts', undefined)
     .option('--pr-url <url>', 'PR URL embedded in task report artifacts', undefined)
+    .option(
+      '--secrets-file <path>',
+      'merge KEY=value lines into env for each provider CLI subprocess (#375)',
+      undefined,
+    )
     .action(async (opts: BenchmarkOpts) => {
       const ids = parseProviders(opts.providers)
       const narrowed: BuiltinCodingAgentId[] = []
@@ -123,7 +129,9 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
         program.error(`invalid --timeout-ms "${opts.timeoutMs}"`, { exitCode: 2 })
         return
       }
-      const providers = narrowed.map((id) => createBuiltinCodingAgentProvider(id))
+      const sf = opts.secretsFile?.trim()
+      const vaultOpts = sf !== undefined && sf.length > 0 ? { secretsFile: resolve(sf) } : undefined
+      const providers = narrowed.map((id) => createBuiltinCodingAgentProvider(id, vaultOpts))
       const captureDir = opts.captureRunArtifacts?.trim()
       const traceIdOpt = opts.artifactTraceId?.trim()
       const report = await runCodingAgentBenchmark({

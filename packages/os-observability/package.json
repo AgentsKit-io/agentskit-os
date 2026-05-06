@@ -20,13 +20,18 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./coding-task-report": {
+      "types": "./dist/coding-task-report-exports.d.ts",
+      "import": "./dist/coding-task-report-exports.js",
+      "require": "./dist/coding-task-report-exports.cjs"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm --filter @agentskit/os-dev-orchestrator build && tsup",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "tsc --noEmit",
@@ -34,11 +39,18 @@
   },
   "peerDependencies": {
     "@agentskit/os-core": "workspace:^",
+    "@agentskit/os-dev-orchestrator": "workspace:^",
     "zod": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@agentskit/os-dev-orchestrator": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@agentskit/os-audit": "workspace:*",
     "@agentskit/os-core": "workspace:*",
+    "@agentskit/os-dev-orchestrator": "workspace:*",
     "@agentskit/os-flow": "workspace:*",
     "@types/node": "^25.6.0",
     "tsup": "^8.5.0",

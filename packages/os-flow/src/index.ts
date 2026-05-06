@@ -32,6 +32,14 @@ export type {
 } from './flow-watchdog.js'
 export { runWithGracefulDegradation } from './graceful-degradation.js'
 export { detectHotReloadConflicts } from './hot-reload-conflicts.js'
+export { simulateWhatIf } from './what-if-simulator.js'
+export type {
+  NodeOutcomeProjector,
+  RecordedNodeStep,
+  RecordedRunTrace,
+  SimulationStep,
+  WhatIfReport,
+} from './what-if-simulator.js'
 export { runUnderChaos } from './chaos-harness.js'
 export type { ChaosFault, ChaosOutcome, ChaosPlan, ChaosRule } from './chaos-harness.js'
 export {

@@ -28,7 +28,7 @@ beforeAll(() => {
 
 // Import after mocking
 const { sidecarRequest, pauseRuns, resumeRuns, disposeSidecar, cancelRunForTrace } =
-  await import("../src/lib/sidecar");
+  await import("../sidecar");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tests

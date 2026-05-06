@@ -29,7 +29,7 @@ const ACTIONS: readonly NextAction[] = [
   },
 ] as const
 
-export function NextActions({ onCreateAutomation }: { readonly onCreateAutomation: () => void }) {
+export function NextActions() {
   return (
     <section className="rounded-2xl border border-[var(--ag-line)] bg-[var(--ag-panel)] p-4">
       <div className="flex items-center gap-2">
@@ -38,11 +38,9 @@ export function NextActions({ onCreateAutomation }: { readonly onCreateAutomatio
       </div>
       <div className="mt-4 grid gap-2 lg:grid-cols-2">
         {ACTIONS.map((action) => (
-          <button
+          <div
             key={action.label}
-            type="button"
-            className="group flex items-start gap-3 rounded-xl border border-[var(--ag-line)] bg-[var(--ag-surface)] p-3 text-left transition hover:border-[var(--ag-accent)] hover:bg-[var(--ag-panel-alt)]"
-            onClick={onCreateAutomation}
+            className="group flex items-start gap-3 rounded-xl border border-[var(--ag-line)] bg-[var(--ag-surface)] p-3 text-left transition"
           >
             <action.icon aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-[var(--ag-ink-subtle)] group-hover:text-[var(--ag-accent)]" />
             <span>
@@ -51,7 +49,7 @@ export function NextActions({ onCreateAutomation }: { readonly onCreateAutomatio
                 {action.description}
               </span>
             </span>
-          </button>
+          </div>
         ))}
       </div>
     </section>

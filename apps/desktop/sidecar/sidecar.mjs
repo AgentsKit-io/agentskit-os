@@ -26,8 +26,9 @@
 import { createInterface } from 'node:readline'
 
 // ---------------------------------------------------------------------------
-// Import os-headless (will be available once pnpm packages are built).
-// Gracefully degrade if the package hasn't been built yet.
+// Import os-headless. Required at runtime — the sidecar fails fast if the
+// package isn't built. Mock-mode UI was removed in phase 5 of the M2 cut so
+// the desktop only ships against a real runtime (no empty-state fictions).
 // ---------------------------------------------------------------------------
 
 /** @type {import('@agentskit/os-headless').HeadlessRunner | null} */
@@ -50,42 +51,37 @@ const flowRegistry = new Map()
 /** @type {Map<string, unknown>} */
 const flowMeta = new Map()
 
-const tryInitRunner = async () => {
-  try {
-    const { createHeadlessRunner } = await import('@agentskit/os-headless')
-    createHeadlessRunnerFn = createHeadlessRunner
+const initRunner = async () => {
+  const { createHeadlessRunner } = await import('@agentskit/os-headless')
+  createHeadlessRunnerFn = createHeadlessRunner
 
-    // Minimal stub adapters for the dry_run default mode.
-    // TODO(#37): replace with real adapters injected from workspace config.
-    /** @type {import('@agentskit/os-runtime').AdapterRegistry} */
-    const stubAdapters = {
-      llm: {
-        complete: async (_req) => ({ content: '', usage: { inputTokens: 0, outputTokens: 0 } }),
-      },
-      tool: {
-        execute: async (_req) => ({ output: null }),
-      },
-    }
-
-    baseRunnerOpts = {
-      config: {
-        id: 'desktop-default',
-        name: 'Desktop Default Workspace',
-        version: '0.0.0',
-      },
-      adapters: stubAdapters,
-    }
-
-    runner = createHeadlessRunner({
-      ...baseRunnerOpts,
-      observability: (event) => {
-        notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
-      },
-    })
-  } catch (err) {
-    // Log to stderr only — stdout is reserved for JSON-RPC.
-    process.stderr.write(`[sidecar] os-headless not available: ${err?.message ?? err}\n`)
+  // Minimal stub adapters for the dry_run default mode.
+  // TODO(#37): replace with real adapters injected from workspace config.
+  /** @type {import('@agentskit/os-runtime').AdapterRegistry} */
+  const stubAdapters = {
+    llm: {
+      complete: async (_req) => ({ content: '', usage: { inputTokens: 0, outputTokens: 0 } }),
+    },
+    tool: {
+      execute: async (_req) => ({ output: null }),
+    },
   }
+
+  baseRunnerOpts = {
+    config: {
+      id: 'desktop-default',
+      name: 'Desktop Default Workspace',
+      version: '0.0.0',
+    },
+    adapters: stubAdapters,
+  }
+
+  runner = createHeadlessRunner({
+    ...baseRunnerOpts,
+    observability: (event) => {
+      notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
+    },
+  })
 }
 
 // ---------------------------------------------------------------------------
@@ -529,7 +525,7 @@ const handleFlowsCreate = ({ id, params }) => {
 // ---------------------------------------------------------------------------
 
 const main = async () => {
-  await tryInitRunner()
+  await initRunner()
 
   const rl = createInterface({ input: process.stdin, crlfDelay: Infinity })
 

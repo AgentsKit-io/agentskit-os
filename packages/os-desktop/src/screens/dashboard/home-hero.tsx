@@ -1,4 +1,4 @@
-import { ArrowRight, Command, Play, Workflow } from 'lucide-react'
+import { ArrowRight, Command, Play } from 'lucide-react'
 import { Badge } from '@agentskit/os-ui'
 import type { RunMode, SidecarStatus } from '../../lib/sidecar'
 
@@ -17,7 +17,6 @@ const SECONDARY_ACTION_CLASS = [
 
 type HomeHeroProps = {
   readonly onChangeRunMode: (mode: RunMode) => void
-  readonly onCreateAutomation: () => void
   readonly onDeploy: () => void
   readonly onOpenRuns: () => void
   readonly runMode: RunMode
@@ -42,7 +41,6 @@ function ConnectionBadge({ status }: { readonly status: SidecarStatus }) {
 
 export function HomeHero({
   onChangeRunMode,
-  onCreateAutomation,
   onDeploy,
   onOpenRuns,
   runMode,
@@ -71,14 +69,6 @@ export function HomeHero({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-full bg-[var(--ag-accent)] px-4 py-2 text-sm font-medium text-white transition hover:bg-[var(--ag-accent-hover)] active:scale-[0.97]"
-            onClick={onCreateAutomation}
-          >
-            <Workflow aria-hidden className="h-4 w-4" />
-            Create automation
-          </button>
           <button
             type="button"
             className={SECONDARY_ACTION_CLASS}

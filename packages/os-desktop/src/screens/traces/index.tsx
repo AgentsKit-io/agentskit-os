@@ -19,7 +19,6 @@ import { ReplayButton } from './replay-button'
 import { useTraceSpans } from './use-traces'
 import { useTraceLiveSession } from './use-trace-live'
 import { TraceStatusBadge } from './trace-badges'
-import { ForkButton } from '../../fork/fork-button'
 import { formatCompactNumber, formatShortDuration, formatUsd } from '../../lib/format'
 import { useSelection } from '../../lib/selection-store'
 
@@ -112,9 +111,6 @@ const TraceDetail = ({ traceId }: TraceDetailProps): React.JSX.Element => {
 
           {/* Replay stub */}
           <ReplayButton traceId={traceId} />
-
-          {/* Fork as flow */}
-          <ForkButton traceId={traceId} />
         </div>
       </div>
 
@@ -171,7 +167,7 @@ export const TracesScreen = (): React.JSX.Element => {
           </p>
           <h1 className="mt-1 text-lg font-semibold tracking-tight text-[var(--ag-ink)]">Traces</h1>
           <p className="mt-1 max-w-2xl text-sm text-[var(--ag-ink-muted)]">
-            Inspect span trees, replay runs, and fork execution evidence into new flows.
+            Inspect span trees and replay runs.
           </p>
         </div>
       </div>

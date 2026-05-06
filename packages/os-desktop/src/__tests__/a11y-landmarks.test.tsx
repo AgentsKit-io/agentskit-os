@@ -163,8 +163,8 @@ describe('App ARIA landmarks', () => {
     })
 
     expect(screen.getByRole('button', { name: /home/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /build/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /evaluate/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /agents/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /traces/i })).toBeInTheDocument()
   })
 
   it('marks the active primary nav item with aria-current', async () => {
@@ -178,10 +178,10 @@ describe('App ARIA landmarks', () => {
     )
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /build/i }))
+      fireEvent.click(screen.getByTestId('nav-traces'))
     })
 
-    expect(screen.getByRole('button', { name: /build/i })).toHaveAttribute(
+    expect(screen.getByTestId('nav-traces')).toHaveAttribute(
       'aria-current',
       'page',
     )
@@ -199,35 +199,20 @@ describe('App ARIA landmarks', () => {
     expect(screen.getByRole('dialog', { name: /command palette/i })).toBeInTheDocument()
   })
 
-  it('opens the supported Flows screen from primary navigation', async () => {
+  it('opens the Runs screen from primary navigation', async () => {
     await act(async () => {
       render(<App />, { container })
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /build/i }))
-    })
-
-    expect(screen.getByRole('heading', { name: /flows, agents, skills, and templates/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /flow registry/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /flows is in preview/i })).not.toBeInTheDocument()
-  })
-
-  it('opens the supported Runs screen from primary navigation', async () => {
-    await act(async () => {
-      render(<App />, { container })
-    })
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /operate/i }))
+      fireEvent.click(screen.getByTestId('nav-runs'))
     })
 
     expect(screen.getByRole('heading', { name: /^runs$/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /run queue/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /runs is in preview/i })).not.toBeInTheDocument()
   })
 
-  it('opens the supported Agents screen from primary navigation', async () => {
+  it('opens the Agents screen from primary navigation', async () => {
     await act(async () => {
       render(<App />, { container })
     })
@@ -236,83 +221,6 @@ describe('App ARIA landmarks', () => {
 
     expect(screen.getByRole('heading', { name: /^agents$/i })).toBeInTheDocument()
     expect(screen.getByRole('table', { name: /agent registry/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /agents is in preview/i })).not.toBeInTheDocument()
-  })
-
-  it('opens the supported Triggers screen from primary navigation', async () => {
-    await act(async () => {
-      render(<App />, { container })
-    })
-
-    await openNavigationCommand(/go to triggers/i)
-
-    expect(screen.getByRole('heading', { name: /^triggers$/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /trigger rules/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /triggers is in preview/i })).not.toBeInTheDocument()
-  })
-
-  it('opens the supported HITL Inbox screen from primary navigation', async () => {
-    await act(async () => {
-      render(<App />, { container })
-    })
-
-    await openNavigationCommand(/go to approvals/i)
-
-    expect(screen.getByRole('heading', { name: /hitl inbox/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /human task inbox/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /hitl inbox is in preview/i })).not.toBeInTheDocument()
-  })
-
-  it('opens the supported Benchmark screen from primary navigation', async () => {
-    await act(async () => {
-      render(<App />, { container })
-    })
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /evaluate/i }))
-    })
-
-    expect(screen.getByRole('heading', { name: /^benchmark$/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /benchmark results/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /benchmark is in preview/i })).not.toBeInTheDocument()
-  })
-
-  it('opens the supported Evals screen from primary navigation', async () => {
-    await act(async () => {
-      render(<App />, { container })
-    })
-
-    await openNavigationCommand(/go to evals/i)
-
-    expect(screen.getByRole('heading', { name: /^evals$/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /evaluation suites/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /evals is in preview/i })).not.toBeInTheDocument()
-  })
-
-  it('opens the supported Cost & Quotas screen from primary navigation', async () => {
-    await act(async () => {
-      render(<App />, { container })
-    })
-
-    await openNavigationCommand(/go to cost/i)
-
-    expect(screen.getByRole('heading', { name: /cost & quotas/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /cost budgets/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /cost & quotas is in preview/i })).not.toBeInTheDocument()
-  })
-
-  it('opens the supported Security screen from primary navigation', async () => {
-    await act(async () => {
-      render(<App />, { container })
-    })
-
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: /^govern$/i }))
-    })
-
-    expect(screen.getByRole('heading', { name: /^security$/i })).toBeInTheDocument()
-    expect(screen.getByRole('table', { name: /security controls/i })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: /security is in preview/i })).not.toBeInTheDocument()
   })
 
   it('registers the restart onboarding command in the command palette', async () => {
@@ -344,5 +252,7 @@ describe('App ARIA landmarks', () => {
 
     expect(screen.queryByText(/go to flows/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/go to security/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/go to triggers/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/go to evals/i)).not.toBeInTheDocument()
   })
 })

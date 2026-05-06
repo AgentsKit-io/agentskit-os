@@ -4,6 +4,7 @@ const config: Config = {
   content: [
     './index.html',
     './src/**/*.{ts,tsx}',
+    '../../packages/os-desktop/src/**/*.{ts,tsx}',
   ],
   theme: {
     extend: {

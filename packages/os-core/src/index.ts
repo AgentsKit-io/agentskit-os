@@ -221,6 +221,14 @@ export type {
 } from './hitl/inbox.js'
 
 export {
+  HitlInboxSnapshot,
+  parseHitlInboxSnapshot,
+  restoreHitlInbox,
+  safeParseHitlInboxSnapshot,
+  snapshotHitlInbox,
+} from './hitl/persistence.js'
+
+export {
   CloudSyncConfig,
   CloudPlan,
   SyncStrategy,

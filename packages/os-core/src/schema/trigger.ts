@@ -111,7 +111,75 @@ export const CdcTrigger = z.object({
 })
 export type CdcTrigger = z.infer<typeof CdcTrigger>
 
-export const TriggerConfig = z.discriminatedUnion('kind', [CronTrigger, WebhookTrigger, FileWatchTrigger, EmailTrigger, SlackTrigger, GitHubTrigger, LinearTrigger, CdcTrigger])
+// Integration triggers (#159–#164). Each wraps the corresponding integration
+// in @agentskit/tools/integrations/* — the schema lives here so the shared
+// TriggerConfig union and registry stay the single source of truth.
+
+export const DiscordTrigger = z.object({
+  ...Common,
+  kind: z.literal('discord'),
+  channelId: z.string().min(1).max(128),
+  event: z.enum(['message', 'mention', 'reaction']).default('message'),
+})
+export type DiscordTrigger = z.infer<typeof DiscordTrigger>
+
+export const TwilioTrigger = z.object({
+  ...Common,
+  kind: z.literal('twilio'),
+  channel: z.enum(['sms', 'whatsapp', 'voice']).default('sms'),
+  toNumber: z.string().min(1).max(32),
+})
+export type TwilioTrigger = z.infer<typeof TwilioTrigger>
+
+export const SentryTrigger = z.object({
+  ...Common,
+  kind: z.literal('sentry'),
+  project: z.string().min(1).max(128),
+  event: z.enum(['issue.created', 'issue.regression', 'event.alert']).default('issue.created'),
+})
+export type SentryTrigger = z.infer<typeof SentryTrigger>
+
+export const PagerDutyTrigger = z.object({
+  ...Common,
+  kind: z.literal('pagerduty'),
+  service: z.string().min(1).max(128),
+  event: z.enum(['incident.triggered', 'incident.acknowledged', 'incident.resolved']).default('incident.triggered'),
+})
+export type PagerDutyTrigger = z.infer<typeof PagerDutyTrigger>
+
+export const StripeTrigger = z.object({
+  ...Common,
+  kind: z.literal('stripe'),
+  account: z.string().min(1).max(128),
+  event: z.string().min(1).max(128),
+})
+export type StripeTrigger = z.infer<typeof StripeTrigger>
+
+export const S3Trigger = z.object({
+  ...Common,
+  kind: z.literal('s3'),
+  bucket: z.string().min(1).max(128),
+  prefix: z.string().max(1024).optional(),
+  events: z.array(z.enum(['object.created', 'object.removed'])).min(1).default(['object.created']),
+})
+export type S3Trigger = z.infer<typeof S3Trigger>
+
+export const TriggerConfig = z.discriminatedUnion('kind', [
+  CronTrigger,
+  WebhookTrigger,
+  FileWatchTrigger,
+  EmailTrigger,
+  SlackTrigger,
+  GitHubTrigger,
+  LinearTrigger,
+  CdcTrigger,
+  DiscordTrigger,
+  TwilioTrigger,
+  SentryTrigger,
+  PagerDutyTrigger,
+  StripeTrigger,
+  S3Trigger,
+])
 export type TriggerConfig = z.infer<typeof TriggerConfig>
 
 export const parseTriggerConfig = (input: unknown): TriggerConfig => TriggerConfig.parse(input)

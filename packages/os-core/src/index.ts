@@ -46,6 +46,12 @@ export {
   GitHubTrigger,
   LinearTrigger,
   CdcTrigger,
+  DiscordTrigger,
+  TwilioTrigger,
+  SentryTrigger,
+  PagerDutyTrigger,
+  StripeTrigger,
+  S3Trigger,
   parseTriggerConfig,
   safeParseTriggerConfig,
   effectiveLimitsFor,
@@ -62,6 +68,10 @@ export {
   BUILTIN_TRIGGER_CONTRACTS,
   registerBuiltinTriggerContracts,
 } from './trigger/builtins.js'
+export {
+  INTEGRATION_TRIGGER_CONTRACTS,
+  registerIntegrationTriggerContracts,
+} from './trigger/integrations.js'
 export { createTriggerRegistry } from './trigger/contract.js'
 export type {
   TriggerContract,

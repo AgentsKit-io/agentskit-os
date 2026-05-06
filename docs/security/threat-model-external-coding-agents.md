@@ -101,7 +101,7 @@
 **Mitigations:**  
 - **Vault** and scoped injection of keys per provider ([#375](https://github.com/AgentsKit-io/agentskit-os/issues/375) and follow-ups).  
 - Document **least privilege** env for each adapter.  
-- Signed / structured **audit** with field-level redaction policies.
+- Signed / structured **audit** with field-level redaction policies (see [hipaa-safe-harbor-coverage.md](./hipaa-safe-harbor-coverage.md), #182 / #187 / #439).
 
 **Residual risk:** Operator misconfiguration (copy-paste into issues) remains a human factor.
 

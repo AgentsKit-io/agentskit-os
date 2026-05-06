@@ -31,6 +31,8 @@ export type {
   WatchdogVerdict,
 } from './flow-watchdog.js'
 export { runWithGracefulDegradation } from './graceful-degradation.js'
+export { detectHotReloadConflicts } from './hot-reload-conflicts.js'
+export type { HotReloadConflict, HotReloadRunSnapshot } from './hot-reload-conflicts.js'
 export type {
   DegradationAttempt,
   DegradationOpts,

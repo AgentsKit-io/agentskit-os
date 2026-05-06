@@ -279,6 +279,18 @@ export {
   safeParseConfigRoot,
 } from './schema/config-root.js'
 
+export {
+  SliComparison,
+  SliKind,
+  SliSlo,
+  SliSloContract,
+  SliWindow,
+  evaluateSliSloContract,
+  parseSliSloContract,
+  safeParseSliSloContract,
+} from './schema/sli-slo.js'
+export type { SliSample, SliSloVerdict } from './schema/sli-slo.js'
+
 export { CONFIG_LAYERS, mergeLayers, buildProvenance } from './config/merge.js'
 export type {
   ConfigLayer,

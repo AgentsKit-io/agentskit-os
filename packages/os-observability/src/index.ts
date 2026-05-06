@@ -81,5 +81,15 @@ export type {
   IncidentTransition,
 } from './agent-incident.js'
 
+export {
+  createSubstringRedactor,
+  getRedactionProfile,
+  REDACTION_PROFILES,
+} from './redaction-profiles.js'
+export type {
+  RedactionProfile,
+  RedactionProfileId,
+} from './redaction-profiles.js'
+
 export const PACKAGE_NAME = '@agentskit/os-observability' as const
 export const PACKAGE_VERSION = '0.0.0' as const

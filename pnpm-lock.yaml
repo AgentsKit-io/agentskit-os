@@ -123,6 +123,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@agentskit/os-ui':
+        specifier: workspace:^
+        version: link:../../packages/os-ui
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

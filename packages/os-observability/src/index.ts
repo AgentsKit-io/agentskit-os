@@ -98,6 +98,14 @@ export type {
   FieldSelector,
 } from './field-redaction.js'
 
+export { buildCostHeatMap, totalCostForTag } from './cost-heat-map.js'
+export type {
+  CostHeatCell,
+  CostHeatMap,
+  CostHeatSample,
+  HeatMapBucket,
+} from './cost-heat-map.js'
+
 export { buildDecisionLogEntry, filterDecisionLog } from './decision-log.js'
 export type {
   DecisionAlternative,

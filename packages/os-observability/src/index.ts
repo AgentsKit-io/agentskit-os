@@ -104,6 +104,8 @@ export { createPostHogExporter, spanToPostHogEvent } from './exporters/posthog.j
 export type { PostHogExporterOpts, PostHogHttp } from './exporters/posthog.js'
 
 export { buildCostHeatMap, totalCostForTag } from './cost-heat-map.js'
+export { replayBisect } from './replay-bisect.js'
+export type { BisectOpts, BisectVerdict, ReplayOracle } from './replay-bisect.js'
 export type {
   CostHeatCell,
   CostHeatMap,

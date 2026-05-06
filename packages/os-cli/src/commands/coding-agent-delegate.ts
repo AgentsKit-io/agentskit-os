@@ -60,6 +60,7 @@ type DelegateOpts = {
   traceUrl?: string
   prUrl?: string
   secretsFile?: string
+  printReport?: boolean
 }
 
 const buildProgram = (): { program: Command; result: { current?: CliExit } } => {
@@ -114,6 +115,11 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
       '--secrets-file <path>',
       'merge KEY=value lines into env for each shard provider CLI subprocess (#375)',
       undefined,
+    )
+    .option(
+      '--print-report',
+      'render the markdown coding-task report to stdout (no --artifact-dir required) (#368)',
+      false,
     )
     .action(async (opts: DelegateOpts) => {
       if (opts.sub.length === 0) {
@@ -201,6 +207,34 @@ const buildProgram = (): { program: Command; result: { current?: CliExit } } => 
           `${JSON.stringify(toCodingTaskDashboardPayload(taskReport), null, 2)}\n`,
           'utf8',
         )
+      }
+
+      if (opts.printReport === true) {
+        const linkMap: Record<string, string> = {}
+        putReportLink(linkMap, 'traceUrl', opts.traceUrl)
+        putReportLink(linkMap, 'prUrl', opts.prUrl)
+        const dryRun = opts.apply !== true
+        const delegationOpts: { links?: Record<string, string> } = {}
+        if (Object.keys(linkMap).length > 0) {
+          delegationOpts.links = linkMap
+        }
+        const taskReport = buildCodingTaskReportFromDelegation(
+          report,
+          {
+            kind: opts.kind,
+            prompt: opts.coordinatorPrompt,
+            dryRun,
+            repoRoot: resolve(opts.repoRoot),
+            isolateWorktrees: opts.isolateWorktrees === true,
+          },
+          delegationOpts,
+        )
+        const md = renderCodingTaskReportMarkdown(taskReport)
+        const bad =
+          report.suggestHumanInbox ||
+          report.subtasks.some((s: DelegationSubTaskRow) => s.result.status === 'fail')
+        result.current = bad ? { code: 1, stdout: '', stderr: md } : { code: 0, stdout: md, stderr: '' }
+        return
       }
 
       if (opts.json) {

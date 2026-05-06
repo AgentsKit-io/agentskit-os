@@ -54,6 +54,8 @@ export type CodingTaskReportAggregate = {
   readonly totalInputTokens: number
   readonly totalOutputTokens: number
   readonly totalDurationMs: number
+  /** Mean completeness score across providers, 0–100 (#368). */
+  readonly benchmarkScore?: number
 }
 
 export type CodingTaskReportDiffSummary = {
@@ -204,6 +206,10 @@ const aggregateFromRows = (rows: readonly CodingTaskReportRow[]): CodingTaskRepo
     if (r.outputTokens !== undefined) totalOutputTokens += r.outputTokens
     if (r.durationMs !== undefined) totalDurationMs += r.durationMs
   }
+  const benchmarkScore =
+    rows.length > 0
+      ? Math.round(rows.reduce((n, r) => n + r.completenessScore, 0) / rows.length)
+      : undefined
   return {
     providerCount: rows.length,
     okCount,
@@ -214,6 +220,7 @@ const aggregateFromRows = (rows: readonly CodingTaskReportRow[]): CodingTaskRepo
     totalInputTokens,
     totalOutputTokens,
     totalDurationMs,
+    ...(benchmarkScore !== undefined ? { benchmarkScore } : {}),
   }
 }
 

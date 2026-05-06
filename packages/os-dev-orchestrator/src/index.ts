@@ -69,19 +69,6 @@ export type {
   CodingTaskReportRow,
 } from './coding-task-report.js'
 export {
-  DEV_TRIGGER_PRESETS,
-  getDevTriggerPreset,
-  listDevTriggerPresets,
-} from './dev-trigger-presets.js'
-export type {
-  DevTriggerAuthExpectation,
-  DevTriggerKind,
-  DevTriggerPermissionProfile,
-  DevTriggerPreset,
-  DevTriggerPresetMapInput,
-  DevTriggerRunMode,
-} from './dev-trigger-presets.js'
-export {
   CODING_PERMISSION_PROFILES,
   buildCodingPermissionAuditEvent,
   evaluateCodingPermission,
@@ -112,3 +99,19 @@ export type {
   DelegationTraceNode,
   FileConflict,
 } from './coding-delegation.js'
+
+export {
+  DEV_TRIGGER_PRESETS,
+  getDevTriggerPreset,
+  listDevTriggerPresets,
+  mapDevTriggerPresetToTaskInput,
+} from './dev-trigger-presets.js'
+export type {
+  DevTriggerAuthExpectation,
+  DevTriggerKind,
+  DevTriggerPermissionProfile,
+  DevTriggerPreset,
+  DevTriggerPresetMapInput,
+  DevTriggerPresetMapResult,
+  DevTriggerRunMode,
+} from './dev-trigger-presets.js'

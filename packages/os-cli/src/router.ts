@@ -33,6 +33,7 @@ import { codingAgentConformance } from './commands/coding-agent-conformance.js'
 import { codingAgentDelegate } from './commands/coding-agent-delegate.js'
 import { snapshotSchedule } from './commands/snapshot-schedule.js'
 import { snapshotRetention } from './commands/snapshot-retention.js'
+import { explainRun } from './commands/explain-run.js'
 
 export const COMMANDS: readonly CliCommand[] = [
   init,
@@ -71,6 +72,7 @@ export const COMMANDS: readonly CliCommand[] = [
   codingAgentDelegate,
   snapshotSchedule,
   snapshotRetention,
+  explainRun,
   version,
 ]
 

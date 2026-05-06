@@ -279,6 +279,30 @@ export {
   safeParseConfigRoot,
 } from './schema/config-root.js'
 
+export {
+  SliComparison,
+  SliKind,
+  SliSlo,
+  SliSloContract,
+  SliWindow,
+  evaluateSliSloContract,
+  parseSliSloContract,
+  safeParseSliSloContract,
+} from './schema/sli-slo.js'
+export type { SliSample, SliSloVerdict } from './schema/sli-slo.js'
+
+export {
+  AnomalyMetric,
+  AnomalyOp,
+  AnomalyRule,
+  AnomalyRuleSet,
+  AnomalySeverity,
+  evaluateAnomalyRules,
+  parseAnomalyRuleSet,
+  safeParseAnomalyRuleSet,
+} from './schema/anomaly-rules.js'
+export type { AnomalyAlert, AnomalySample } from './schema/anomaly-rules.js'
+
 export { CONFIG_LAYERS, mergeLayers, buildProvenance } from './config/merge.js'
 export type {
   ConfigLayer,
@@ -373,6 +397,18 @@ export {
   safeParseFallbackEntry,
 } from './runtime/adapter-fallback.js'
 export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-fallback.js'
+
+export { forkAgentConfig, forkWorkspaceConfig } from './runtime/fork.js'
+export type { ForkOptions } from './runtime/fork.js'
+
+export { createAgentHarness } from './runtime/agent-harness.js'
+export type {
+  AgentHarness,
+  HarnessAgent,
+  HarnessAgentState,
+  HarnessAuditEntry,
+  HarnessOpts,
+} from './runtime/agent-harness.js'
 
 export {
   MarketplaceCacheEntry,
@@ -485,6 +521,30 @@ export type {
 } from './security/webhook-signing.js'
 
 export {
+  PROMPT_FIREWALL_CORPUS,
+  PROMPT_FIREWALL_TIERS,
+  evaluatePromptFirewall,
+  evaluatePromptFirewallTiered,
+} from './security/prompt-firewall.js'
+export type {
+  PromptFirewallCorpusEntry,
+  PromptFirewallTier,
+  PromptFirewallVerdict,
+} from './security/prompt-firewall.js'
+
+export {
+  REDACTION_PROFILE_IDS,
+  applyRedactionProfile,
+  createRedactor,
+  getRedactionProfile,
+} from './security/redaction-profiles.js'
+export type {
+  RedactionProfile,
+  RedactionProfileId,
+  RedactionRule,
+} from './security/redaction-profiles.js'
+
+export {
   AirGapPolicy,
   airGapEnforce,
   parseAirGapPolicy,
@@ -527,6 +587,13 @@ export {
   safeParseAuditBatch,
 } from './audit/batch.js'
 export type { ChainBreak, SignatureVerifier } from './audit/batch.js'
+
+export {
+  buildSignedAuditBatch,
+  createNullAuditSigner,
+  nextPrevBatchHash,
+} from './audit/builder.js'
+export type { AuditBatchBuilderInput, AuditSigner } from './audit/builder.js'
 
 export {
   EXTENSION_API_VERSION,

@@ -15,6 +15,13 @@ export { runFlow } from './runner.js'
 export type { RunResult, RunOptions, CheckpointFn } from './runner.js'
 export type { FlowCostTickEvent } from './flow-observability-events.js'
 export { cancelOnBudget, createFlowCostMeter } from './flow-cost-meter.js'
+export { evaluateFlowWatchdog } from './flow-watchdog.js'
+export type {
+  FlowWatchdogOpts,
+  RunHeartbeat,
+  WatchdogAction,
+  WatchdogVerdict,
+} from './flow-watchdog.js'
 export type {
   FlowCostMeter,
   FlowCostMeterOpts,

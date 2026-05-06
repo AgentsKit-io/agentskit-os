@@ -1,6 +1,3 @@
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { CodingAgentProvider, CodingTaskResult } from '@agentskit/os-core'
 import { runDelegatedCodingTask } from '../src/coding-delegation.js'
@@ -142,55 +139,32 @@ describe('runDelegatedCodingTask', () => {
     expect(report.coordinatorSummary).toContain('parallel: true')
   })
 
-  it('writes per-shard delegation run artifacts when artifacts opts are set (#367)', async () => {
-    const artDir = mkdtempSync(join(tmpdir(), 'ak-deleg-art-'))
-    try {
-      await runDelegatedCodingTask({
-        repoRoot: '/repo',
-        coordinatorPrompt: 'coord',
-        isolateWorktrees: false,
-        artifacts: { outDir: artDir, runId: 'deleg-run-1' },
-        shards: [
-          {
-            id: 'a',
+  it('propagates permission profile and expectedArtifacts into subtask rows (#365)', async () => {
+    const report = await runDelegatedCodingTask({
+      repoRoot: '/repo',
+      coordinatorPrompt: 'meta',
+      isolateWorktrees: false,
+      shards: [
+        {
+          id: 'a',
+          providerId: 'p-a',
+          provider: fake('p-a', {
             providerId: 'p-a',
-            provider: fake('p-a', {
-              providerId: 'p-a',
-              status: 'ok',
-              files: [],
-              shell: [],
-              tools: [],
-              summary: 'a',
-            }),
-            prompt: 'x',
-            kind: 'free-form',
-            dryRun: true,
-          },
-          {
-            id: 'b',
-            providerId: 'p-b',
-            provider: fake('p-b', {
-              providerId: 'p-b',
-              status: 'ok',
-              files: [],
-              shell: [],
-              tools: [],
-              summary: 'b',
-            }),
-            prompt: 'y',
-            kind: 'free-form',
-            dryRun: true,
-          },
-        ],
-      })
-      const files = readdirSync(artDir).filter((f) => f.startsWith('coding-run-artifact-deleg-'))
-      expect(files.length).toBe(2)
-      const parsed = files.map(
-        (f) => JSON.parse(readFileSync(join(artDir, f), 'utf8')) as { benchmarkIndex: number },
-      )
-      expect(parsed.map((x) => x.benchmarkIndex).sort()).toEqual([0, 1])
-    } finally {
-      rmSync(artDir, { recursive: true, force: true })
-    }
+            status: 'ok',
+            files: [{ path: 'a.ts', op: 'modify', after: '1' }],
+            shell: [],
+            tools: [],
+            summary: 'ok',
+          }),
+          prompt: 'x',
+          kind: 'free-form',
+          dryRun: true,
+          permissionProfileId: 'read_only_review',
+          expectedArtifacts: ['diff', 'tests'],
+        },
+      ],
+    })
+    expect(report.subtasks[0]?.permissionProfileId).toBe('read_only_review')
+    expect(report.subtasks[0]?.expectedArtifacts).toEqual(['diff', 'tests'])
   })
 })

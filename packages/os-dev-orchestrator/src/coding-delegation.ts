@@ -15,6 +15,14 @@ import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+// Local copy of profile ids (kept in sync with the permission profiles module when present).
+export type CodingPermissionProfileId =
+  | 'read_only_review'
+  | 'edit_without_shell'
+  | 'test_runner'
+  | 'full_sandbox'
+  | 'release_manager'
+
 export type DelegationSubTaskSpec = {
   readonly id: string
   readonly providerId: string
@@ -22,6 +30,9 @@ export type DelegationSubTaskSpec = {
   readonly prompt: string
   readonly kind: CodingTaskKind
   readonly dryRun: boolean
+  readonly permissionProfileId?: CodingPermissionProfileId
+  /** Optional list of artifact ids the shard is expected to produce (#365). */
+  readonly expectedArtifacts?: readonly string[]
 }
 
 export type DelegationSubTaskRow = {
@@ -29,6 +40,8 @@ export type DelegationSubTaskRow = {
   readonly providerId: string
   readonly result: CodingTaskResult
   readonly worktreePath?: string
+  readonly permissionProfileId?: CodingPermissionProfileId
+  readonly expectedArtifacts?: readonly string[]
 }
 
 export type FileConflict = {
@@ -263,14 +276,25 @@ const execPrepared = async (
     await wm.finalize(taskId, 'delete').catch(() => {})
   }
 
-  let row: DelegationSubTaskRow = { specId: shard.id, providerId: shard.providerId, result }
-  if (worktreePath !== undefined) row = { specId: shard.id, providerId: shard.providerId, result, worktreePath }
+  let row: DelegationSubTaskRow = {
+    specId: shard.id,
+    providerId: shard.providerId,
+    result,
+    ...(shard.permissionProfileId !== undefined ? { permissionProfileId: shard.permissionProfileId } : {}),
+    ...(shard.expectedArtifacts !== undefined ? { expectedArtifacts: shard.expectedArtifacts } : {}),
+  }
+  if (worktreePath !== undefined) {
+    row = { ...row, worktreePath }
+  }
 
   const trace: DelegationTraceNode = {
     id: shard.id,
     providerId: shard.providerId,
     kind: 'shard',
-    detail: `${result.status}: ${result.summary.slice(0, 120)}`,
+    detail: (() => {
+      const f = shard.permissionProfileId ? ` perm=${shard.permissionProfileId}` : ''
+      return `${result.status}${f}: ${result.summary.slice(0, 120)}`
+    })(),
   }
   return { row, trace }
 }

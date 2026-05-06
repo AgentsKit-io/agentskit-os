@@ -32,10 +32,12 @@ export {
   resolveHeadOidSafe,
   summarizeGitDiffForArtifact,
   tryGitRefDiffSummary,
+  tryUnifiedDiffPreview,
   writeCodingRunArtifactFile,
 } from './coding-run-artifacts.js'
 export type {
   CodingAgentArtifactIds,
+  CodingRunArtifactFileSuffix,
   CodingRunArtifactPayload,
   CodingRunArtifactPhase,
   CodingRunArtifactsOpts,

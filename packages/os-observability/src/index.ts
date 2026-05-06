@@ -98,6 +98,11 @@ export type {
   FieldSelector,
 } from './field-redaction.js'
 
+export { createLangfuseExporter, spanToLangfuseEvent } from './exporters/langfuse.js'
+export type { LangfuseExporterOpts, LangfuseHttp } from './exporters/langfuse.js'
+export { createPostHogExporter, spanToPostHogEvent } from './exporters/posthog.js'
+export type { PostHogExporterOpts, PostHogHttp } from './exporters/posthog.js'
+
 export { buildCostHeatMap, totalCostForTag } from './cost-heat-map.js'
 export type {
   CostHeatCell,

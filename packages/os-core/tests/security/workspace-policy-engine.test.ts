@@ -80,6 +80,28 @@ describe('evaluateWorkspacePolicyAtRunStart', () => {
       }).allow,
     ).toBe(false)
   })
+
+  it('blocks disallowed run mode', () => {
+    const policy = parseSecurityConfig({
+      workspacePolicy: { runModesAllowed: ['dry_run'] },
+    }).workspacePolicy
+    const d = evaluateWorkspacePolicyAtRunStart({ policy, runMode: 'real' })
+    expect(d.allow).toBe(false)
+    expect(d.violations.some((v) => v.code === 'policy.run_mode_blocked')).toBe(true)
+  })
+
+  it('enforces required domain presets', () => {
+    const policy = parseSecurityConfig({
+      workspacePolicy: { domainPresetsRequired: ['pack:dev-orchestrator'] },
+    }).workspacePolicy
+    const d = evaluateWorkspacePolicyAtRunStart({
+      policy,
+      runMode: 'dry_run',
+      activeDomainPresets: [],
+    })
+    expect(d.allow).toBe(false)
+    expect(d.violations.some((v) => v.code === 'policy.domain_preset_missing')).toBe(true)
+  })
 })
 
 describe('evaluateWorkspacePolicyBeforeTool', () => {

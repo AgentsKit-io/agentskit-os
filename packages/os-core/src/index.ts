@@ -649,6 +649,14 @@ export type {
   SandboxRunResult,
 } from './security/sandbox-backends.js'
 
+export { buildComplianceExportBundle } from './audit/compliance-export.js'
+export type {
+  ComplianceArtifact,
+  ComplianceExportBundle,
+  ComplianceExportInput,
+  ComplianceRegime,
+} from './audit/compliance-export.js'
+
 export { verifyDataIntegrity } from './audit/integrity-verifier.js'
 export type {
   IntegrityIssue,

@@ -112,11 +112,13 @@ export {
   GitDiffHunk,
   GitDiffFile,
   GitDiffResult,
+  createGitDiffNodeHandler,
   createGitDiffToolCall,
   parseUnifiedGitDiff,
   parseGitDiffToolInput,
   safeParseGitDiffToolInput,
 } from './git-diff-tool.js'
+export type { GitDiffExecutor, GitDiffNodeHandler } from './git-diff-tool.js'
 export type { GitDiffToolCall } from './git-diff-tool.js'
 
 export const PACKAGE_NAME = '@agentskit/os-flow' as const

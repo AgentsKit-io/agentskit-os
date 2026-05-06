@@ -58,6 +58,10 @@ export {
 } from './trigger/presets.js'
 export type { TriggerPreset } from './trigger/presets.js'
 
+export {
+  BUILTIN_TRIGGER_CONTRACTS,
+  registerBuiltinTriggerContracts,
+} from './trigger/builtins.js'
 export { createTriggerRegistry } from './trigger/contract.js'
 export type {
   TriggerContract,

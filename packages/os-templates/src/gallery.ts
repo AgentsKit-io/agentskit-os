@@ -14,6 +14,25 @@ type TemplateSpec = {
 
 export const templateSpecs = [
   {
+    "id": "dev-orchestrator-benchmark-demo",
+    "category": "coding",
+    "categoryLabel": "Coding",
+    "name": "Dev Orchestrator Benchmark Demo",
+    "description": "Public demo workspace that benchmarks the dev orchestrator across coding-agent providers on three task types (bug fix, test generation, small feature).",
+    "tags": [
+      "coding",
+      "benchmark",
+      "demo",
+      "dev-orchestrator",
+      "dogfood"
+    ],
+    "tools": [
+      "coding-agent.benchmark",
+      "coding-agent.delegate"
+    ],
+    "triggerKind": "cron"
+  },
+  {
     "id": "pr-review-3-way",
     "category": "coding",
     "categoryLabel": "Coding",

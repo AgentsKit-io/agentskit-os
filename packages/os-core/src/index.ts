@@ -107,11 +107,16 @@ export {
 export {
   PluginConfig,
   PluginContribution,
+  PluginEntryPoints,
+  PluginIsolation,
   PluginPermission,
   PluginSignature,
+  PluginUiSlot,
   parsePluginConfig,
+  resolvePluginEntries,
   safeParsePluginConfig,
 } from './schema/plugin.js'
+export type { ResolvedPluginEntry } from './schema/plugin.js'
 
 export {
   VaultConfig,

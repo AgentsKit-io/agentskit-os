@@ -31,6 +31,7 @@ export const VisualFlowNodeKind = z.enum([
   'debate',
   'auction',
   'blackboard',
+  'llm-branch',
 ])
 export type VisualFlowNodeKind = z.infer<typeof VisualFlowNodeKind>
 

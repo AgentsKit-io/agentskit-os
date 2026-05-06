@@ -90,6 +90,21 @@ export {
 } from './schema/flow-envelope.js'
 
 export {
+  VisualPoint,
+  VisualFlowLayout,
+  VisualFlowNodeKind,
+  VisualFlowNode,
+  VisualFlowEdge,
+  VisualFlowDocument,
+  visualEdgeId,
+  flowConfigToVisualDocument,
+  visualDocumentToFlowConfig,
+  assertVisualFlowRoundTrip,
+  parseVisualFlowDocument,
+  safeParseVisualFlowDocument,
+} from './schema/flow-visual.js'
+
+export {
   PluginConfig,
   PluginContribution,
   PluginPermission,
@@ -126,6 +141,7 @@ export {
   TraceExporter,
   CostQuota,
   AnomalyDetection,
+  ActivationMetricsConfig,
   parseObservabilityConfig,
   safeParseObservabilityConfig,
 } from './schema/observability.js'
@@ -319,10 +335,18 @@ export {
   RetentionCohort,
   buildActivationFunnel,
   buildRetentionCohorts,
+  buildProviderSuccessRates,
+  buildRepeatRunFrequency,
   decideEmitActivation,
   parseActivationEvent,
+  safeParseActivationEvent,
 } from './obs/activation.js'
-export type { ActivationFunnel, RetentionInputs } from './obs/activation.js'
+export type {
+  ActivationFunnel,
+  ProviderSuccessRate,
+  RepeatRunFrequency,
+  RetentionInputs,
+} from './obs/activation.js'
 export { InMemoryEventBus } from './events/bus.js'
 export type { EventBus, EventHandler, Subscription } from './events/bus.js'
 

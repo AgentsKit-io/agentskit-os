@@ -42,6 +42,11 @@
       "import": "./dist/schema/flow.js",
       "require": "./dist/schema/flow.cjs"
     },
+    "./schema/flow-visual": {
+      "types": "./dist/schema/flow-visual.d.ts",
+      "import": "./dist/schema/flow-visual.js",
+      "require": "./dist/schema/flow-visual.cjs"
+    },
     "./schema/plugin": {
       "types": "./dist/schema/plugin.d.ts",
       "import": "./dist/schema/plugin.js",

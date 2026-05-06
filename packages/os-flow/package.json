@@ -18,6 +18,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./git-diff-tool": {
+      "types": "./dist/git-diff-tool.d.ts",
+      "import": "./dist/git-diff-tool.js",
+      "require": "./dist/git-diff-tool.cjs"
     }
   },
   "files": [

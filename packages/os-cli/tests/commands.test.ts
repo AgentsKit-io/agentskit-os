@@ -483,6 +483,26 @@ observability: {}
     expect(written).toContain('pr-reviewer')
   })
 
+  it('writes a visual editable flow document when requested', async () => {
+    const io = fakeIo({ '/work/agentskit-os.config.yaml': validRoot })
+    const r = await route(['flow', 'new', 'pr-review', '--visual'], io)
+    expect(r.code).toBe(0)
+    expect(r.stdout).toContain('.agentskitos/flows/pr-review-flow.visual.json')
+
+    const visual = JSON.parse(await io.readFile('/work/.agentskitos/flows/pr-review-flow.visual.json'))
+    expect(visual.format).toBe('agentskit-os/visual-flow@1')
+    expect(visual.flowId).toBe('pr-review-flow')
+    expect(visual.nodes[0].position).toEqual({ x: 0, y: 0 })
+    expect(visual.nodes[0].data.id).toBe(visual.nodes[0].id)
+  })
+
+  it('supports a custom visual editable output path', async () => {
+    const io = fakeIo({ '/work/agentskit-os.config.yaml': validRoot })
+    const r = await route(['flow', 'new', 'pr-review', '--visual-out', 'flows/pr-review.visual.json'], io)
+    expect(r.code).toBe(0)
+    expect(io.fs.files.has('/work/flows/pr-review.visual.json')).toBe(true)
+  })
+
   it('returns 4 on flow id collision without --replace', async () => {
     const io = fakeIo({ '/work/agentskit-os.config.yaml': validRoot })
     const first = await route(['flow', 'new', 'pr-review'], io)

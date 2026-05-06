@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { Command, Option } from 'commander'
 import { parse as yamlParse, stringify as yamlStringify } from 'yaml'
 import {
@@ -6,6 +6,8 @@ import {
   parseConfigRoot,
   type ConfigRoot,
 } from '@agentskit/os-core/schema/config-root'
+import { flowConfigToVisualDocument } from '@agentskit/os-core/schema/flow-visual'
+import type { FlowConfig } from '@agentskit/os-core/schema/flow'
 import { findTemplate, listTemplates } from '@agentskit/os-templates'
 import { runCommander } from '../cli/commander-dispatch.js'
 import { templateListToInkString } from './flow-new-list-ink.js'
@@ -37,10 +39,24 @@ type FlowNewOpts = {
   flowId?: string
   estimate: boolean
   replace: boolean
+  visual: boolean
+  visualOut?: string
 }
 
 const sortedAgents = <T extends { id: string }>(arr: readonly T[]): T[] =>
   [...arr].sort((a, b) => a.id.localeCompare(b.id))
+
+const buildDefaultVisualLayout = (flow: FlowConfig) => ({
+  nodePositions: Object.fromEntries(
+    flow.nodes.map((node, index) => [
+      node.id,
+      {
+        x: (index % 4) * 280,
+        y: Math.floor(index / 4) * 180,
+      },
+    ]),
+  ),
+})
 
 const buildListRows = (persona?: Persona) => {
   const all = listTemplates()
@@ -128,9 +144,26 @@ const runScaffold = async (
   }
   const { merged, flowId } = mergedResult
   await io.writeFile(targetPath, yamlStringify(merged))
+  const visualPath =
+    opts.visual || opts.visualOut
+      ? resolve(
+          io.cwd(),
+          opts.visualOut ?? join(dirname(opts.target), '.agentskitos', 'flows', `${flowId}.visual.json`),
+        )
+      : undefined
+  if (visualPath) {
+    const flow = merged.flows.find((candidate) => candidate.id === flowId)
+    if (!flow) {
+      return { code: 8, stdout: '', stderr: `error: merged flow "${flowId}" not found\n` }
+    }
+    await io.mkdir(dirname(visualPath))
+    const visual = flowConfigToVisualDocument(flow, buildDefaultVisualLayout(flow))
+    await io.writeFile(visualPath, `${JSON.stringify(visual, null, 2)}\n`)
+  }
   const lines = [
     `scaffolded flow "${flowId}" from template "${templateId}"`,
     `target: ${targetPath}`,
+    ...(visualPath ? [`visual: ${visualPath}`] : []),
     ...(opts.estimate
       ? [`hint: run \`agentskit-os run ${opts.target} --flow ${flowId} --estimate\` to smoke check`]
       : []),
@@ -160,6 +193,8 @@ const buildProgram = (io: CliIo): { program: Command; result: { current?: CliExi
     .option('--flow-id <slug>', 'override scaffolded flow id')
     .option('--estimate', 'print hint to run cost estimate', false)
     .option('--replace', 'replace existing flow with the same id', false)
+    .option('--visual', 'also write a visual editable flow document under .agentskitos/flows', false)
+    .option('--visual-out <path>', 'write the visual editable flow document to a custom path')
     .action(async (templateId: string | undefined, options: FlowNewOpts) => {
       if (options.list) {
         result.current = runList(options.persona)

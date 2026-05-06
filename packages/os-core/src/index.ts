@@ -386,6 +386,9 @@ export {
 } from './runtime/adapter-fallback.js'
 export type { PickAdapterOptions, PickAdapterSuccess } from './runtime/adapter-fallback.js'
 
+export { forkAgentConfig, forkWorkspaceConfig } from './runtime/fork.js'
+export type { ForkOptions } from './runtime/fork.js'
+
 export {
   MarketplaceCacheEntry,
   MarketplaceCacheSnapshot,

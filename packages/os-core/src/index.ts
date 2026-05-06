@@ -163,6 +163,8 @@ export {
   evaluateWorkspacePolicyBeforeTool,
   policyGlobMatch,
 } from './security/workspace-policy-engine.js'
+export { evaluatePromptFirewall, findPromptFirewallMatches } from './security/prompt-firewall.js'
+export type { PromptFirewallDecision, PromptFirewallMatch } from './security/prompt-firewall.js'
 export {
   OperatorRoleKind,
   OperatorScreen,

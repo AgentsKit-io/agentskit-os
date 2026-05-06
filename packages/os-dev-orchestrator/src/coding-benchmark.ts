@@ -8,6 +8,7 @@ import type {
   CodingTaskResult,
 } from '@agentskit/os-core'
 import {
+  artifactFilenameForBenchmarkCancellation,
   artifactFilenameForBenchmarkStep,
   buildCodingRunArtifactPayload,
   collectGitHeadDiffSnapshot,
@@ -161,12 +162,27 @@ export const runCodingAgentBenchmark = async (opts: {
       ...(args.git !== undefined ? { git: args.git } : {}),
       ...(opts.artifacts.redact !== undefined ? { redact: opts.artifacts.redact } : {}),
     })
-    const filename = artifactFilenameForBenchmarkStep(opts.artifacts.runId, args.index, args.providerId)
+    const filename =
+      args.phase === 'run_cancelled'
+        ? artifactFilenameForBenchmarkCancellation(opts.artifacts.runId, args.index, args.providerId)
+        : artifactFilenameForBenchmarkStep(opts.artifacts.runId, args.index, args.providerId)
     await writeCodingRunArtifactFile(opts.artifacts.outDir, filename, payload)
   }
 
   for (let i = 0; i < opts.providers.length; i += 1) {
     if (opts.signal?.aborted) {
+      const cancelled = opts.providers[i]
+      if (cancelled !== undefined) {
+        await persistArtifact({
+          index: i,
+          providerId: cancelled.info.id,
+          worktreePath: undefined,
+          cwdForWorktreeId: opts.repoRoot,
+          taskId: undefined,
+          phase: 'run_cancelled',
+          setupError: 'aborted before provider start',
+        })
+      }
       break
     }
     const p = opts.providers[i]!

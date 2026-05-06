@@ -25,5 +25,5 @@
     "resolveJsonModule": true
   },
   "include": ["src", "vite.config.ts"],
-  "exclude": ["node_modules", "dist", "src-tauri", "**/__tests__/**", "**/*.test.ts", "**/*.test.tsx", "src/test-setup.ts"]
+  "exclude": ["node_modules", "dist", "src-tauri", "src/_wip", "**/__tests__/**", "**/*.test.ts", "**/*.test.tsx", "src/test-setup.ts"]
 }

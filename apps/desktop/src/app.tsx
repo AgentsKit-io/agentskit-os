@@ -1,90 +1,44 @@
 /**
  * AgentsKitOS Desktop — root application component.
  *
- * Wires sidebar navigation between Dashboard and Traces, the tray-driven
- * "Service mode active" banner, the global Cmd/Ctrl+K command palette
- * overlay (D-6), and the theme switcher with persisted choice (D-9 / D-4).
+ * M2 surface: Home (dashboard), Traces, Agents, Runs.
+ * Wires sidebar nav, tray-driven service-mode banner, command palette,
+ * notifications, focus mode, status line, and the global theme switcher.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Kbd, LiveRegion, SkipToContent, ThemeProvider, ThemeSwitcher, useTheme } from '@agentskit/os-ui'
-import {
-  Activity,
-  Blocks,
-  Bot,
-  Boxes,
-  ChartSpline,
-  ClipboardCheck,
-  GitBranch,
-  Home,
-  Play,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  Workflow,
-  X,
-} from 'lucide-react'
+import { Activity, Bot, GitBranch, Home, Search, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { AgentsScreen } from './screens/agents'
-import { BenchmarkScreen } from './screens/benchmark'
-import { CostScreen } from './screens/cost'
 import { Dashboard } from './screens/dashboard'
-import { EvalsScreen } from './screens/evals'
-import { FlowsScreen } from './screens/flows'
-import { HitlScreen } from './screens/hitl'
 import { RunsScreen } from './screens/runs'
-import { SecurityScreen } from './screens/security'
 import { TracesScreen } from './screens/traces'
-import { TriggersScreen } from './screens/triggers'
-import { ExampleScreen } from './example-library/example-screen'
-import { CommandPaletteProvider } from './command-palette/command-palette-provider'
+import { CommandPaletteProvider, useCommandPalette } from './command-palette/command-palette-provider'
 import { CommandPalette } from './command-palette'
 import { OnboardingProvider, useOnboarding } from './onboarding/onboarding-provider'
 import { OnboardingTour } from './onboarding'
 import { getTheme, setTheme } from './lib/theme-store'
 import { FocusProvider, useFocus } from './focus/focus-provider'
 import { FocusToggle } from './focus/focus-toggle'
-import {
-  NotificationsProvider,
-  useNotifications,
-} from './notifications/notifications-provider'
+import { NotificationsProvider, useNotifications } from './notifications/notifications-provider'
 import { NotificationBell } from './notifications/notification-bell'
 import { NotificationPanel } from './notifications/notification-panel'
-import { useCommandPalette } from './command-palette/command-palette-provider'
 import { ShortcutProvider } from './keyboard/shortcut-provider'
 import { ShortcutsPanel } from './keyboard/shortcuts-panel'
 import { useShortcutHandler } from './keyboard/shortcut-handlers'
 import { WorkspacesProvider } from './workspaces/workspaces-provider'
 import { WorkspaceSwitcher } from './workspaces/workspace-switcher'
-import { DashboardsProvider } from './dashboards/dashboards-provider'
 import { PreferencesProvider } from './preferences/preferences-provider'
 import { PreferencesPanel } from './preferences/preferences-panel'
 import { StatusLineProvider } from './status-line/status-line-provider'
 import { StatusLine } from './status-line/status-line'
 import { StatusLineConfigPanel } from './status-line/status-line-config-panel'
-import { ThemeEditorPanel } from './theme-editor/theme-editor-panel'
-import { SnapshotPanel } from './snapshot/snapshot-panel'
 import { NotificationPreferencesProvider } from './notifications/preferences/notification-preferences-provider'
 import { NotificationPreferencesPanel } from './notifications/preferences/preferences-panel'
 import { SearchProvider, useSearch } from './search/search-provider'
 import { SearchOverlay } from './search/search-overlay'
-import { AssistantProvider, useAssistant } from './assistant/assistant-provider'
-import { AssistantOverlay } from './assistant/assistant-overlay'
-import { ForkProvider } from './fork/fork-provider'
-import { ArtifactViewerProvider, useArtifactViewer } from './artifacts/use-artifact-viewer'
-import { ArtifactViewer } from './artifacts/artifact-viewer'
-import { MultiMonitorPanel } from './multi-monitor/multi-monitor-panel'
-import { CustomWidgetEditor } from './dashboards/custom/custom-widget-editor'
-import { MarketplacePanel } from './dashboards/marketplace/marketplace-panel'
-import { useDashboards } from './dashboards/dashboards-provider'
-import { VoiceProvider, useVoice } from './voice/voice-provider'
-import { VoiceToggle } from './voice/voice-toggle'
-import { VoiceOverlay } from './voice/voice-overlay'
-import { PluginContributionsProvider } from './plugins/plugin-contributions-provider'
 import { SelectionProvider } from './lib/selection-store'
-import { getRunMode, setRunMode } from './lib/run-mode-store'
-import { sidecarRequest } from './lib/sidecar'
-import { SplitViewProvider, useSplitView, type SplitScreenId } from './lib/split-view-store'
 
 const hasTauriRuntime = (): boolean =>
   typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
@@ -111,90 +65,21 @@ function setScreenWithViewTransition(update: () => void): void {
   update()
 }
 
-type ActiveScreen =
-  | 'dashboard'
-  | 'flows'
-  | 'runs'
-  | 'traces'
-  | 'agents'
-  | 'hitl'
-  | 'triggers'
-  | 'evals'
-  | 'benchmark'
-  | 'cost'
-  | 'security'
-  | 'examples'
+type ActiveScreen = 'dashboard' | 'traces' | 'agents' | 'runs'
 
 type NavItem = {
   readonly id: ActiveScreen
   readonly label: string
   readonly icon: LucideIcon
-  readonly status: 'supported' | 'preview'
-  readonly description?: string
   readonly keywords?: readonly string[]
 }
 
-type SecondaryScreen = Exclude<ActiveScreen, 'dashboard'>
-
-const NAV_GROUPS: ReadonlyArray<{
-  readonly label: string
-  readonly items: readonly NavItem[]
-}> = [
-  {
-    label: 'Work modes',
-    items: [
-      { id: 'dashboard', label: 'Home', icon: Home, status: 'supported', keywords: ['dashboard', 'overview'] },
-      {
-        id: 'flows',
-        label: 'Build',
-        icon: Workflow,
-        status: 'supported',
-        keywords: ['flows', 'agents', 'skills', 'templates', 'rag'],
-      },
-      {
-        id: 'runs',
-        label: 'Operate',
-        icon: Activity,
-        status: 'supported',
-        keywords: ['runs', 'triggers', 'hitl', 'monitor'],
-      },
-      {
-        id: 'benchmark',
-        label: 'Evaluate',
-        icon: ChartSpline,
-        status: 'supported',
-        keywords: ['benchmark', 'evals', 'models', 'quality'],
-      },
-      {
-        id: 'security',
-        label: 'Govern',
-        icon: ShieldCheck,
-        status: 'supported',
-        keywords: ['security', 'cost', 'policy', 'audit'],
-      },
-      {
-        id: 'examples',
-        label: 'Marketplace',
-        icon: Blocks,
-        status: 'supported',
-        keywords: ['templates', 'examples', 'integrations', 'skills'],
-      },
-    ],
-  },
-]
-
-const SECONDARY_NAV_ITEMS: readonly NavItem[] = [
-  { id: 'agents', label: 'Agents', icon: Bot, status: 'supported', keywords: ['workers', 'providers'] },
-  { id: 'triggers', label: 'Triggers', icon: Play, status: 'supported', keywords: ['cron', 'slack', 'webhook'] },
-  { id: 'traces', label: 'Traces', icon: GitBranch, status: 'supported', keywords: ['spans', 'observability'] },
-  { id: 'evals', label: 'Evals', icon: ClipboardCheck, status: 'supported', keywords: ['quality'] },
-  { id: 'cost', label: 'Cost', icon: Boxes, status: 'supported', keywords: ['quotas', 'budget'] },
-  { id: 'hitl', label: 'Approvals', icon: Sparkles, status: 'supported', keywords: ['human', 'inbox'] },
-]
-
-const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), ...SECONDARY_NAV_ITEMS] as const
-
-const COMMAND_NAV_ITEMS = NAV_ITEMS
+const NAV_ITEMS: readonly NavItem[] = [
+  { id: 'dashboard', label: 'Home', icon: Home, keywords: ['dashboard', 'overview'] },
+  { id: 'agents', label: 'Agents', icon: Bot, keywords: ['workers', 'providers'] },
+  { id: 'runs', label: 'Runs', icon: Activity, keywords: ['runs', 'executions', 'history'] },
+  { id: 'traces', label: 'Traces', icon: GitBranch, keywords: ['spans', 'observability'] },
+] as const
 
 function isActiveScreen(screen: string): screen is ActiveScreen {
   return NAV_ITEMS.some((item) => item.id === screen)
@@ -202,24 +87,6 @@ function isActiveScreen(screen: string): screen is ActiveScreen {
 
 function labelForScreen(screen: ActiveScreen): string {
   return NAV_ITEMS.find((item) => item.id === screen)?.label ?? screen
-}
-
-const SPLITTABLE_SCREENS: readonly ActiveScreen[] = [
-  'dashboard',
-  'flows',
-  'runs',
-  'traces',
-  'agents',
-  'hitl',
-  'triggers',
-  'evals',
-  'benchmark',
-  'cost',
-  'security',
-] as const
-
-function isSplittableScreen(screen: string): screen is ActiveScreen {
-  return SPLITTABLE_SCREENS.includes(screen as ActiveScreen)
 }
 
 /** Syncs theme changes to the persistent store. Must be inside ThemeProvider. */
@@ -258,15 +125,16 @@ function ServiceModeBanner({
   )
 }
 
-type SidebarProps = {
-  readonly activeScreen: ActiveScreen
-  readonly onNavigate: (screen: ActiveScreen) => void
-}
-
 const SIDEBAR_CLASSNAME =
   'flex max-h-[46vh] w-full shrink-0 flex-col overflow-y-auto border-b border-[var(--ag-line)] bg-[var(--ag-surface-alt)]/95 supports-[backdrop-filter]:backdrop-blur-xl md:max-h-none md:w-64 md:border-b-0 md:border-r'
 
-function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
+function Sidebar({
+  activeScreen,
+  onNavigate,
+}: {
+  readonly activeScreen: ActiveScreen
+  readonly onNavigate: (screen: ActiveScreen) => void
+}) {
   return (
     <aside
       aria-label="Application sidebar"
@@ -281,27 +149,19 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
           data-onboarding-target="command-palette"
         >
           <NotificationBell />
-          <VoiceToggle />
           <FocusToggle />
           <CommandPaletteButton />
         </span>
       </div>
       <nav aria-label="Main navigation">
-        <div className="grid gap-3 px-3 pt-3 sm:grid-cols-2 md:flex md:flex-col">
-          {NAV_GROUPS.map((group) => (
-            <div key={group.label} className="flex flex-col gap-1">
-              <div className="px-2 pt-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--ag-ink-subtle)]">
-                {group.label}
-              </div>
-              {group.items.map((item) => (
-                <SidebarNavButton
-                  key={item.id}
-                  item={item}
-                  active={activeScreen === item.id}
-                  onNavigate={onNavigate}
-                />
-              ))}
-            </div>
+        <div className="flex flex-col gap-1 px-3 pt-3">
+          {NAV_ITEMS.map((item) => (
+            <SidebarNavButton
+              key={item.id}
+              item={item}
+              active={activeScreen === item.id}
+              onNavigate={onNavigate}
+            />
           ))}
         </div>
       </nav>
@@ -312,7 +172,7 @@ function Sidebar({ activeScreen, onNavigate }: SidebarProps) {
             <div className="min-w-0">
               <p className="text-xs font-medium text-[var(--ag-ink)]">Everything else lives in search.</p>
               <p className="mt-1 text-xs leading-5 text-[var(--ag-ink-muted)]">
-                Agents, traces, triggers, cost, evals, and approvals stay one command away.
+                Press <Kbd>⌘K</Kbd> to jump anywhere.
               </p>
             </div>
           </div>
@@ -371,63 +231,15 @@ function SidebarNavButton({
     >
       <item.icon aria-hidden className="h-4 w-4 shrink-0" />
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
-      {item.status === 'preview' && (
-        <span className="rounded-full border border-[var(--ag-line)] px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-[var(--ag-ink-subtle)]">
-          Preview
-        </span>
-      )}
     </button>
   )
 }
 
-function PreviewSurface({ screen }: { readonly screen: ActiveScreen }) {
-  const item = NAV_ITEMS.find((navItem) => navItem.id === screen)
-  const title = `${item?.label ?? 'Surface'} Is In Preview`
-  return (
-    <section
-      aria-labelledby="preview-surface-title"
-      className="flex min-h-full flex-1 items-center justify-center bg-[var(--ag-surface)] p-8"
-    >
-      <div className="max-w-xl rounded-lg border border-dashed border-[var(--ag-line)] bg-[var(--ag-panel)] p-6 shadow-sm">
-        <div className="mb-3 inline-flex rounded-full border border-[var(--ag-line)] px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-[var(--ag-ink-subtle)]">
-          Preview
-        </div>
-        <h1 id="preview-surface-title" className="text-xl font-semibold text-[var(--ag-ink)]">
-          {title}
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-[var(--ag-ink-muted)]">
-          {item?.description ??
-            'This area is part of the AgentsKitOS roadmap. It will become available when its data contract and backend workflow are ready.'}
-        </p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="rounded-md border border-[var(--ag-line)] bg-[var(--ag-panel-alt)] px-3 py-1.5 text-sm font-medium text-[var(--ag-ink)] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
-            onClick={() => window.open('https://github.com/orgs/AgentsKit-io/projects/2/views/1', '_blank', 'noopener,noreferrer')}
-          >
-            View Roadmap
-          </button>
-          <span className="inline-flex items-center rounded-md border border-[var(--ag-line)] px-3 py-1.5 text-sm text-[var(--ag-ink-muted)]">
-            Open the command palette with <span className="ml-1"><Kbd>⌘K</Kbd></span>
-          </span>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-const SCREEN_COMPONENTS: Record<SecondaryScreen, () => React.JSX.Element> = {
-  flows: FlowsScreen,
-  runs: RunsScreen,
-  traces: TracesScreen,
-  agents: AgentsScreen,
-  hitl: HitlScreen,
-  triggers: TriggersScreen,
-  evals: EvalsScreen,
-  benchmark: BenchmarkScreen,
-  cost: CostScreen,
-  security: SecurityScreen,
-  examples: ExampleScreen,
+const SCREEN_RENDERERS: Record<ActiveScreen, () => React.ReactNode> = {
+  dashboard: () => <Dashboard />,
+  traces: () => <TracesScreen />,
+  agents: () => <AgentsScreen />,
+  runs: () => <RunsScreen />,
 }
 
 function ScreenSurface({
@@ -440,30 +252,7 @@ function ScreenSurface({
   if (screen === 'dashboard') {
     return onNavigate ? <Dashboard onNavigate={onNavigate} /> : <Dashboard />
   }
-  const Component = SCREEN_COMPONENTS[screen]
-  return <Component />
-}
-
-/** Inner shell that reads focus state and conditionally hides sidebar/banner. */
-const SCREEN_RENDERERS: Partial<Record<ActiveScreen, () => React.ReactNode>> = {
-  dashboard: () => <Dashboard />,
-  flows: () => <FlowsScreen />,
-  runs: () => <RunsScreen />,
-  traces: () => <TracesScreen />,
-  agents: () => <AgentsScreen />,
-  hitl: () => <HitlScreen />,
-  triggers: () => <TriggersScreen />,
-  evals: () => <EvalsScreen />,
-  benchmark: () => <BenchmarkScreen />,
-  cost: () => <CostScreen />,
-  security: () => <SecurityScreen />,
-  examples: () => <ExampleScreen />,
-}
-
-function renderScreen(screen: ActiveScreen): React.ReactNode {
-  const renderer = SCREEN_RENDERERS[screen]
-  if (renderer) return renderer()
-  return <PreviewSurface screen={screen} />
+  return SCREEN_RENDERERS[screen]()
 }
 
 function AppShell({
@@ -480,8 +269,6 @@ function AppShell({
   announcement: string
 }) {
   const { active: focusActive, disable: disableFocus } = useFocus()
-  const split = useSplitView()
-  const secondaryScreen = split.secondary as ActiveScreen
 
   const navigateWithTransition = useCallback(
     (screen: ActiveScreen) => {
@@ -493,7 +280,6 @@ function AppShell({
 
   return (
     <div className="flex h-full min-h-screen flex-col bg-[var(--ag-surface)]">
-      {/* Global live region for screen-reader announcements */}
       <LiveRegion message={announcement} politeness="polite" />
 
       {!focusActive && (
@@ -513,54 +299,9 @@ function AppShell({
           aria-label="Main content"
           className="flex min-w-0 flex-1 flex-col overflow-hidden"
         >
-          {!split.open ? (
-            <div key={activeScreen} className="app-screen flex min-h-0 flex-1 flex-col overflow-auto">
-              <ScreenSurface screen={activeScreen} onNavigate={navigateWithTransition} />
-            </div>
-          ) : (
-            <div className="flex min-h-0 flex-1">
-              <div className="flex min-w-0 flex-1 flex-col overflow-auto">
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-surface)] px-4 py-2 text-xs text-[var(--ag-ink-subtle)]">
-                  <span>Primary: {labelForScreen(activeScreen)}</span>
-                  <button
-                    type="button"
-                    className="rounded border border-[var(--ag-line)] px-2 py-1 text-[11px] hover:border-[var(--ag-accent)] hover:text-[var(--ag-accent)]"
-                    onClick={split.close}
-                  >
-                    Close split
-                  </button>
-                </div>
-                <div className="app-screen flex min-h-0 flex-1 flex-col">
-                  <ScreenSurface screen={activeScreen} onNavigate={navigateWithTransition} />
-                </div>
-              </div>
-              <div aria-hidden className="w-px bg-[var(--ag-line)]" />
-              <div className="flex min-w-0 flex-1 flex-col overflow-auto bg-[var(--ag-surface)]/50">
-                <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--ag-line)] bg-[var(--ag-surface)] px-4 py-2 text-xs text-[var(--ag-ink-subtle)]">
-                  <span>Secondary: {labelForScreen(secondaryScreen)}</span>
-                  <div className="flex items-center gap-2">
-                    <select
-                      className="rounded border border-[var(--ag-line)] bg-[var(--ag-panel)] px-2 py-1 text-[11px] text-[var(--ag-ink)]"
-                      value={secondaryScreen}
-                      onChange={(e) => {
-                        const next = e.target.value
-                        if (isSplittableScreen(next)) split.setSecondary(next as unknown as SplitScreenId)
-                      }}
-                    >
-                      {SPLITTABLE_SCREENS.map((s) => (
-                        <option key={s} value={s}>
-                          {labelForScreen(s)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div key={secondaryScreen} className="app-screen flex min-h-0 flex-1 flex-col">
-                  <ScreenSurface screen={secondaryScreen} />
-                </div>
-              </div>
-            </div>
-          )}
+          <div key={activeScreen} className="app-screen flex min-h-0 flex-1 flex-col overflow-auto">
+            <ScreenSurface screen={activeScreen} onNavigate={navigateWithTransition} />
+          </div>
         </main>
       </div>
       {focusActive && (
@@ -624,123 +365,59 @@ export function App() {
   }, [activeScreen])
 
   const handleClearEventFeed = useCallback(() => {
-    // No-op for now; Dashboard will register its own clear via the palette
-    // command system in a follow-up.
+    // Dashboard registers its own clear via the palette command system.
   }, [])
 
   return (
     <ThemeProvider defaultTheme={initialTheme}>
       <ThemeSync />
-      {/* Skip-to-content must be the very first focusable element */}
       <SkipToContent targetId="main-content" />
-      <VoiceProvider>
       <PreferencesProvider>
         <StatusLineProvider>
-        <ShortcutProvider>
-          <WorkspacesProvider>
-            <DashboardsProvider>
-            <PluginContributionsProvider>
-            <NotificationPreferencesProvider>
-              <NotificationsProvider>
-                <SelectionProvider>
-                <SplitViewProvider>
-                <OnboardingProvider>
-                  <CommandPaletteProvider
-                    onNavigate={handleNavigate}
-                    onClearEventFeed={handleClearEventFeed}
-                  >
-                    <SearchProvider>
-                      <FocusProvider>
-                        <AssistantProvider>
-                          <ForkProvider>
-                          <ArtifactViewerProvider>
-                          <NotificationCommandBridge onAnnounce={setAnnouncement} />
-                          <OnboardingCommandWirer onAnnounce={setAnnouncement} />
-                          <PreviewNavigationCommandWirer onNavigate={handleNavigate} />
-                          <ExamplesWirer onNavigate={handleNavigate} />
-                          <ShortcutWirer />
-                          <PreferencesWirer />
-                          <SplitViewWirer onAnnounce={setAnnouncement} />
-                          <ThemeEditorWirer />
-                          <SnapshotWirer />
-                          <NotificationPrefsWirer />
-                          <SearchWirer />
-                          <AssistantWirer />
-                          <AppShell
-                            activeScreen={activeScreen}
-                            setActiveScreen={setActiveScreen}
-                            serviceBanner={serviceBanner}
-                            setServiceBanner={setServiceBanner}
-                            announcement={announcement}
-                          />
-                          <CommandPalette />
-                          <NotificationPanel />
-                          <SearchOverlay />
-                          <AssistantOverlay />
-                          <ArtifactViewer />
-                          <ArtifactViewerWirer />
-                          <MultiMonitorWirer />
-                          <VoiceWirer />
-                          <CustomWidgetWirer />
-                          <MarketplaceWirer />
-                          <StatusLineConfigWirer />
-                          </ArtifactViewerProvider>
-                          </ForkProvider>
-                        </AssistantProvider>
-                      </FocusProvider>
-                    </SearchProvider>
-                  </CommandPaletteProvider>
-                  <OnboardingTour />
-                </OnboardingProvider>
-                </SplitViewProvider>
-                </SelectionProvider>
-              </NotificationsProvider>
-            </NotificationPreferencesProvider>
-            </PluginContributionsProvider>
-            </DashboardsProvider>
-          </WorkspacesProvider>
-        </ShortcutProvider>
+          <ShortcutProvider>
+            <WorkspacesProvider>
+              <NotificationPreferencesProvider>
+                <NotificationsProvider>
+                  <SelectionProvider>
+                    <OnboardingProvider>
+                      <CommandPaletteProvider
+                        onNavigate={handleNavigate}
+                        onClearEventFeed={handleClearEventFeed}
+                      >
+                        <SearchProvider>
+                          <FocusProvider>
+                            <NotificationCommandBridge onAnnounce={setAnnouncement} />
+                            <OnboardingCommandWirer onAnnounce={setAnnouncement} />
+                            <NavigationCommandWirer onNavigate={handleNavigate} />
+                            <ShortcutWirer />
+                            <PreferencesWirer />
+                            <NotificationPrefsWirer />
+                            <SearchWirer />
+                            <StatusLineConfigWirer />
+                            <AppShell
+                              activeScreen={activeScreen}
+                              setActiveScreen={setActiveScreen}
+                              serviceBanner={serviceBanner}
+                              setServiceBanner={setServiceBanner}
+                              announcement={announcement}
+                            />
+                            <CommandPalette />
+                            <NotificationPanel />
+                            <SearchOverlay />
+                          </FocusProvider>
+                        </SearchProvider>
+                      </CommandPaletteProvider>
+                      <OnboardingTour />
+                    </OnboardingProvider>
+                  </SelectionProvider>
+                </NotificationsProvider>
+              </NotificationPreferencesProvider>
+            </WorkspacesProvider>
+          </ShortcutProvider>
         </StatusLineProvider>
       </PreferencesProvider>
-      <VoiceOverlay />
-      </VoiceProvider>
     </ThemeProvider>
   )
-}
-
-function SplitViewWirer({ onAnnounce }: { readonly onAnnounce: (msg: string) => void }): null {
-  const { registerCommand, closePalette } = useCommandPalette()
-  const split = useSplitView()
-
-  useEffect(() => {
-    registerCommand({
-      id: 'view.split.toggle',
-      label: split.open ? 'Close split view' : 'Open split view',
-      keywords: ['split', 'pane', 'multi', 'view', 'dual'],
-      category: 'View',
-      run: () => {
-        split.toggle()
-        closePalette()
-        onAnnounce(split.open ? 'Split view closed' : 'Split view opened')
-      },
-    })
-
-    for (const screen of SPLITTABLE_SCREENS) {
-      registerCommand({
-        id: `view.split.open.${screen}`,
-        label: `Open in split: ${labelForScreen(screen)}`,
-        keywords: ['split', 'open', screen, labelForScreen(screen).toLowerCase()],
-        category: 'View',
-        run: () => {
-          split.openWithSecondary(screen as unknown as SplitScreenId)
-          closePalette()
-          onAnnounce(`Split view opened with ${labelForScreen(screen)} on the right`)
-        },
-      })
-    }
-  }, [registerCommand, split, closePalette, onAnnounce])
-
-  return null
 }
 
 /** Wires the "preferences.open" palette command + modal render. */
@@ -785,8 +462,8 @@ function OnboardingCommandWirer({
   return null
 }
 
-/** Registers keyboard-first navigation commands for every surface. */
-function PreviewNavigationCommandWirer({
+/** Registers keyboard-first navigation commands for every M2 surface. */
+function NavigationCommandWirer({
   onNavigate,
 }: {
   onNavigate: (screen: string) => void
@@ -794,7 +471,7 @@ function PreviewNavigationCommandWirer({
   const { registerCommand, closePalette } = useCommandPalette()
 
   useEffect(() => {
-    for (const item of COMMAND_NAV_ITEMS) {
+    for (const item of NAV_ITEMS) {
       registerCommand({
         id: `nav.surface.${item.id}`,
         label: `Go to ${item.label}`,
@@ -811,7 +488,7 @@ function PreviewNavigationCommandWirer({
   return null
 }
 
-/** Wires the "shortcuts.open" keyboard shortcut + palette command to render the panel. */
+/** Wires the "shortcuts.open" keyboard shortcut + palette command. */
 function ShortcutWirer(): React.JSX.Element | null {
   const { registerCommand } = useCommandPalette()
   const [open, setOpen] = useState(false)
@@ -843,22 +520,6 @@ function StatusLineConfigWirer(): React.JSX.Element | null {
     })
   }, [registerCommand])
   return <StatusLineConfigPanel isOpen={open} onClose={() => setOpen(false)} />
-}
-
-/** Wires the "theme-editor.open" palette command + modal render. */
-function ThemeEditorWirer(): React.JSX.Element | null {
-  const { registerCommand } = useCommandPalette()
-  const [open, setOpen] = useState(false)
-  useEffect(() => {
-    registerCommand({
-      id: 'theme-editor.open',
-      label: 'Open theme editor',
-      keywords: ['theme', 'editor', 'colors', 'palette', 'customize', 'appearance'],
-      category: 'System',
-      run: () => setOpen(true),
-    })
-  }, [registerCommand])
-  return <ThemeEditorPanel isOpen={open} onClose={() => setOpen(false)} />
 }
 
 /** Registers palette commands that interact with the notification center. */
@@ -915,29 +576,6 @@ function NotificationPrefsWirer(): React.JSX.Element | null {
   return <NotificationPreferencesPanel isOpen={open} onClose={() => setOpen(false)} />
 }
 
-/** Wires snapshot export/import palette commands + modal. */
-function SnapshotWirer(): React.JSX.Element | null {
-  const { registerCommand } = useCommandPalette()
-  const [open, setOpen] = useState(false)
-  useEffect(() => {
-    registerCommand({
-      id: 'snapshot.export',
-      label: 'Export desktop snapshot',
-      keywords: ['snapshot', 'export', 'backup'],
-      category: 'System',
-      run: () => setOpen(true),
-    })
-    registerCommand({
-      id: 'snapshot.import',
-      label: 'Import desktop snapshot',
-      keywords: ['snapshot', 'import', 'restore'],
-      category: 'System',
-      run: () => setOpen(true),
-    })
-  }, [registerCommand])
-  return <SnapshotPanel isOpen={open} onClose={() => setOpen(false)} />
-}
-
 /** Registers the "search.open" palette command for the global fuzzy search. */
 function SearchWirer(): null {
   const { registerCommand } = useCommandPalette()
@@ -951,146 +589,5 @@ function SearchWirer(): null {
       run: () => open(),
     })
   }, [registerCommand, open])
-  return null
-}
-
-/** Registers the "examples.browse" palette command — navigates to the Examples screen. */
-function ExamplesWirer({ onNavigate }: { onNavigate: (screen: string) => void }): null {
-  const { registerCommand } = useCommandPalette()
-  useEffect(() => {
-    registerCommand({
-      id: 'examples.browse',
-      label: 'Browse examples',
-      keywords: ['examples', 'library', 'templates', 'starter', 'browse', 'intent'],
-      category: 'Navigation',
-      run: () => onNavigate('examples'),
-    })
-  }, [registerCommand, onNavigate])
-  return null
-}
-
-/** Registers the "assistant.toggle" palette command for the inline LLM assistant. */
-function AssistantWirer(): null {
-  const { registerCommand } = useCommandPalette()
-  const { close, isOpen } = useAssistant()
-  useEffect(() => {
-    registerCommand({
-      id: 'assistant.toggle',
-      label: 'Toggle inline assistant',
-      keywords: ['assistant', 'llm', 'ai', 'inline', 'prompt', 'suggest'],
-      category: 'View',
-      run: () => {
-        if (isOpen) close()
-        // Opening requires a target element — users open via Cmd+I on a
-        // data-assist-target element; the palette command only closes.
-      },
-    })
-  }, [registerCommand, isOpen, close])
-  return null
-}
-
-/** Wires the "artifact-viewer.toggle" palette command. */
-function ArtifactViewerWirer(): null {
-  const { registerCommand } = useCommandPalette()
-  const { close, current } = useArtifactViewer()
-  useEffect(() => {
-    registerCommand({
-      id: 'artifact-viewer.toggle',
-      label: 'Toggle artifact viewer',
-      keywords: ['artifact', 'viewer', 'fullscreen'],
-      category: 'View',
-      run: () => {
-        if (current) close()
-      },
-    })
-  }, [registerCommand, current, close])
-  return null
-}
-
-/** Wires the multi-monitor palette commands + modal. */
-function MultiMonitorWirer(): React.JSX.Element | null {
-  const { registerCommand } = useCommandPalette()
-  const [open, setOpen] = useState(false)
-  useEffect(() => {
-    registerCommand({
-      id: 'multi-monitor.open-dashboard',
-      label: 'Open dashboard on monitor…',
-      keywords: ['monitor', 'multi', 'window', 'screen', 'dashboard'],
-      category: 'View',
-      run: () => setOpen(true),
-    })
-    registerCommand({
-      id: 'multi-monitor.open-traces',
-      label: 'Open traces on monitor…',
-      keywords: ['monitor', 'multi', 'window', 'screen', 'traces'],
-      category: 'View',
-      run: () => setOpen(true),
-    })
-  }, [registerCommand])
-  return <MultiMonitorPanel isOpen={open} onClose={() => setOpen(false)} />
-}
-
-/** Wires "New custom widget" palette command + editor modal. */
-function CustomWidgetWirer(): React.JSX.Element | null {
-  const { registerCommand } = useCommandPalette()
-  const [open, setOpen] = useState(false)
-  useEffect(() => {
-    registerCommand({
-      id: 'custom-widget.new',
-      label: 'New custom widget',
-      keywords: ['custom', 'widget', 'metric', 'dashboard'],
-      category: 'View',
-      run: () => setOpen(true),
-    })
-  }, [registerCommand])
-  return (
-    <CustomWidgetEditor
-      isOpen={open}
-      onClose={() => setOpen(false)}
-      onSaved={() => setOpen(false)}
-    />
-  )
-}
-
-/** Wires "Browse dashboard templates" palette command + marketplace modal. */
-function MarketplaceWirer(): React.JSX.Element | null {
-  const { registerCommand } = useCommandPalette()
-  const { create } = useDashboards()
-  const [open, setOpen] = useState(false)
-  useEffect(() => {
-    registerCommand({
-      id: 'dashboard-marketplace.open',
-      label: 'Browse dashboard templates',
-      keywords: ['dashboard', 'marketplace', 'template', 'gallery'],
-      category: 'View',
-      run: () => setOpen(true),
-    })
-  }, [registerCommand])
-  return (
-    <MarketplacePanel
-      isOpen={open}
-      onClose={() => setOpen(false)}
-      onApply={(t) => {
-        const name = 'layout' in t ? t.layout.name : t.name
-        create(name)
-        setOpen(false)
-      }}
-    />
-  )
-}
-
-/** Wires the voice.toggle palette command. */
-function VoiceWirer(): null {
-  const { registerCommand } = useCommandPalette()
-  const { toggle } = useVoice()
-  useEffect(() => {
-    registerCommand({
-      id: 'voice.toggle',
-      label: 'Toggle voice mode',
-      keywords: ['voice', 'mic', 'speech', 'dictate'],
-      category: 'View',
-      run: () => toggle(),
-    })
-  }, [registerCommand, toggle])
   return null
 }

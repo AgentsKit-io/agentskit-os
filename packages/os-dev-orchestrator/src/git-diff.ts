@@ -119,3 +119,18 @@ export const computeGitDiff = async (rawArgs: Record<string, unknown>): Promise<
   }
 }
 
+/** Compact unified-diff text for run artifacts (#367); truncates to maxChars. */
+export const formatUnifiedDiffPreview = (diff: GitDiffResult, maxChars: number): string => {
+  const lines: string[] = []
+  for (const f of diff.files) {
+    lines.push(`diff --git a/${f.path} b/${f.path}`)
+    for (const h of f.hunks) {
+      lines.push(h.header)
+      for (const ln of h.lines) lines.push(ln)
+    }
+  }
+  const out = lines.join('\n')
+  if (out.length <= maxChars) return out
+  return `${out.slice(0, maxChars)}\n... [truncated ${out.length - maxChars} chars]`
+}
+

@@ -28,16 +28,16 @@
       "detail": "Move date math/formatting into hooks/shared utilities and prefer date-fns for non-trivial date handling."
     },
     {
-      "id": "oversized-ui-unit:apps/desktop/src/dashboards/custom/custom-widget-editor.tsx:95a7ed831fe8e7f2",
+      "id": "oversized-ui-unit:apps/desktop/src/_wip/dashboards/custom/custom-widget-editor.tsx:95a7ed831fe8e7f2",
       "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/dashboards/custom/custom-widget-editor.tsx",
+      "file": "apps/desktop/src/_wip/dashboards/custom/custom-widget-editor.tsx",
       "line": 414,
       "detail": "CustomWidgetEditor is 293 lines; keep components under 140 lines or split logic into hooks/primitives."
     },
     {
-      "id": "oversized-ui-unit:apps/desktop/src/dashboards/custom/custom-widget-renderer.tsx:48369b4de1b247b9",
+      "id": "oversized-ui-unit:apps/desktop/src/_wip/dashboards/custom/custom-widget-renderer.tsx:48369b4de1b247b9",
       "kind": "oversized-ui-unit",
-      "file": "apps/desktop/src/dashboards/custom/custom-widget-renderer.tsx",
+      "file": "apps/desktop/src/_wip/dashboards/custom/custom-widget-renderer.tsx",
       "line": 197,
       "detail": "CustomWidgetRenderer is 145 lines; keep components under 140 lines or split logic into hooks/primitives."
     },

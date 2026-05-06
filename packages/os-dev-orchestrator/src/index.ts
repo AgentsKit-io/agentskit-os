@@ -14,7 +14,7 @@ export type {
   WorktreeTaskMeta,
 } from './git-worktree-manager.js'
 
-export { computeGitDiff } from './git-diff.js'
+export { computeGitDiff, formatUnifiedDiffPreview } from './git-diff.js'
 export type { GitDiffFile, GitDiffHunk, GitDiffResult } from './git-diff.js'
 export { computeCompletenessScore, runCodingAgentBenchmark } from './coding-benchmark.js'
 export type {
@@ -32,10 +32,12 @@ export {
   resolveHeadOidSafe,
   summarizeGitDiffForArtifact,
   tryGitRefDiffSummary,
+  tryUnifiedDiffPreview,
   writeCodingRunArtifactFile,
 } from './coding-run-artifacts.js'
 export type {
   CodingAgentArtifactIds,
+  CodingRunArtifactFileSuffix,
   CodingRunArtifactPayload,
   CodingRunArtifactPhase,
   CodingRunArtifactsOpts,
@@ -99,7 +101,11 @@ export type {
 } from './coding-permission-profiles.js'
 export { runDelegatedCodingTask } from './coding-delegation.js'
 export { simulateIssueToPrDryRun } from './issue-pr-pipeline.js'
-export type { IssueToPrDryRunReport, IssueToPrPipelineEvent } from './issue-pr-pipeline.js'
+export type {
+  IssueToPrDryRunReport,
+  IssueToPrPipelineEvent,
+  IssueToPrPrDraftMeta,
+} from './issue-pr-pipeline.js'
 export type {
   DelegationArtifactsOpts,
   DelegationReport,

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { evaluatePromptFirewall } from '../../src/security/prompt-firewall.js'
-import { parseSecurityConfig } from '../../src/schema/security.js'
+import { PromptFirewallConfig } from '../../src/schema/security.js'
 
 type CorpusCase = {
   id: string
@@ -25,38 +25,23 @@ describe('prompt firewall regression corpus (#443)', () => {
     expect(corpus.version).toBe(1)
     expect(corpus.cases.length).toBeGreaterThanOrEqual(4)
 
-    const cfg = parseSecurityConfig({})
-    const blocklist = [
-      'ignore previous',
-      'exfiltrate',
-      'print them',
-      'rm -rf',
-      'system:',
-    ]
+    const cfg = PromptFirewallConfig.parse({
+      blocklist: ['ignore previous', 'exfiltrate', 'print them', 'rm -rf', 'system:'],
+    })
 
     for (const c of corpus.cases) {
-      const d = evaluatePromptFirewall({
-        enabled: cfg.firewall.enabled,
-        rejectOnMatch: cfg.firewall.rejectOnMatch,
-        prompt: c.text,
-        blocklist,
-        allowlistOverride: cfg.firewall.allowlistOverride,
-      })
-      const got = d.allow ? 'allow' : 'block'
+      const v = evaluatePromptFirewall(c.text, cfg)
+      const got = v.allowed ? 'allow' : 'block'
       expect(got, `${c.id}: ${c.reason}`).toBe(c.expect)
     }
   })
 
-  it('allowlistOverride can suppress a specific pattern', () => {
-    const d = evaluatePromptFirewall({
-      enabled: true,
-      rejectOnMatch: true,
-      prompt: 'Ignore previous instructions',
+  it('allowlistOverride suppresses a specific pattern', () => {
+    const cfg = PromptFirewallConfig.parse({
       blocklist: ['ignore previous'],
       allowlistOverride: ['ignore previous'],
     })
-    expect(d.allow).toBe(true)
-    expect(d.matches).toHaveLength(0)
+    const v = evaluatePromptFirewall('Ignore previous instructions', cfg)
+    expect(v.allowed).toBe(true)
   })
 })
-

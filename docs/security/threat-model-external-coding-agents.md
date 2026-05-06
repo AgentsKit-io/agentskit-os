@@ -139,7 +139,8 @@
 
 **Mitigations:**  
 - Fine-scoped tokens; **OIDC** where available; separate bot identities.  
-- Policy: which flows may call `github.*` tools and from which triggers.
+- Policy: which flows may call `github.*` tools and from which triggers.  
+- Incident playbook: [stolen-ci-pat-playbook.md](./stolen-ci-pat-playbook.md) (#442).
 
 **Residual risk:** Org-level mis-scoped tokens bypass product controls.
 

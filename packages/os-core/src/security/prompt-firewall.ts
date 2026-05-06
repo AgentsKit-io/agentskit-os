@@ -18,7 +18,7 @@ export const findPromptFirewallMatches = (
   const allow = new Set(allowlistOverride.map((s) => s.toLowerCase()))
   const out: PromptFirewallMatch[] = []
   for (let i = 0; i < blocklist.length; i++) {
-    const raw = blocklist[i]
+    const raw = blocklist[i] ?? ''
     const pat = raw.trim()
     if (!pat) continue
     const key = pat.toLowerCase()

@@ -485,6 +485,18 @@ export type {
 } from './security/webhook-signing.js'
 
 export {
+  REDACTION_PROFILE_IDS,
+  applyRedactionProfile,
+  createRedactor,
+  getRedactionProfile,
+} from './security/redaction-profiles.js'
+export type {
+  RedactionProfile,
+  RedactionProfileId,
+  RedactionRule,
+} from './security/redaction-profiles.js'
+
+export {
   AirGapPolicy,
   airGapEnforce,
   parseAirGapPolicy,

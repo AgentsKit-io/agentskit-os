@@ -14,6 +14,14 @@ export type { NodeHandler, NodeHandlerMap, NodeOutcome } from './handlers.js'
 export { runFlow } from './runner.js'
 export type { RunResult, RunOptions, CheckpointFn } from './runner.js'
 export type { FlowCostTickEvent } from './flow-observability-events.js'
+
+export { createCircuitBreaker } from './circuit-breaker.js'
+export type {
+  CircuitBreaker,
+  CircuitBreakerOpts,
+  CircuitBreakerSnapshot,
+  CircuitState,
+} from './circuit-breaker.js'
 export { cancelOnBudget, createFlowCostMeter } from './flow-cost-meter.js'
 export type {
   FlowCostMeter,

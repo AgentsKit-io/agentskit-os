@@ -31,5 +31,15 @@ export type {
   SearchOpts,
 } from './listing.js'
 
+export { diffPermissions, evaluateProvenanceAgainstPolicy } from './provenance.js'
+export type {
+  InstallPolicy,
+  InstallVerdict as ProvenanceInstallVerdict,
+  PermissionDiff,
+  ProvenanceAttestation,
+  ProvenanceBundle,
+  SbomEntry,
+} from './provenance.js'
+
 export const PACKAGE_NAME = '@agentskit/os-marketplace-sdk' as const
 export const PACKAGE_VERSION = '0.0.0' as const

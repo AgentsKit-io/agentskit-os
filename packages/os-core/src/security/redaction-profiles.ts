@@ -8,6 +8,7 @@ export type RedactionProfileId =
   | 'default'
   | 'pii-strict'
   | 'hipaa-safe-harbor'
+  | 'hipaa-safe-harbor-extended'
 
 export type RedactionRule = {
   readonly id: string
@@ -110,6 +111,38 @@ const PII_STRICT_PROFILE: RedactionProfile = {
   ],
 }
 
+// Best-effort regexes for the additional Safe Harbor identifiers tracked in
+// #461. Higher false-positive risk than the core HIPAA profile — opt-in only.
+const RULE_VIN: RedactionRule = {
+  id: 'vehicle.vin',
+  description: '17-char Vehicle Identification Number',
+  pattern: /\b[A-HJ-NPR-Z0-9]{17}\b/g,
+}
+
+const RULE_LICENSE_PLATE: RedactionRule = {
+  id: 'vehicle.license-plate',
+  description: 'Common US license-plate shapes',
+  pattern: /\b[A-Z]{1,3}[-\s]?[0-9]{1,4}[A-Z0-9]{0,3}\b/g,
+}
+
+const RULE_DEVICE_SERIAL: RedactionRule = {
+  id: 'device.serial',
+  description: 'Device serial like "Serial: …" or "S/N: …"',
+  pattern: /\b(Serial|S\/N|SN)[:#]?\s*[A-Z0-9-]{6,}/gi,
+}
+
+const RULE_ACCOUNT_NUMBER: RedactionRule = {
+  id: 'account.number',
+  description: 'Account-style 8-16 digit identifier',
+  pattern: /\b(Account|Acct)[:#]?\s*\d{8,16}\b/gi,
+}
+
+const RULE_LICENSE_NUMBER: RedactionRule = {
+  id: 'license.number',
+  description: 'License/certificate number labelled "License #" / "Cert #"',
+  pattern: /\b(License|Cert)[:#]?\s*[A-Z0-9-]{4,}/gi,
+}
+
 const HIPAA_SAFE_HARBOR_PROFILE: RedactionProfile = {
   id: 'hipaa-safe-harbor',
   mask: '[REDACTED]',
@@ -128,16 +161,31 @@ const HIPAA_SAFE_HARBOR_PROFILE: RedactionProfile = {
   ],
 }
 
+const HIPAA_SAFE_HARBOR_EXTENDED_PROFILE: RedactionProfile = {
+  id: 'hipaa-safe-harbor-extended',
+  mask: '[REDACTED]',
+  rules: [
+    ...HIPAA_SAFE_HARBOR_PROFILE.rules,
+    RULE_VIN,
+    RULE_LICENSE_PLATE,
+    RULE_DEVICE_SERIAL,
+    RULE_ACCOUNT_NUMBER,
+    RULE_LICENSE_NUMBER,
+  ],
+}
+
 const PROFILE_BY_ID: Readonly<Record<RedactionProfileId, RedactionProfile>> = {
   default: DEFAULT_PROFILE,
   'pii-strict': PII_STRICT_PROFILE,
   'hipaa-safe-harbor': HIPAA_SAFE_HARBOR_PROFILE,
+  'hipaa-safe-harbor-extended': HIPAA_SAFE_HARBOR_EXTENDED_PROFILE,
 }
 
 export const REDACTION_PROFILE_IDS: readonly RedactionProfileId[] = [
   'default',
   'pii-strict',
   'hipaa-safe-harbor',
+  'hipaa-safe-harbor-extended',
 ]
 
 export const getRedactionProfile = (id: RedactionProfileId): RedactionProfile => PROFILE_BY_ID[id]

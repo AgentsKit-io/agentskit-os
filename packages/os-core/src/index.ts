@@ -37,6 +37,15 @@ export {
 } from './schema/agent.js'
 
 export {
+  MetaAgentChild,
+  MetaAgentDelegationStrategy,
+  MetaAgentSpec,
+  childRoleMap,
+  parseMetaAgentSpec,
+  safeParseMetaAgentSpec,
+} from './schema/meta-agent.js'
+
+export {
   TriggerConfig,
   CronTrigger,
   WebhookTrigger,

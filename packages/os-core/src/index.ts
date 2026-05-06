@@ -291,6 +291,18 @@ export {
 } from './schema/sli-slo.js'
 export type { SliSample, SliSloVerdict } from './schema/sli-slo.js'
 
+export {
+  AnomalyMetric,
+  AnomalyOp,
+  AnomalyRule,
+  AnomalyRuleSet,
+  AnomalySeverity,
+  evaluateAnomalyRules,
+  parseAnomalyRuleSet,
+  safeParseAnomalyRuleSet,
+} from './schema/anomaly-rules.js'
+export type { AnomalyAlert, AnomalySample } from './schema/anomaly-rules.js'
+
 export { CONFIG_LAYERS, mergeLayers, buildProvenance } from './config/merge.js'
 export type {
   ConfigLayer,

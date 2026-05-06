@@ -175,3 +175,62 @@ export const parseGitDiffToolInput = (input: unknown): GitDiffToolInput =>
   GitDiffToolInput.parse(input)
 export const safeParseGitDiffToolInput = (input: unknown) =>
   GitDiffToolInput.safeParse(input)
+
+export type GitDiffExecutor = (input: GitDiffToolInput) => Promise<GitDiffResult | string>
+
+type GitDiffNodeError = {
+  readonly code: string
+  readonly message: string
+}
+
+type GitDiffNodeOutcome =
+  | { readonly kind: 'ok'; readonly value: unknown }
+  | { readonly kind: 'failed'; readonly error: GitDiffNodeError }
+
+type GitDiffNodeShape = {
+  tool?: string
+  input?: unknown
+}
+
+export type GitDiffNodeHandler = (
+  node: GitDiffNodeShape,
+  runtimeInput: unknown,
+) => Promise<GitDiffNodeOutcome | null>
+
+/**
+ * Build a node-handler suitable for `flow.handlers.tool` that runs the
+ * built-in `tools.git.diff` (#193). The executor returns either a parsed
+ * `GitDiffResult` (preferred) or a raw unified-diff patch string, which the
+ * helper parses via `parseUnifiedGitDiff`. Other tools fall through so the
+ * caller can compose multiple handlers.
+ */
+export const createGitDiffNodeHandler = (
+  executor: GitDiffExecutor,
+): GitDiffNodeHandler =>
+  async (node, runtimeInput) => {
+    if (node.tool !== GIT_DIFF_TOOL_NAME) return null
+    const rawInput = runtimeInput ?? node.input
+    const parsed = GitDiffToolInput.safeParse(rawInput)
+    if (!parsed.success) {
+      return {
+        kind: 'failed',
+        error: { code: 'tools.git.diff.invalid_input', message: parsed.error.message },
+      }
+    }
+    try {
+      const result = await executor(parsed.data)
+      if (typeof result === 'string') {
+        const out = parseUnifiedGitDiff({
+          repo: parsed.data.repo,
+          from: parsed.data.from,
+          to: parsed.data.to,
+          patch: result,
+        })
+        return { kind: 'ok', value: out }
+      }
+      return { kind: 'ok', value: result }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      return { kind: 'failed', error: { code: 'tools.git.diff.exec_failed', message: msg } }
+    }
+  }

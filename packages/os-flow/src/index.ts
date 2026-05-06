@@ -15,6 +15,34 @@ export { runFlow } from './runner.js'
 export type { RunResult, RunOptions, CheckpointFn } from './runner.js'
 export type { FlowCostTickEvent } from './flow-observability-events.js'
 
+export { createCircuitBreaker } from './circuit-breaker.js'
+export type {
+  CircuitBreaker,
+  CircuitBreakerOpts,
+  CircuitBreakerSnapshot,
+  CircuitState,
+} from './circuit-breaker.js'
+export { cancelOnBudget, createFlowCostMeter } from './flow-cost-meter.js'
+export { evaluateFlowWatchdog } from './flow-watchdog.js'
+export type {
+  FlowWatchdogOpts,
+  RunHeartbeat,
+  WatchdogAction,
+  WatchdogVerdict,
+} from './flow-watchdog.js'
+export { runWithGracefulDegradation } from './graceful-degradation.js'
+export type {
+  DegradationAttempt,
+  DegradationOpts,
+  DegradationOutcome,
+  DegradationReport,
+} from './graceful-degradation.js'
+export type {
+  FlowCostMeter,
+  FlowCostMeterOpts,
+  FlowCostMeterUpdate,
+} from './flow-cost-meter.js'
+
 export { applyModeStubs, validateDeterministicFlow, policyForMode } from './mode-policy.js'
 export type {
   AgentRegistryEntry,
@@ -106,11 +134,13 @@ export {
   GitDiffHunk,
   GitDiffFile,
   GitDiffResult,
+  createGitDiffNodeHandler,
   createGitDiffToolCall,
   parseUnifiedGitDiff,
   parseGitDiffToolInput,
   safeParseGitDiffToolInput,
 } from './git-diff-tool.js'
+export type { GitDiffExecutor, GitDiffNodeHandler } from './git-diff-tool.js'
 export type { GitDiffToolCall } from './git-diff-tool.js'
 
 export const PACKAGE_NAME = '@agentskit/os-flow' as const

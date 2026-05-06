@@ -26,6 +26,19 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - name: Coding-agent conformance gate (release)
+        env:
+          CODING_AGENT_CONFORMANCE_PROVIDERS: ${{ vars.CODING_AGENT_CONFORMANCE_PROVIDERS }}
+          CODING_AGENT_CONFORMANCE_SECRETS_FILE: ${{ vars.CODING_AGENT_CONFORMANCE_SECRETS_FILE }}
+        run: |
+          mkdir -p artifacts/conformance
+          node scripts/check-coding-agent-conformance-gate.mjs 2>&1 | tee artifacts/conformance/release-gate.log
+      - name: Upload conformance gate output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coding-agent-conformance-gate
+          path: artifacts/conformance/
       - name: Create Release Pull Request or Publish
         uses: changesets/action@v1
         with:

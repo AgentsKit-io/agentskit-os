@@ -449,6 +449,13 @@ export { forkAgentConfig, forkWorkspaceConfig } from './runtime/fork.js'
 export type { ForkOptions } from './runtime/fork.js'
 
 export { cloneAgentWithVariation } from './runtime/clone-variation.js'
+
+export { composePluginSurfaces, planPluginMount } from './runtime/plugin-composer.js'
+export type {
+  PluginSurfaceGroups,
+  SurfaceMountPlan,
+} from './runtime/plugin-composer.js'
+
 export {
   DEFAULT_SELF_HEALING_POLICY,
   createSelfHealingLedger,

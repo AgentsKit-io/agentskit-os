@@ -98,6 +98,52 @@ describe('runCodingAgentBenchmark', () => {
     expect(report.rows[0]?.completenessScore).toBe(100)
   })
 
+  it('applies caller-supplied rubricScore + successChecks (#366)', async () => {
+    const p = fakeProvider('p', async () => ({
+      providerId: 'p',
+      status: 'ok' as const,
+      files: [{ path: 'a.ts', op: 'modify' as const, after: 'x' }],
+      shell: [],
+      tools: [],
+      summary: 'done',
+    }))
+    const report = await runCodingAgentBenchmark({
+      repoRoot: '/r',
+      providers: [p],
+      kind: 'free-form',
+      prompt: 'x',
+      dryRun: true,
+      isolateWorktrees: false,
+      config: {
+        rubricScore: () => 42,
+        successChecks: (row) => row.fileEditCount >= 1,
+      },
+    })
+    expect(report.rows[0]?.completenessScore).toBe(42)
+    expect(report.rows[0]?.successPassed).toBe(true)
+  })
+
+  it('clamps rubricScore overrides into 0..100 (#366)', async () => {
+    const p = fakeProvider('p', async () => ({
+      providerId: 'p',
+      status: 'ok' as const,
+      files: [],
+      shell: [],
+      tools: [],
+      summary: '',
+    }))
+    const report = await runCodingAgentBenchmark({
+      repoRoot: '/r',
+      providers: [p],
+      kind: 'free-form',
+      prompt: 'x',
+      dryRun: true,
+      isolateWorktrees: false,
+      config: { rubricScore: () => 9999 },
+    })
+    expect(report.rows[0]?.completenessScore).toBe(100)
+  })
+
   it('records failures when provider throws', async () => {
     const bad = fakeProvider('bad', async () => {
       throw new Error('boom')

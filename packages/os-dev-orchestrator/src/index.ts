@@ -19,6 +19,7 @@ export type { GitDiffFile, GitDiffHunk, GitDiffResult } from './git-diff.js'
 export { computeCompletenessScore, runCodingAgentBenchmark } from './coding-benchmark.js'
 export type {
   CodingBenchmarkArtifactsOpts,
+  CodingBenchmarkConfig,
   CodingBenchmarkReport,
   CodingBenchmarkRow,
 } from './coding-benchmark.js'

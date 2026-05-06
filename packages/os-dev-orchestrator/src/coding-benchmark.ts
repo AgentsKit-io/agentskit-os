@@ -36,6 +36,18 @@ export type CodingBenchmarkRow = {
   readonly setupError?: string
   /** Sample of edited paths for task reports / diff summaries (#368). */
   readonly editedPaths?: readonly string[]
+  /** Result of caller-supplied successChecks predicate (#366); undefined when not provided. */
+  readonly successPassed?: boolean
+}
+
+/**
+ * Caller-supplied scoring + acceptance rules for benchmark runs (#366).
+ * `rubricScore` returns a 0–100 override for completenessScore; `successChecks`
+ * returns true when the row meets domain-specific acceptance criteria.
+ */
+export type CodingBenchmarkConfig = {
+  readonly successChecks?: (row: CodingBenchmarkRow, result: CodingTaskResult) => boolean
+  readonly rubricScore?: (row: CodingBenchmarkRow, result: CodingTaskResult) => number
 }
 
 export type CodingBenchmarkReport = {
@@ -66,6 +78,24 @@ const rowFromResult = (result: CodingTaskResult, worktreePath?: string): CodingB
     ...(worktreePath !== undefined ? { worktreePath } : {}),
     ...(editedPaths !== undefined ? { editedPaths } : {}),
   }
+}
+
+const clampScore = (n: number): number => Math.max(0, Math.min(100, Math.round(n)))
+
+const applyBenchmarkConfig = (
+  row: CodingBenchmarkRow,
+  result: CodingTaskResult,
+  config: CodingBenchmarkConfig | undefined,
+): CodingBenchmarkRow => {
+  if (!config) return row
+  let next: CodingBenchmarkRow = row
+  if (config.rubricScore) {
+    next = { ...next, completenessScore: clampScore(config.rubricScore(next, result)) }
+  }
+  if (config.successChecks) {
+    next = { ...next, successPassed: config.successChecks(next, result) }
+  }
+  return next
 }
 
 /**
@@ -118,6 +148,7 @@ export const runCodingAgentBenchmark = async (opts: {
   readonly gitRunner?: GitRunner
   readonly artifacts?: CodingBenchmarkArtifactsOpts
   readonly signal?: AbortSignal
+  readonly config?: CodingBenchmarkConfig
 }): Promise<CodingBenchmarkReport> => {
   const rows: CodingBenchmarkRow[] = []
   const wm = opts.isolateWorktrees
@@ -240,7 +271,7 @@ export const runCodingAgentBenchmark = async (opts: {
     try {
       const result = await p.runTask(req)
       await persistProviderRunBundle('provider_completed', result)
-      rows.push(rowFromResult(result, worktreePath))
+      rows.push(applyBenchmarkConfig(rowFromResult(result, worktreePath), result, opts.config))
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       const synthetic: CodingTaskResult = {

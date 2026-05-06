@@ -59,5 +59,8 @@ export type {
   VerificationLevel,
 } from './plugin-store.js'
 
+export { suggestConnections } from './connection-suggester.js'
+export type { ConnectionSuggestion } from './connection-suggester.js'
+
 export const PACKAGE_NAME = '@agentskit/os-marketplace-sdk' as const
 export const PACKAGE_VERSION = '0.0.0' as const

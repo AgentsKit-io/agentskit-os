@@ -30,6 +30,13 @@ export type {
   WatchdogAction,
   WatchdogVerdict,
 } from './flow-watchdog.js'
+export { runWithGracefulDegradation } from './graceful-degradation.js'
+export type {
+  DegradationAttempt,
+  DegradationOpts,
+  DegradationOutcome,
+  DegradationReport,
+} from './graceful-degradation.js'
 export type {
   FlowCostMeter,
   FlowCostMeterOpts,

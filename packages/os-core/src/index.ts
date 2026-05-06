@@ -440,6 +440,16 @@ export { forkAgentConfig, forkWorkspaceConfig } from './runtime/fork.js'
 export type { ForkOptions } from './runtime/fork.js'
 
 export { cloneAgentWithVariation } from './runtime/clone-variation.js'
+export {
+  DEFAULT_SELF_HEALING_POLICY,
+  createSelfHealingLedger,
+} from './runtime/self-healing.js'
+export type {
+  CrashEvent,
+  SelfHealingLedger,
+  SelfHealingPolicy,
+  SelfHealingVerdict,
+} from './runtime/self-healing.js'
 export type {
   CloneVariation,
   CloneVariationInput,

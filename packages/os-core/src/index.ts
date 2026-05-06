@@ -626,6 +626,15 @@ export {
 } from './audit/batch.js'
 export type { ChainBreak, SignatureVerifier } from './audit/batch.js'
 
+export {
+  applyPiiCategoryRegistry,
+  createPiiCategoryRegistry,
+} from './security/pii-categories.js'
+export type {
+  PiiCategoryDefinition,
+  PiiCategoryRegistry,
+} from './security/pii-categories.js'
+
 export { verifyDataIntegrity } from './audit/integrity-verifier.js'
 export type {
   IntegrityIssue,

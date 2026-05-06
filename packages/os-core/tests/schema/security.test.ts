@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { parseSecurityConfig, safeParseSecurityConfig } from '../../src/schema/security.js'
+import { PluginRegistry } from '../../src/plugins/catalog.js'
 
 describe('SecurityConfig', () => {
   it('parses with full defaults from empty object', () => {
@@ -29,6 +30,22 @@ describe('SecurityConfig', () => {
     expect(
       safeParseSecurityConfig({ piiRedaction: { categories: ['biometric'] } }).success,
     ).toBe(false)
+  })
+
+  it('accepts custom PII category from registry', () => {
+    const registry = new PluginRegistry()
+    registry.register({
+      point: 'pii-category',
+      id: 'medical-record-number',
+      pluginId: 'hospital-plugin',
+      version: '1.0.0',
+    })
+
+    const s = parseSecurityConfig(
+      { piiRedaction: { categories: ['medical-record-number'] } },
+      registry,
+    )
+    expect(s.piiRedaction.categories).toContain('medical-record-number')
   })
 
   it('rejects empty PII categories', () => {

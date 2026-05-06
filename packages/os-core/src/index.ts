@@ -46,6 +46,14 @@ export {
 } from './schema/meta-agent.js'
 
 export {
+  AgentGenIntent,
+  AgentGenSpec,
+  extractAgentGenSpec,
+  parseAgentGenSpec,
+  safeParseAgentGenSpec,
+} from './schema/agent-gen-spec.js'
+
+export {
   TriggerConfig,
   CronTrigger,
   WebhookTrigger,

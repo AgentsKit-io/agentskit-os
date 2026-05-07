@@ -522,6 +522,17 @@ export type {
 } from './runtime/plan-entitlements.js'
 
 export {
+  computeSyncDelta,
+  isSyncTransitionAllowed,
+  transitionSyncState,
+} from './runtime/cloud-sync-state.js'
+export type {
+  SyncDelta,
+  SyncState,
+  SyncTransition,
+} from './runtime/cloud-sync-state.js'
+
+export {
   MarketplaceCacheEntry,
   MarketplaceCacheSnapshot,
   decideMarketplaceSource,

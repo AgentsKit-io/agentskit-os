@@ -707,6 +707,18 @@ export type { SecurityBundle, SecurityBundleOpts } from './security/bundle.js'
 export { allowedActionsFor, evaluateRbac } from './security/rbac-evaluator.js'
 export type { RbacAction, RbacVerdict } from './security/rbac-evaluator.js'
 
+export {
+  EnterpriseDeployment,
+  EnterpriseDeploymentMode,
+  parseEnterpriseDeployment,
+  safeParseEnterpriseDeployment,
+  verifyEnterpriseDeployment,
+} from './security/enterprise-deployment.js'
+export type {
+  DeploymentIssue,
+  DeploymentReport,
+} from './security/enterprise-deployment.js'
+
 export { createOAuthHub } from './security/oauth-hub.js'
 export type {
   OAuthConnection,

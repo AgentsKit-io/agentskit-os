@@ -514,6 +514,13 @@ export type {
   ShareLinkVerdict,
 } from './runtime/share-link.js'
 
+export { entitlementsFor, evaluatePlanUsage } from './runtime/plan-entitlements.js'
+export type {
+  PlanEntitlement,
+  PlanUsage,
+  PlanVerdict,
+} from './runtime/plan-entitlements.js'
+
 export {
   MarketplaceCacheEntry,
   MarketplaceCacheSnapshot,

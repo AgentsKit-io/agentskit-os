@@ -40,6 +40,13 @@ export type {
   SimulationStep,
   WhatIfReport,
 } from './what-if-simulator.js'
+
+export { buildPipelineExport } from './pipeline-export.js'
+export type {
+  PipelineExportArtifact,
+  PipelineExportInput,
+  PipelineExportTarget,
+} from './pipeline-export.js'
 export { runUnderChaos } from './chaos-harness.js'
 export type { ChaosFault, ChaosOutcome, ChaosPlan, ChaosRule } from './chaos-harness.js'
 export {

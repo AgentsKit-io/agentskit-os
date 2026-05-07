@@ -14,6 +14,7 @@ export { marketing3WayTemplate } from './templates/marketing-3way.js'
 export { researchSummaryTemplate } from './templates/research-summary.js'
 export { supportTriageTemplate } from './templates/support-triage.js'
 export { clinicalConsensusTemplate } from './templates/clinical-consensus.js'
+export { agencyContentApprovalTemplate } from './templates/agency-content-approval.js'
 
 export {
   BUILTIN_EVAL_PACKS,

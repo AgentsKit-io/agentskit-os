@@ -47,6 +47,17 @@ export type {
   PipelineExportInput,
   PipelineExportTarget,
 } from './pipeline-export.js'
+
+export {
+  createActivityLedger,
+  createSignalChannel,
+  runActivity,
+} from './temporal-style.js'
+export type {
+  ActivityLedger,
+  ActivityResult,
+  SignalChannel,
+} from './temporal-style.js'
 export { runUnderChaos } from './chaos-harness.js'
 export type { ChaosFault, ChaosOutcome, ChaosPlan, ChaosRule } from './chaos-harness.js'
 export {

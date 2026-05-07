@@ -48,6 +48,9 @@ export type {
   PipelineExportTarget,
 } from './pipeline-export.js'
 
+export { FLOW_TEMPLATE_SEEDS, findFlowTemplateSeed } from './flow-template-seeds.js'
+export type { FlowTemplateSeed } from './flow-template-seeds.js'
+
 export {
   createActivityLedger,
   createSignalChannel,

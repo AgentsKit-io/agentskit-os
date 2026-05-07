@@ -492,6 +492,15 @@ export type {
 } from './runtime/agent-harness.js'
 
 export {
+  SnapshotCadence,
+  SnapshotRetentionPolicy,
+  parseSnapshotRetentionPolicy,
+  planSnapshotRetention,
+  safeParseSnapshotRetentionPolicy,
+} from './runtime/snapshot-policy.js'
+export type { RetentionPlan, SnapshotRecord } from './runtime/snapshot-policy.js'
+
+export {
   MarketplaceCacheEntry,
   MarketplaceCacheSnapshot,
   decideMarketplaceSource,

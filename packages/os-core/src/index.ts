@@ -704,6 +704,9 @@ export type {
 export { createSecurityBundle } from './security/bundle.js'
 export type { SecurityBundle, SecurityBundleOpts } from './security/bundle.js'
 
+export { allowedActionsFor, evaluateRbac } from './security/rbac-evaluator.js'
+export type { RbacAction, RbacVerdict } from './security/rbac-evaluator.js'
+
 export { createOAuthHub } from './security/oauth-hub.js'
 export type {
   OAuthConnection,

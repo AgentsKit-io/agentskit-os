@@ -51,12 +51,13 @@ const flowRegistry = new Map()
 /** @type {Map<string, unknown>} */
 const flowMeta = new Map()
 
-const initRunner = async () => {
-  const { createHeadlessRunner } = await import('@agentskit/os-headless')
-  createHeadlessRunnerFn = createHeadlessRunner
+/** @type {import('@agentskit/os-headless').LoadedWorkspace | null} */
+let loadedWorkspace = null
 
-  // Minimal stub adapters for the dry_run default mode.
-  // TODO(#37): replace with real adapters injected from workspace config.
+const initRunner = async () => {
+  const headless = await import('@agentskit/os-headless')
+  createHeadlessRunnerFn = headless.createHeadlessRunner
+
   /** @type {import('@agentskit/os-runtime').AdapterRegistry} */
   const stubAdapters = {
     llm: {
@@ -67,16 +68,47 @@ const initRunner = async () => {
     },
   }
 
+  // Phase A-1 — load workspace config from disk so the runner uses the
+  // real workspace identity (id / name / kind) instead of a hardcoded
+  // dry-run stub. Falls back to the desktop default when no config is
+  // discovered. Adapter registry stays stub here; Phase A-2 wires creds.
+  try {
+    loadedWorkspace = await headless.loadWorkspaceConfig()
+  } catch (err) {
+    notify('event', {
+      timestamp: nowIso(),
+      type: 'workspace.load_failed',
+      data: { message: err instanceof Error ? err.message : String(err) },
+    })
+    loadedWorkspace = null
+  }
+
+  const config = loadedWorkspace !== null
+    ? {
+        id: loadedWorkspace.workspace.id,
+        name: loadedWorkspace.workspace.name,
+        version: '0.0.0',
+      }
+    : {
+        id: 'desktop-default',
+        name: 'Desktop Default Workspace',
+        version: '0.0.0',
+      }
+
   baseRunnerOpts = {
-    config: {
-      id: 'desktop-default',
-      name: 'Desktop Default Workspace',
-      version: '0.0.0',
-    },
+    config,
     adapters: stubAdapters,
   }
 
-  runner = createHeadlessRunner({
+  if (loadedWorkspace !== null) {
+    notify('event', {
+      timestamp: nowIso(),
+      type: 'workspace.loaded',
+      data: { source: loadedWorkspace.source, workspaceId: loadedWorkspace.workspace.id },
+    })
+  }
+
+  runner = createHeadlessRunnerFn({
     ...baseRunnerOpts,
     observability: (event) => {
       notify('event', { timestamp: nowIso(), type: `flow.${event.kind}`, data: event })
@@ -227,6 +259,18 @@ const dispatch = async (req) => {
 const DISPATCH_HANDLERS = {
   'health.ping': ({ id }) => {
     respond(id, { pong: true, ts: Date.now() })
+  },
+  'workspace.get': ({ id }) => {
+    if (loadedWorkspace === null) {
+      respond(id, { loaded: false })
+      return
+    }
+    respond(id, {
+      loaded: true,
+      source: loadedWorkspace.source,
+      workspace: loadedWorkspace.workspace,
+      inline: loadedWorkspace.inline,
+    })
   },
   'runner.runFlow': async ({ id, params }) => {
     await handleRunnerRunFlow({ id, params })

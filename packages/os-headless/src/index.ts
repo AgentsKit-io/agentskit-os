@@ -6,6 +6,9 @@ export type {
   WorkspaceRunResult,
 } from './runner.js'
 
+export { loadWorkspaceConfig, resolveWorkspacePath } from './workspace-loader.js'
+export type { LoadedWorkspace, LoadWorkspaceOpts } from './workspace-loader.js'
+
 export { createWebhookServer, signOutboundWebhook } from './webhook-server.js'
 export type { WebhookServer, WebhookServerOptions, WebhookSecretResolver } from './webhook-server.js'
 

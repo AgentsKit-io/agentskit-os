@@ -36,7 +36,8 @@
     "@agentskit/os-runtime": "workspace:^",
     "@agentskit/os-storage": "workspace:^",
     "@agentskit/os-audit": "workspace:^",
-    "@agentskit/os-sandbox": "workspace:^"
+    "@agentskit/os-sandbox": "workspace:^",
+    "yaml": "^2.6.1"
   },
   "peerDependencies": {
     "zod": "^4.0.0"

@@ -466,6 +466,9 @@ importers:
       '@agentskit/os-storage':
         specifier: workspace:^
         version: link:../os-storage
+      yaml:
+        specifier: ^2.6.1
+        version: 2.8.3
     devDependencies:
       '@types/node':
         specifier: ^25.6.0

@@ -24,6 +24,15 @@ export type {
 export { createFileWatchDaemon } from './file-watcher.js'
 export type { FileWatchDaemon, FileWatchDaemonOpts, FileWatchDispatch } from './file-watcher.js'
 
+export { createOAuthCallbackServer } from './oauth-callback-server.js'
+export type {
+  OAuthCallbackFetch,
+  OAuthCallbackServer,
+  OAuthCallbackServerOpts,
+  OAuthTokenResult,
+  PendingOAuthFlow,
+} from './oauth-callback-server.js'
+
 export { createWebhookServer, signOutboundWebhook } from './webhook-server.js'
 export type { WebhookServer, WebhookServerOptions, WebhookSecretResolver } from './webhook-server.js'
 

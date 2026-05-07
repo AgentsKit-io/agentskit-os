@@ -4,6 +4,7 @@ import {
   TEMPLATES as galleryMetadata,
 } from './gallery.js'
 import { DEV_ORCHESTRATOR_TEMPLATES } from './templates/dev-orchestrator-packs.js'
+import { agencyContentApprovalTemplate } from './templates/agency-content-approval.js'
 import { clinicalConsensusTemplate } from './templates/clinical-consensus.js'
 import { marketing3WayTemplate } from './templates/marketing-3way.js'
 import { prReviewTemplate } from './templates/pr-review.js'
@@ -17,6 +18,7 @@ const legacyTemplates = [
   researchSummaryTemplate,
   supportTriageTemplate,
   clinicalConsensusTemplate,
+  agencyContentApprovalTemplate,
 ] as const
 
 const metadataCategoryFor = (category: TemplateCategory): TemplateMetadata['category'] => {

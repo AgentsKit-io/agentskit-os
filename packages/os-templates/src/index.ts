@@ -24,5 +24,12 @@ export {
   nonTechPack,
 } from './eval-packs/index.js'
 
+export {
+  OFFICIAL_DOMAIN_PACK_IDS,
+  OFFICIAL_DOMAIN_PACKS,
+  getOfficialDomainPack,
+} from './domain-packs.js'
+export type { OfficialDomain, OfficialDomainPack } from './domain-packs.js'
+
 export const PACKAGE_NAME = '@agentskit/os-templates' as const
 export const PACKAGE_VERSION = '0.0.0' as const

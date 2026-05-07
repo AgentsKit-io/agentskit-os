@@ -58,20 +58,9 @@ const initRunner = async () => {
   const headless = await import('@agentskit/os-headless')
   createHeadlessRunnerFn = headless.createHeadlessRunner
 
-  /** @type {import('@agentskit/os-runtime').AdapterRegistry} */
-  const stubAdapters = {
-    llm: {
-      complete: async (_req) => ({ content: '', usage: { inputTokens: 0, outputTokens: 0 } }),
-    },
-    tool: {
-      execute: async (_req) => ({ output: null }),
-    },
-  }
-
   // Phase A-1 — load workspace config from disk so the runner uses the
   // real workspace identity (id / name / kind) instead of a hardcoded
-  // dry-run stub. Falls back to the desktop default when no config is
-  // discovered. Adapter registry stays stub here; Phase A-2 wires creds.
+  // dry-run stub.
   try {
     loadedWorkspace = await headless.loadWorkspaceConfig()
   } catch (err) {
@@ -81,6 +70,41 @@ const initRunner = async () => {
       data: { message: err instanceof Error ? err.message : String(err) },
     })
     loadedWorkspace = null
+  }
+
+  // Phase A-2 — build the AdapterRegistry from loaded secrets when a
+  // workspace is present; fall back to a stub for dry-run boot.
+  /** @type {import('@agentskit/os-runtime').AdapterRegistry} */
+  let adapters = {
+    llm: {
+      complete: async (_req) => ({ content: '', usage: { inputTokens: 0, outputTokens: 0 } }),
+    },
+    tool: {
+      execute: async (_req) => ({ output: null }),
+    },
+  }
+  try {
+    if (loadedWorkspace !== null && Object.keys(loadedWorkspace.secrets).length > 0) {
+      const runtime = await import('@agentskit/os-runtime')
+      adapters = runtime.buildAdapterRegistryFromCreds({
+        secrets: loadedWorkspace.secrets,
+        fetchImpl: async (url, init) => {
+          const r = await fetch(url, init)
+          return { status: r.status, text: async () => r.text() }
+        },
+      })
+      notify('event', {
+        timestamp: nowIso(),
+        type: 'workspace.adapters_built',
+        data: { providerKeys: Object.keys(loadedWorkspace.secrets) },
+      })
+    }
+  } catch (err) {
+    notify('event', {
+      timestamp: nowIso(),
+      type: 'workspace.adapter_build_failed',
+      data: { message: err instanceof Error ? err.message : String(err) },
+    })
   }
 
   const config = loadedWorkspace !== null
@@ -97,7 +121,7 @@ const initRunner = async () => {
 
   baseRunnerOpts = {
     config,
-    adapters: stubAdapters,
+    adapters,
   }
 
   if (loadedWorkspace !== null) {

@@ -28,5 +28,14 @@ export {
 } from './cost-tracker.js'
 export type { CostEntry, RunCost, MeterAdapterOptions } from './cost-tracker.js'
 
+export { createHttpLlmAdapter } from './adapters/http-llm.js'
+export type { HttpFetch, HttpLlmAdapterOpts } from './adapters/http-llm.js'
+
+export {
+  buildAdapterRegistryFromCreds,
+  knownProviderIds,
+} from './adapters/registry-from-creds.js'
+export type { CredsRegistryOpts } from './adapters/registry-from-creds.js'
+
 export const PACKAGE_NAME = '@agentskit/os-runtime' as const
 export const PACKAGE_VERSION = '0.0.0' as const

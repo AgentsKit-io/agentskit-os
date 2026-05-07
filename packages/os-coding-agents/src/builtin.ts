@@ -6,6 +6,7 @@ import { createContinueProvider } from './continue.js'
 import { createCursorProvider } from './cursor.js'
 import { createGeminiProvider } from './gemini.js'
 import { createOpenCodeProvider } from './opencode.js'
+import { createOpenRouterProvider } from './openrouter.js'
 import { loadSecretsEnvFromFile } from './secrets-env-file.js'
 import { createSubprocessRunner } from './subprocess.js'
 
@@ -17,6 +18,7 @@ export const BUILTIN_CODING_AGENT_IDS = [
   'aider',
   'opencode',
   'continue',
+  'openrouter',
 ] as const
 
 export type BuiltinCodingAgentId = (typeof BUILTIN_CODING_AGENT_IDS)[number]
@@ -61,6 +63,8 @@ export const createBuiltinCodingAgentProvider = (
       return createOpenCodeProvider({ runner })
     case 'continue':
       return createContinueProvider({ runner })
+    case 'openrouter':
+      return createOpenRouterProvider()
     default: {
       const _x: never = id
       throw new Error(`unknown builtin coding agent: ${String(_x)}`)

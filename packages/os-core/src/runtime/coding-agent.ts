@@ -13,7 +13,7 @@ export const CodingAgentCapability = z.enum([
 ])
 export type CodingAgentCapability = z.infer<typeof CodingAgentCapability>
 
-export const CodingAgentInvocationModel = z.enum(['subprocess', 'session'])
+export const CodingAgentInvocationModel = z.enum(['subprocess', 'session', 'http'])
 export type CodingAgentInvocationModel = z.infer<typeof CodingAgentInvocationModel>
 
 export const CodingAgentProviderInfo = z.object({

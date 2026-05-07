@@ -35,3 +35,6 @@ export { loadSecretsEnvFromFile, parseSecretsEnvFileLines } from './secrets-env-
 
 export { sha256OfFile, verifyBinaryAttestation } from './binary-attestation.js'
 export type { AttestationVerdict, BinaryAttestation } from './binary-attestation.js'
+
+export { createOpenRouterProvider } from './openrouter.js'
+export type { OpenRouterFetch, OpenRouterProviderOptions } from './openrouter.js'

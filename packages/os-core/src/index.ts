@@ -506,6 +506,14 @@ export {
 } from './runtime/workspace-bundle.js'
 export type { BundleVerdict, WorkspaceBundle } from './runtime/workspace-bundle.js'
 
+export { buildShareLink, evaluateShareLink } from './runtime/share-link.js'
+export type {
+  ShareLink,
+  ShareLinkInput,
+  ShareLinkScope,
+  ShareLinkVerdict,
+} from './runtime/share-link.js'
+
 export {
   MarketplaceCacheEntry,
   MarketplaceCacheSnapshot,

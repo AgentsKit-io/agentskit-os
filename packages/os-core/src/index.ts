@@ -501,6 +501,12 @@ export {
 export type { RetentionPlan, SnapshotRecord } from './runtime/snapshot-policy.js'
 
 export {
+  buildWorkspaceBundle,
+  verifyWorkspaceBundle,
+} from './runtime/workspace-bundle.js'
+export type { BundleVerdict, WorkspaceBundle } from './runtime/workspace-bundle.js'
+
+export {
   MarketplaceCacheEntry,
   MarketplaceCacheSnapshot,
   decideMarketplaceSource,
